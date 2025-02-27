@@ -1,10 +1,13 @@
 {
   "recommendations": [
+    "swiftlang.swift-vscode",
     "sweetpad.sweetpad",
+    // tools
     "streetsidesoftware.code-spell-checker",
     "exodiusstudios.comment-anchors",
     "yzhang.markdown-all-in-one",
     "figma.figma-vscode-extension",
+    // git
     "eamodio.gitlens",
     "github.vscode-github-actions",
     "github.vscode-pull-request-github",
