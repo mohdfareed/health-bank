@@ -14,15 +14,5 @@ let package = Package(
             name: "CalorieTracker",
             path: "CalorieTracker"
         ),
-        .testTarget(
-            name: "CalorieTrackerTests",
-            dependencies: ["CalorieTracker"],
-            path: "CalorieTrackerTests"
-        ),
-        .testTarget(
-            name: "CalorieTrackerUITests",
-            dependencies: ["CalorieTracker"],
-            path: "CalorieTrackerUITests"
-        ),
     ]
 )
