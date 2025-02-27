@@ -1,10 +1,3 @@
-//
-//  CalorieTrackerApp.swift
-//  CalorieTracker
-//
-//  Created by Mohammed Fareed on 2/26/25.
-//
-
 import SwiftData
 import SwiftUI
 

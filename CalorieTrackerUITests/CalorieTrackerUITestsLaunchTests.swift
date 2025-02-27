@@ -1,10 +1,3 @@
-//
-//  CalorieTrackerUITestsLaunchTests.swift
-//  CalorieTrackerUITests
-//
-//  Created by Mohammed Fareed on 2/26/25.
-//
-
 import XCTest
 
 final class CalorieTrackerUITestsLaunchTests: XCTestCase {
