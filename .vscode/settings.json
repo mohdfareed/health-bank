@@ -1,0 +1,28 @@
+{
+  // debugging
+  "lldb.library": "/Applications/Xcode.app/Contents/SharedFrameworks/LLDB.framework/Versions/A/LLDB",
+  "lldb.launch.expressions": "native",
+  // formatting
+  "sweetpad.format.args": [
+    "--in-place",
+    "--configuration",
+    ".vscode/swift-format.json",
+    "${file}"
+  ],
+  // spelling
+  "cSpell.ignorePaths": [
+    ".git",
+    ".github",
+    ".vscode",
+    ".gitignore",
+  ],
+  // json
+  "[jsonc]": {
+    "editor.detectIndentation": false,
+    "editor.indentSize": 2,
+  },
+  "[json]": {
+    "editor.detectIndentation": false,
+    "editor.indentSize": 2,
+  }
+}

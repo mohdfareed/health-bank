@@ -5,14 +5,14 @@
 //  Created by Mohammed Fareed on 2/26/25.
 //
 
-import SwiftUI
 import SwiftData
+import SwiftUI
 
 @main
 struct CalorieTrackerApp: App {
     var sharedModelContainer: ModelContainer = {
         let schema = Schema([
-            Item.self,
+            Item.self
         ])
         let modelConfiguration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false)
 

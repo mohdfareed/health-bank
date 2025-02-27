@@ -1,0 +1,12 @@
+{
+  "recommendations": [
+    "sweetpad.sweetpad",
+    "streetsidesoftware.code-spell-checker",
+    "exodiusstudios.comment-anchors",
+    "yzhang.markdown-all-in-one",
+    "figma.figma-vscode-extension",
+    "eamodio.gitlens",
+    "github.vscode-github-actions",
+    "github.vscode-pull-request-github",
+  ]
+}
