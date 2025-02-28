@@ -1,15 +1,21 @@
 {
+  // swift
   "swift.disableSwiftPackageManagerIntegration": true,
+  "[swift]": {
+    "editor.defaultFormatter": "swiftlang.swift-vscode"
+  },
   // debugging
   "lldb.library": "/Applications/Xcode.app/Contents/SharedFrameworks/LLDB.framework/Versions/A/LLDB",
   "lldb.launch.expressions": "native",
-  // formatting
-  "sweetpad.format.args": [
-    "--in-place",
-    "--configuration",
-    ".vscode/swift-format.json",
-    "${file}"
-  ],
+  // json
+  "[json]": {
+    "editor.detectIndentation": false,
+    "editor.indentSize": 2,
+  },
+  "[jsonc]": {
+    "editor.detectIndentation": false,
+    "editor.indentSize": 2,
+  },
   // spelling
   "cSpell.ignorePaths": [
     ".git",
@@ -17,13 +23,7 @@
     ".vscode",
     ".gitignore",
   ],
-  // json
-  "[jsonc]": {
-    "editor.detectIndentation": false,
-    "editor.indentSize": 2,
-  },
-  "[json]": {
-    "editor.detectIndentation": false,
-    "editor.indentSize": 2,
-  }
+  "cSpell.words": [
+    "XCUI"
+  ]
 }
