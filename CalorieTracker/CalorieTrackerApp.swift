@@ -4,10 +4,15 @@ import SwiftUI
 @main
 struct CalorieTrackerApp: App {
     var sharedModelContainer: ModelContainer = {
-        let schema = Schema([
-            Item.self
+        let schema: Schema = Schema([
+            CalorieEntry.self,
+            WeeklyBudget.self,
+            Settings.self,
         ])
-        let modelConfiguration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false)
+
+        let modelConfiguration: ModelConfiguration = ModelConfiguration(
+            schema: schema, isStoredInMemoryOnly: false
+        )
 
         do {
             return try ModelContainer(for: schema, configurations: [modelConfiguration])
