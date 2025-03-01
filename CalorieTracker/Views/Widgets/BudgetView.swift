@@ -2,15 +2,16 @@ import SwiftData
 import SwiftUI
 
 struct BudgetView: View {
-    @State private var viewModel: BudgetVM
+    @StateObject private var viewModel: BudgetVM
+    @State private var progress: Double = 0
 
-    init(_ viewModel: BudgetVM) {
-        self.viewModel = viewModel
+    init(viewModel: BudgetVM) {
+        self._viewModel = StateObject(wrappedValue: viewModel)
+        self.progress = calcProgress()
     }
 
-    /// Computes the budget progress.
-    private var progress: Double {
-        let progress = Double(viewModel.consumedCalories) / Double(viewModel.caloriesBudget)
+    private func calcProgress() -> Double {
+        let progress = Double(self.viewModel.consumedCalories) / Double(viewModel.caloriesBudget)
         return progress.isNaN ? 0 : progress
     }
 
@@ -57,8 +58,11 @@ struct BudgetView: View {
                 .cornerRadius(4)
         }
         .padding()
-        .background(Color(Color.secondary))
+        .background(Color(Color.accentColor))
         .cornerRadius(12)
         .shadow(radius: 2)
+        .onChange(of: viewModel.consumedCalories) {
+            progress = calcProgress()
+        }
     }
 }

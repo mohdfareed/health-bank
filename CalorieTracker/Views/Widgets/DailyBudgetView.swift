@@ -57,7 +57,7 @@ struct DailyBudgetView: View {
                 .cornerRadius(4)
         }
         .padding()
-        .background(Color(Color.secondary))
+        .background(Color(Color.accentColor))
         .cornerRadius(12)
         .shadow(radius: 2)
     }

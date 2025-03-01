@@ -9,10 +9,17 @@ struct LogEntryView: View {
     var body: some View {
         NavigationView {
             Form {
-                Section(header: Text("Entry Details")) {
+                Section {
                     DatePicker("Date & Time", selection: $viewModel.entryDate)
                         .datePickerStyle(GraphicalDatePickerStyle())
-                    TextField("Calorie Amount", value: $viewModel.calorieAmount, format: .number)
+                    TextField(
+                        "Calories",
+                        value: $viewModel.calorieAmount,
+                        format: .number
+                    )
+                }
+                .onChange(of: viewModel.calorieAmount) {
+                    self.viewModel.onDataChange()
                 }
 
                 if let errorMessage = viewModel.errorMessage {
@@ -37,6 +44,7 @@ struct LogEntryView: View {
                         viewModel.submitEntry()
                         dismiss()
                     }
+                    .disabled(!viewModel.canSave)
                 }
             }
         }

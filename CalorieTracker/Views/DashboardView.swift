@@ -2,39 +2,44 @@ import SwiftData
 import SwiftUI
 
 struct DashboardView: View {
-    // @State var viewModel: DashboardVM
+    @StateObject var viewModel: DashboardVM
     @State private var isShowingLogEntry = false
 
     @Environment(\.modelContext) private var modelContext: ModelContext
     @Query private var budgets: [CalorieBudget]
 
-    // init() {
-    // }
-
     var body: some View {
-        let budget = budgets.first ?? CalorieBudget(17_500, lasts: 7, named: "Weekly Budget")
-        let viewModel = DashboardVM(context: self.modelContext, budget: budget)
-
         NavigationView {
             ScrollView {
                 VStack(spacing: 16) {
-                    BudgetView(viewModel.budgetVM)
-                    DailyBudgetView(viewModel.budgetVM)
+                    BudgetView(viewModel: self.viewModel.budgetVM)
+                    DailyBudgetView(self.viewModel.budgetVM)
                     Button("Log Entry") {
                         isShowingLogEntry = true
                     }
                     .padding()
                 }
-                .navigationTitle("Dashboard")
+                .navigationTitle(Text("Dashboard"))
                 .sheet(isPresented: $isShowingLogEntry) {
                     LogEntryView(
                         viewModel: LogEntryVM(
                             caloriesService: CaloriesService(context: modelContext)))
                 }
+                .padding()
             }
         }
     }
 }
 #Preview {
-    DashboardView().modelContainer(DataStore.previewContainer)
+    let vm = DashboardVM(
+        context: DataStore.previewContainer.mainContext,
+        budget: CalorieBudget(
+            17_500,
+            lasts: 7,
+            starting: Date.now,
+            named: "Weekly Budget"
+        )
+    )
+
+    DashboardView(viewModel: vm).modelContainer(DataStore.previewContainer)
 }

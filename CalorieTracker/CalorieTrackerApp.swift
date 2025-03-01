@@ -39,7 +39,16 @@ struct DataStore {
 struct CalorieTrackerApp: App {
     var body: some Scene {
         WindowGroup {
-            DashboardView()
+            DashboardView(
+                viewModel: DashboardVM(
+                    context: DataStore.container.mainContext,
+                    budget: CalorieBudget(
+                        17_500,
+                        lasts: 7,
+                        starting: Date.now,
+                        named: "Weekly Budget"
+                    )
+                ))
         }
         .modelContainer(DataStore.container)
     }

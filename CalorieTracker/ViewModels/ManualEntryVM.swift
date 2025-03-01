@@ -4,7 +4,9 @@ import SwiftUI
 
 final class LogEntryVM: ObservableObject {
     @Published var entryDate: Date = Date.now
-    @Published var calorieAmount: Int = 0
+    @Published var calorieAmount: Int? = nil
+
+    @Published var canSave: Bool = false
     @Published var errorMessage: String? = nil
 
     private let caloriesService: CaloriesService
@@ -13,7 +15,16 @@ final class LogEntryVM: ObservableObject {
         self.caloriesService = caloriesService
     }
 
+    func onDataChange() {
+        canSave = calorieAmount != nil
+    }
+
     func submitEntry() {
+        guard let calorieAmount = calorieAmount else {
+            self.errorMessage = "Please enter a calorie amount."
+            return
+        }
+
         let entry = CalorieEntry(calorieAmount, on: entryDate)
         self.submit(entry)
         self.clear()
@@ -25,7 +36,9 @@ final class LogEntryVM: ObservableObject {
 
     private func clear() {
         entryDate = Date.now
-        calorieAmount = 0
+        calorieAmount = nil
+
+        canSave = false
         errorMessage = nil
     }
 }

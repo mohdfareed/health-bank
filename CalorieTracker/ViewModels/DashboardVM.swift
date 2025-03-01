@@ -2,8 +2,7 @@ import Combine
 import SwiftData
 import SwiftUI
 
-@Observable
-final class DashboardVM {
+final class DashboardVM: ObservableObject {
     var budgetVM: BudgetVM
 
     init(context: ModelContext, budget: CalorieBudget) {
