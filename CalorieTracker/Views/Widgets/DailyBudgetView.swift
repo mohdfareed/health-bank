@@ -4,11 +4,8 @@ import SwiftUI
 struct DailyBudgetView: View {
     @State private var viewModel: BudgetVM
 
-    init(context: ModelContext, budget: CalorieBudget) {
-        self.viewModel = BudgetVM(
-            budget: budget,
-            caloriesService: CaloriesService(context: context)
-        )
+    init(_ viewModel: BudgetVM) {
+        self.viewModel = viewModel
     }
 
     /// Computes the budget progress.
