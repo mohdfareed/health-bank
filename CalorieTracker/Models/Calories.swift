@@ -21,19 +21,24 @@ final class CalorieEntry {
 @Model
 final class CalorieBudget {
     /// Display name of the budget.
-    var name: String?
+    @Attribute(.unique) var name: String
     /// The amount of calories allowed per cycle.
-    var budget: Int
+    var calories: Int
     /// The number of days until the budget next resets.
     var period: Int
     /// The day the budget starts
     var startDay: Date
 
-    init(_ budget: Int, lasts period: Int, starting date: Date? = nil, named name: String? = nil) {
+    init(
+        _ calories: Int,
+        lasts period: Int,
+        named name: String,
+        starting date: Date
+    ) {
         self.name = name
-        self.budget = budget
+        self.calories = calories
         self.period = period
-        self.startDay = date ?? Date.now
+        self.startDay = date
 
         // start budget cycle at midnight
         self.startDay = Calendar.current.startOfDay(for: self.startDay)

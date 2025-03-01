@@ -5,8 +5,36 @@ import SwiftData
 struct CalorieBudgetService {
     private let context: ModelContext
 
-    init(context: ModelContext) {
+    init(_ context: ModelContext) {
         self.context = context
+    }
+
+    /// Get a calorie budget. Creates a new budget if it does not exist.
+    /// - Parameter name: The name of the budget.
+    /// - Returns: The budget cycle.
+    func get(_ name: String) throws -> CalorieBudget {
+        let budget = FetchDescriptor<CalorieBudget>(
+            predicate: #Predicate { $0.name == name }
+        )
+
+        do {
+            let results: [CalorieBudget] = try self.context.fetch(budget)
+            if let budget = results.first {
+                return budget
+            }
+        } catch {
+            throw CalorieBudgetError.databaseError(dbError: error)
+        }
+
+        let newBudget = CalorieBudget(
+            17_500,
+            lasts: 7,
+            named: name,
+            starting: Date.now
+        )
+
+        self.create(newBudget)
+        return newBudget
     }
 
     /// Create a new budget.
@@ -105,4 +133,8 @@ extension Date {
         }
         return self >= start && self <= end
     }
+}
+
+enum CalorieBudgetError: Error {
+    case databaseError(dbError: Error)
 }

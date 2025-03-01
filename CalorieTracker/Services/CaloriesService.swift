@@ -5,7 +5,7 @@ import SwiftData
 struct CaloriesService {
     private let context: ModelContext
 
-    init(context: ModelContext) {
+    init(_ context: ModelContext) {
         self.context = context
     }
 
@@ -13,7 +13,7 @@ struct CaloriesService {
     /// - Parameters:
     ///   - startDate: The start date of the range.
     ///   - endDate: The end date of the range.
-    func entries(from startDate: Date, to endDate: Date) throws -> [CalorieEntry] {
+    func get(from startDate: Date, to endDate: Date) throws -> [CalorieEntry] {
         let entries = FetchDescriptor<CalorieEntry>(
             predicate: #Predicate { $0.date >= startDate && $0.date < endDate },
             sortBy: [
@@ -32,16 +32,16 @@ struct CaloriesService {
     /// Get the entries for a given day.
     /// - Parameter date: The reference date.
     /// - Returns: The entries for the day.
-    func entries(for date: Date) throws -> [CalorieEntry] {
+    func get(for date: Date) throws -> [CalorieEntry] {
         let start = Calendar.current.startOfDay(for: date)
         let end = start.adding(days: 1)
-        let entries = try self.entries(from: start, to: end)
+        let entries = try self.get(from: start, to: end)
         return entries
     }
 
     /// Log a new calorie entry.
     /// - Parameter entry: The entry to log.
-    func log(_ entry: CalorieEntry) {
+    func create(_ entry: CalorieEntry) {
         self.context.insert(entry)
     }
 

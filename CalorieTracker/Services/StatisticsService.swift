@@ -2,11 +2,41 @@ import Foundation
 
 /// Statistics service for a budget cycle.
 struct CalorieStatisticsService {
-    let budget: CalorieBudget
-    let entries: [CalorieEntry]
+    private let budget_name: String
+    private let static_date: Date?
 
-    let date: Date
-    let (start, end): (Date, Date)
+    private let budgetService: CalorieBudgetService
+    private let caloriesService: CaloriesService
+
+    /// The budget used for statistics.
+    var budget: CalorieBudget {
+        return try! budgetService.get(budget_name)
+    }
+
+    /// The calorie entries for the budget cycle.
+    var entries: [CalorieEntry] {
+        return try! caloriesService.get(from: self.start, to: self.end)
+    }
+
+    /// The reference date for the statistics.
+    var date: Date {
+        return static_date ?? Date.now
+    }
+
+    /// The start date of the budget cycle.
+    var start: Date {
+        return self.budget.calcDateRange(for: self.date).start
+    }
+
+    /// The end date of the budget cycle.
+    var end: Date {
+        return self.budget.calcDateRange(for: self.date).end
+    }
+
+    /// The budget cycle calories.
+    var caloriesBudget: Int {
+        return self.budget.calories
+    }
 
     /// The total consumed calories.
     var consumedCalories: Int {
@@ -15,7 +45,7 @@ struct CalorieStatisticsService {
 
     /// The total remaining calories.
     var remainingCalories: Int {
-        return self.budget.budget - self.consumedCalories
+        return self.caloriesBudget - self.consumedCalories
     }
 
     /// The daily budget.
@@ -26,7 +56,7 @@ struct CalorieStatisticsService {
         }
 
         let entries = self.entries.filter { $0.date < self.date }
-        let remaining = self.budget.budget - entries.totalCalories
+        let remaining = self.budget.calories - entries.totalCalories
         let budget = remaining / remainingDays
         return budget
     }
@@ -43,14 +73,14 @@ struct CalorieStatisticsService {
         return remaining
     }
 
-    init(budget: CalorieBudget, caloriesService: CaloriesService, date: Date) throws {
-        self.budget = budget
-        self.date = date
+    init(
+        budgetService: CalorieBudgetService, caloriesService: CaloriesService, at date: Date? = nil,
+        for budget_name: String? = nil
+    ) throws {
+        self.budget_name = budget_name ?? "Default Budget"
+        self.static_date = date
 
-        let (start, end) = budget.calcDateRange(for: date)
-        self.start = start
-        self.end = end
-
-        self.entries = try caloriesService.entries(from: start, to: end)
+        self.budgetService = budgetService
+        self.caloriesService = caloriesService
     }
 }
