@@ -1,30 +1,32 @@
 import SwiftData
 import SwiftUI
 
-@main
-struct CalorieTrackerApp: App {
-    var sharedModelContainer: ModelContainer = {
+struct DataStore {
+    @Environment(\.modelContext) private var context: ModelContext
+
+    static let container: ModelContainer = {
         let schema: Schema = Schema([
-            CalorieEntry.self,
-            WeeklyBudget.self,
             Settings.self,
+            AppState.self,
+            // App models
+            CalorieEntry.self,
+            CalorieBudget.self,
         ])
 
-        let modelConfiguration: ModelConfiguration = ModelConfiguration(
-            schema: schema, isStoredInMemoryOnly: false
-        )
-
         do {
-            return try ModelContainer(for: schema, configurations: [modelConfiguration])
+            return try ModelContainer(for: schema)
         } catch {
             fatalError("Could not create ModelContainer: \(error)")
         }
     }()
+}
 
+@main
+struct CalorieTrackerApp: App {
     var body: some Scene {
         WindowGroup {
             ContentView()
         }
-        .modelContainer(sharedModelContainer)
+        .modelContainer(DataStore.container)
     }
 }

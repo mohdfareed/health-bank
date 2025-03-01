@@ -4,46 +4,35 @@ import SwiftData
 /// Entry of calories consumed or burned.
 @Model
 final class CalorieEntry {
-    /// Data sources.
-    enum DataSource: String, Codable, CaseIterable {
-        case manual, healthKit
-    }
-
     /// The amount of calories.
     /// - Positive values represent calories consumed
     /// - Negative values represent calories burned
     var calories: Int
     /// The date the entry was created.
     var date: Date
-    /// The data source of the entry.
-    var source: DataSource
 
-    init(calories: Int, date: Date, source: DataSource) {
+    init(calories: Int, on date: Date) {
         self.date = date
         self.calories = calories
-        self.source = source
     }
 }
 
-/// Calories weekly budget cycle.
+/// Calories budget cycle.
 @Model
-final class WeeklyBudget {
-    /// Days of the week.
-    enum Weekday: Int, Codable, CaseIterable {
-        case sunday = 1  // match the Calendar weekday values
-        case monday, tuesday, wednesday, thursday, friday, saturday
-    }
-
+final class CalorieBudget {
     /// The amount of calories allowed per cycle.
     var budget: Int
-    /// The day of the week on which the budget resets.
-    var resetDay: Weekday
-    /// The number of weeks the budget lasts.
-    var duration: Int = 1
+    /// The number of days until the budget next resets.
+    var period: Int
+    /// The day the budget starts
+    var startDay: Date
 
-    init(budget: Int, resetDay: Weekday, duration: Int = 1) {
+    init(budget: Int, lasts period: Int, starting date: Date? = nil) {
         self.budget = budget
-        self.resetDay = resetDay
-        self.duration = duration
+        self.period = period
+        self.startDay = date ?? Date.now
+
+        // start budget cycle at midnight
+        self.startDay = Calendar.current.startOfDay(for: self.startDay)
     }
 }
