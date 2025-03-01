@@ -15,7 +15,7 @@ struct CaloriesService {
     ///   - endDate: The end date of the range.
     func entries(from startDate: Date, to endDate: Date) throws -> [CalorieEntry] {
         let entries = FetchDescriptor<CalorieEntry>(
-            predicate: #Predicate { $0.date.isBetween(startDate, endDate) },
+            predicate: #Predicate { $0.date >= startDate && $0.date < endDate },
             sortBy: [
                 .init(\.date)
             ]

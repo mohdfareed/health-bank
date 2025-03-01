@@ -11,7 +11,7 @@ final class CalorieEntry {
     /// The date the entry was created.
     var date: Date
 
-    init(calories: Int, on date: Date) {
+    init(_ calories: Int, on date: Date) {
         self.date = date
         self.calories = calories
     }
@@ -29,7 +29,7 @@ final class CalorieBudget {
     /// The day the budget starts
     var startDay: Date
 
-    init(budget: Int, lasts period: Int, starting date: Date? = nil, named name: String? = nil) {
+    init(_ budget: Int, lasts period: Int, starting date: Date? = nil, named name: String? = nil) {
         self.name = name
         self.budget = budget
         self.period = period
