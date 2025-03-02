@@ -3,7 +3,7 @@ import SwiftData
 
 /// Calorie entry service that manages calorie entries.
 struct CaloriesService {
-    private let logger = AppLogger.new(category: "\(CaloriesService.self)")
+    internal let logger = AppLogger.new(category: "\(CaloriesService.self)")
     private let context: ModelContext
 
     init(_ context: ModelContext) {

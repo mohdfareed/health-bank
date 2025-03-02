@@ -3,7 +3,7 @@ import SwiftData
 
 /// Budget service that manages budget cycles.
 struct CalorieBudgetService {
-    private let logger = AppLogger.new(category: "\(CalorieBudgetService.self)")
+    internal let logger = AppLogger.new(category: "\(CalorieBudgetService.self)")
     private let context: ModelContext
 
     init(_ context: ModelContext) {

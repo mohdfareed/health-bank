@@ -2,37 +2,34 @@ import Combine
 import SwiftData
 import SwiftUI
 
-final class BudgetVM: ObservableObject {
-    @Published var budgetName: String = "Budget"
+@Observable
+class BudgetVM {
+    var name: String
+    var budget: Int = 0
+    var consumed: Int = 0
+    var remaining: Int = 0
+    var progress: Double {
+        guard self.budget > 0 else {
+            return 1
+        }
 
-    @Published var caloriesBudget: Int = 0
-    @Published var consumedCalories: Int = 0
-    @Published var remainingCalories: Int = 0
+        return Double(self.consumed) / Double(self.budget)
+    }
 
-    @Published var dailyBudget: Int = 0
-    @Published var dailyConsumed: Int = 0
-    @Published var dailyRemaining: Int = 0
-
-    private let budget: CalorieBudget
+    internal let logger = AppLogger.new(category: "\(BudgetVM.self)")
     private let statisticsService: CalorieStatisticsService
 
-    init(budget: CalorieBudget, caloriesService: CaloriesService) {
-        self.budget = budget
-        self.statisticsService = try! CalorieStatisticsService(
-            budget: budget,
-            caloriesService: caloriesService,
-            date: Date.now
-        )
+    init(statisticsService: CalorieStatisticsService) {
+        self.statisticsService = statisticsService
         refreshData(for: Date.now)
+        self.logger.debug("Budget VM initialized.")
     }
 
     func refreshData(for date: Date) {
-        self.caloriesBudget = self.statisticsService.budget.budget
-        self.consumedCalories = self.statisticsService.consumedCalories
-        self.remainingCalories = self.statisticsService.remainingCalories
-
-        self.dailyBudget = self.statisticsService.dailyBudget
-        self.dailyConsumed = self.statisticsService.dailyConsumed
-        self.dailyRemaining = self.statisticsService.dailyRemaining
+        self.name = self.statisticsService.budget.name
+        self.budget = self.statisticsService.budget.calories
+        self.consumed = self.statisticsService.consumedCalories
+        self.remaining = self.statisticsService.remainingCalories
+        self.logger.debug("Loaded state for budget: \(self.name)")
     }
 }

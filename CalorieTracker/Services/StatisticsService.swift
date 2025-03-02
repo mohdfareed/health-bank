@@ -2,12 +2,12 @@ import Foundation
 
 /// Statistics service for a budget cycle.
 struct CalorieStatisticsService {
-    private let budget_name: String
-    private let static_date: Date?
-
-    private let logger = AppLogger.new(category: "\(CalorieStatisticsService.self)")
+    internal let logger = AppLogger.new(category: "\(CalorieStatisticsService.self)")
     private let budgetService: CalorieBudgetService
     private let caloriesService: CaloriesService
+
+    private let budget_name: String
+    private let static_date: Date?
 
     /// The budget used for statistics.
     var budget: CalorieBudget {
@@ -80,10 +80,10 @@ struct CalorieStatisticsService {
     ) throws {
         let budgetName = budgetName ?? "Default Budget"
 
-        self.budget_name = budgetName
-        self.static_date = date
         self.budgetService = budgetService
         self.caloriesService = caloriesService
+        self.budget_name = budgetName
+        self.static_date = date
 
         self.logger.debug("Statistics service initialized for: \(budgetName)")
     }

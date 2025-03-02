@@ -1,13 +1,16 @@
 import Combine
+import OSLog
 import SwiftData
 import SwiftUI
 
-final class LogEntryVM: ObservableObject {
-    @Published var entryDate: Date = Date.now
-    @Published var calorieAmount: Int? = nil
+@Observable
+final class LogEntryVM {
+    var entryDate: Date = Date.now
+    var calorieAmount: Int? = nil
 
-    @Published var canSave: Bool = false
-    @Published var errorMessage: String? = nil
+    var canSave: Bool {
+        calorieAmount != nil
+    }
 
     private let caloriesService: CaloriesService
 
@@ -15,30 +18,22 @@ final class LogEntryVM: ObservableObject {
         self.caloriesService = caloriesService
     }
 
-    func onDataChange() {
-        canSave = calorieAmount != nil
-    }
-
-    func submitEntry() {
+    func submit() {
         guard let calorieAmount = calorieAmount else {
-            self.errorMessage = "Please enter a calorie amount."
             return
         }
 
         let entry = CalorieEntry(calorieAmount, on: entryDate)
-        self.submit(entry)
+        self.create(entry)
         self.clear()
     }
 
-    private func submit(_ entry: CalorieEntry) {
-        self.caloriesService.log(entry)
+    private func create(_ entry: CalorieEntry) {
+        self.caloriesService.create(entry)
     }
 
     private func clear() {
         entryDate = Date.now
         calorieAmount = nil
-
-        canSave = false
-        errorMessage = nil
     }
 }
