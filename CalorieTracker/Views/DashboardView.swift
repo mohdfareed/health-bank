@@ -2,44 +2,57 @@ import SwiftData
 import SwiftUI
 
 struct DashboardView: View {
-    @StateObject var viewModel: DashboardVM
-    @State private var isShowingLogEntry = false
-
     @Environment(\.modelContext) private var modelContext: ModelContext
-    @Query private var budgets: [CalorieBudget]
+    @Environment(AppSettings.self) private var settings: AppSettings
+
+    @State private var isLoggingCalories: Bool = false
+    private let budgetName: String
+
+    private var budget: String {
+        self.settings.activeBudget = self.settings.activeBudget ?? self.budgetName
+        return self.settings.activeBudget ?? self.budgetName
+    }
+    private var caloriesService: CaloriesService {
+        CaloriesService(modelContext)
+    }
+    private var budgetService: CalorieBudgetService {
+        CalorieBudgetService(modelContext)
+    }
 
     var body: some View {
         NavigationView {
             ScrollView {
                 VStack(spacing: 16) {
-                    BudgetView(viewModel: self.viewModel.budgetVM)
-                    DailyBudgetView(self.viewModel.budgetVM)
-                    Button("Log Entry") {
-                        isShowingLogEntry = true
+                    BudgetView(budget: self.budgetName, at: Date.now)
+                    Button("Log Calories") {
+                        self.isLoggingCalories = true
                     }
                     .padding()
                 }
                 .navigationTitle(Text("Dashboard"))
-                .sheet(isPresented: $isShowingLogEntry) {
-                    LogEntryView(
-                        viewModel: LogEntryVM(
-                            caloriesService: CaloriesService(context: modelContext)))
-                }
                 .padding()
+                .sheet(
+                    isPresented: $isLoggingCalories,
+                    onDismiss: {
+                    }
+                ) {
+                    CalorieEditorView(
+                        caloriesService: self.caloriesService
+                    )
+                }
             }
         }
     }
-}
-#Preview {
-    let vm = DashboardVM(
-        context: DataStore.previewContainer.mainContext,
-        budget: CalorieBudget(
-            17_500,
-            lasts: 7,
-            starting: Date.now,
-            named: "Weekly Budget"
-        )
-    )
 
-    DashboardView(viewModel: vm).modelContainer(DataStore.previewContainer)
+    init(budget: String? = nil) {
+        self.budgetName = budget ?? CalorieBudgetService.defaultBudget.name
+    }
+}
+
+#Preview {
+    DashboardView(budget: "Preview Budget")
+        .modelContainer(DataStore.previewContainer)
+        .environment(\.modelContext, DataStore.previewContainer.mainContext)
+        .environment(AppSettings())
+        .environment(AppState())
 }

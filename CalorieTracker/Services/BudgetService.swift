@@ -6,19 +6,35 @@ struct CalorieBudgetService {
     internal let logger = AppLogger.new(category: "\(CalorieBudgetService.self)")
     private let context: ModelContext
 
+    static var defaultBudget: CalorieBudget {
+        CalorieBudget(17_500, lasts: 7, starting: Date.now, named: "Weekly Budget")
+    }
+
     init(_ context: ModelContext) {
         self.context = context
         self.logger.debug("Calorie budget service initialized.")
     }
 
+    /// Create a budget query fetch descriptor.
+    /// - Parameter name: The name of the budget.
+    /// - Returns: The budget query.
+    static func query(_ name: String? = nil) -> FetchDescriptor<CalorieBudget> {
+        let defaultName = CalorieBudgetService.defaultBudget.name
+        let budgetName = name ?? defaultName
+
+        let budget = FetchDescriptor<CalorieBudget>(
+            predicate: #Predicate { $0.name == budgetName }
+        )
+        return budget
+    }
+
     /// Get a calorie budget. Creates a new budget if it does not exist.
     /// - Parameter name: The name of the budget.
     /// - Returns: The budget cycle.
-    func get(_ name: String) throws -> CalorieBudget {
-        self.logger.debug("Retrieving budget: \(name)")
-        let budget = FetchDescriptor<CalorieBudget>(
-            predicate: #Predicate { $0.name == name }
-        )
+    func get(_ name: String? = nil) throws -> CalorieBudget {
+        let defaultBudget = CalorieBudgetService.defaultBudget
+        self.logger.debug("Retrieving budget: \(defaultBudget.name)")
+        let budget = CalorieBudgetService.query(name)
 
         do {
             let results: [CalorieBudget] = try self.context.fetch(budget)
@@ -29,16 +45,9 @@ struct CalorieBudgetService {
             throw CalorieBudgetError.databaseError(dbError: error)
         }
 
-        self.logger.info("Budget not found, creating default: \(name)")
-        let newBudget = CalorieBudget(
-            17_500,
-            lasts: 7,
-            starting: Date.now,
-            named: name
-        )
-
-        self.create(newBudget)
-        return newBudget
+        self.logger.info("Budget not found, creating default: \(defaultBudget.name)")
+        self.create(defaultBudget)
+        return defaultBudget
     }
 
     /// Create a new budget.

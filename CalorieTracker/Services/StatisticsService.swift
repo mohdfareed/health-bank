@@ -1,27 +1,17 @@
 import Foundation
 
 /// Statistics service for a budget cycle.
+//  - Note: If not date is provided, the current date is dynamically evaluated.
 struct CalorieStatisticsService {
     internal let logger = AppLogger.new(category: "\(CalorieStatisticsService.self)")
-    private let budgetService: CalorieBudgetService
-    private let caloriesService: CaloriesService
 
-    private let budget_name: String
-    private let static_date: Date?
-
-    /// The budget used for statistics.
-    var budget: CalorieBudget {
-        return try! budgetService.get(budget_name)
-    }
-
-    /// The calorie entries for the budget cycle.
-    var entries: [CalorieEntry] {
-        return try! caloriesService.get(from: self.start, to: self.end)
-    }
+    let budget: CalorieBudget
+    let entries: [CalorieEntry]
+    let staticDate: Date?
 
     /// The reference date for the statistics.
     var date: Date {
-        return static_date ?? Date.now
+        return staticDate ?? Date.now
     }
 
     /// The start date of the budget cycle.
@@ -75,16 +65,11 @@ struct CalorieStatisticsService {
     }
 
     init(
-        budgetService: CalorieBudgetService, caloriesService: CaloriesService, at date: Date? = nil,
-        for budgetName: String? = nil
-    ) throws {
-        let budgetName = budgetName ?? "Default Budget"
-
-        self.budgetService = budgetService
-        self.caloriesService = caloriesService
-        self.budget_name = budgetName
-        self.static_date = date
-
-        self.logger.debug("Statistics service initialized for: \(budgetName)")
+        for budget: CalorieBudget, using entries: [CalorieEntry], at date: Date? = nil
+    ) {
+        self.staticDate = date
+        self.budget = budget
+        self.entries = entries
+        self.logger.debug("Statistics service initialized for budget: \(budget.name)")
     }
 }

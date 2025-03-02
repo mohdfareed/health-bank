@@ -11,18 +11,39 @@ struct CaloriesService {
         self.logger.debug("Calories service initialized.")
     }
 
-    /// Get the entries within a given date range.
-    /// - Parameters:
-    ///   - startDate: The start date of the range.
-    ///   - endDate: The end date of the range.
-    func get(from startDate: Date, to endDate: Date) throws -> [CalorieEntry] {
-        self.logger.debug("Retrieving entries in range: \(startDate) - \(endDate)")
+    /// Create the entries query fetch descriptor for range of dates.
+    /// - Parameter startDate: The start date of the range.
+    /// - Parameter endDate: The end date of the range.
+    /// - Returns: The entries query.
+    static func query(from startDate: Date, to endDate: Date) -> FetchDescriptor<CalorieEntry> {
         let entries = FetchDescriptor<CalorieEntry>(
             predicate: #Predicate { $0.date >= startDate && $0.date < endDate },
             sortBy: [
                 .init(\.date)
             ]
         )
+        return entries
+    }
+
+    /// Create the entries query fetch descriptor for a budget cycle.
+    /// - Parameter budget: The budget.
+    /// - Parameter date: The reference date.
+    /// - Returns: The entries query.
+    static func query(_ budget: CalorieBudget, on date: Date) -> FetchDescriptor<
+        CalorieEntry
+    > {
+        let (start, end) = budget.calcDateRange(for: date)
+        let query = self.query(from: start, to: end)
+        return query
+    }
+
+    /// Get the entries within a given date range.
+    /// - Parameters:
+    ///   - startDate: The start date of the range.
+    ///   - endDate: The end date of the range.
+    func get(from startDate: Date, to endDate: Date) throws -> [CalorieEntry] {
+        self.logger.debug("Retrieving entries in range: \(startDate) - \(endDate)")
+        let entries = CaloriesService.query(from: startDate, to: endDate)
 
         do {
             let results: [CalorieEntry] = try self.context.fetch(entries)

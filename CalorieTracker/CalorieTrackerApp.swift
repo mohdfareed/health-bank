@@ -5,7 +5,7 @@ import SwiftUI
 struct DataStore {
     private static var schema: Schema {
         Schema([
-            Settings.self,
+            AppSettings.self,
             AppState.self,
             // App models
             CalorieEntry.self,
@@ -45,12 +45,61 @@ struct AppLogger {
 
 @main
 struct CalorieTrackerApp: App {
-    var body: some Scene {
-        WindowGroup {
-            DashboardView(
-                viewModel: DashboardVM()
-            )
-        }
-        .modelContainer(DataStore.container)
+    @Environment(\.modelContext) private var modelContext: ModelContext
+
+    internal let logger = AppLogger.new(category: "\(CalorieTrackerApp.self)")
+
+    var settings: AppSettings {
+        let settings = FetchDescriptor<AppSettings>()
+
+        do {
+            let results = try self.modelContext.fetch(settings)
+            if let settings = results.first {
+                self.logger.debug("Loaded settings.")
+                return settings
+            }
+        } catch {}
+
+        let defaultSettings = AppSettings()
+        self.logger.info("Creating default settings.")
+        self.modelContext.insert(defaultSettings)
+        return defaultSettings
     }
+
+    var state: AppState {
+        let state = FetchDescriptor<AppState>()
+
+        do {
+            let results = try self.modelContext.fetch(state)
+            if let state = results.first {
+                self.logger.debug("Loaded app state.")
+                return state
+            }
+        } catch {}
+
+        let defaultState = AppState()
+        self.logger.info("Creating default app state.")
+        self.modelContext.insert(defaultState)
+        return defaultState
+    }
+
+    var body: some Scene {
+        let settings = self.settings
+        let state = self.state
+
+        WindowGroup {
+            DashboardView()
+                .modelContainer(DataStore.container)
+                .environment(\.modelContext, modelContext)
+                .environment(settings)
+                .environment(state)
+        }
+    }
+}
+
+#Preview {
+    DashboardView(budget: "Weekly Budget").modelContainer(DataStore.previewContainer)
+        .environment(\.modelContext, DataStore.previewContainer.mainContext)
+        .environment(AppSettings())
+        .environment(AppState())
 }
