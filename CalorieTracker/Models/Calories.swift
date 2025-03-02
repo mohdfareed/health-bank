@@ -32,8 +32,8 @@ final class CalorieBudget {
     init(
         _ calories: Int,
         lasts period: Int,
-        named name: String,
-        starting date: Date
+        starting date: Date,
+        named name: String
     ) {
         self.name = name
         self.calories = calories

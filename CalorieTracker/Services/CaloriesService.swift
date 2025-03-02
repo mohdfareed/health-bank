@@ -61,6 +61,8 @@ struct CaloriesService {
     }
 }
 
+// MARK: Extensions
+
 extension Array where Element == CalorieEntry {
     /// The total calories consumed or burned.
     /// - Returns: The total number of calories.
@@ -68,8 +70,4 @@ extension Array where Element == CalorieEntry {
         let total = self.reduce(0) { $0 + $1.calories }
         return total
     }
-}
-
-enum CaloriesError: Error {
-    case databaseError(dbError: Error)
 }

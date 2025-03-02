@@ -29,8 +29,8 @@ struct CalorieBudgetService {
         let newBudget = CalorieBudget(
             17_500,
             lasts: 7,
-            named: name,
-            starting: Date.now
+            starting: Date.now,
+            named: name
         )
 
         self.create(newBudget)
@@ -58,6 +58,8 @@ struct CalorieBudgetService {
         self.context.insert(budget)
     }
 }
+
+// MARK: Extensions
 
 extension CalorieBudget {
     /// Calculate the number of days elapsed in the current cycle.
@@ -133,8 +135,4 @@ extension Date {
         }
         return self >= start && self <= end
     }
-}
-
-enum CalorieBudgetError: Error {
-    case databaseError(dbError: Error)
 }
