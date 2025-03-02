@@ -32,7 +32,7 @@ struct CaloriesService {
     static func query(_ budget: CalorieBudget, on date: Date) -> FetchDescriptor<
         CalorieEntry
     > {
-        let (start, end) = budget.calcDateRange(for: date)
+        let (start, end) = budget.calcBounds(for: date)
         let query = self.query(from: start, to: end)
         return query
     }
@@ -58,8 +58,7 @@ struct CaloriesService {
     /// - Returns: The entries for the day.
     func get(for date: Date) throws -> [CalorieEntry] {
         self.logger.debug("Retrieving entries for day: \(date)")
-        let start = Calendar.current.startOfDay(for: date)
-        let end = start.adding(days: 1)
+        let (start, end) = date.calcBounds()
         let entries = try self.get(from: start, to: end)
         return entries
     }

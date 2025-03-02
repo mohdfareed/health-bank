@@ -83,7 +83,7 @@ extension CalorieBudget {
     /// - Returns: The number of days elapsed.
     func calcElapsedDays(for date: Date? = nil) -> Int {
         let refDate = date ?? Date.now
-        let (start, _) = self.calcDateRange()
+        let (start, _) = self.calcBounds()
         let elapsed = start.days(to: refDate)
         return elapsed
     }
@@ -93,7 +93,7 @@ extension CalorieBudget {
     /// - Returns: The number of days remaining.
     func calcRemainingDays(for date: Date? = nil) -> Int {
         let refDate = date ?? Date.now
-        let (_, end) = self.calcDateRange()
+        let (_, end) = self.calcBounds()
         let remaining = refDate.days(to: end)
         return remaining
     }
@@ -102,10 +102,10 @@ extension CalorieBudget {
     /// current cycle by referencing the current date.
     /// - Parameter date: The reference date, defaults to the current date.
     /// - Returns: A tuple containing the start and end dates.
-    func calcDateRange(for date: Date? = nil) -> (start: Date, end: Date) {
+    func calcBounds(for date: Date? = nil) -> (start: Date, end: Date) {
         let refDate = date ?? Date.now
 
-        var start: Date = self.startDay
+        var (start, _) = self.startDate.calcBounds()
         var end: Date = start.adding(days: self.period)
         let period: Int = refDate > start ? self.period : -self.period
 
@@ -129,7 +129,7 @@ extension Date {
         } else {
             components = calendar.dateComponents([.day], from: self, to: date)
         }
-        return components.day!
+        return components.day! + 1  // Inclusive
     }
 
     /// Get the date after a number of days.
@@ -150,5 +150,14 @@ extension Date {
             return self >= end && self <= start
         }
         return self >= start && self <= end
+    }
+
+    /// Get the start and end of the day.
+    /// - Returns: A tuple containing the start and end of the day.
+    func calcBounds() -> (start: Date, end: Date) {
+        let calendar = Calendar.current
+        let start = calendar.startOfDay(for: self)
+        let end = calendar.date(byAdding: .day, value: 1, to: start)!
+        return (start, end)
     }
 }

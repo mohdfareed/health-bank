@@ -1,64 +1,49 @@
 import SwiftData
 import SwiftUI
 
+@Observable
+class DailyBudgetVM: BudgetVM {
+    override init(for budget: CalorieBudget, using entries: [CalorieEntry]) {
+        super.init(for: budget, using: entries)
+        self.name = "Daily Budget"
+        self.budget = statisticsService.dailyBudget
+        self.consumed = statisticsService.dailyConsumed
+        self.remaining = statisticsService.dailyRemaining
+
+        self.progress = {
+            guard self.budget > 0 else {
+                return nil
+            }
+
+            return Double(self.consumed) / Double(self.budget)
+        }()
+        self.logger.debug("Loaded state for daily budget: \(self.name)")
+        self.logger.debug("Progress: \(self.progress ?? -1)")
+    }
+}
+
 struct DailyBudgetView: View {
-    @State private var viewModel: BudgetVM
+    @Environment(\.modelContext) private var modelContext: ModelContext
+    @Query private var entries: [CalorieEntry]
+    var vm: BudgetVM { DailyBudgetVM(for: self.budget, using: self.entries) }
 
-    init(_ viewModel: BudgetVM) {
-        self.viewModel = viewModel
-    }
-
-    /// Computes the budget progress.
-    private var progress: Double {
-        let progress = Double(viewModel.dailyConsumed) / Double(viewModel.dailyBudget)
-        return progress.isNaN ? 0 : progress
-    }
+    private let date: Date
+    private let budget: CalorieBudget
 
     var body: some View {
-        VStack(spacing: 12) {
-            // Header.
-            Text("Daily Budget")
-                .font(.title2)
-                .bold()
-                .multilineTextAlignment(.center)
-                .frame(maxWidth: .infinity)
-
-            // Budget row.
-            HStack {
-                Text("Budget")
-                    .font(.subheadline)
-                Spacer()
-                Text("\(viewModel.dailyBudget) kcal")
-                    .font(.subheadline)
-            }
-
-            // Consumed row.
-            HStack {
-                Text("Consumed")
-                    .font(.subheadline)
-                Spacer()
-                Text("\(viewModel.dailyConsumed) kcal")
-                    .font(.subheadline)
-            }
-
-            // Remaining row.
-            HStack {
-                Text("Remaining")
-                    .font(.subheadline)
-                Spacer()
-                Text("\(viewModel.dailyRemaining) kcal")
-                    .font(.subheadline)
-            }
-
-            // Progress Bar row.
-            ProgressView(value: progress)
-                .progressViewStyle(LinearProgressViewStyle())
-                .frame(height: 8)
-                .cornerRadius(4)
+        BudgetCard(
+            viewModel: self.vm,
+            color: .green
+        ) {
+            BudgetRow(title: "Budget", text: "\(self.vm.budget) kcal")
+            BudgetRow(title: "Consumed", text: "\(self.vm.consumed) kcal")
+            BudgetRow(title: "Remaining", text: "\(self.vm.remaining) kcal")
         }
-        .padding()
-        .background(Color(Color.accentColor))
-        .cornerRadius(12)
-        .shadow(radius: 2)
+    }
+
+    init(budget: CalorieBudget, at date: Date) {
+        self.date = date
+        self.budget = budget
+        self._entries = Query(CaloriesService.query(self.budget, on: date))
     }
 }

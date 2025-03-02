@@ -26,8 +26,8 @@ final class CalorieBudget {
     var calories: Int
     /// The number of days until the budget next resets.
     var period: Int
-    /// The day the budget starts
-    var startDay: Date
+    /// The date when the budget started.
+    var startDate: Date
 
     init(
         _ calories: Int,
@@ -38,9 +38,6 @@ final class CalorieBudget {
         self.name = name
         self.calories = calories
         self.period = period
-        self.startDay = date
-
-        // start budget cycle at midnight
-        self.startDay = Calendar.current.startOfDay(for: self.startDay)
+        self.startDate = date
     }
 }

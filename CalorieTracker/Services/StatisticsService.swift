@@ -14,16 +14,6 @@ struct CalorieStatisticsService {
         return staticDate ?? Date.now
     }
 
-    /// The start date of the budget cycle.
-    var start: Date {
-        return self.budget.calcDateRange(for: self.date).start
-    }
-
-    /// The end date of the budget cycle.
-    var end: Date {
-        return self.budget.calcDateRange(for: self.date).end
-    }
-
     /// The budget cycle calories.
     var caloriesBudget: Int {
         return self.budget.calories
@@ -54,7 +44,8 @@ struct CalorieStatisticsService {
 
     /// The consumed calories for a given day.
     var dailyConsumed: Int {
-        let total = self.entries.filter { $0.date == self.date }.totalCalories
+        let (start, end) = Date.now.calcBounds()
+        let total = self.entries.filter { $0.date.isBetween(start, end) }.totalCalories
         return total
     }
 

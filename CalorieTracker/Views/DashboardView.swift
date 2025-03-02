@@ -4,14 +4,21 @@ import SwiftUI
 struct DashboardView: View {
     @Environment(\.modelContext) private var modelContext: ModelContext
     @Environment(AppSettings.self) private var settings: AppSettings
+    @Query private var budgets: [CalorieBudget]
 
     @State private var isLoggingCalories: Bool = false
     private let budgetName: String
 
-    private var budget: String {
-        self.settings.activeBudget = self.settings.activeBudget ?? self.budgetName
-        return self.settings.activeBudget ?? self.budgetName
+    private var activeBudget: CalorieBudget {
+        guard let budget = self.budgets.first else {
+            let defaultBudget = CalorieBudgetService.defaultBudget
+            defaultBudget.name = self.budgetName
+            self.budgetService.create(defaultBudget)
+            return defaultBudget
+        }
+        return budget
     }
+
     private var caloriesService: CaloriesService {
         CaloriesService(modelContext)
     }
@@ -23,13 +30,14 @@ struct DashboardView: View {
         NavigationView {
             ScrollView {
                 VStack(spacing: 16) {
-                    BudgetView(budget: self.budgetName, at: Date.now)
+                    BudgetView(budget: self.activeBudget, at: Date.now)
                     Button("Log Calories") {
                         self.isLoggingCalories = true
                     }
                     .padding()
                 }
                 .navigationTitle(Text("Dashboard"))
+                // TODO: Add a button to navigate to the settings
                 .padding()
                 .sheet(
                     isPresented: $isLoggingCalories,
@@ -44,8 +52,9 @@ struct DashboardView: View {
         }
     }
 
-    init(budget: String? = nil) {
-        self.budgetName = budget ?? CalorieBudgetService.defaultBudget.name
+    init(budget: String) {
+        self._budgets = Query(CalorieBudgetService.query(budget))
+        self.budgetName = budget
     }
 }
 

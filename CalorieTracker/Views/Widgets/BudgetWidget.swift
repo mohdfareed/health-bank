@@ -7,15 +7,23 @@ protocol BudgetVMProtocol {
 }
 
 struct BudgetCard<Content: View>: View {
-    @State var vm: BudgetVMProtocol
     @ViewBuilder var content: () -> Content
+
+    var vm: BudgetVMProtocol
     private let color: Color
     private let progressColor: Color
+
+    private var progressAccent: Color {
+        if self.vm.progress == nil {
+            return Color.clear
+        }
+        return self.vm.progress! > 0.8 ? Color.red : self.progressColor
+    }
 
     init(
         viewModel: BudgetVMProtocol,
         color: Color = Color.accentColor,
-        progressColor: Color = Color.accentColor,
+        progressColor: Color = Color.primary,
         @ViewBuilder content: @escaping () -> Content
     ) {
         self.vm = viewModel
@@ -38,7 +46,7 @@ struct BudgetCard<Content: View>: View {
             // Progress Bar row.
             if vm.progress != nil {
                 ProgressView(value: vm.progress)
-                    .accentColor(self.progressColor)
+                    .accentColor(self.progressAccent)
                     .progressViewStyle(.linear)
                     .frame(height: 8)
                     .cornerRadius(4)

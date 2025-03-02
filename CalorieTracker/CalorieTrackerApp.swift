@@ -83,12 +83,18 @@ struct CalorieTrackerApp: App {
         return defaultState
     }
 
-    var body: some Scene {
+    var activeBudget: String {
         let settings = self.settings
-        let state = self.state
+        let defaultName = CalorieBudgetService.defaultBudget.name
+        let badgeName = settings.activeBudget ?? defaultName
 
+        settings.activeBudget = badgeName
+        return badgeName
+    }
+
+    var body: some Scene {
         WindowGroup {
-            DashboardView()
+            DashboardView(budget: self.activeBudget)
                 .modelContainer(DataStore.container)
                 .environment(\.modelContext, modelContext)
                 .environment(settings)
