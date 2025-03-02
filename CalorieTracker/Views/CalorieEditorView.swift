@@ -7,8 +7,7 @@ struct CalorieEditorView: View {
     @Environment(\.dismiss) private var dismiss
 
     @State var entry: CalorieEntry
-    @State var newDate: Bool = false
-    @State var newCalories: Bool = false
+    @State private var calories: Int?
     @State var canSave: Bool = false
 
     private let caloriesService: CaloriesService
@@ -17,29 +16,25 @@ struct CalorieEditorView: View {
     private var title: Text {
         !self.isEditing ? Text("Log Calories") : Text("Edit Entry")
     }
-    private var isValid: Bool {
-        self.newDate || self.newCalories
-    }
 
     var body: some View {
         NavigationStack {
             Form {
                 DatePicker("Date & Time", selection: $entry.date)
                     .datePickerStyle(GraphicalDatePickerStyle())
-                    .onChange(of: entry.date) { _, _ in
-                        self.newDate = true
-                        self.canSave = self.isValid
-                    }
 
                 HStack {
                     Text("Calories")
                     Spacer()
-                    TextField("Amount", value: $entry.calories, format: .number)
-                        .multilineTextAlignment(.trailing)
-                        .onChange(of: entry.calories) { old, new in
-                            self.newCalories = new != 0
-                            self.canSave = self.isValid
-                        }
+                    TextField(
+                        "Amount", value: $calories,
+                        format: .number
+                    )
+                    .multilineTextAlignment(.trailing)
+                    .onChange(of: calories) { _, new in
+                        self.entry.calories = new ?? 0
+                        self.canSave = new != 0
+                    }
                 }
             }
             .navigationTitle("Log Calories")

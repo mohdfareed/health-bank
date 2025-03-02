@@ -11,6 +11,8 @@ final class CalorieEntry {
     /// The date the entry was created.
     var date: Date
 
+    // TODO: Add optional protein, fat, and carbs properties
+
     init(_ calories: Int, on date: Date) {
         self.date = date
         self.calories = calories
@@ -27,7 +29,7 @@ final class CalorieBudget {
     /// The number of days until the budget next resets.
     var period: Int
     /// The date when the budget started.
-    var startDate: Date
+    var startDate: Date  // FIXME: Convert to reset day
 
     init(
         _ calories: Int,

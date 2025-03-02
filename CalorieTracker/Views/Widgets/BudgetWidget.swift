@@ -11,34 +11,33 @@ struct BudgetCard<Content: View>: View {
 
     var vm: BudgetVMProtocol
     private let color: Color
-    private let progressColor: Color
 
-    private var progressAccent: Color {
+    private var progressColor: Color {
         if self.vm.progress == nil {
-            return Color.clear
+            return .clear
         }
-        return self.vm.progress! > 0.8 ? Color.red : self.progressColor
+        return self.vm.progress! > 0.8 ? .red : self.color
     }
 
     init(
         viewModel: BudgetVMProtocol,
-        color: Color = Color.accentColor,
-        progressColor: Color = Color.primary,
+        color: Color = .accentColor,
         @ViewBuilder content: @escaping () -> Content
     ) {
         self.vm = viewModel
         self.content = content
         self.color = color
-        self.progressColor = progressColor
     }
 
     var body: some View {
+        // TODO: Mirror Apple Health activity widget.
+
         VStack(spacing: 12) {
             // Header: Centered title.
             Text(vm.name)
-                .font(.title).bold()
-                .multilineTextAlignment(.center)
-                .frame(maxWidth: .infinity)
+                .font(.headline).bold()
+                .multilineTextAlignment(.leading)
+                .frame(maxWidth: .infinity, alignment: .leading)
 
             // Budget rows
             content()
@@ -46,14 +45,14 @@ struct BudgetCard<Content: View>: View {
             // Progress Bar row.
             if vm.progress != nil {
                 ProgressView(value: vm.progress)
-                    .accentColor(self.progressAccent)
+                    .accentColor(self.progressColor)
                     .progressViewStyle(.linear)
                     .frame(height: 8)
                     .cornerRadius(4)
             }
         }
         .padding()
-        .background(self.color)
+        .background(.background.secondary)  // TODO: Use primary in light mode
         .cornerRadius(12)
         .shadow(radius: 2)
     }

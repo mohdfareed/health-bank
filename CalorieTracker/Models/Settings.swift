@@ -9,7 +9,7 @@ final class AppSettings {
     /// Enable HealthKit integration.
     var enableHealthKit: Bool
     /// Write manual entries to HealthKit.
-    var writeToHealthKit: Bool = false
+    var writeToHealthKit: Bool
 
     init(
         activeBudget: String? = nil,
@@ -25,9 +25,9 @@ final class AppSettings {
 @Model
 final class AppState {
     /// Whether the user has responded to `Settings.enableHealthKit`.
-    var hasRespondedToEnableHealthKit: Bool = false
+    var hasRespondedToEnableHealthKit: Bool
     /// Whether the user has responded to `Settings.writeToHealthKit`.
-    var hasRespondedToWriteToHealthKit: Bool = false
+    var hasRespondedToWriteToHealthKit: Bool
 
     init(
         hasRespondedToEnableHealthKit: Bool = false,

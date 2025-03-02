@@ -41,10 +41,14 @@ struct BudgetView: View {
     private let budget: CalorieBudget
 
     var body: some View {
+        // TODO: Add widget of bar chart of current cycle.
+        // Color code bars based on macros.
+        // Add macros widget.
+
         BudgetCard(viewModel: self.vm) {
-            BudgetRow(title: "Budget", text: "\(self.vm.budget) kcal")
-            BudgetRow(title: "Consumed", text: "\(self.vm.consumed) kcal")
-            BudgetRow(title: "Remaining", text: "\(self.vm.remaining) kcal")
+            BudgetRow(title: "Budget", text: "\(self.vm.budget) cal")
+            BudgetRow(title: "Consumed", text: "\(self.vm.consumed) cal")
+            BudgetRow(title: "Remaining", text: "\(self.vm.remaining) cal")
         }
         DailyBudgetView(budget: self.budget, at: self.date)
     }

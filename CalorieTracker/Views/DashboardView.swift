@@ -37,7 +37,6 @@ struct DashboardView: View {
                     .padding()
                 }
                 .navigationTitle(Text("Dashboard"))
-                // TODO: Add a button to navigate to the settings
                 .padding()
                 .sheet(
                     isPresented: $isLoggingCalories,
@@ -48,7 +47,11 @@ struct DashboardView: View {
                         caloriesService: self.caloriesService
                     )
                 }
+
+                // TODO: Add buttons to the bottom to go to settings and
+                // other views, mirroring Apple Health.
             }
+            .background(.background)  // TODO: Use secondary in light mode
         }
     }
 

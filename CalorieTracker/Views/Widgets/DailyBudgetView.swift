@@ -32,12 +32,11 @@ struct DailyBudgetView: View {
 
     var body: some View {
         BudgetCard(
-            viewModel: self.vm,
-            color: .green
+            viewModel: self.vm
         ) {
-            BudgetRow(title: "Budget", text: "\(self.vm.budget) kcal")
-            BudgetRow(title: "Consumed", text: "\(self.vm.consumed) kcal")
-            BudgetRow(title: "Remaining", text: "\(self.vm.remaining) kcal")
+            BudgetRow(title: "Budget", text: "\(self.vm.budget) cal")
+            BudgetRow(title: "Consumed", text: "\(self.vm.consumed) cal")
+            BudgetRow(title: "Remaining", text: "\(self.vm.remaining) cal")
         }
     }
 

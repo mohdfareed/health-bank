@@ -1,5 +1,10 @@
 import Foundation
 
+// Support arbitrary entries using a protocol with date and amount properties.
+// Take action as argument that takes an entry and returns a value.
+// Convert init to:
+// CalorieStatisticsService(for: budget, on: entries, using: { $0.calories })
+
 /// Statistics service for a budget cycle.
 //  - Note: If not date is provided, the current date is dynamically evaluated.
 struct CalorieStatisticsService {
@@ -36,7 +41,7 @@ struct CalorieStatisticsService {
             return 0
         }
 
-        let entries = self.entries.filter { $0.date < self.date }
+        let entries = self.entries.filter { $0.date < self.date.calcBounds().start }
         let remaining = self.budget.calories - entries.totalCalories
         let budget = remaining / remainingDays
         return budget
