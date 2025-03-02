@@ -5,6 +5,7 @@ struct CalorieStatisticsService {
     private let budget_name: String
     private let static_date: Date?
 
+    private let logger = AppLogger.new(category: "\(CalorieStatisticsService.self)")
     private let budgetService: CalorieBudgetService
     private let caloriesService: CaloriesService
 
@@ -75,12 +76,15 @@ struct CalorieStatisticsService {
 
     init(
         budgetService: CalorieBudgetService, caloriesService: CaloriesService, at date: Date? = nil,
-        for budget_name: String? = nil
+        for budgetName: String? = nil
     ) throws {
-        self.budget_name = budget_name ?? "Default Budget"
-        self.static_date = date
+        let budgetName = budgetName ?? "Default Budget"
 
+        self.budget_name = budgetName
+        self.static_date = date
         self.budgetService = budgetService
         self.caloriesService = caloriesService
+
+        self.logger.debug("Statistics service initialized for: \(budgetName)")
     }
 }

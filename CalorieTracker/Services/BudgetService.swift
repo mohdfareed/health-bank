@@ -3,16 +3,19 @@ import SwiftData
 
 /// Budget service that manages budget cycles.
 struct CalorieBudgetService {
+    private let logger = AppLogger.new(category: "\(CalorieBudgetService.self)")
     private let context: ModelContext
 
     init(_ context: ModelContext) {
         self.context = context
+        self.logger.debug("Calorie budget service initialized.")
     }
 
     /// Get a calorie budget. Creates a new budget if it does not exist.
     /// - Parameter name: The name of the budget.
     /// - Returns: The budget cycle.
     func get(_ name: String) throws -> CalorieBudget {
+        self.logger.debug("Retrieving budget: \(name)")
         let budget = FetchDescriptor<CalorieBudget>(
             predicate: #Predicate { $0.name == name }
         )
@@ -26,6 +29,7 @@ struct CalorieBudgetService {
             throw CalorieBudgetError.databaseError(dbError: error)
         }
 
+        self.logger.info("Budget not found, creating default: \(name)")
         let newBudget = CalorieBudget(
             17_500,
             lasts: 7,
@@ -40,18 +44,21 @@ struct CalorieBudgetService {
     /// Create a new budget.
     /// - Parameter budget: The budget to create.
     func create(_ budget: CalorieBudget) {
+        self.logger.debug("Creating budget: \(budget.name, privacy: .public)")
         self.context.insert(budget)
     }
 
     /// Remove a budget.
     /// - Parameter budget: The budget to remove.
     func remove(_ budget: CalorieBudget) {
+        self.logger.debug("Removing budget: \(budget.name, privacy: .public)")
         self.context.delete(budget)
     }
 
     /// Update a budget.
     /// - Parameter budget: The budget to update.
     func update(_ budget: CalorieBudget) {
+        self.logger.debug("Updating budget: \(budget.name, privacy: .public)")
         if let existing = self.context.model(for: budget.id) as? CalorieBudget {
             self.context.delete(existing)
         }
