@@ -2,7 +2,18 @@ import OSLog
 import SwiftData
 import SwiftUI
 
-struct DataStore {
+struct AppLogger {
+    private static let subsystem = Bundle.main.bundleIdentifier ?? "Debug.CalorieTracker"
+
+    /// Create a new logger with the given category.
+    /// - Parameter category: The category for the logger.
+    /// - Returns: A new logger instance.
+    static func create(for category: String) -> Logger {
+        Logger(subsystem: subsystem, category: category)
+    }
+}
+
+struct AppDataStore {
     private static var schema: Schema {
         Schema([
             AppSettings.self,
@@ -32,22 +43,11 @@ struct DataStore {
     }()
 }
 
-struct AppLogger {
-    private static let subsystem = Bundle.main.bundleIdentifier ?? "Debug.CalorieTracker"
-
-    /// Create a new logger with the given category.
-    /// - Parameter category: The category for the logger.
-    /// - Returns: A new logger instance.
-    static func new(category: String) -> Logger {
-        Logger(subsystem: subsystem, category: category)
-    }
-}
-
 @main
 struct CalorieTrackerApp: App {
     @Environment(\.modelContext) private var modelContext: ModelContext
 
-    internal let logger = AppLogger.new(category: "\(CalorieTrackerApp.self)")
+    internal let logger = AppLogger.create(category: "\(CalorieTrackerApp.self)")
 
     var settings: AppSettings {
         let settings = FetchDescriptor<AppSettings>()
@@ -83,19 +83,10 @@ struct CalorieTrackerApp: App {
         return defaultState
     }
 
-    var activeBudget: String {
-        let settings = self.settings
-        let defaultName = CalorieBudgetService.defaultBudget.name
-        let badgeName = settings.activeBudget ?? defaultName
-
-        settings.activeBudget = badgeName
-        return badgeName
-    }
-
     var body: some Scene {
         WindowGroup {
-            DashboardView(budget: self.activeBudget)
-                .modelContainer(DataStore.container)
+            DashboardView()
+                .modelContainer(AppDataStore.container)
                 .environment(\.modelContext, modelContext)
                 .environment(settings)
                 .environment(state)
@@ -104,8 +95,8 @@ struct CalorieTrackerApp: App {
 }
 
 #Preview {
-    DashboardView(budget: "Weekly Budget").modelContainer(DataStore.previewContainer)
-        .environment(\.modelContext, DataStore.previewContainer.mainContext)
+    DashboardView().modelContainer(AppDataStore.previewContainer)
+        .environment(\.modelContext, AppDataStore.previewContainer.mainContext)
         .environment(AppSettings())
         .environment(AppState())
 }
