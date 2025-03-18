@@ -37,9 +37,14 @@ extension [DataEntry] {
 // MARK: Errors
 
 enum DatabaseError: Error {
-    case fetchError(_ message: String, dbError: Error? = nil)
+    case queryError(_ message: String, dbError: Error? = nil)
 }
 
 enum DataError: Error {
     case InvalidDateRange(from: Date, to: Date)
+}
+
+enum HealthKitStoreError: Error {
+    case authorizationFailed(Error, Error.Type)
+    case unsupportedQuery(String)
 }

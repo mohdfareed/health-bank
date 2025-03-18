@@ -3,32 +3,6 @@ import HealthKit
 import OSLog
 import SwiftData
 
-enum HealthKitStoreError: Error {
-    case authorizationFailed(Error)
-
-    case invalidData(String)
-
-    case typeUnavailable(String)
-    case queryError(Error)
-
-    case invalidModelType(String)
-    case unsupportedQuery(String)
-}
-
-// A protocol to support HealthKit data store.
-protocol HealthKitModel: PersistentModel {
-    associatedtype HealthKitType: HKSampleType
-    associatedtype HealthKitQueryType: HKSampleQuery
-    static func from(healthKitSample: HealthKitType) throws -> Self
-    static func toHealthKitSample(from model: Self) throws -> HealthKitType
-}
-
-struct HealthKitStoreConfiguration: DataStoreConfiguration {
-    typealias Store = HealthKitStore
-    var name: String
-    var schema: Schema?
-}
-
 final class HealthKitStore: DataStore {
     typealias Configuration = HealthKitStoreConfiguration
     typealias Snapshot = DefaultSnapshot

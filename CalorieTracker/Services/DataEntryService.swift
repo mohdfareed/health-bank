@@ -40,7 +40,7 @@ struct DataEntryService {
             self.logger.debug("Fetched \(results.count) entries.")
             return results
         } catch {
-            throw DatabaseError.fetchError(
+            throw DatabaseError.queryError(
                 "Failed to fetch entries of type '\(T.self)' in date interval: \(interval)",
                 dbError: error
             )
