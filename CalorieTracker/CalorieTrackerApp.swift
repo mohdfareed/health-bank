@@ -2,14 +2,17 @@ import OSLog
 import SwiftData
 import SwiftUI
 
-struct AppLogger {
-    private static let subsystem = Bundle.main.bundleIdentifier ?? "Debug.CalorieTracker"
+extension Logger {
+    private static var defaultSubsystem: String = {
+        Bundle.main.bundleIdentifier ?? "Debug.CalorieTracker"
+    }()
 
-    /// Create a new logger with the given category.
-    /// - Parameter category: The category for the logger.
-    /// - Returns: A new logger instance.
-    static func create(for category: String) -> Logger {
-        Logger(subsystem: subsystem, category: category)
+    init(for category: String) {
+        self.init(subsystem: Logger.defaultSubsystem, category: category)
+    }
+
+    init<T>(for category: T.Type) {
+        self.init(subsystem: Logger.defaultSubsystem, category: "\(T.self)")
     }
 }
 

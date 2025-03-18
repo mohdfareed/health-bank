@@ -1,100 +1,83 @@
 import Foundation
-import SwiftData
 
-/// Calorie entry service that manages calorie entries.
-struct CaloriesService {
-    internal let logger = AppLogger.new(category: "\(CaloriesService.self)")
-    private let context: ModelContext
-
-    init(_ context: ModelContext) {
-        self.context = context
-        self.logger.debug("Calories service initialized.")
+extension [ConsumedCalories] {
+    var caloriesDataPoint: DataPoints {
+        return self.map { Double($0.consumed) }
     }
 
-    /// Create the entries query fetch descriptor for range of dates.
-    /// - Parameter startDate: The start date of the range.
-    /// - Parameter endDate: The end date of the range.
-    /// - Returns: The entries query.
-    static func query(from startDate: Date, to endDate: Date) -> FetchDescriptor<CalorieEntry> {
-        let entries = FetchDescriptor<CalorieEntry>(
-            predicate: #Predicate { $0.date >= startDate && $0.date < endDate },
-            sortBy: [
-                .init(\.date)
-            ]
-        )
-        return entries
+    var proteinDataPoints: DataPoints {
+        return self.map { $0.macros.protein ?? 0 }
     }
 
-    /// Create the entries query fetch descriptor for a budget cycle.
-    /// - Parameter budget: The budget.
-    /// - Parameter date: The reference date.
-    /// - Returns: The entries query.
-    static func query(_ budget: CalorieBudget, on date: Date) -> FetchDescriptor<
-        CalorieEntry
-    > {
-        let (start, end) = budget.calcBounds(for: date)
-        let query = self.query(from: start, to: end)
-        return query
+    var fatDataPoints: DataPoints {
+        return self.map { $0.macros.fat ?? 0 }
     }
 
-    /// Get the entries within a given date range.
-    /// - Parameters:
-    ///   - startDate: The start date of the range.
-    ///   - endDate: The end date of the range.
-    func get(from startDate: Date, to endDate: Date) throws -> [CalorieEntry] {
-        self.logger.debug("Retrieving entries in range: \(startDate) - \(endDate)")
-        let entries = CaloriesService.query(from: startDate, to: endDate)
-
-        do {
-            let results: [CalorieEntry] = try self.context.fetch(entries)
-            return results
-        } catch {
-            throw CaloriesError.databaseError(dbError: error)
-        }
-    }
-
-    /// Get the entries for a given day.
-    /// - Parameter date: The reference date.
-    /// - Returns: The entries for the day.
-    func get(for date: Date) throws -> [CalorieEntry] {
-        self.logger.debug("Retrieving entries for day: \(date)")
-        let (start, end) = date.calcBounds()
-        let entries = try self.get(from: start, to: end)
-        return entries
-    }
-
-    /// Log a new calorie entry.
-    /// - Parameter entry: The entry to log.
-    func create(_ entry: CalorieEntry) {
-        self.logger.debug("Creating entry: \(entry.calories, privacy: .public)")
-        self.context.insert(entry)
-    }
-
-    /// Remove a calorie entry.
-    /// - Parameter entry: The entry to remove.
-    func remove(_ entry: CalorieEntry) {
-        self.logger.debug("Removing entry: \(entry.calories, privacy: .public)")
-        self.context.delete(entry)
-    }
-
-    /// Update a calorie entry.
-    /// - Parameter entry: The entry to update.
-    func update(_ entry: CalorieEntry) {
-        self.logger.debug("Updating entry: \(entry.calories, privacy: .public)")
-        if let existing = self.context.model(for: entry.id) as? CalorieEntry {
-            self.context.delete(existing)
-        }
-        self.context.insert(entry)
+    var carbsDataPoints: DataPoints {
+        return self.map { $0.macros.carbs ?? 0 }
     }
 }
 
-// MARK: Extensions
+extension [BurnedCalories] {
+    var caloriesDataPoints: DataPoints {
+        return self.map { -Double($0.burned) }
+    }
 
-extension Array where Element == CalorieEntry {
-    /// The total calories consumed or burned.
-    /// - Returns: The total number of calories.
-    var totalCalories: Int {
-        let total = self.reduce(0) { $0 + $1.calories }
-        return total
+    var ActivityDataPoint: DataPoints {
+        return self.map { Double($0.burned) }
+    }
+
+    var durationDataPoints: DataPoints {
+        return self.map { $0.duration ?? 0 }
+    }
+
+}
+
+extension CalorieMacros {
+    /// The total calories from the macros.
+    var calories: UInt? {
+        guard let p = self.protein, let f = self.fat, let c = self.carbs else {
+            return nil
+        }
+        return UInt(((p + c) * 4) + (f * 9))
+    }
+
+    /// The amount of protein in grams from the given calories.
+    /// - Parameter calories: The total calories.
+    /// - Returns: Protein in grams. `nil` if not enough information.
+    func fat(from calories: UInt) -> Double? {
+        guard let protein = self.protein, let carbs = self.carbs else {
+            return nil
+        }
+
+        let proteinCalories = protein * 4
+        let carbsCalories = carbs * 4
+        return (Double(calories) - proteinCalories - carbsCalories) / 9
+    }
+
+    /// The amount of fat in grams from the given calories.
+    /// - Parameter calories: The total calories.
+    /// - Returns: Fat in grams. `nil` if not enough information.
+    func protein(from calories: UInt) -> Double? {
+        guard let fat = self.fat, let carbs = self.carbs else {
+            return nil
+        }
+
+        let fatCalories = fat * 9
+        let carbsCalories = carbs * 4
+        return (Double(calories) - fatCalories - carbsCalories) / 4
+    }
+
+    /// The amount of carbs in grams from the given calories.
+    /// - Parameter calories: The total calories.
+    /// - Returns: Carbs in grams. `nil` if not enough information.
+    func carbs(from calories: UInt) -> Double? {
+        guard let protein = self.protein, let fat = self.fat else {
+            return nil
+        }
+
+        let proteinCalories = protein * 4
+        let fatCalories = fat * 9
+        return (Double(calories) - proteinCalories - fatCalories) / 4
     }
 }

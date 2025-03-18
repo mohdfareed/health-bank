@@ -1,71 +1,80 @@
 import Foundation
 
-// Support arbitrary entries using a protocol with date and amount properties.
-// Take action as argument that takes an entry and returns a value.
-// Convert init to:
-// CalorieStatisticsService(for: budget, on: entries, using: { $0.calories })
-
-/// Statistics service for a budget cycle.
-//  - Note: If not date is provided, the current date is dynamically evaluated.
-struct CalorieStatisticsService {
-    internal let logger = AppLogger.new(category: "\(CalorieStatisticsService.self)")
-
-    let budget: CalorieBudget
-    let entries: [CalorieEntry]
-    let staticDate: Date?
-
-    /// The reference date for the statistics.
-    var date: Date {
-        return staticDate ?? Date.now
+extension DataPoints {
+    /// The sum of all data points.
+    func sum() -> Double {
+        return self.reduce(0, +)
     }
 
-    /// The budget cycle calories.
-    var caloriesBudget: Int {
-        return self.budget.calories
+    /// The average of all data points.
+    func average() -> Double {
+        return Double(self.sum()) / Double(self.count)
+    }
+}
+
+extension Date {
+    /// The number of days between two dates.
+    func days(to date: Date) -> Int {
+        let calendar = Calendar.current
+        let components = calendar.dateComponents([.day], from: self, to: date)
+        return components.day ?? 0
     }
 
-    /// The total consumed calories.
-    var consumedCalories: Int {
-        return self.entries.totalCalories
+    /// The date added by a number of days.
+    func adding(days: Int) -> Date {
+        return Calendar.current.date(byAdding: .day, value: days, to: self)!
     }
 
-    /// The total remaining calories.
-    var remainingCalories: Int {
-        return self.caloriesBudget - self.consumedCalories
+    /// A date interval of a number of minutes, starting from the beginning of this minute.
+    func minutesPeriod(of minutes: UInt = 1) -> DateInterval {
+        let calendar = Calendar.current
+        let minute = calendar.dateComponents([.year, .month, .day, .hour, .minute], from: self)
+
+        let start = calendar.date(from: minute)!
+        let end = calendar.date(byAdding: .minute, value: Int(minutes), to: start)!
+        return DateInterval(start: start, end: end)
     }
 
-    /// The daily budget.
-    var dailyBudget: Int {
-        let remainingDays = self.budget.calcRemainingDays(for: self.date)
-        if remainingDays == 0 {
-            return 0
-        }
+    /// A date interval of a number of hours, starting from the beginning of this hour.
+    func hourlyPeriod(of hours: UInt = 1) -> DateInterval {
+        let calendar = Calendar.current
+        let hour = calendar.dateComponents([.year, .month, .day, .hour], from: self)
 
-        let entries = self.entries.filter { $0.date < self.date.calcBounds().start }
-        let remaining = self.budget.calories - entries.totalCalories
-        let budget = remaining / remainingDays
-        return budget
+        let start = calendar.date(from: hour)!
+        let end = calendar.date(byAdding: .hour, value: Int(hours), to: start)!
+        return DateInterval(start: start, end: end)
     }
 
-    /// The consumed calories for a given day.
-    var dailyConsumed: Int {
-        let (start, end) = Date.now.calcBounds()
-        let total = self.entries.filter { $0.date.isBetween(start, end) }.totalCalories
-        return total
+    /// A date interval of a number of days, starting from the beginning of this day.
+    func dailyPeriod(of days: UInt = 1) -> DateInterval {
+        let calendar = Calendar.current
+        let start = calendar.startOfDay(for: self)
+        let end = calendar.date(byAdding: .day, value: Int(days), to: start)!
+        return DateInterval(start: start, end: end)
     }
 
-    /// The remaining calories for a given day.
-    var dailyRemaining: Int {
-        let remaining = self.dailyBudget - self.dailyConsumed
-        return remaining
+    /// A date interval of a number of weeks, starting from the beginning of this week.
+    func weeklyPeriod(starting startOfWeek: Weekday, of weeks: UInt = 1) -> DateInterval {
+        let calendar = Calendar.current
+        let weekday = calendar.component(.weekday, from: self)
+
+        let elapsedDays = (weekday - startOfWeek.rawValue + 7) % 7
+        let start = calendar.startOfDay(
+            for: calendar.date(byAdding: .day, value: -elapsedDays, to: self)!
+        )
+
+        let end = calendar.date(byAdding: .day, value: 7 * Int(weeks), to: start)!
+        return DateInterval(start: start, end: end)
     }
 
-    init(
-        for budget: CalorieBudget, using entries: [CalorieEntry], at date: Date? = nil
-    ) {
-        self.staticDate = date
-        self.budget = budget
-        self.entries = entries
-        self.logger.debug("Statistics service initialized for budget: \(budget.name)")
+    /// A date interval of a number of months, starting from the beginning of this month.
+    func monthlyPeriod(of months: UInt = 1) -> DateInterval {
+        let calendar = Calendar.current
+        let start = calendar.date(
+            from: calendar.dateComponents([.year, .month], from: self)
+        )!
+
+        let end = calendar.date(byAdding: .month, value: Int(months), to: start)!
+        return DateInterval(start: start, end: end)
     }
 }

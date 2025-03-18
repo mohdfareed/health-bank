@@ -1,45 +1,60 @@
 import Foundation
 import SwiftData
 
-/// Entry of calories consumed or burned.
+/// A macro-nutrient breakdown of calories.
+struct CalorieMacros: Codable {
+    /// The amount of protein in grams.
+    var protein: Double?
+    /// The amount of fat in grams.
+    var fat: Double?
+    /// The amount of carbs in grams.
+    var carbs: Double?
+}
+
+// MARK: Consumed
+
+/// Entry of consumed calories.
 @Model
-final class CalorieEntry {
-    /// The amount of calories.
-    /// - Positive values represent calories consumed
-    /// - Negative values represent calories burned
-    var calories: Int
-    /// The date the entry was created.
+final class ConsumedCalories: DataEntry {
     var date: Date
+    var source: DataSource
 
-    // TODO: Add optional protein, fat, and carbs properties
+    /// The amount of calories consumed.
+    var consumed: UInt
+    /// The macro-nutrient breakdown.
+    var macros: CalorieMacros
 
-    init(_ calories: Int, on date: Date) {
+    init(
+        _ calories: UInt, with macros: CalorieMacros = CalorieMacros(),
+        on date: Date, from: DataSource = .manual
+    ) {
         self.date = date
-        self.calories = calories
+        self.source = source
+        self.consumed = calories
+        self.macros = macros
     }
 }
 
-/// Calories budget cycle.
+// MARK: Burned
+
+/// Entry of burned calories.
 @Model
-final class CalorieBudget {
-    /// Display name of the budget.
-    @Attribute(.unique) var name: String
-    /// The amount of calories allowed per cycle.
-    var calories: Int
-    /// The number of days until the budget next resets.
-    var period: Int
-    /// The date when the budget started.
-    var startDate: Date  // FIXME: Convert to reset day
+final class BurnedCalories: DataEntry {
+    var date: Date
+    var source: DataSource
+
+    /// The amount of calories burned.
+    var burned: UInt
+    /// The duration of the activity.
+    var duration: TimeInterval?
 
     init(
-        _ calories: Int,
-        lasts period: Int,
-        starting date: Date,
-        named name: String
+        _ calories: UInt, for duration: TimeInterval? = nil,
+        on date: Date, from source: DataSource = .manual
     ) {
-        self.name = name
-        self.calories = calories
-        self.period = period
-        self.startDate = date
+        self.date = date
+        self.source = source
+        self.burned = calories
+        self.duration = duration
     }
 }
