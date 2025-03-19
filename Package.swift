@@ -3,7 +3,7 @@
 import PackageDescription
 
 let package = Package(
-    name: "CalorieTracker",
+    name: "HealthTracker",
     platforms: [
         .macOS(.v15),
         .iOS(.v18),
@@ -11,8 +11,8 @@ let package = Package(
     ],
     targets: [
         .target(
-            name: "CalorieTracker",
-            path: "CalorieTracker"
-        ),
+            name: "HealthTracker",
+            path: "HealthTracker"
+        )
     ]
 )

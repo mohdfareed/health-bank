@@ -4,7 +4,7 @@ import SwiftData
 
 /// Budget data entry service.
 struct DataService {
-    internal let logger = Logger(for: DataService.self)
+    internal let logger = AppLogger(for: DataService.self)
     private let context: ModelContext
 
     init(_ context: ModelContext) {

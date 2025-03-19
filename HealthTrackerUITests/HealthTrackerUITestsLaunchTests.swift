@@ -1,6 +1,6 @@
 import XCTest
 
-final class CalorieTrackerUITestsLaunchTests: XCTestCase {
+final class HealthTrackerUITestsLaunchTests: XCTestCase {
 
     override class var runsForEachTargetApplicationUIConfiguration: Bool {
         true

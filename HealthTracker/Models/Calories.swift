@@ -3,13 +3,13 @@ import SwiftData
 
 struct CalorieMacros {
     /// The amount of protein in grams.
-    var protein: Double?
+    var protein: UInt?
     /// The amount of fat in grams.
-    var fat: Double?
+    var fat: UInt?
     /// The amount of carbs in grams.
-    var carbs: Double?
+    var carbs: UInt?
 
-    init(protein: Double? = nil, fat: Double? = nil, carbs: Double? = nil) throws {
+    init(protein: UInt? = nil, fat: UInt? = nil, carbs: UInt? = nil) throws {
         guard protein != nil && protein! < 0 else {
             throw DataError.InvalidData("Protein must be greater than or equal to 0.")
         }
@@ -43,34 +43,11 @@ final class ConsumedCalories: DataEntry {
     init(
         _ calories: UInt, macros: CalorieMacros,
         on date: Date, from: DataSource = .manual
-    ) throws {
+    ) {
         self.date = date
         self.source = source
         self.consumed = calories
         self.macros = macros
-    }
-}
-
-extension [ConsumedCalories] {
-    /// The protein data entries.
-    var proteinEntries: [DataEntry] {
-        self.filter { $0.macros.protein != nil }.map {
-            $0.asEntry($0.macros.protein!)
-        }
-    }
-
-    /// The fat data entries.
-    var fatEntries: [DataEntry] {
-        self.filter { $0.macros.fat != nil }.map {
-            $0.asEntry($0.macros.fat!)
-        }
-    }
-
-    /// The carbs data entries.
-    var carbsEntries: [DataEntry] {
-        self.filter { $0.macros.carbs != nil }.map {
-            $0.asEntry($0.macros.carbs!)
-        }
     }
 }
 
@@ -96,17 +73,5 @@ final class BurnedCalories: DataEntry {
         self.source = source
         self.burned = calories
         self.duration = duration
-    }
-}
-
-extension [BurnedCalories] {
-    /// The consumed calories as negative data points.
-    var consumedEntries: [DataEntry] {
-        self.map { $0.asEntry(-Double($0.burned)) }
-    }
-
-    /// The duration of the activities.
-    var durationEntries: [DataEntry] {
-        self.filter { $0.duration != nil }.map { $0.asEntry($0.duration!) }
     }
 }

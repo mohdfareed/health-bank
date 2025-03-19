@@ -1,8 +1,9 @@
 import Foundation
 import Testing
-@testable import CalorieTracker
 
-struct CalorieTrackerTests {
+@testable import HealthTracker
+
+struct HealthTrackerTests {
 
     @Test func testCycleDaysAndRemainingDays() async throws {
         // Arrange: Create a WeeklyBudget with a reset day of Monday.

@@ -11,7 +11,7 @@ final class HealthKitStore: DataStore {
     var identifier: String = UUID().uuidString
     var schema: Schema
 
-    private var logger = Logger(for: HealthKitStore.self)
+    private var logger = AppLogger(for: HealthKitStore.self)
     private var healthStore = HKHealthStore()
 
     init(
@@ -80,7 +80,7 @@ final class HealthKitStore: DataStore {
 }
 
 final class HealthKitService {
-    private var logger = Logger(for: HealthKitService.self)
+    private var logger = AppLogger(for: HealthKitService.self)
     private var healthStore = HKHealthStore()
 
     func fetch<T>(_ request: FetchDescriptor<T>) throws

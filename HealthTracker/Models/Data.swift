@@ -1,4 +1,5 @@
 import Foundation
+import OSLog
 import SwiftData
 
 // TODO: create a units system that let's the user define a unit type by
@@ -34,6 +35,29 @@ private struct ValueEntry: DataEntry {
         self.source = source
         self.date = date
         self.value = value
+    }
+}
+
+@propertyWrapper
+struct NonNegative<T: Numeric> {
+    let logger = AppLogger(for: T.self)
+    private var value: T?
+
+    var wrappedValue: T? {
+        get { value }
+        set {
+            if let newValue = newValue, newValue < 0 {
+                fatalError("Value must be greater than or equal to 0.")
+            }
+            value = newValue
+        }
+    }
+
+    init(wrappedValue: T?) {
+        if let initial = wrappedValue, initial < 0 {
+            fatalError("Value must be greater than or equal to 0.")
+        }
+        self.value = wrappedValue
     }
 }
 

@@ -89,8 +89,8 @@ classDiagram
 
 ```mermaid
 sequenceDiagram
-    participant UI as CalorieTrackingView (UI)
-    participant VM as CalorieTrackingViewModel
+    participant UI as HealthTrackingView (UI)
+    participant VM as HealthTrackingViewModel
     participant DS as DataStore (SwiftData default / HealthKitStore)
 
     UI->>VM: onAppear/refreshData

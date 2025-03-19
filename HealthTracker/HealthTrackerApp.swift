@@ -2,17 +2,17 @@ import OSLog
 import SwiftData
 import SwiftUI
 
-extension Logger {
-    private static var defaultSubsystem: String = {
-        Bundle.main.bundleIdentifier ?? "Debug.CalorieTracker"
+struct AppLogger: Logger {
+    private static let defaultSubsystem: String = {
+        Bundle.main.bundleIdentifier ?? "Debug.HealthTracker"
     }()
 
     init(for category: String) {
-        self.init(subsystem: Logger.defaultSubsystem, category: category)
+        super.init(subsystem: Logger.defaultSubsystem, category: category)
     }
 
     init<T>(for category: T.Type) {
-        self.init(subsystem: Logger.defaultSubsystem, category: "\(T.self)")
+        super.init(subsystem: Logger.defaultSubsystem, category: "\(T.self)")
     }
 }
 
@@ -47,8 +47,8 @@ struct AppDataStore {
 }
 
 @main
-struct CalorieTrackerApp: App {
-    internal let logger = Logger(for: CalorieTrackerApp.self)
+struct HealthTrackerApp: App {
+    internal let logger = AppLogger(for: HealthTrackerApp.self)
 
     @Environment(\.modelContext) private var modelContext: ModelContext
     @Query private var appSettings: [AppSettings]

@@ -12,50 +12,37 @@
 			containerPortal = 00DCE4AE2D6FF19E00848689 /* Project object */;
 			proxyType = 1;
 			remoteGlobalIDString = 00DCE4B52D6FF19E00848689;
-			remoteInfo = CalorieTracker;
+			remoteInfo = HealthTracker;
 		};
 		00DCE4D52D6FF1A000848689 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 00DCE4AE2D6FF19E00848689 /* Project object */;
 			proxyType = 1;
 			remoteGlobalIDString = 00DCE4B52D6FF19E00848689;
-			remoteInfo = CalorieTracker;
+			remoteInfo = HealthTracker;
 		};
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
-		00DCE4B62D6FF19E00848689 /* CalorieTracker.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = CalorieTracker.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		00DCE4CA2D6FF1A000848689 /* CalorieTrackerTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = CalorieTrackerTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
-		00DCE4D42D6FF1A000848689 /* CalorieTrackerUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = CalorieTrackerUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		00DCE4B62D6FF19E00848689 /* HealthTracker.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = HealthTracker.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		00DCE4CA2D6FF1A000848689 /* HealthTrackerTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = HealthTrackerTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		00DCE4D42D6FF1A000848689 /* HealthTrackerUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = HealthTrackerUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
-/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
-		00DCE4DC2D6FF1A000848689 /* Exceptions for "CalorieTracker" folder in "CalorieTracker" target */ = {
-			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
-			membershipExceptions = (
-				Info.plist,
-			);
-			target = 00DCE4B52D6FF19E00848689 /* CalorieTracker */;
-		};
-/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
-
 /* Begin PBXFileSystemSynchronizedRootGroup section */
-		00DCE4B82D6FF19E00848689 /* CalorieTracker */ = {
+		00DCE4B82D6FF19E00848689 /* HealthTracker */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			exceptions = (
-				00DCE4DC2D6FF1A000848689 /* Exceptions for "CalorieTracker" folder in "CalorieTracker" target */,
-			);
-			path = CalorieTracker;
+			path = HealthTracker;
 			sourceTree = "<group>";
 		};
-		00DCE4CD2D6FF1A000848689 /* CalorieTrackerTests */ = {
+		00DCE4CD2D6FF1A000848689 /* HealthTrackerTests */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			path = CalorieTrackerTests;
+			path = HealthTrackerTests;
 			sourceTree = "<group>";
 		};
-		00DCE4D72D6FF1A000848689 /* CalorieTrackerUITests */ = {
+		00DCE4D72D6FF1A000848689 /* HealthTrackerUITests */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			path = CalorieTrackerUITests;
+			path = HealthTrackerUITests;
 			sourceTree = "<group>";
 		};
 /* End PBXFileSystemSynchronizedRootGroup section */
@@ -88,9 +75,9 @@
 		00DCE4AD2D6FF19E00848689 = {
 			isa = PBXGroup;
 			children = (
-				00DCE4B82D6FF19E00848689 /* CalorieTracker */,
-				00DCE4CD2D6FF1A000848689 /* CalorieTrackerTests */,
-				00DCE4D72D6FF1A000848689 /* CalorieTrackerUITests */,
+				00DCE4B82D6FF19E00848689 /* HealthTracker */,
+				00DCE4CD2D6FF1A000848689 /* HealthTrackerTests */,
+				00DCE4D72D6FF1A000848689 /* HealthTrackerUITests */,
 				00DCE4B72D6FF19E00848689 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -98,9 +85,9 @@
 		00DCE4B72D6FF19E00848689 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				00DCE4B62D6FF19E00848689 /* CalorieTracker.app */,
-				00DCE4CA2D6FF1A000848689 /* CalorieTrackerTests.xctest */,
-				00DCE4D42D6FF1A000848689 /* CalorieTrackerUITests.xctest */,
+				00DCE4B62D6FF19E00848689 /* HealthTracker.app */,
+				00DCE4CA2D6FF1A000848689 /* HealthTrackerTests.xctest */,
+				00DCE4D42D6FF1A000848689 /* HealthTrackerUITests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -108,9 +95,9 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		00DCE4B52D6FF19E00848689 /* CalorieTracker */ = {
+		00DCE4B52D6FF19E00848689 /* HealthTracker */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 00DCE4DD2D6FF1A000848689 /* Build configuration list for PBXNativeTarget "CalorieTracker" */;
+			buildConfigurationList = 00DCE4DD2D6FF1A000848689 /* Build configuration list for PBXNativeTarget "HealthTracker" */;
 			buildPhases = (
 				00DCE4B22D6FF19E00848689 /* Sources */,
 				00DCE4B32D6FF19E00848689 /* Frameworks */,
@@ -121,18 +108,18 @@
 			dependencies = (
 			);
 			fileSystemSynchronizedGroups = (
-				00DCE4B82D6FF19E00848689 /* CalorieTracker */,
+				00DCE4B82D6FF19E00848689 /* HealthTracker */,
 			);
-			name = CalorieTracker;
+			name = HealthTracker;
 			packageProductDependencies = (
 			);
-			productName = CalorieTracker;
-			productReference = 00DCE4B62D6FF19E00848689 /* CalorieTracker.app */;
+			productName = HealthTracker;
+			productReference = 00DCE4B62D6FF19E00848689 /* HealthTracker.app */;
 			productType = "com.apple.product-type.application";
 		};
-		00DCE4C92D6FF1A000848689 /* CalorieTrackerTests */ = {
+		00DCE4C92D6FF1A000848689 /* HealthTrackerTests */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 00DCE4E22D6FF1A000848689 /* Build configuration list for PBXNativeTarget "CalorieTrackerTests" */;
+			buildConfigurationList = 00DCE4E22D6FF1A000848689 /* Build configuration list for PBXNativeTarget "HealthTrackerTests" */;
 			buildPhases = (
 				00DCE4C62D6FF1A000848689 /* Sources */,
 				00DCE4C72D6FF1A000848689 /* Frameworks */,
@@ -144,18 +131,18 @@
 				00DCE4CC2D6FF1A000848689 /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
-				00DCE4CD2D6FF1A000848689 /* CalorieTrackerTests */,
+				00DCE4CD2D6FF1A000848689 /* HealthTrackerTests */,
 			);
-			name = CalorieTrackerTests;
+			name = HealthTrackerTests;
 			packageProductDependencies = (
 			);
-			productName = CalorieTrackerTests;
-			productReference = 00DCE4CA2D6FF1A000848689 /* CalorieTrackerTests.xctest */;
+			productName = HealthTrackerTests;
+			productReference = 00DCE4CA2D6FF1A000848689 /* HealthTrackerTests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
 		};
-		00DCE4D32D6FF1A000848689 /* CalorieTrackerUITests */ = {
+		00DCE4D32D6FF1A000848689 /* HealthTrackerUITests */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 00DCE4E52D6FF1A000848689 /* Build configuration list for PBXNativeTarget "CalorieTrackerUITests" */;
+			buildConfigurationList = 00DCE4E52D6FF1A000848689 /* Build configuration list for PBXNativeTarget "HealthTrackerUITests" */;
 			buildPhases = (
 				00DCE4D02D6FF1A000848689 /* Sources */,
 				00DCE4D12D6FF1A000848689 /* Frameworks */,
@@ -167,13 +154,13 @@
 				00DCE4D62D6FF1A000848689 /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
-				00DCE4D72D6FF1A000848689 /* CalorieTrackerUITests */,
+				00DCE4D72D6FF1A000848689 /* HealthTrackerUITests */,
 			);
-			name = CalorieTrackerUITests;
+			name = HealthTrackerUITests;
 			packageProductDependencies = (
 			);
-			productName = CalorieTrackerUITests;
-			productReference = 00DCE4D42D6FF1A000848689 /* CalorieTrackerUITests.xctest */;
+			productName = HealthTrackerUITests;
+			productReference = 00DCE4D42D6FF1A000848689 /* HealthTrackerUITests.xctest */;
 			productType = "com.apple.product-type.bundle.ui-testing";
 		};
 /* End PBXNativeTarget section */
@@ -199,7 +186,7 @@
 					};
 				};
 			};
-			buildConfigurationList = 00DCE4B12D6FF19E00848689 /* Build configuration list for PBXProject "CalorieTracker" */;
+			buildConfigurationList = 00DCE4B12D6FF19E00848689 /* Build configuration list for PBXProject "HealthTracker" */;
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
 			knownRegions = (
@@ -213,9 +200,9 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				00DCE4B52D6FF19E00848689 /* CalorieTracker */,
-				00DCE4C92D6FF1A000848689 /* CalorieTrackerTests */,
-				00DCE4D32D6FF1A000848689 /* CalorieTrackerUITests */,
+				00DCE4B52D6FF19E00848689 /* HealthTracker */,
+				00DCE4C92D6FF1A000848689 /* HealthTrackerTests */,
+				00DCE4D32D6FF1A000848689 /* HealthTrackerUITests */,
 			);
 		};
 /* End PBXProject section */
@@ -271,12 +258,12 @@
 /* Begin PBXTargetDependency section */
 		00DCE4CC2D6FF1A000848689 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = 00DCE4B52D6FF19E00848689 /* CalorieTracker */;
+			target = 00DCE4B52D6FF19E00848689 /* HealthTracker */;
 			targetProxy = 00DCE4CB2D6FF1A000848689 /* PBXContainerItemProxy */;
 		};
 		00DCE4D62D6FF1A000848689 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = 00DCE4B52D6FF19E00848689 /* CalorieTracker */;
+			target = 00DCE4B52D6FF19E00848689 /* HealthTracker */;
 			targetProxy = 00DCE4D52D6FF1A000848689 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
@@ -287,16 +274,16 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				CODE_SIGN_ENTITLEMENTS = CalorieTracker/CalorieTracker.entitlements;
+				CODE_SIGN_ENTITLEMENTS = HealthTracker/HealthTracker.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_ASSET_PATHS = "\"CalorieTracker/Preview Content\"";
+				DEVELOPMENT_ASSET_PATHS = "\"HealthTracker/Preview Content\"";
 				DEVELOPMENT_TEAM = B67CHZC3GP;
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = CalorieTracker/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = "Calorie Tracker";
+				INFOPLIST_FILE = HealthTracker/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = "Health Tracker";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.healthcare-fitness";
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphonesimulator*]" = YES;
@@ -313,7 +300,7 @@
 				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = "@executable_path/../Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 15.0;
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = MohdFareed.CalorieTracker;
+				PRODUCT_BUNDLE_IDENTIFIER = MohdFareed.HealthTracker;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = auto;
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator watchos watchsimulator";
@@ -331,16 +318,16 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				CODE_SIGN_ENTITLEMENTS = CalorieTracker/CalorieTrackerRelease.entitlements;
+				CODE_SIGN_ENTITLEMENTS = HealthTracker/HealthTrackerRelease.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_ASSET_PATHS = "\"CalorieTracker/Preview Content\"";
+				DEVELOPMENT_ASSET_PATHS = "\"HealthTracker/Preview Content\"";
 				DEVELOPMENT_TEAM = B67CHZC3GP;
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = CalorieTracker/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = "Calorie Tracker";
+				INFOPLIST_FILE = HealthTracker/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = "Health Tracker";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.healthcare-fitness";
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphonesimulator*]" = YES;
@@ -357,7 +344,7 @@
 				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = "@executable_path/../Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 15.0;
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = MohdFareed.CalorieTracker;
+				PRODUCT_BUNDLE_IDENTIFIER = MohdFareed.HealthTracker;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = auto;
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator watchos watchsimulator";
@@ -495,7 +482,7 @@
 				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
 				MACOSX_DEPLOYMENT_TARGET = 15.0;
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = MohdFareed.CalorieTrackerTests;
+				PRODUCT_BUNDLE_IDENTIFIER = MohdFareed.HealthTrackerTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = auto;
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator watchos watchsimulator";
@@ -503,7 +490,7 @@
 				SWIFT_EMIT_LOC_STRINGS = NO;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2,4";
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/CalorieTracker.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/CalorieTracker";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/HealthTracker.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/HealthTracker";
 				WATCHOS_DEPLOYMENT_TARGET = 11.0;
 				XROS_DEPLOYMENT_TARGET = 2.2;
 			};
@@ -520,7 +507,7 @@
 				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
 				MACOSX_DEPLOYMENT_TARGET = 15.0;
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = MohdFareed.CalorieTrackerTests;
+				PRODUCT_BUNDLE_IDENTIFIER = MohdFareed.HealthTrackerTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = auto;
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator watchos watchsimulator";
@@ -528,7 +515,7 @@
 				SWIFT_EMIT_LOC_STRINGS = NO;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2,4";
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/CalorieTracker.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/CalorieTracker";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/HealthTracker.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/HealthTracker";
 				WATCHOS_DEPLOYMENT_TARGET = 11.0;
 				XROS_DEPLOYMENT_TARGET = 2.2;
 			};
@@ -544,7 +531,7 @@
 				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
 				MACOSX_DEPLOYMENT_TARGET = 15.0;
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = MohdFareed.CalorieTrackerUITests;
+				PRODUCT_BUNDLE_IDENTIFIER = MohdFareed.HealthTrackerUITests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = auto;
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator watchos watchsimulator";
@@ -552,7 +539,7 @@
 				SWIFT_EMIT_LOC_STRINGS = NO;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2,4";
-				TEST_TARGET_NAME = CalorieTracker;
+				TEST_TARGET_NAME = HealthTracker;
 				WATCHOS_DEPLOYMENT_TARGET = 11.0;
 				XROS_DEPLOYMENT_TARGET = 2.2;
 			};
@@ -568,7 +555,7 @@
 				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
 				MACOSX_DEPLOYMENT_TARGET = 15.0;
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = MohdFareed.CalorieTrackerUITests;
+				PRODUCT_BUNDLE_IDENTIFIER = MohdFareed.HealthTrackerUITests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = auto;
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator watchos watchsimulator";
@@ -576,7 +563,7 @@
 				SWIFT_EMIT_LOC_STRINGS = NO;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2,4";
-				TEST_TARGET_NAME = CalorieTracker;
+				TEST_TARGET_NAME = HealthTracker;
 				WATCHOS_DEPLOYMENT_TARGET = 11.0;
 				XROS_DEPLOYMENT_TARGET = 2.2;
 			};
@@ -585,7 +572,7 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		00DCE4B12D6FF19E00848689 /* Build configuration list for PBXProject "CalorieTracker" */ = {
+		00DCE4B12D6FF19E00848689 /* Build configuration list for PBXProject "HealthTracker" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				00DCE4E02D6FF1A000848689 /* Debug */,
@@ -594,7 +581,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		00DCE4DD2D6FF1A000848689 /* Build configuration list for PBXNativeTarget "CalorieTracker" */ = {
+		00DCE4DD2D6FF1A000848689 /* Build configuration list for PBXNativeTarget "HealthTracker" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				00DCE4DE2D6FF1A000848689 /* Debug */,
@@ -603,7 +590,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		00DCE4E22D6FF1A000848689 /* Build configuration list for PBXNativeTarget "CalorieTrackerTests" */ = {
+		00DCE4E22D6FF1A000848689 /* Build configuration list for PBXNativeTarget "HealthTrackerTests" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				00DCE4E32D6FF1A000848689 /* Debug */,
@@ -612,7 +599,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		00DCE4E52D6FF1A000848689 /* Build configuration list for PBXNativeTarget "CalorieTrackerUITests" */ = {
+		00DCE4E52D6FF1A000848689 /* Build configuration list for PBXNativeTarget "HealthTrackerUITests" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				00DCE4E62D6FF1A000848689 /* Debug */,
