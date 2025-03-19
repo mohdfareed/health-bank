@@ -25,7 +25,7 @@ final class HealthKitStore: DataStore {
         -> DataStoreFetchResult<T, DefaultSnapshot> where T: PersistentModel
     {
         guard let T = T.self as? any HealthKitModel.Type else {
-            throw HealthKitStoreError.invalidModelType(
+            throw HealthKitError.invalidModelType(
                 "Model type '\(T.self)' does not conform to \((any HealthKitModel).self)"
             )
         }
@@ -34,7 +34,7 @@ final class HealthKitStore: DataStore {
             request.descriptor.includePendingChanges,
             request.descriptor.relationshipKeyPathsForPrefetching.isEmpty
         else {
-            throw HealthKitStoreError.unsupportedQuery(
+            throw HealthKitError.unsupportedQuery(
                 "Unsupported query options: \(request.descriptor)"
             )
         }
@@ -50,13 +50,13 @@ final class HealthKitStore: DataStore {
             sortDescriptors: request.descriptor.sortBy
         ) { _, samples, error in
             if let error = error {
-                request.completion(.failure(HealthKitStoreError.queryError(error)))
+                request.completion(.failure(HealthKitError.queryError(error)))
                 return
             }
 
             guard let samples = samples else {
                 request.completion(
-                    .failure(HealthKitStoreError.invalidData("No samples returned.")))
+                    .failure(HealthKitError.invalidData("No samples returned.")))
                 return
             }
 
@@ -87,7 +87,7 @@ final class HealthKitService {
         -> DataStoreFetchResult<T, DefaultSnapshot> where T: HealthKitModel
     {
         guard let T = T.self as? any HealthKitModel.Type else {
-            throw HealthKitStoreError.invalidModelType(
+            throw HealthKitError.invalidModelType(
                 "Model type '\(T.self)' does not conform to \((any HealthKitModel).self)"
             )
         }
@@ -96,7 +96,7 @@ final class HealthKitService {
             request.descriptor.includePendingChanges,
             request.descriptor.relationshipKeyPathsForPrefetching.isEmpty
         else {
-            throw HealthKitStoreError.unsupportedQuery(
+            throw HealthKitError.unsupportedQuery(
                 "Unsupported query options: \(request.descriptor)"
             )
         }

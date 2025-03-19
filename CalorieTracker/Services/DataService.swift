@@ -3,8 +3,8 @@ import OSLog
 import SwiftData
 
 /// Budget data entry service.
-struct DataEntryService {
-    internal let logger = Logger(for: DataEntryService.self)
+struct DataService {
+    internal let logger = Logger(for: DataService.self)
     private let context: ModelContext
 
     init(_ context: ModelContext) {
@@ -33,7 +33,7 @@ struct DataEntryService {
     /// - Parameter endDate: The end date of the range.
     func get<T: DataEntry & PersistentModel>(over interval: DateInterval) throws -> [T] {
         self.logger.debug("Fetching entries in date interval: \(interval)")
-        let entries: FetchDescriptor<T> = try DataEntryService.fetch(over: interval)
+        let entries: FetchDescriptor<T> = try DataService.fetch(over: interval)
 
         do {
             let results: [T] = try self.context.fetch(entries)

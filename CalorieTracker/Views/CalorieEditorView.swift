@@ -3,8 +3,8 @@ import SwiftData
 import SwiftUI
 
 @Observable
-class CalorieEditorVM<T: CalorieEntry>: ConsumedCalories {
-    var model: any PersistentModel & CalorieEntry {
+class CalorieEditorVM<T: DataEntry>: ConsumedCalories {
+    var model: any PersistentModel & DataEntry {
         self.calories >= 0
             ? ConsumedCalories(
                 UInt(self.calories), on: self.date,

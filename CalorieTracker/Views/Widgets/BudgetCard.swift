@@ -5,34 +5,30 @@ struct BudgetCard: View {
     @State var title: String
     @State var unit: String?
     @State var color: Color
+    @State var endColor: Color
 
-    @State var budget: UInt = 0
-    @State var consumed: Int = 0
-    @State var remaining: Int = 0
-    @State var progress: Double
+    @State var budget: Double = 0
+    @State var consumed: Double = 0
+    @State var remaining: Double = 0
+    @State var progress: Double = 0
 
     private var progressColor: Color {
-        return self.progress > 0.8 ? .red : self.color
+        return self.progress > 0.85 ? self.endColor : self.color
     }
 
-    init<T>(
-        _ title: String, budget: BudgetService<T>, unit: String? = nil, color: Color = .accentColor
+    init(
+        _ title: String, budget: BudgetService, unit: String? = nil,
+        color: Color = .accentColor, endColor: Color = .red
     ) {
-        let progress: Double = {
-            guard budget.budget > 0 else {
-                return 1
-            }
-            return Double(budget.consumed) / Double(budget.budget)
-        }()
+        self.title = title
+        self.color = color
+        self.endColor = endColor
+        self.unit = unit
 
         self.budget = budget.budget
         self.consumed = budget.consumed
         self.remaining = budget.remaining
-        self.progress = progress
-
-        self.title = title
-        self.color = progress > 0.8 ? .red : color
-        self.unit = unit
+        self.progress = budget.progress
     }
 
     var body: some View {

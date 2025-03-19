@@ -2,7 +2,7 @@ import Foundation
 import HealthKit
 import SwiftData
 
-enum Weekday: Int, CaseIterable {
+enum Weekday: Int, CaseIterable, Codable {
     case sunday = 1
     case monday
     case tuesday
@@ -12,6 +12,26 @@ enum Weekday: Int, CaseIterable {
     case saturday
 }
 
+/// A daily budgets configuration.
+struct DailyBudgets: Codable {
+    /// The start of the week for weekly statistics.
+    var startOfWeek: Weekday = .sunday
+    /// The daily calorie budget.
+    var dailyCalories: UInt = 2000
+    /// The daily macros budgets.
+    var dailyMacros: CalorieMacros
+
+    init(
+        startOfWeek: Weekday = .sunday,
+        dailyCalories: UInt = 2000,
+        dailyMacros: CalorieMacros = CalorieMacros(protein: 120, fat: 60, carbs: 245)
+    ) {
+        self.startOfWeek = startOfWeek
+        self.dailyCalories = dailyCalories
+        self.dailyMacros = dailyMacros
+    }
+}
+
 /// The user settings.
 @Model
 final class AppSettings {
@@ -19,28 +39,17 @@ final class AppSettings {
     var enableHealthKit: Bool
     /// Write manual entries to HealthKit.
     var writeToHealthKit: Bool
-
-    /// The start of the week for weekly statistics.
-    var startOfWeek: Weekday
-
-    /// The daily calorie budget.
-    var dailyCalories: UInt
-    /// The daily macro-nutrient breakdown.
-    var dailyMacros: CalorieMacros
+    /// The user's daily budgets.
+    var budgets: DailyBudgets
 
     init(
         enableHealthKit: Bool = false,
         writeToHealthKit: Bool = false,
-        startOfWeek: Weekday = .monday,
-        dailyCalories: UInt = 2500,
-        dailyMacros: CalorieMacros = CalorieMacros()
+        budgets: DailyBudgets = DailyBudgets()
     ) {
         self.enableHealthKit = enableHealthKit
         self.writeToHealthKit = writeToHealthKit
-
-        self.dailyCalories = dailyCalories
-        self.dailyMacros = dailyMacros
-        self.startOfWeek = startOfWeek
+        self.budgets = budgets
     }
 }
 

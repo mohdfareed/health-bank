@@ -21,9 +21,9 @@ struct AppDataStore {
         Schema([
             AppSettings.self,
             AppState.self,
-            // App models
-            CalorieEntry.self,
-            CalorieBudget.self,
+            // Date models
+            ConsumedCalories.self,
+            BurnedCalories.self,
         ])
     }
 
@@ -48,42 +48,34 @@ struct AppDataStore {
 
 @main
 struct CalorieTrackerApp: App {
-    @Environment(\.modelContext) private var modelContext: ModelContext
+    internal let logger = Logger(for: CalorieTrackerApp.self)
 
-    internal let logger = AppLogger.create(category: "\(CalorieTrackerApp.self)")
+    @Environment(\.modelContext) private var modelContext: ModelContext
+    @Query private var appSettings: [AppSettings]
+    @Query private var appState: [AppState]
 
     var settings: AppSettings {
-        let settings = FetchDescriptor<AppSettings>()
+        guard let settings = appSettings.first else {
+            let defaultSettings = AppSettings()
+            self.logger.info("Creating default settings.")
+            self.modelContext.insert(defaultSettings)
+            return defaultSettings
+        }
 
-        do {
-            let results = try self.modelContext.fetch(settings)
-            if let settings = results.first {
-                self.logger.debug("Loaded settings.")
-                return settings
-            }
-        } catch {}
-
-        let defaultSettings = AppSettings()
-        self.logger.info("Creating default settings.")
-        self.modelContext.insert(defaultSettings)
-        return defaultSettings
+        self.logger.debug("Loaded settings.")
+        return settings
     }
 
     var state: AppState {
-        let state = FetchDescriptor<AppState>()
+        guard let state = appState.first else {
+            let defaultState = AppState()
+            self.logger.info("Creating default state.")
+            self.modelContext.insert(defaultState)
+            return defaultState
+        }
 
-        do {
-            let results = try self.modelContext.fetch(state)
-            if let state = results.first {
-                self.logger.debug("Loaded app state.")
-                return state
-            }
-        } catch {}
-
-        let defaultState = AppState()
-        self.logger.info("Creating default app state.")
-        self.modelContext.insert(defaultState)
-        return defaultState
+        self.logger.debug("Loaded state.")
+        return state
     }
 
     var body: some Scene {
