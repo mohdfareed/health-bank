@@ -7,6 +7,18 @@ import SwiftData
 // The system will depend on a service that will implement the conversion
 // between all units and the base unit for each type.
 
+// MARK: Statistical Data
+
+typealias DataValue = Strideable & Comparable
+
+protocol DataPoint<X, Y> {
+    associatedtype X: DataValue
+    associatedtype Y: DataValue
+
+    var x: X { get }
+    var y: Y { get }
+}
+
 // MARK: Data Entries
 
 /// The possible date entry sources.
@@ -16,60 +28,41 @@ enum DataSource: String {
 }
 
 /// A timed data entry.
-protocol DataEntry: CustomStringConvertible {
+protocol DataEntry<Y>: DataPoint, CustomStringConvertible where X == Date {
     /// The source of the entry.
     var source: DataSource { get }
     /// The date the entry was created.
     var date: Date { get }
     /// The data point.
-    var value: Double { get }
+    var value: Y { get }
 }
 
+// MARK: Extensions
+
 /// A data entry with a value.
-private struct ValueEntry: DataEntry {
+private struct ValueEntry<T: DataValue>: DataEntry {
+    typealias Y = T
+    
     var source: DataSource
     var date: Date
-    var value: Double
+    var value: T
 
-    init(_ value: Double, on date: Date, from source: DataSource) {
+    init(_ value: T, on date: Date, from source: DataSource) {
         self.source = source
         self.date = date
         self.value = value
     }
 }
 
-@propertyWrapper
-struct NonNegative<T: Numeric> {
-    let logger = AppLogger(for: T.self)
-    private var value: T?
-
-    var wrappedValue: T? {
-        get { value }
-        set {
-            if let newValue = newValue, newValue < 0 {
-                fatalError("Value must be greater than or equal to 0.")
-            }
-            value = newValue
-        }
-    }
-
-    init(wrappedValue: T?) {
-        if let initial = wrappedValue, initial < 0 {
-            fatalError("Value must be greater than or equal to 0.")
-        }
-        self.value = wrappedValue
-    }
-}
-
-// MARK: Extensions
-
 extension DataEntry {
+    var x: Date { self.date }
+    var y: Y { self.value }
     var description: String {
         return String(describing: self)
     }
 
     /// Convert the entry to a value entry with a custom value.
-    func asEntry(_ value: Double) -> DataEntry {
+    func asEntry<T: DataValue>(_ value: T) -> any DataEntry<T> {
         return ValueEntry(value, on: self.date, from: self.source)
     }
 }

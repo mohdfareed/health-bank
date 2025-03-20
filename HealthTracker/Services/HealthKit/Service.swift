@@ -1,6 +1,5 @@
 import Foundation
 import HealthKit
-import OSLog
 import SwiftData
 
 final class HealthKitStore: DataStore {

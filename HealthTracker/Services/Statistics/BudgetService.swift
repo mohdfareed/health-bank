@@ -1,18 +1,14 @@
 import Foundation
 
 struct BudgetService {
+    /// The allocated budget amount.
     let budget: Double
-    let entries: [Double]
-
     /// The total amount of of the budget consumed.
-    var consumed: Double { entries.sum() }
+    let consumed: Double
     /// The remaining amount of the budget.
-    var remaining: Double { budget - consumed }
-
+    var remaining: Double
     /// The progress of the budget. It is a value between 0 and 1.
-    var progress: Double {
-        return consumed / budget
-    }
+    var progress: Double
 
     init(_ budget: Double, on entries: [Double]) throws {
         guard budget > 0 else {
@@ -20,6 +16,8 @@ struct BudgetService {
         }
 
         self.budget = budget
-        self.entries = entries
+        self.consumed = entries.sum()
+        self.remaining = budget - consumed
+        self.progress = consumed / budget
     }
 }

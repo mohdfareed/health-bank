@@ -2,21 +2,21 @@ import Foundation
 
 extension [ConsumedCalories] {
     /// The protein data entries.
-    var proteinEntries: [DataEntry] {
+    var proteinEntries: [any DataEntry<UInt>] {
         self.filter { $0.macros.protein != nil }.map {
             $0.asEntry($0.macros.protein!)
         }
     }
 
     /// The fat data entries.
-    var fatEntries: [DataEntry] {
+    var fatEntries: [any DataEntry<UInt>] {
         self.filter { $0.macros.fat != nil }.map {
             $0.asEntry($0.macros.fat!)
         }
     }
 
     /// The carbs data entries.
-    var carbsEntries: [DataEntry] {
+    var carbsEntries: [any DataEntry<UInt>] {
         self.filter { $0.macros.carbs != nil }.map {
             $0.asEntry($0.macros.carbs!)
         }
@@ -25,12 +25,12 @@ extension [ConsumedCalories] {
 
 extension [BurnedCalories] {
     /// The consumed calories as negative data points.
-    var consumedEntries: [DataEntry] {
-        self.map { $0.asEntry(-Double($0.burned)) }
+    var burnedEntries: [any DataEntry<UInt>] {
+        self.map { $0.asEntry($0.burned) }
     }
 
     /// The duration of the activities.
-    var durationEntries: [DataEntry] {
+    var durationEntries: [any DataEntry<TimeInterval>] {
         self.filter { $0.duration != nil }.map { $0.asEntry($0.duration!) }
     }
 }
@@ -50,8 +50,8 @@ extension ConsumedCalories {
             return nil
         }
 
-        let proteinCalories = protein * 4
-        let carbsCalories = carbs * 4
+        let proteinCalories = Double(protein) * 4
+        let carbsCalories = Double(carbs) * 4
         return (Double(self.consumed) - proteinCalories - carbsCalories) / 9
     }
 
@@ -61,8 +61,8 @@ extension ConsumedCalories {
             return nil
         }
 
-        let fatCalories = fat * 9
-        let carbsCalories = carbs * 4
+        let fatCalories = Double(fat) * 9
+        let carbsCalories = Double(carbs) * 4
         return (Double(self.consumed) - fatCalories - carbsCalories) / 4
     }
 
@@ -72,8 +72,8 @@ extension ConsumedCalories {
             return nil
         }
 
-        let proteinCalories = protein * 4
-        let fatCalories = fat * 9
+        let proteinCalories = Double(protein) * 4
+        let fatCalories = Double(fat) * 9
         return (Double(self.consumed) - proteinCalories - fatCalories) / 4
     }
 }

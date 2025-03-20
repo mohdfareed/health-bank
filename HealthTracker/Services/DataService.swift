@@ -1,10 +1,9 @@
 import Foundation
-import OSLog
 import SwiftData
 
 /// Budget data entry service.
 struct DataService {
-    internal let logger = AppLogger(for: DataService.self)
+    internal let logger = AppLogger.new(for: DataService.self)
     private let context: ModelContext
 
     init(_ context: ModelContext) {

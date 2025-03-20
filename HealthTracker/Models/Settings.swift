@@ -24,13 +24,15 @@ struct DailyBudgets: Codable {
     init(
         startOfWeek: Weekday = .sunday,
         dailyCalories: UInt = 2000,
-        dailyMacros: CalorieMacros = CalorieMacros(protein: 120, fat: 60, carbs: 245)
+        dailyMacros: CalorieMacros = try! CalorieMacros(protein: 120, fat: 60, carbs: 245)
     ) {
         self.startOfWeek = startOfWeek
         self.dailyCalories = dailyCalories
         self.dailyMacros = dailyMacros
     }
 }
+
+// MARK: App Settings
 
 /// The user settings.
 @Model
