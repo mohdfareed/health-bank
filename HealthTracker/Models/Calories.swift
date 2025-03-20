@@ -21,8 +21,6 @@ struct CalorieMacros: Codable {
 /// Entry of consumed calories.
 @Model
 final class ConsumedCalories: DataEntry {
-    typealias Y = UInt
-    
     var source: DataSource
     var date: Date
     var value: UInt { consumed }
@@ -48,8 +46,6 @@ final class ConsumedCalories: DataEntry {
 /// Entry of burned calories.
 @Model
 final class BurnedCalories: DataEntry {
-    typealias Y = Int
-    
     var source: DataSource
     var date: Date
     var value: Int { -Int(burned) }

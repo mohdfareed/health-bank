@@ -2,20 +2,6 @@ import OSLog
 import SwiftData
 import SwiftUI
 
-extension Logger {
-    private static let defaultSubsystem: String = {
-        Bundle.main.bundleIdentifier ?? "Debug.HealthTracker"
-    }()
-
-    init(for category: String) {
-        self.init(subsystem: Logger.defaultSubsystem, category: category)
-    }
-
-    init<T>(for category: T.Type) {
-        self.init(subsystem: Logger.defaultSubsystem, category: "\(T.self)")
-    }
-}
-
 struct AppLogger {
     private static let defaultSubsystem: String = {
         Bundle.main.bundleIdentifier ?? "Debug.HealthTracker"

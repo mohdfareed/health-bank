@@ -2,35 +2,33 @@ import Foundation
 
 typealias Advancer<T: Strideable> = (T, T.Stride) -> T
 
-extension [Double] {
+extension Collection where Element: Numeric {
     /// The sum of all data points.
-    func sum() -> Double {
-        self.reduce(0, +)
+    func sum() -> Element {
+        self.reduce(Element.zero, +)
     }
 
     /// The average of all data points.
-    func average() -> Double? {
+    func average() -> Element? {
         guard !self.isEmpty else {
             return nil
         }
-        return self.sum() / Double(self.count)
+
+        let sum = self.sum()
+        let count = self.min()
+        return self.sum() / Element(exactly: self.count)!
     }
 }
 
 extension Collection where Element: DataPoint {
-    /// The x-axis data points.
-    var xValues: [Element.X] { self.map { $0.x } }
-    /// The y-axis data points.
-    var yValues: [Element.Y] { self.map { $0.y } }
-
     /// Bin the data points into the range.
     func bin(
         step: Element.X.Stride, anchor: Element.X? = nil,
         using advance: Advancer<Element.X> = { $0.advanced(by: $1) }
     ) -> [(Range<Element.X>, values: [Element.Y])] {
         guard
-            let minValue = self.xValues.min(),
-            let maxValue = self.xValues.max()
+            let minValue = self.xAxis.min(),
+            let maxValue = self.xAxis.max()
         else {
             return []
         }

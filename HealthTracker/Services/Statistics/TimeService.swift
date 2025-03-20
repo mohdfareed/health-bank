@@ -1,13 +1,22 @@
 import Foundation
 
-extension Date {
-    /// The time bin unit component.
-    func advanced(
-        by count: Int, unit: Calendar.Component, using calendar: Calendar = .current
-    ) -> Date {
-        return calendar.date(byAdding: unit, value: count, to: self)!
-    }
+extension Collection where Element: DataPoint<Date, Element.Y> {
+    /// Bin the data points using the date by a specific unit.
+    func bin(
+        step: Int, anchor: Date? = nil,
+        unit: Calendar.Component, calendar: Calendar = .current
+    ) -> [(Range<Date>, values: [Element.Y])] {
+        let advancer: Advancer<Date> = {
+            calendar.date(byAdding: unit, value: Int($1), to: $0)!
+        }
 
+        return self.bin(
+            step: Date.Stride(step), anchor: anchor, using: advancer
+        )
+    }
+}
+
+extension Date {
     /// Floors the date to the beginning of a specific bin unit.
     func floored(to unit: Calendar.Component, using calendar: Calendar = .current) -> Date {
         switch unit {
@@ -45,19 +54,6 @@ extension Date {
         default:
             return self
         }
-    }
-}
-
-extension Collection where Element: DataEntry {
-    /// Bin the data points using the date by a specific unit.
-    func bin(
-        step: Int, anchor: Element.X? = nil,
-        unit: Calendar.Component, calendar: Calendar = .current
-    ) -> [(Range<Element.X>, values: [Element.Y])] {
-        let advancer: Advancer<Element.X> = {
-            calendar.date(byAdding: unit, value: Int($1), to: $0)!
-        }
-        return self.bin(step: Date.Stride(step), anchor: anchor, using: advancer)
     }
 }
 
