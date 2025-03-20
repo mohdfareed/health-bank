@@ -49,6 +49,7 @@ extension Date {
 }
 
 extension Collection where Element: DataEntry {
+    /// Bin the data points using the date by a specific unit.
     func bin(
         step: Int, anchor: Element.X? = nil,
         unit: Calendar.Component, calendar: Calendar = .current
