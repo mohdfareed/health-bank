@@ -22,82 +22,33 @@ struct AppLogger {
     }
 }
 
-struct AppDataStore {
-    private static var schema: Schema {
-        Schema([
-            AppSettings.self,
-            AppState.self,
-            // Date models
-            ConsumedCalories.self,
-            BurnedCalories.self,
-        ])
-    }
-
-    static let container: ModelContainer = {
-        do {
-            return try ModelContainer(for: schema)
-        } catch {
-            fatalError("Could not create ModelContainer: \(error)")
-        }
-    }()
-
-    static let previewContainer: ModelContainer = {
-        let config = ModelConfiguration(isStoredInMemoryOnly: true)
-
-        do {
-            return try ModelContainer(for: schema, configurations: [config])
-        } catch {
-            fatalError("Could not create preview ModelContainer: \(error)")
-        }
-    }()
-}
-
 @main
 struct HealthTrackerApp: App {
     internal let logger = AppLogger.new(for: HealthTrackerApp.self)
 
-    @Environment(\.modelContext) private var modelContext: ModelContext
-    @Query private var appSettings: [AppSettings]
-    @Query private var appState: [AppState]
-
-    var settings: AppSettings {
-        guard let settings = appSettings.first else {
-            let defaultSettings = AppSettings()
-            self.logger.info("Creating default settings.")
-            self.modelContext.insert(defaultSettings)
-            return defaultSettings
-        }
-
-        self.logger.debug("Loaded settings.")
-        return settings
-    }
-
-    var state: AppState {
-        guard let state = appState.first else {
-            let defaultState = AppState()
-            self.logger.info("Creating default state.")
-            self.modelContext.insert(defaultState)
-            return defaultState
-        }
-
-        self.logger.debug("Loaded state.")
-        return state
-    }
+    static let schema = Schema([
+        AppSettings.self,
+        AppState.self,
+        // Date models
+        ConsumedCalories.self,
+        BurnedCalories.self,
+    ])
 
     var body: some Scene {
         WindowGroup {
-            DashboardView()
-                .modelContainer(AppDataStore.container)
-                .environment(\.modelContext, modelContext)
-                .environment(settings)
-                .environment(state)
+            DashboardView().modelContainer(
+                try! AppDataStore.container(
+                    HealthTrackerApp.schema,
+                    configurations:
+                        HealthKitStore.Configuration()
+                )
+            )
         }
     }
 }
 
 #Preview {
-    DashboardView().modelContainer(AppDataStore.previewContainer)
-        .environment(\.modelContext, AppDataStore.previewContainer.mainContext)
-        .environment(AppSettings())
-        .environment(AppState())
+    DashboardView().modelContainer(
+        AppDataStore.previewContainer(HealthTrackerApp.schema)
+    )
 }

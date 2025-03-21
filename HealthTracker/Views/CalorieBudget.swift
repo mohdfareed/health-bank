@@ -3,7 +3,7 @@ import SwiftUI
 
 struct CalorieBudgetCard: View {
     @Environment(\.modelContext) private var context
-    @Query private var consumed: [ConsumedCalories]
+    @Query() private var consumed: [ConsumedCalories]
     @Query private var burned: [BurnedCalories]
 
     @State var title: String

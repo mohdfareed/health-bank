@@ -7,15 +7,17 @@ extension Collection where Element: Numeric {
     func sum() -> Element {
         self.reduce(Element.zero, +)
     }
+}
 
+extension Collection where Element: DataValue & Numeric & DurationProtocol {
     /// The average of all data points.
-    func average() -> Element? {
+    func average() -> Double? {
         guard !self.isEmpty else {
             return nil
         }
 
         let sum = self.sum()
-        let count = self.min()
+        let count = self.count
         return self.sum() / Element(exactly: self.count)!
     }
 }
@@ -63,7 +65,9 @@ extension Collection where Element: DataPoint {
 
 extension ClosedRange where Bound: DataValue {
     /// Generate data bins out of a range with a given step.
-    func generateBins(step: Bound.Stride, using advance: Advancer<Bound>) -> [Range<Bound>] {
+    func generateBins(
+        step: Bound.Stride, using advance: Advancer<Bound>
+    ) -> [Range<Bound>] {
         var bins: [Range<Bound>] = []
         var current = self.lowerBound
         while current < self.upperBound {

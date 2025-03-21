@@ -24,7 +24,9 @@ struct DailyBudgets: Codable {
     init(
         startOfWeek: Weekday = .sunday,
         dailyCalories: UInt = 2000,
-        dailyMacros: CalorieMacros = try! CalorieMacros(protein: 120, fat: 60, carbs: 245)
+        dailyMacros: CalorieMacros = try! CalorieMacros(
+            protein: 120, fat: 60, carbs: 245
+        )
     ) {
         self.startOfWeek = startOfWeek
         self.dailyCalories = dailyCalories
@@ -36,7 +38,9 @@ struct DailyBudgets: Codable {
 
 /// The user settings.
 @Model
-final class AppSettings {
+final class AppSettings: SingletonModel {
+    static var singletonFactory: () -> AppSettings = { .init() }
+
     /// Enable HealthKit integration.
     var enableHealthKit: Bool
     /// Write manual entries to HealthKit.
@@ -57,7 +61,9 @@ final class AppSettings {
 
 /// App state and user choices.
 @Model
-final class AppState {
+final class AppState: SingletonModel {
+    static var singletonFactory: () -> AppState = { .init() }
+
     /// Whether the user has responded to `Settings.enableHealthKit`.
     var hasRespondedToEnableHealthKit: Bool
     /// Whether the user has responded to `Settings.writeToHealthKit`.

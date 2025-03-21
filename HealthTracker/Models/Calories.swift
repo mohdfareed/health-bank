@@ -21,7 +21,6 @@ struct CalorieMacros: Codable {
 /// Entry of consumed calories.
 @Model
 final class ConsumedCalories: DataEntry {
-    var source: DataSource
     var date: Date
     var value: UInt { consumed }
 
@@ -30,12 +29,8 @@ final class ConsumedCalories: DataEntry {
     /// The calorie macros breakdown.
     var macros: CalorieMacros
 
-    init(
-        _ calories: UInt, macros: CalorieMacros,
-        on date: Date, from: DataSource = .manual
-    ) {
+    init(_ calories: UInt, macros: CalorieMacros, on date: Date) {
         self.date = date
-        self.source = source
         self.consumed = calories
         self.macros = macros
     }
@@ -46,7 +41,6 @@ final class ConsumedCalories: DataEntry {
 /// Entry of burned calories.
 @Model
 final class BurnedCalories: DataEntry {
-    var source: DataSource
     var date: Date
     var value: Int { -Int(burned) }
 
@@ -55,12 +49,8 @@ final class BurnedCalories: DataEntry {
     /// The duration of the activity.
     var duration: TimeInterval?
 
-    init(
-        _ calories: UInt, for duration: TimeInterval? = nil,
-        on date: Date, from source: DataSource = .manual
-    ) {
+    init(_ calories: UInt, for duration: TimeInterval? = nil, on date: Date) {
         self.date = date
-        self.source = source
         self.burned = calories
         self.duration = duration
     }

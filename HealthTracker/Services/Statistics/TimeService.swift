@@ -5,7 +5,7 @@ extension Collection where Element: DataPoint<Date, Element.Y> {
     func bin(
         step: Int, anchor: Date? = nil,
         unit: Calendar.Component, calendar: Calendar = .current
-    ) -> [(Range<Date>, values: [Element.Y])] {
+    ) -> [(Range<Date>, values: any Collection<Element.Y>)] {
         let advancer: Advancer<Date> = {
             calendar.date(byAdding: unit, value: Int($1), to: $0)!
         }
@@ -18,7 +18,10 @@ extension Collection where Element: DataPoint<Date, Element.Y> {
 
 extension Date {
     /// Floors the date to the beginning of a specific bin unit.
-    func floored(to unit: Calendar.Component, using calendar: Calendar = .current) -> Date {
+    func floored(
+        to unit: Calendar.Component, using calendar: Calendar = .current
+    ) -> Date {
+
         switch unit {
         case .second:
             return calendar.date(

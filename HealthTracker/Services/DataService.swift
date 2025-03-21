@@ -19,7 +19,9 @@ struct DataService {
         over interval: DateInterval
     ) throws -> FetchDescriptor<T> {
         let entries = FetchDescriptor<T>(
-            predicate: #Predicate { $0.date >= interval.start && $0.date < interval.end },
+            predicate: #Predicate {
+                $0.date >= interval.start && $0.date < interval.end
+            },
             sortBy: [
                 .init(\.date)
             ]
@@ -30,7 +32,9 @@ struct DataService {
     /// Get the entries within a given date range.
     /// - Parameter startDate: The start date of the range.
     /// - Parameter endDate: The end date of the range.
-    func get<T: DataEntry & PersistentModel>(over interval: DateInterval) throws -> [T] {
+    func get<T: DataEntry & PersistentModel>(
+        over interval: DateInterval
+    ) throws -> [T] {
         self.logger.debug("Fetching entries in date interval: \(interval)")
         let entries: FetchDescriptor<T> = try DataService.fetch(over: interval)
 
@@ -40,8 +44,7 @@ struct DataService {
             return results
         } catch {
             throw DatabaseError.queryError(
-                "Failed to fetch entries of type '\(T.self)' in date interval: \(interval)",
-                dbError: error
+                "Failed to fetch entries in date interval: \(interval)", error
             )
         }
     }
