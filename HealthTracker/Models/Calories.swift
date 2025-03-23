@@ -8,12 +8,6 @@ struct CalorieMacros: Codable {
     var fat: UInt?
     /// The amount of carbs in grams.
     var carbs: UInt?
-
-    init(protein: UInt? = nil, fat: UInt? = nil, carbs: UInt? = nil) throws {
-        self.protein = protein
-        self.fat = fat
-        self.carbs = carbs
-    }
 }
 
 // MARK: Consumed

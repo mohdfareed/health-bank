@@ -26,11 +26,6 @@ protocol DataPoint<X, Y>: CustomStringConvertible {
 struct ValuePoint<X: DataValue, Y: DataValue>: DataPoint {
     var x: X
     var y: Y
-
-    init(x: X, y: Y) {
-        self.x = x
-        self.y = y
-    }
 }
 
 // MARK: Data Entries
@@ -50,10 +45,24 @@ protocol DataEntry<T>: CustomStringConvertible {
 struct ValueEntry<T: DataValue>: DataEntry {
     var date: Date
     var value: T
+}
 
-    init(_ value: T, on date: Date) {
-        self.date = date
-        self.value = value
+// MARK: Extensions
+
+extension DataPoint {
+    var description: String {
+        return String(describing: self)
+    }
+}
+
+extension DataEntry {
+    var description: String {
+        return String(describing: self)
+    }
+
+    /// Generate a new data entry based on the current one.
+    func asEntry<T: DataValue>(_ value: T) -> any DataEntry<T> {
+        return ValueEntry(date: self.date, value: value)
     }
 }
 
@@ -72,4 +81,6 @@ enum DataError: Error {
 enum HealthKitError: Error {
     case authorizationFailed(String, Error? = nil)
     case unsupportedFeature(String)
+    case DataTypeMismatch(expected: String, actual: String)
+    case queryError(String, Error? = nil)
 }

@@ -8,6 +8,13 @@ protocol WidgetVMProtocol {
 struct WidgetCard<Content: View>: View {
     @ViewBuilder var content: () -> Content
     @State var title: String
+    
+    var dateInterval: DateInterval {
+        let start = Date().floored(to: .week)
+        let end = start.adding(1, .wee)
+    }
+
+    @Query(filter: #Predicate {$0.date.isBetween()}) var test: [ConsumedCalories]
 
     init(_ title: String, @ViewBuilder content: @escaping () -> Content) {
         self.title = title

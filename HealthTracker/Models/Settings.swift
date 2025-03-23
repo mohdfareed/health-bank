@@ -2,6 +2,7 @@ import Foundation
 import HealthKit
 import SwiftData
 
+/// The app's start of the week.
 enum Weekday: Int, CaseIterable, Codable {
     case sunday = 1
     case monday
@@ -14,24 +15,12 @@ enum Weekday: Int, CaseIterable, Codable {
 
 /// A daily budgets configuration.
 struct DailyBudgets: Codable {
-    /// The start of the week for weekly statistics.
-    var startOfWeek: Weekday = .sunday
     /// The daily calorie budget.
     var dailyCalories: UInt = 2000
     /// The daily macros budgets.
-    var dailyMacros: CalorieMacros
-
-    init(
-        startOfWeek: Weekday = .sunday,
-        dailyCalories: UInt = 2000,
-        dailyMacros: CalorieMacros = try! CalorieMacros(
-            protein: 120, fat: 60, carbs: 245
-        )
-    ) {
-        self.startOfWeek = startOfWeek
-        self.dailyCalories = dailyCalories
-        self.dailyMacros = dailyMacros
-    }
+    var dailyMacros = try! CalorieMacros(
+        protein: 120, fat: 60, carbs: 245
+    )
 }
 
 // MARK: App Settings
@@ -41,21 +30,24 @@ struct DailyBudgets: Codable {
 final class AppSettings: SingletonModel {
     static var singletonFactory: () -> AppSettings = { .init() }
 
-    /// Enable HealthKit integration.
-    var enableHealthKit: Bool
-    /// Write manual entries to HealthKit.
-    var writeToHealthKit: Bool
+    /// The start of the week for weekly statistics.
+    var startOfWeek: Weekday
     /// The user's daily budgets.
     var budgets: DailyBudgets
+    /// Enable HealthKit integration.
+    var enableHealthKit: Bool
 
     init(
-        enableHealthKit: Bool = false,
-        writeToHealthKit: Bool = false,
-        budgets: DailyBudgets = DailyBudgets()
+        startOfWeek: Weekday = .sunday,
+        budgets: DailyBudgets = DailyBudgets(),
+        enableHealthKit: Bool = false
     ) {
         self.enableHealthKit = enableHealthKit
-        self.writeToHealthKit = writeToHealthKit
         self.budgets = budgets
+    }
+
+    convenience init() {
+        self.init(enableHealthKit: false)
     }
 }
 
@@ -66,14 +58,12 @@ final class AppState: SingletonModel {
 
     /// Whether the user has responded to `Settings.enableHealthKit`.
     var hasRespondedToEnableHealthKit: Bool
-    /// Whether the user has responded to `Settings.writeToHealthKit`.
-    var hasRespondedToWriteToHealthKit: Bool
 
-    init(
-        hasRespondedToEnableHealthKit: Bool = false,
-        hasRespondedToWriteToHealthKit: Bool = false
-    ) {
+    init(hasRespondedToEnableHealthKit: Bool = false) {
         self.hasRespondedToEnableHealthKit = hasRespondedToEnableHealthKit
-        self.hasRespondedToWriteToHealthKit = hasRespondedToWriteToHealthKit
+    }
+
+    convenience init() {
+        self.init(hasRespondedToEnableHealthKit: false)
     }
 }

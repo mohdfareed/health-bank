@@ -26,29 +26,29 @@ struct AppLogger {
 struct HealthTrackerApp: App {
     internal let logger = AppLogger.new(for: HealthTrackerApp.self)
 
-    static let schema = Schema([
-        AppSettings.self,
-        AppState.self,
-        // Date models
-        ConsumedCalories.self,
-        BurnedCalories.self,
-    ])
+    init() {
+        _ = try! AppDataStore.initializeContainer(
+            configurations: AppDataStore.defaultConfig,
+            HealthKitStoreConfiguration()
+        )
+
+        let settings = AppSettings.singleton(in: AppDataStore.container.mainContext)
+        Calendar.current.startOfWeek = settings.budgets.startOfWeek
+        HealthKitService.enable()
+        self.logger.debug("App initialized.")
+    }
 
     var body: some Scene {
         WindowGroup {
-            DashboardView().modelContainer(
-                try! AppDataStore.container(
-                    HealthTrackerApp.schema,
-                    configurations:
-                        HealthKitStore.Configuration()
-                )
-            )
+            DashboardView().modelContainer(AppDataStore.container)
         }
     }
 }
 
 #Preview {
     DashboardView().modelContainer(
-        AppDataStore.previewContainer(HealthTrackerApp.schema)
+        try! AppDataStore.initializeContainer(
+            configurations: AppDataStore.previewConfig
+        )
     )
 }

@@ -2,6 +2,8 @@ import Foundation
 
 typealias Advancer<T: Strideable> = (T, T.Stride) -> T
 
+// MARK: Statistics
+
 extension Collection where Element: Numeric {
     /// The sum of all data points.
     func sum() -> Element {
@@ -22,7 +24,49 @@ extension Collection where Element: DataValue & Numeric & DurationProtocol {
     }
 }
 
+// MARK: Plotting
+
+extension DataEntry {
+    /// Convert the entry to a data point.
+    var dataPoint: any DataPoint<Date, T> {
+        return ValuePoint(x: self.date, y: self.value)
+    }
+}
+
+extension Collection where Element: DataEntry {
+    /// The data points of the entries.
+    var dataPoints: any Collection<any DataPoint<Date, Element.T>> {
+        return self.map({ $0.dataPoint })
+    }
+}
+
 extension Collection where Element: DataPoint {
+    /// The x-axis data points.
+    var xAxis: any Collection<Element.X> { self.map { $0.x } }
+    /// The y-axis data points.
+    var yAxis: any Collection<Element.Y> { self.map { $0.y } }
+}
+
+// MARK: Data Binning
+
+extension Collection where Element: DataPoint {
+    /// Bin the data points into the range.
+    func bin(
+        _ count: Element.X.Stride,
+        using advance: Advancer<Element.X> = { $0.advanced(by: $1) }
+    ) -> [(Range<Element.X>, values: [Element.Y])]
+    where Element.X.Stride: BinaryFloatingPoint {
+        guard
+            let minValue = self.xAxis.min(),
+            let maxValue = self.xAxis.max()
+        else {
+            return []
+        }
+
+        let step = minValue.distance(to: maxValue) / count
+        return self.bin(step: step, using: advance)
+    }
+
     /// Bin the data points into the range.
     func bin(
         step: Element.X.Stride, anchor: Element.X? = nil,

@@ -1,11 +1,30 @@
 import Foundation
 
 extension Collection where Element: DataPoint<Date, Element.Y> {
+    /// Bin the data points into the range.
+    func bin(
+        _ count: Int,
+        unit: Calendar.Component, calendar: Calendar = .current
+    ) -> [(Range<Element.X>, values: [Element.Y])]
+    where Element.X == Date {
+        guard
+            let min = self.xAxis.min(),
+            let max = self.xAxis.max(),
+            let steps = min.distance(to: max, in: unit, using: calendar)
+        else {
+            return []
+        }
+
+        let step = steps / count
+        return self.bin(step: step, unit: unit, calendar: calendar)
+    }
+
     /// Bin the data points using the date by a specific unit.
     func bin(
         step: Int, anchor: Date? = nil,
         unit: Calendar.Component, calendar: Calendar = .current
-    ) -> [(Range<Date>, values: any Collection<Element.Y>)] {
+    ) -> [(Range<Element.X>, values: [Element.Y])]
+    where Element.X == Date {
         let advancer: Advancer<Date> = {
             calendar.date(byAdding: unit, value: Int($1), to: $0)!
         }
@@ -17,61 +36,32 @@ extension Collection where Element: DataPoint<Date, Element.Y> {
 }
 
 extension Date {
-    /// Floors the date to the beginning of a specific bin unit.
+    /// Get the difference between two dates in a unit.
+    func distance(
+        to date: Date, in unit: Calendar.Component,
+        using calendar: Calendar = .current
+    ) -> Int? {
+        var dateComponents = calendar.dateComponents(
+            [unit], from: self, to: date
+        )
+        return dateComponents.value(for: unit)
+    }
+
+    /// Add an amount of a calendar component.
+    func adding(
+        _ value: Int, _ component: Calendar.Component,
+        using calendar: Calendar = .current
+    ) -> Date {
+        calendar.date(byAdding: component, value: value, to: self)!
+    }
+
+    /// Floors the date to the beginning of a specific time unit.
     func floored(
         to unit: Calendar.Component, using calendar: Calendar = .current
     ) -> Date {
-
-        switch unit {
-        case .second:
-            return calendar.date(
-                from: calendar.dateComponents(
-                    [.year, .month, .day, .hour, .minute, .second], from: self)
-            )!
-        case .minute:
-            return calendar.date(
-                from: calendar.dateComponents([.year, .month, .day, .hour, .minute], from: self)
-            )!
-        case .hour:
-            return calendar.date(
-                from: calendar.dateComponents([.year, .month, .day, .hour], from: self)
-            )!
-        case .day:
-            return calendar.startOfDay(for: self)
-        case .weekday:
-            return calendar.date(
-                from: calendar.dateComponents([.year, .month, .weekday], from: self)
-            )!
-        case .weekOfYear:
-            return calendar.date(
-                from: calendar.dateComponents([.yearForWeekOfYear, .weekOfYear], from: self)
-            )!
-        case .month:
-            return calendar.date(
-                from: calendar.dateComponents([.year, .month], from: self)
-            )!
-        case .year:
-            return calendar.date(
-                from: calendar.dateComponents([.year], from: self)
-            )!
-        default:
-            return self
+        if let interval = calendar.dateInterval(of: unit, for: self) {
+            return interval.start
         }
+        return self
     }
 }
-
-// extension Date {
-//     /// The date bin of the current week.
-//     func bin(starting startOfWeek: Weekday, weeks: UInt = 1) -> DateInterval {
-//         let calendar = Calendar.current
-//         let weekday = calendar.component(.weekday, from: self)
-//
-//         let elapsedDays = (weekday - startOfWeek.rawValue + 7) % 7
-//         let start = calendar.startOfDay(
-//             for: calendar.date(byAdding: .day, value: -elapsedDays, to: self)!
-//         )
-//
-//         let end = calendar.date(byAdding: .day, value: 7 * Int(weeks), to: start)!
-//         return DateInterval(start: start, end: end)
-//     }
-// }

@@ -2,81 +2,95 @@ import Foundation
 import HealthKit
 import SwiftData
 
-typealias SupportedTypes = [any HealthKitModel.Type]
+final class HealthKitService {
+    private let logger = AppLogger.new(for: HealthKitService.self)
+    internal let healthStore: HKHealthStore
+    internal static var isEnabled = false
 
-// A protocol to support HealthKit data store.
-protocol HealthKitModel: PersistentModel {
-    static var healthKitType: HKSampleType { get }
-    static func healthKitDescriptor(with predicate: FetchDescriptor<Self>?) -> HKQueryDescriptor
-}
-
-struct HealthKitStoreConfiguration: DataStoreConfiguration {
-    typealias Store = HealthKitStore
-    var name: String = "HealthKit"
-    var schema: Schema? = Schema(HealthKitStore.types)
-
-    init(name: String? = nil) {
-        self.name = name ?? self.name
-    }
-}
-
-final class HealthKitStore: DataStore {
-    typealias Configuration = HealthKitStoreConfiguration
-    typealias Snapshot = DefaultSnapshot
-
-    static let types: [any HealthKitModel.Type] = [
-
-        ]
-
-    var schema: Schema = Configuration().schema ?? Schema()
-    var configuration: HealthKitStoreConfiguration
-    var identifier: String = UUID().uuidString
-
-    private var logger = AppLogger.new(for: HealthKitStore.self)
-    private var healthStore = HKHealthStore()
-
-    init(
-        _ configuration: HealthKitStoreConfiguration,
-        migrationPlan: (any SchemaMigrationPlan.Type)?
-    ) throws {
+    init() throws {
         guard HKHealthStore.isHealthDataAvailable() else {
             throw HealthKitError.authorizationFailed(
                 "HealthKit is not available on this device."
             )
         }
+        self.healthStore = HKHealthStore()
+        self.logger.debug("HealthKit service initialized.")
+    }
 
-        self.configuration = configuration
-        self.schema = configuration.schema ?? self.schema
+    static func enable() async throws {
+        Self.isEnabled = true
+        let logger = AppLogger.new(for: HealthKitService.self)
 
-        for modelType in HealthKitStore.types {
-            let observerQuery = HKObserverQuery(sampleType: modelType.healthKitType, predicate: nil)
-            { [weak self] query, completionHandler, error in
-                // Fetch the new data for this model.
-                self?.handleHealthKitUpdate(for: modelType)
-                completionHandler()
+        if !Self.isEnabled {
+            logger.warning("HealthKit service is not available.")
+            return
+        }
+        logger.info("HealthKit service started.")
+    }
+
+    static func disable() {
+        Self.isEnabled = false
+        let logger = AppLogger.new(for: HealthKitService.self)
+        logger.info("HealthKit service disabled.")
+    }
+
+    // MARK: Operations
+
+    func read<T: HealthKitModel>(desc: FetchDescriptor<T>? = nil) async throws -> [T] {
+        guard self.canRead(T.self) else { return [] }
+        return try await withCheckedThrowingContinuation { continuation in
+            let query: HKQuery
+            do {
+                query = try T.healthKitQuery(with: desc) { _, results, err in
+                    if let err = err {
+                        continuation.resume(
+                            throwing: HealthKitError.queryError(
+                                "Failed to execute HealthKit query: \(query)", err))
+                    } else {
+                        continuation.resume(returning: results)
+                    }
+                }
+            } catch {
+                continuation.resume(throwing: error)
+                return
             }
-            healthStore.execute(observerQuery)
+            healthStore.execute(query)
         }
     }
 
-    func fetch<T>(_ request: DataStoreFetchRequest<T>)
-        throws -> DataStoreFetchResult<T, DefaultSnapshot>
-    where T: PersistentModel {
-        let test = request.descriptor.predicate
-        return DataStoreFetchResult(
-            descriptor: request.descriptor, fetchedSnapshots: [DefaultSnapshot]([]))
+    func write<T: HealthKitModel>(_ object: T) async throws {
+        guard self.canEdit(T.self) && self.isEditable(object) else {
+            return
+        }
+        
+        return try await withCheckedThrowingContinuation { continuation in
+            healthStore.save(object.healthKitObjects) { _, error in
+                if let error = error {
+                    continuation.resume(
+                        throwing: HealthKitError.queryError(
+                            "Failed to save HealthKit object: \(object)", error))
+                } else {
+                    continuation.resume(returning: ())
+                }
+            }
+        }
     }
 
-    func fetch<T>(_ request: DataStoreFetchRequest<T>)
-        throws -> DataStoreFetchResult<T, DefaultSnapshot>
-    where T: HealthKitModel {
-        return DataStoreFetchResult(
-            descriptor: request.descriptor, fetchedSnapshots: [DefaultSnapshot]([]))
-    }
-
-    func save(_ request: DataStoreSaveChangesRequest<DefaultSnapshot>) throws
-        -> DataStoreSaveChangesResult<DefaultSnapshot>
-    {
-        return DataStoreSaveChangesResult(for: "")
+    func delete<T: HealthKitModel>(_ object: T) async throws {
+        guard self.canEdit(T.self) && self.isEditable(object) else {
+            return
+        }
+        
+        return try await withCheckedThrowingContinuation { continuation in
+            healthStore.delete(object.healthKitObjects) { _, error in
+                if let error = error {
+                    continuation.resume(
+                        throwing: HealthKitError.queryError(
+                            "Failed to delete HealthKit object: \(object)", error))
+                } else {
+                    continuation.resume(returning: ())
+                }
+            }
+        }
     }
 }
