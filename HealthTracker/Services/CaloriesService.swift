@@ -1,47 +1,50 @@
 import Foundation
 
 extension [ConsumedCalories] {
-    /// The protein data entries.
-    var proteinEntries: [any DataEntry<UInt>] {
-        self.filter { $0.macros.protein != nil }.map {
-            $0.asEntry($0.macros.protein!)
-        }
+    /// The consumed calories as data points.
+    var consumedData: [any DataPoint<Date, UInt>] {
+        self.points(x: \.date, y: \.calories)
     }
 
-    /// The fat data entries.
-    var fatEntries: [any DataEntry<UInt>] {
-        self.filter { $0.macros.fat != nil }.map {
-            $0.asEntry($0.macros.fat!)
-        }
+    /// The protein data points.
+    var proteinData: [any DataPoint<Date, UInt>] {
+        self.filter { $0.macros.protein != nil }
+            .points(x: \.date, y: \.macros.protein!)
     }
 
-    /// The carbs data entries.
-    var carbsEntries: [any DataEntry<UInt>] {
-        self.filter { $0.macros.carbs != nil }.map {
-            $0.asEntry($0.macros.carbs!)
-        }
+    /// The fat data points.
+    var fatData: [any DataPoint<Date, UInt>] {
+        self.filter { $0.macros.fat != nil }
+            .points(x: \.date, y: \.macros.fat!)
+    }
+
+    /// The carbs data points.
+    var carbsData: [any DataPoint<Date, UInt>] {
+        self.filter { $0.macros.carbs != nil }
+            .points(x: \.date, y: \.macros.carbs!)
     }
 }
 
 extension [BurnedCalories] {
     /// The consumed calories as negative data points.
-    var burnedEntries: [any DataEntry<UInt>] {
-        self.map { $0.asEntry($0.burned) }
+    var consumedData: [any DataPoint<Date, UInt>] {
+        self.points(x: \.date, y: \.calories)
     }
 
     /// The duration of the activities.
-    var durationEntries: [any DataEntry<TimeInterval>] {
-        self.filter { $0.duration != nil }.map { $0.asEntry($0.duration!) }
+    var durationData: [any DataPoint<Date, TimeInterval>] {
+        self.filter { $0.duration != nil }
+            .points(x: \.date, y: \.duration!)
     }
 }
 
 extension ConsumedCalories {
     /// The total calories from the macros.
-    var calories: UInt? {
+    func calcCalories() -> UInt? {
         guard let p = self.macros.protein, let f = self.macros.fat, let c = self.macros.carbs else {
             return nil
         }
-        return UInt(((p + c) * 4) + (f * 9))
+        return ((p + c) * 4) + (f * 9)
     }
 
     /// The amount of protein in grams from the calories.
@@ -50,9 +53,9 @@ extension ConsumedCalories {
             return nil
         }
 
-        let proteinCalories = Double(protein) * 4
-        let carbsCalories = Double(carbs) * 4
-        return (Double(self.consumed) - proteinCalories - carbsCalories) / 9
+        let proteinCalories = protein * 4
+        let carbsCalories = carbs * 4
+        return Double(self.calories - proteinCalories - carbsCalories) / 9
     }
 
     /// The amount of fat in grams from the calories.
@@ -61,9 +64,9 @@ extension ConsumedCalories {
             return nil
         }
 
-        let fatCalories = Double(fat) * 9
-        let carbsCalories = Double(carbs) * 4
-        return (Double(self.consumed) - fatCalories - carbsCalories) / 4
+        let fatCalories = fat * 9
+        let carbsCalories = carbs * 4
+        return Double(self.calories - fatCalories - carbsCalories) / 4
     }
 
     /// The amount of carbs in grams from the calories.
@@ -72,8 +75,8 @@ extension ConsumedCalories {
             return nil
         }
 
-        let proteinCalories = Double(protein) * 4
-        let fatCalories = Double(fat) * 9
-        return (Double(self.consumed) - proteinCalories - fatCalories) / 4
+        let proteinCalories = protein * 4
+        let fatCalories = fat * 9
+        return Double(self.calories - proteinCalories - fatCalories) / 4
     }
 }

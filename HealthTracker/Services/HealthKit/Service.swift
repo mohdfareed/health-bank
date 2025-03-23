@@ -8,7 +8,7 @@ final class HealthKitService {
     internal static var isEnabled = false
 
     init() throws {
-        guard HKHealthStore.isHealthDataAvailable() else {
+        guard HealthKitService.isAvailable else {
             throw HealthKitError.authorizationFailed(
                 "HealthKit is not available on this device."
             )
@@ -62,7 +62,7 @@ final class HealthKitService {
         guard self.canEdit(T.self) && self.isEditable(object) else {
             return
         }
-        
+
         return try await withCheckedThrowingContinuation { continuation in
             healthStore.save(object.healthKitObjects) { _, error in
                 if let error = error {
@@ -80,7 +80,7 @@ final class HealthKitService {
         guard self.canEdit(T.self) && self.isEditable(object) else {
             return
         }
-        
+
         return try await withCheckedThrowingContinuation { continuation in
             healthStore.delete(object.healthKitObjects) { _, error in
                 if let error = error {

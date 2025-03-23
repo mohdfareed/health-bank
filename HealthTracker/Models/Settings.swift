@@ -18,7 +18,7 @@ struct DailyBudgets: Codable {
     /// The daily calorie budget.
     var dailyCalories: UInt = 2000
     /// The daily macros budgets.
-    var dailyMacros = try! CalorieMacros(
+    var dailyMacros = CalorieMacros(
         protein: 120, fat: 60, carbs: 245
     )
 }

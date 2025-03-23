@@ -9,42 +9,19 @@ import SwiftData
 
 // MARK: Statistical Data
 
-/// A statistical data point value.
-// This is the base of all statistically operable data.
-typealias DataValue = Strideable & Comparable
-
 /// A data point made up of 2 data values. Allows 2D operations.
 protocol DataPoint<X, Y>: CustomStringConvertible {
-    associatedtype X: DataValue
-    associatedtype Y: DataValue
+    associatedtype X
+    associatedtype Y
 
     var x: X { get }
     var y: Y { get }
 }
 
 /// A data point default implementation.
-struct ValuePoint<X: DataValue, Y: DataValue>: DataPoint {
+struct ValuePoint<X, Y>: DataPoint {
     var x: X
     var y: Y
-}
-
-// MARK: Data Entries
-
-typealias DataEntries<T: DataValue> = [any DataEntry<T>]
-
-/// A timed data entry. This is the base of all stored health data.
-protocol DataEntry<T>: CustomStringConvertible {
-    associatedtype T: DataValue
-    /// The date the entry was created.
-    var date: Date { get }
-    /// The data point.
-    var value: T { get }
-}
-
-/// A data entry with a value. This is a default implementation.
-struct ValueEntry<T: DataValue>: DataEntry {
-    var date: Date
-    var value: T
 }
 
 // MARK: Extensions
@@ -55,14 +32,9 @@ extension DataPoint {
     }
 }
 
-extension DataEntry {
+extension PersistentModel {
     var description: String {
         return String(describing: self)
-    }
-
-    /// Generate a new data entry based on the current one.
-    func asEntry<T: DataValue>(_ value: T) -> any DataEntry<T> {
-        return ValueEntry(date: self.date, value: value)
     }
 }
 

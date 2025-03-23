@@ -14,12 +14,11 @@ struct CalorieMacros: Codable {
 
 /// Entry of consumed calories.
 @Model
-final class ConsumedCalories: DataEntry {
+final class ConsumedCalories {
+    /// The date the entry was created.
     var date: Date
-    var value: UInt { consumed }
-
     /// The amount of calories consumed.
-    var consumed: UInt
+    var calories: UInt
     /// The calorie macros breakdown.
     var macros: CalorieMacros
 
@@ -34,12 +33,11 @@ final class ConsumedCalories: DataEntry {
 
 /// Entry of burned calories.
 @Model
-final class BurnedCalories: DataEntry {
+final class BurnedCalories {
+    /// The date the entry was created.
     var date: Date
-    var value: Int { -Int(burned) }
-
     /// The amount of calories burned.
-    var burned: UInt
+    var calories: UInt
     /// The duration of the activity.
     var duration: TimeInterval?
 

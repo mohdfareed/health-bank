@@ -8,8 +8,8 @@ extension Collection where Element: DataPoint<Date, Element.Y> {
     ) -> [(Range<Element.X>, values: [Element.Y])]
     where Element.X == Date {
         guard
-            let min = self.xAxis.min(),
-            let max = self.xAxis.max(),
+            let min = self.points(\.x).min(),
+            let max = self.points(\.x).max(),
             let steps = min.distance(to: max, in: unit, using: calendar)
         else {
             return []

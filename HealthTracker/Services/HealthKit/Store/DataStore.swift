@@ -26,15 +26,16 @@ final class HealthKitStore: DataStore {
     ) throws {
         self.configuration = configuration
         self.schema = configuration.schema ?? Configuration().schema!
-        if HKHealthStore.isHealthDataAvailable() {
+        if HealthKitService.isAvailable {
             self.service = try HealthKitService()
         }
     }
 
     func fetch<T>(_ request: DataStoreFetchRequest<T>)
-        async throws -> DataStoreFetchResult<T, T>
+        throws -> DataStoreFetchResult<T, DefaultSnapshot>
     where T: PersistentModel {
-        guard let service = self.healthService else {
+        guard let service = self.healthService,
+              T.self is HealthKitType else {
             return DataStoreFetchResult(
                 descriptor: request.descriptor,
                 fetchedSnapshots: [],
@@ -45,6 +46,8 @@ final class HealthKitStore: DataStore {
         // TODO: Convert persistent model to health kit model.
         // var modelType = T.self as! HealthKitType
         var models = try await service.read(desc: request.descriptor)
+
+
         var results = [PersistentIdentifier: DataStoreSnapshot]()
         for model in models {
             results[model.id] = model
@@ -96,39 +99,48 @@ final class HealthKitStore: DataStore {
             snapshotsToReregister: modelData
         )
     }
-}
-
-extension Dictionary {
-    public func map<K,V>(_ transform: (Key, Value) throws -> (K,V)) rethrows -> [K:V] {
-        var result: [K:V] = [:]
-        for (k,v) in self {
-            let (mk,mv) = try transform(k,v)
-            result[mk] = mv
-        }
-        return result
-    }
-
-    public func playground() {
-
-        let decoder = JSONDecoder()
-        let encoder = JSONEncoder()
-
-        let model = ConsumedCalories(1000, macros: CalorieMacros(), on: Date())
-//        let data = ConsumedCalories
-
-//        let decoder = JSONDecoder()
-//        // decoder.dateDecodingStrategy = .iso8601
-//        let trips = try decoder.decode([DefaultSnapshot].self, from: model.)
-
-//        let snapshot = DefaultSnapshot(from: decoder)
-        var data = [model.id:model]
-        let snapshot = DefaultSnapshot(from: model, relatedBackingDatas: &data)
-//        Backing
-
-
-    }
-}
-
-extension ConsumedCalories: BackingData {
     
+    private func guardModelType<T>(
+        _ request: DataStoreFetchRequest<T>
+    ) throws -> DataStoreFetchRequest<T & HealthKitModel> {
+        
+    }
+
+    private func createSnapshots(from models: [any HealthKitModel]) -> [DefaultSnapshot] {
+    }
+
+    private func fromSnapshots(_ snapshots: [DefaultSnapshot]) -> [any HealthKitModel] {
+    }
+    
+    enum DataStoreError: Error {
+        case notHealthModel
+    }
+
+    func fetch2<T>(_ request: DataStoreFetchRequest<T>) async throws -> DataStoreFetchResult<T, DefaultSnapshot>
+        where T: PersistentModel {
+            let healthKitType = T.self as! any HealthKitModel.Type
+            guard let newRequest = try self.createRequest(request, for: healthKitType) else {
+                    throw SomeError() // Replace with your actual error handling.
+                }
+            
+        // Now you can use T.self directly without a forced cast.
+        guard let newRequest = try self.createRequest(request, for: T.self) else {
+            throw SomeError() // Replace with your actual error handling
+        }
+        let results = try await self.service?.read(desc: newRequest.descriptor)
+        return try fetchHealth(request as! DataStoreFetchRequest<T>)
+    }
+
+    // The specialized version
+    func fetchHealth<T>(_ request: DataStoreFetchRequest<T>) throws -> DataStoreFetchResult<T, DefaultSnapshot>
+    where T: PersistentModel & HealthKitModel {
+        // Your specialized implementation for HealthKitModel types.
+        // …
+    }
+    
+    // The specialized version
+    func createRequest<T, U>(_ request: DataStoreFetchRequest<T>, for type: U.Type) throws -> DataStoreFetchRequest<U>?
+    where T: PersistentModel, U: HealthKitModel {
+        return request as? DataStoreFetchRequest<U>
+    }
 }

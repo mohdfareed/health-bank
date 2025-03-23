@@ -4,52 +4,37 @@ typealias Advancer<T: Strideable> = (T, T.Stride) -> T
 
 // MARK: Statistics
 
-extension Collection where Element: Numeric {
+extension Sequence {
+    func points<T>(_ keyPath: KeyPath<Element, T>) -> [T] {
+        return map { $0[keyPath: keyPath] }
+    }
+
+    func points<X, Y>(x: KeyPath<Element, X>, y: KeyPath<Element, Y>) -> [any DataPoint<X, Y>] {
+        return map { ValuePoint(x: $0[keyPath: x], y: $0[keyPath: y]) }
+    }
+}
+
+extension Sequence where Element: AdditiveArithmetic {
     /// The sum of all data points.
     func sum() -> Element {
-        self.reduce(Element.zero, +)
+        self.reduce(.zero, +)
     }
 }
 
-extension Collection where Element: DataValue & Numeric & DurationProtocol {
+extension Sequence where Element: AdditiveArithmetic & DurationProtocol {
     /// The average of all data points.
-    func average() -> Double? {
-        guard !self.isEmpty else {
+    func average() -> Element? {
+        guard self.first(where: { _ in true }) != nil else {
             return nil
         }
-
-        let sum = self.sum()
-        let count = self.count
-        return self.sum() / Element(exactly: self.count)!
+        let count = self.count(where: { _ in true })
+        return self.sum() / count
     }
-}
-
-// MARK: Plotting
-
-extension DataEntry {
-    /// Convert the entry to a data point.
-    var dataPoint: any DataPoint<Date, T> {
-        return ValuePoint(x: self.date, y: self.value)
-    }
-}
-
-extension Collection where Element: DataEntry {
-    /// The data points of the entries.
-    var dataPoints: any Collection<any DataPoint<Date, Element.T>> {
-        return self.map({ $0.dataPoint })
-    }
-}
-
-extension Collection where Element: DataPoint {
-    /// The x-axis data points.
-    var xAxis: any Collection<Element.X> { self.map { $0.x } }
-    /// The y-axis data points.
-    var yAxis: any Collection<Element.Y> { self.map { $0.y } }
 }
 
 // MARK: Data Binning
 
-extension Collection where Element: DataPoint {
+extension Collection where Element: DataPoint, Element.X: Strideable {
     /// Bin the data points into the range.
     func bin(
         _ count: Element.X.Stride,
@@ -57,8 +42,8 @@ extension Collection where Element: DataPoint {
     ) -> [(Range<Element.X>, values: [Element.Y])]
     where Element.X.Stride: BinaryFloatingPoint {
         guard
-            let minValue = self.xAxis.min(),
-            let maxValue = self.xAxis.max()
+            let minValue = self.points(\.x).min(),
+            let maxValue = self.points(\.x).max()
         else {
             return []
         }
@@ -73,8 +58,8 @@ extension Collection where Element: DataPoint {
         using advance: Advancer<Element.X> = { $0.advanced(by: $1) }
     ) -> [(Range<Element.X>, values: [Element.Y])] {
         guard
-            let minValue = self.xAxis.min(),
-            let maxValue = self.xAxis.max()
+            let minValue = self.points(\.x).min(),
+            let maxValue = self.points(\.x).max()
         else {
             return []
         }
@@ -107,7 +92,7 @@ extension Collection where Element: DataPoint {
     }
 }
 
-extension ClosedRange where Bound: DataValue {
+extension ClosedRange where Bound: Strideable {
     /// Generate data bins out of a range with a given step.
     func generateBins(
         step: Bound.Stride, using advance: Advancer<Bound>

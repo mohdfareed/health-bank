@@ -19,7 +19,7 @@ struct HealthKitStoreConfiguration: DataStoreConfiguration {
 }
 
 /// A protocol to support HealthKit data store.
-protocol HealthKitModel: PersistentModel {
+protocol HealthKitModel: Codable, PersistentModel {
     /// The HealthKit samples the model writes/deletes.
     /// This is used to request authorization.
     static var healthKitWriteTypes: [HKObjectType] { get }
@@ -36,61 +36,8 @@ protocol HealthKitModel: PersistentModel {
 
     /// The HealthKit objects representation of the model.
     /// This is the data to be written/deleted in HealthKit.
-    var healthKitObjects: [HKSample] { get }
+    var healthKitObjects: [HKObject] { get }
 }
 
 /// The type of any HealthKit model.
 typealias HealthKitType = any HealthKitModel.Type
-
-/// A HealthKit data model snapshot.
-struct HealthKitSnapshot: DataStoreSnapshot {
-    var persistentIdentifier: PersistentIdentifier
-
-    init(
-        from backingData: any BackingData,
-        relatedBackingDatas: inout [PersistentIdentifier: any BackingData]
-    ) {
-    }
-
-    func copy(
-        persistentIdentifier: PersistentIdentifier,
-        remappedIdentifiers: [PersistentIdentifier: PersistentIdentifier]? = nil
-    ) -> HealthKitSnapshot {
-    }
-}
-
-struct HealthKitBackingData: BackingData {
-    typealias Model = ConsumedCalories
-    
-    var persistentModelID: PersistentIdentifier?
-    
-    var metadata: Any
-    
-    init(for modelType: ConsumedCalories.Type) {
-        <#code#>
-    }
-    
-    func getValue<Value>(forKey: KeyPath<ConsumedCalories, Value>) -> Value where Value : Decodable {
-        <#code#>
-    }
-    
-    func getValue<Value>(forKey: KeyPath<ConsumedCalories, Value?>) -> Value? where Value : PersistentModel {
-        <#code#>
-    }
-    
-    func getTransformableValue<Value>(forKey: KeyPath<ConsumedCalories, Value>) -> Value {
-        <#code#>
-    }
-    
-    func setValue<Value>(forKey: KeyPath<ConsumedCalories, Value>, to newValue: Value) where Value : Encodable {
-        <#code#>
-    }
-    
-    func setValue<Value>(forKey: KeyPath<ConsumedCalories, Value?>, to newValue: Value?) where Value : PersistentModel {
-        <#code#>
-    }
-    
-    func setTransformableValue<Value>(forKey: KeyPath<ConsumedCalories, Value>, to newValue: Value) {
-        <#code#>
-    }
-}
