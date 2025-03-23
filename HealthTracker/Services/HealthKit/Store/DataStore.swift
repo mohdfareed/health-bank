@@ -4,7 +4,7 @@ import SwiftData
 
 final class HealthKitStore: DataStore {
     typealias Configuration = HealthKitStoreConfiguration
-    typealias Snapshot = DefaultSnapshot
+    typealias Snapshot = HealthKitSnapshot
 
     var identifier = UUID().uuidString
     var configuration: Configuration
@@ -21,8 +21,7 @@ final class HealthKitStore: DataStore {
     }
 
     init(
-        _ configuration: HealthKitStoreConfiguration,
-        migrationPlan: (any SchemaMigrationPlan.Type)?
+        _ configuration: HealthKitStoreConfiguration, migrationPlan: (any SchemaMigrationPlan.Type)?
     ) throws {
         self.configuration = configuration
         self.schema = configuration.schema ?? Configuration().schema!
@@ -32,10 +31,20 @@ final class HealthKitStore: DataStore {
     }
 
     func fetch<T>(_ request: DataStoreFetchRequest<T>)
-        throws -> DataStoreFetchResult<T, DefaultSnapshot>
+        throws -> DataStoreFetchResult<T, HealthKitSnapshot>
     where T: PersistentModel {
-        guard let service = self.healthService,
-              T.self is HealthKitType else {
+        self.logger.warning("Unsupported HealthKit model type: \(T.self)")
+        return DataStoreFetchResult(
+            descriptor: request.descriptor,
+            fetchedSnapshots: [],
+            relatedSnapshots: [:]
+        )
+    }
+
+    func fetch<T>(_ request: DataStoreFetchRequest<T>)
+        throws -> DataStoreFetchResult<T, HealthKitSnapshot>
+    where T: PersistentModel & HealthKitModel {
+        guard let service = self.healthService else {
             return DataStoreFetchResult(
                 descriptor: request.descriptor,
                 fetchedSnapshots: [],
@@ -43,17 +52,20 @@ final class HealthKitStore: DataStore {
             )
         }
 
-        // TODO: Convert persistent model to health kit model.
-        // var modelType = T.self as! HealthKitType
-        var models = try await service.read(desc: request.descriptor)
+        var models: [T]
+        let semaphore = DispatchSemaphore(value: 0)
+        Task {
+            models = try await service.read(desc: request.descriptor)
+            semaphore.signal()
+        }
+        semaphore.wait()
 
-
-        var results = [PersistentIdentifier: DataStoreSnapshot]()
-        for model in models {
-            results[model.id] = model
+        let snapshots = createSnapshots(from: models)
+        var results = [PersistentIdentifier: HealthKitSnapshot]()
+        for snapshot in snapshots {
+            results[snapshot.persistentIdentifier] = snapshot
         }
 
-        let snapshots = results.values.map({ $0 })
         return DataStoreFetchResult(
             descriptor: request.descriptor,
             fetchedSnapshots: snapshots,
@@ -61,86 +73,92 @@ final class HealthKitStore: DataStore {
         )
     }
 
-    func save(_ request: DataStoreSaveChangesRequest<DefaultSnapshot>)
-        throws -> DataStoreSaveChangesResult<DefaultSnapshot>
+    func save(_ request: DataStoreSaveChangesRequest<HealthKitSnapshot>)
+        throws -> DataStoreSaveChangesResult<HealthKitSnapshot>
     {
         guard let service = self.healthService else {
             return DataStoreSaveChangesResult(for: self.identifier)
         }
 
         var remappedIdentifiers = [PersistentIdentifier: PersistentIdentifier]()
-        var modelData = [PersistentIdentifier: DefaultSnapshot]()
+        var modelData = [PersistentIdentifier: HealthKitSnapshot]()
         for snapshot in request.inserted {
             let permanentIdentifier = try PersistentIdentifier.identifier(
                 for: identifier,
                 entityName: snapshot.persistentIdentifier.entityName,
                 primaryKey: UUID())
 
-            let permanentSnapshot = snapshot.copy(persistentIdentifier: permanentIdentifier)
+            let permanentSnapshot = snapshot.copy(
+                persistentIdentifier: permanentIdentifier,
+                remappedIdentifiers: remappedIdentifiers
+
+            )
             modelData[permanentIdentifier] = permanentSnapshot
             remappedIdentifiers[snapshot.persistentIdentifier] = permanentIdentifier
-
-            try service.write(permanentSnapshot.)
+            Task { try await service.write(self.fromSnapshot(permanentSnapshot)) }
         }
 
         for snapshot in request.updated {
             modelData[snapshot.persistentIdentifier] = snapshot
-            try service.write(snapshot)
+            Task { try await service.write(self.fromSnapshot(snapshot)) }
         }
 
         for snapshot in request.deleted {
             modelData.removeValue(forKey: snapshot.persistentIdentifier)
-            try service.delete(snapshot)
+            Task { try await service.delete(self.fromSnapshot(snapshot)) }
         }
 
-        return DataStoreSaveChangesResult<DefaultSnapshot>(
+        return DataStoreSaveChangesResult<HealthKitSnapshot>(
             for: self.identifier,
             remappedIdentifiers: remappedIdentifiers,
             snapshotsToReregister: modelData
         )
     }
-    
-    private func guardModelType<T>(
-        _ request: DataStoreFetchRequest<T>
-    ) throws -> DataStoreFetchRequest<T & HealthKitModel> {
-        
-    }
 
-    private func createSnapshots(from models: [any HealthKitModel]) -> [DefaultSnapshot] {
-    }
-
-    private func fromSnapshots(_ snapshots: [DefaultSnapshot]) -> [any HealthKitModel] {
-    }
-    
-    enum DataStoreError: Error {
-        case notHealthModel
-    }
-
-    func fetch2<T>(_ request: DataStoreFetchRequest<T>) async throws -> DataStoreFetchResult<T, DefaultSnapshot>
-        where T: PersistentModel {
-            let healthKitType = T.self as! any HealthKitModel.Type
-            guard let newRequest = try self.createRequest(request, for: healthKitType) else {
-                    throw SomeError() // Replace with your actual error handling.
-                }
-            
-        // Now you can use T.self directly without a forced cast.
-        guard let newRequest = try self.createRequest(request, for: T.self) else {
-            throw SomeError() // Replace with your actual error handling
+    private func createSnapshots(from models: [any HealthKitModel]) -> [HealthKitSnapshot] {
+        var relatedData: [PersistentIdentifier: any BackingData]
+        for model in models {
+            relatedData[model.persistentModelID] = model
         }
-        let results = try await self.service?.read(desc: newRequest.descriptor)
-        return try fetchHealth(request as! DataStoreFetchRequest<T>)
+        let snapshots = models.map {
+            HealthKitSnapshot(from: $0, relatedBackingDatas: &relatedData)
+        }
+        return snapshots
     }
 
-    // The specialized version
-    func fetchHealth<T>(_ request: DataStoreFetchRequest<T>) throws -> DataStoreFetchResult<T, DefaultSnapshot>
-    where T: PersistentModel & HealthKitModel {
-        // Your specialized implementation for HealthKitModel types.
-        // …
+    private func fromSnapshot(_ snapshot: HealthKitSnapshot) -> any HealthKitModel {
     }
-    
-    // The specialized version
-    func createRequest<T, U>(_ request: DataStoreFetchRequest<T>, for type: U.Type) throws -> DataStoreFetchRequest<U>?
-    where T: PersistentModel, U: HealthKitModel {
-        return request as? DataStoreFetchRequest<U>
+}
+
+struct HealthKitSnapshot: DataStoreSnapshot {
+    var persistentIdentifier: PersistentIdentifier
+    var data: Data
+
+    init(
+        from: any BackingData,
+        relatedBackingDatas: inout [PersistentIdentifier: any BackingData]
+    ) {
+        self.persistentIdentifier = from.persistentModelID!
+        let data = from as! Encodable
+        self.data = try! JSONEncoder().encode(data)
+    }
+
+    private init(_ id: PersistentIdentifier, _ data: Data) {
+        self.persistentIdentifier = id
+        self.data = data
+    }
+
+    func copy(
+        persistentIdentifier: PersistentIdentifier,
+        remappedIdentifiers: [PersistentIdentifier: PersistentIdentifier]?
+    ) -> Self {
+        return HealthKitSnapshot(persistentIdentifier, self.data)
+    }
+
+    func create() -> any HealthKitModel {
+        // let model = try! JSONDecoder().decode(ConsumedCalories, from: self.data)
+        // let model = ConsumedCalories(100, macros: CalorieMacros(), on: Date())
+        // model.id = self.persistentIdentifier
+        // return model
     }
 }

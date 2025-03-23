@@ -17,7 +17,7 @@ final class HealthKitService {
         self.logger.debug("HealthKit service initialized.")
     }
 
-    static func enable() async throws {
+    static func enable() throws {
         Self.isEnabled = true
         let logger = AppLogger.new(for: HealthKitService.self)
 
@@ -42,13 +42,13 @@ final class HealthKitService {
             let query: HKQuery
             do {
                 query = try T.healthKitQuery(with: desc) { _, results, err in
-                    if let err = err {
-                        continuation.resume(
-                            throwing: HealthKitError.queryError(
-                                "Failed to execute HealthKit query: \(query)", err))
-                    } else {
+                    guard let error = err else {
                         continuation.resume(returning: results)
                     }
+                    let newError = HealthKitError.queryError(
+                        "Failed to execute HealthKit query: \(query)", error
+                    )
+                    continuation.resume(throwing: newError)
                 }
             } catch {
                 continuation.resume(throwing: error)
@@ -59,38 +59,26 @@ final class HealthKitService {
     }
 
     func write<T: HealthKitModel>(_ object: T) async throws {
-        guard self.canEdit(T.self) && self.isEditable(object) else {
-            return
-        }
+        guard self.canEdit(T.self) && self.isEditable(object) else { return }
 
-        return try await withCheckedThrowingContinuation { continuation in
-            healthStore.save(object.healthKitObjects) { _, error in
-                if let error = error {
-                    continuation.resume(
-                        throwing: HealthKitError.queryError(
-                            "Failed to save HealthKit object: \(object)", error))
-                } else {
-                    continuation.resume(returning: ())
-                }
-            }
+        do {
+            try await healthStore.save(object.healthKitObjects)
+        } catch {
+            throw HealthKitError.queryError(
+                "Failed to save HealthKit object: \(object)", error
+            )
         }
     }
 
     func delete<T: HealthKitModel>(_ object: T) async throws {
-        guard self.canEdit(T.self) && self.isEditable(object) else {
-            return
-        }
+        guard self.canEdit(T.self) && self.isEditable(object) else { return }
 
-        return try await withCheckedThrowingContinuation { continuation in
-            healthStore.delete(object.healthKitObjects) { _, error in
-                if let error = error {
-                    continuation.resume(
-                        throwing: HealthKitError.queryError(
-                            "Failed to delete HealthKit object: \(object)", error))
-                } else {
-                    continuation.resume(returning: ())
-                }
-            }
+        do {
+            try await healthStore.delete(object.healthKitObjects)
+        } catch {
+            throw HealthKitError.queryError(
+                "Failed to delete HealthKit object: \(object)", error
+            )
         }
     }
 }

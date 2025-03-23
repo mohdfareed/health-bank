@@ -12,7 +12,16 @@ let package = Package(
     targets: [
         .target(
             name: "HealthTracker",
-            path: "HealthTracker"
+            path: "HealthTracker",
+            exclude: [
+                "Assets.xcassets",
+                "Preview Content",
+                "HealthTracker.entitlements",
+                "HealthTrackerRelease.entitlements",
+                "Info.plist",
+            ]
+            // sources: [String](),
+            // resources: [Resource](),
         )
     ]
 )

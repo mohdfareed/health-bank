@@ -26,29 +26,30 @@ struct AppLogger {
 struct HealthTrackerApp: App {
     internal let logger = AppLogger.new(for: HealthTrackerApp.self)
 
-    init() {
+    init() throws {
         _ = try! AppDataStore.initializeContainer(
             configurations: AppDataStore.defaultConfig,
             HealthKitStoreConfiguration()
         )
 
-        let settings = AppSettings.singleton(in: AppDataStore.container.mainContext)
-        Calendar.current.startOfWeek = settings.budgets.startOfWeek
-        HealthKitService.enable()
+        let settings = try AppSettings.singleton(in: AppDataStore.container.mainContext)
+        var calendar = Calendar.current
+        calendar.firstWeekday = settings.startOfWeek.rawValue
+        try HealthKitService.enable()
         self.logger.debug("App initialized.")
     }
 
     var body: some Scene {
         WindowGroup {
-            DashboardView().modelContainer(AppDataStore.container)
+            // DashboardView().modelContainer(AppDataStore.container)
         }
     }
 }
 
 #Preview {
-    DashboardView().modelContainer(
-        try! AppDataStore.initializeContainer(
-            configurations: AppDataStore.previewConfig
-        )
-    )
+    // DashboardView().modelContainer(
+    //     try! AppDataStore.initializeContainer(
+    //         configurations: AppDataStore.previewConfig
+    //     )
+    // )
 }

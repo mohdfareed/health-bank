@@ -19,7 +19,7 @@ struct HealthKitStoreConfiguration: DataStoreConfiguration {
 }
 
 /// A protocol to support HealthKit data store.
-protocol HealthKitModel: Codable, PersistentModel {
+protocol HealthKitModel: Codable, PersistentModel, BackingData {
     /// The HealthKit samples the model writes/deletes.
     /// This is used to request authorization.
     static var healthKitWriteTypes: [HKObjectType] { get }
