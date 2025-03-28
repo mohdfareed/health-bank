@@ -1,49 +1,43 @@
 import Foundation
 import SwiftData
 
-struct CalorieMacros: Codable {
-    /// The amount of protein in grams.
-    var protein: UInt?
-    /// The amount of fat in grams.
-    var fat: UInt?
-    /// The amount of carbs in grams.
-    var carbs: UInt?
-}
-
-// MARK: Consumed
-
 /// Entry of consumed calories.
 @Model
-final class ConsumedCalories {
-    /// The date the entry was created.
+final class CaloriesConsumed: DataModel {
+    var source: DataSource
     var date: Date
-    /// The amount of calories consumed.
-    var calories: UInt
-    /// The calorie macros breakdown.
-    var macros: CalorieMacros
 
-    init(_ calories: UInt, macros: CalorieMacros, on date: Date) {
-        self.date = date
-        self.consumed = calories
-        self.macros = macros
+    /// The consumed calories.
+    var calories: Double
+
+    init(
+        _ calories: Double, on date: Date? = Date(),
+        from source: DataSource? = .CoreData
+    ) {
+        self.source = source ?? self.source
+        self.date = date ?? self.date
+        self.calories = calories
     }
 }
 
-// MARK: Burned
-
 /// Entry of burned calories.
 @Model
-final class BurnedCalories {
-    /// The date the entry was created.
+final class CaloriesBurned: DataModel {
+    var source: DataSource
     var date: Date
-    /// The amount of calories burned.
-    var calories: UInt
-    /// The duration of the activity.
-    var duration: TimeInterval?
 
-    init(_ calories: UInt, for duration: TimeInterval? = nil, on date: Date) {
+    /// The burned calories.
+    var calories: Double
+    /// The duration of the activity.
+    var duration: TimeInterval
+
+    init(
+        _ calories: Double, on date: Date = Date(),
+        over duration: TimeInterval = 0, from source: DataSource = .CoreData
+    ) {
         self.date = date
-        self.burned = calories
         self.duration = duration
+        self.calories = calories
+        self.source = source
     }
 }
