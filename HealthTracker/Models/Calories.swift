@@ -3,10 +3,9 @@ import SwiftData
 
 /// Entry of consumed calories.
 @Model
-final class CaloriesConsumed: DataModel {
+final class CaloriesConsumed: HistoricalDataModel {
     var source: DataSource
     var date: Date
-
     /// The consumed calories.
     var calories: Double
 
@@ -22,10 +21,9 @@ final class CaloriesConsumed: DataModel {
 
 /// Entry of burned calories.
 @Model
-final class CaloriesBurned: DataModel {
+final class CaloriesBurned: HistoricalDataModel {
     var source: DataSource
     var date: Date
-
     /// The burned calories.
     var calories: Double
     /// The duration of the activity.

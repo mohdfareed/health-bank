@@ -3,10 +3,9 @@ import SwiftData
 
 /// The proteins of a calories entry.
 @Model
-final class CalorieProteins: DataModel {
+final class CalorieProteins: HistoricalDataModel {
     var source: DataSource
     var date: Date
-
     /// The proteins of the calories.
     var protein: Double
 
@@ -22,10 +21,9 @@ final class CalorieProteins: DataModel {
 
 /// The fat of the calories.
 @Model
-final class CalorieFat: DataModel {
+final class CalorieFat: HistoricalDataModel {
     var source: DataSource
     var date: Date
-
     /// The fat of the calories.
     var fat: Double
 
@@ -41,10 +39,9 @@ final class CalorieFat: DataModel {
 
 /// The carbohydrates of the calories.
 @Model
-final class CalorieCarbs: DataModel {
+final class CalorieCarbs: HistoricalDataModel {
     var source: DataSource
     var date: Date
-
     /// The carbs of the calories.
     var carbs: Double
 

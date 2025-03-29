@@ -1,22 +1,23 @@
 import Foundation
 import SwiftData
+import SwiftUI
 
 /// The app settings.
-enum AppSettings {
-    static let enableHealthKit = DefaultsKey(
-        "\(Self.self).HealthKit", defaultValue: false
-    )
-    static let enableBiometrics = DefaultsKey(
-        "\(Self.self).Biometrics", defaultValue: false
-    )
-    static let enableNotifications = DefaultsKey(
-        "\(Self.self).Notifications", defaultValue: false
-    )
+@MainActor
+struct AppSettings {
+    @AppStorage("\(Self.self).HealthKit")
+    var enableHealthKit: Bool?
+
+    @AppStorage("\(Self.self).Biometrics")
+    var enableBiometrics: Bool = false
+
+    @AppStorage("\(Self.self).Notifications")
+    var enableNotifications: Bool = false
 }
 
 /// A daily calories budget of the user.
 @Model
-final class DailyCaloriesBudgets: SingletonModel {
+final class CaloriesBudgets: SingletonModel {
     /// The date the budget was set.
     var date: Date = Date()
     /// The daily calorie budget.
