@@ -15,7 +15,7 @@ enum DataSource: String {
 
 /// A data model. All models which interact with the app's data store
 /// conform to this protocol.
-protocol DataModel {
+protocol DataModel: PersistentModel {
     /// The source of the data.
     var source: DataSource { get }
 }
@@ -45,20 +45,21 @@ struct ValuePoint<X, Y>: DataPoint {
 // MARK: Data Store
 
 /// An application data store accessible from SwiftUI.
-@MainActor
-protocol Store<Model> where Model: DataModel {
+/// This type is used by the `DataContainer` to provide a SwiftData
+/// in-memory buffer for the store.
+protocol Store<Model> {
     associatedtype Model: DataModel
+
     /// The data sources supported by the store.
     /// The store will only handle data from one of these sources and
     /// data conforming to the `DataModel` protocol.
     var sources: [DataSource] { get }
 
-    /// Creates or updates a record.
-    func insert(_ model: Model) throws
+    func save(_ model: Model) throws
     /// Deletes a record.
     func delete(_ model: Model) throws
-    /// Saves changes to a record.
-    func save(_ model: Model) throws
+
     /// Fetches records matching a predicate.
-    func fetch<Model>(_ descriptor: FetchDescriptor<Model>) throws -> [Model]
+    func fetch<M>(_ descriptor: FetchDescriptor<M>) throws -> [M]
+    where M == Model
 }

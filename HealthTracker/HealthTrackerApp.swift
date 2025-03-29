@@ -2,41 +2,59 @@ import OSLog
 import SwiftData
 import SwiftUI
 
-struct AppLogger {
-    private static let defaultSubsystem: String = {
-        Bundle.main.bundleIdentifier ?? "Debug.HealthTracker"
-    }()
+// struct AppDataStoreService {
+//     private static var schema: Schema {
+//         Schema([
+//             AppSettings.self,
+//             // Date models
+//             ConsumedCalories.self,
+//             BurnedCalories.self,
+//         ])
+//     }
 
-    private init() {}
+//     /// The default app store configuration.
+//     static var defaultConfig: ModelConfiguration {
+//         ModelConfiguration()
+//     }
 
-    static func new(for category: String) -> Logger {
-        return Logger(
-            subsystem: AppLogger.defaultSubsystem, category: category
-        )
-    }
+//     /// The default app store preview configuration.
+//     static var previewConfig: ModelConfiguration {
+//         ModelConfiguration(
+//             isStoredInMemoryOnly: true
+//         )
+//     }
 
-    static func new<T>(for category: T.Type) -> Logger {
-        return Logger(
-            subsystem: AppLogger.defaultSubsystem, category: "\(T.self)"
-        )
-    }
-}
+//     /// Initialize a new model container.
+//     static func createContainer(
+//         configurations: any DataStoreConfiguration...
+//     ) throws -> ModelContainer {
+//         do {
+//             return try ModelContainer(
+//                 for: Self.schema, configurations: configurations
+//             )
+//         } catch {
+//             throw DatabaseError.InitializationError(
+//                 "Failed to create app model container.", error
+//             )
+//         }
+//     }
+// }
 
-@main
-struct HealthTrackerApp: App {
-    internal let logger = AppLogger.new(for: HealthTrackerApp.self)
+@main struct HealthTrackerApp: App {
+    internal let logger = AppLogger.new(for: Self.self)
 
-    init() throws {
-        _ = try! AppDataStore.initializeContainer(
-            configurations: AppDataStore.defaultConfig,
-            HealthKitStoreConfiguration()
-        )
+    init() {
+        // self.
+        // _ = try! AppDataStore.initializeContainer(
+        //     configurations: AppDataStore.defaultConfig,
+        //     HealthKitStoreConfiguration()
+        // )
 
-        let settings = try AppSettings.singleton(in: AppDataStore.container.mainContext)
-        var calendar = Calendar.current
-        calendar.firstWeekday = settings.startOfWeek.rawValue
-        try HealthKitService.enable()
-        self.logger.debug("App initialized.")
+        // let settings = try! AppSettings.singleton(in: AppDataStore.container.mainContext)
+        // var calendar = Calendar.current
+        // calendar.firstWeekday = settings.startOfWeek.rawValue
+        // try! HealthKitService.enable()
+        // self.logger.debug("App initialized.")
     }
 
     var body: some Scene {

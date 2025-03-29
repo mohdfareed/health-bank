@@ -107,3 +107,12 @@ extension ClosedRange where Bound: Strideable {
         return bins
     }
 }
+
+// MARK: Errors
+
+enum DataError: Error {
+    case InvalidData(String)
+    case InvalidDateRange(from: Date, to: Date)
+    case InvalidModel(String)
+    case DataTypeMismatch(expected: String, actual: String)
+}

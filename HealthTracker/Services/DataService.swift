@@ -1,105 +1,138 @@
-import Foundation
+import Combine
 import SwiftData
 import SwiftUI
 
-/// Budget data model service.
-struct DataService {
-    internal let logger = AppLogger.new(for: DataService.self)
-    private let context: ModelContext
+class DataContainer {
+    internal let logger = AppLogger.new(for: DataContainer.self)
+    private let container: ModelContainer
 
-    init(_ context: ModelContext) {
-        self.context = context
-        self.logger.debug("Data model service initialized.")
-    }
+    @MainActor var mainContext: ModelContext { self.container.mainContext }
+    let stores: [any Store]
 
-    /// Create the fetch descriptor for data models.
-    /// - Parameter predicate: The predicate to filter by.
-    /// - Parameter sortBy: The sort order of the data.
-    /// - Returns: The entries.
-    func fetch<T: PersistentModel>(
-        predicate: Predicate<T>? = nil,
-        sortBy: [SortDescriptor<T>] = []
-    ) throws -> [T] {
-        let fetchRequest = FetchDescriptor<T>(
-            predicate: predicate, sortBy: sortBy
+    private lazy var subscription: any Cancellable = {
+        NotificationCenter.default.publisher(
+            for: ModelContext.willSave
         )
-
-        self.logger.debug("Retrieving models: \(T.self)")
-        let entries = try self.context.fetch(fetchRequest)
-        return entries
-    }
-
-    /// Log a new data model.
-    /// - Parameter model: The model to log.
-    func create<T: PersistentModel & CustomStringConvertible>(_ model: T) {
-        self.logger.debug("Creating model: \(model)")
-        self.context.insert(model)
-    }
-
-    /// Remove a data model.
-    /// - Parameter model: The model to remove.
-    func remove<T: PersistentModel & CustomStringConvertible>(_ model: T) {
-        self.logger.debug("Removing model: \(model)")
-        self.context.delete(model)
-    }
-
-    /// Update a data model.
-    /// - Parameter model: The model to update.
-    func update<T: PersistentModel & CustomStringConvertible>(_ model: T) {
-        self.logger.debug("Updating model: \(model)")
-        if let existing = self.context.model(for: model.id) as? T {
-            self.context.delete(existing)
+        .map({ $0.object as? ModelContext })
+        .sink { [weak self] context in
+            guard let context = context else { return }
+            for store in self?.stores ?? [] {
+                store.sync(with: context)
+            }
         }
-        self.context.insert(model)
+    }()
+
+    init(for types: any DataModel.Type..., stores: [any Store] = []) {
+        self.container = try! ModelContainer(
+            for: Schema(types),
+            configurations: ModelConfiguration(isStoredInMemoryOnly: true)
+        )
+        self.stores = stores
+        self.logger.debug("App data container initialized.")
+    }
+
+    @MainActor func load<M>(
+        _ descriptor: FetchDescriptor<M>, context: ModelContext
+    ) where M: DataModel {
+        self.stores.forEach {
+            let store = $0 as! any Store<M>
+            store.load(descriptor, into: context)
+        }
+    }
+
+    deinit {
+        self.subscription.cancel()
+        self.logger.debug("App data container de-initialized.")
     }
 }
 
-// MARK: Singleton
-
-/// Persist the model as a singleton.
-/// Allows the use the the `@FetchSingleton` SwiftUI wrapper.
-/// The singleton is designed to wrap the first entry in the fetch request.
-/// Backups can be created and loaded by changing the first entry in the
-/// singleton's table.
-protocol SingletonModel: PersistentModel, CustomStringConvertible { init() }
-
-extension SingletonModel {
-    var description: String {
-        return String(describing: self)
+extension Store {
+    internal func load<M>(
+        _ descriptor: FetchDescriptor<M>, into context: ModelContext
+    ) where M == Self.Model {
+        do {
+            let results = try context.fetch(descriptor)
+            for model in results {
+                context.insert(model)
+            }
+        } catch {
+            AppLogger.new(for: Self.self).error(
+                "Failed to fetch model \(type(of: M.self)): \(error)"
+            )
+        }
     }
 
-    /// Fetch the singleton model from the context.
-    static func singleton(in context: ModelContext) throws -> Self {
-        if let singleton = try! context.fetch(
-            FetchDescriptor<Self>()
-        ).first {
-            return singleton
+    internal func sync(with context: ModelContext) {
+        for model in context.insertedModelsArray + context.changedModelsArray {
+            guard let model = supported(model) else { continue }
+            do {
+                try self.save(model)
+            } catch {
+                AppLogger.new(for: Self.self).error(
+                    "Failed to save model \(type(of: model)): \(error)"
+                )
+
+            }
         }
 
-        let logger = AppLogger.new(for: Self.self)
-        let newSingleton = Self()
-        logger.info("Creating default '\(Self.self)' model: \(newSingleton)")
+        for model in context.deletedModelsArray {
+            guard let model = supported(model) else { continue }
+            do {
+                try self.delete(model)
+            } catch {
+                AppLogger.new(for: Self.self).error(
+                    "Failed to delete model \(type(of: model)): \(error)"
+                )
+            }
+        }
+    }
 
-        context.insert(newSingleton)
-        return newSingleton
+    private func supported(_ model: Any) -> Model? {
+        guard let model = model as? Model else { return nil }
+        return self.sources.contains(model.source) ? model : nil
     }
 }
 
-@propertyWrapper
-struct FetchSingleton<Model: SingletonModel> {
-    internal let logger = AppLogger.new(for: Model.self)
+extension EnvironmentValues {
+    @Entry var dataContainer = DataContainer()
+    @MainActor @Entry var dataContext: ModelContext = DataContainer().mainContext
+}
 
-    @Environment(\.modelContext) private var context
-    @Query private var models: [Model]
+// MARK: Wrappers
 
-    var wrappedValue: Model {
-        if let existingModel = models.first {
-            return existingModel
-        }
+// @MainActor @propertyWrapper
+// struct StoreQuery<Model: DataModel>: DynamicProperty {
+//     @Environment(\.modelContext) private var dataContext
+//     @Query private var coreModels: [Model]
+//     init() {
+//         var descriptor = FetchDescriptor<Model>()
+//         Environment)
+//     }
+// }
 
-        let newModel = Model()
-        self.logger.info("Creating default '\(Model.self)' model: \(newModel)")
-        context.insert(newModel)
-        return newModel
-    }
+// @MainActor @propertyWrapper
+// struct DataQuery<Model: DataModel>: DynamicProperty {
+//     @Environment(\.modelContext) private var coreContext
+//     @Environment(\.dataContext) private var dataContext
+//     @Query private var coreModels: [Model]
+//     // @Query private var dataModels: [Model]
+
+//     init() {
+//         var descriptor = FetchDescriptor<Model>()
+//         descriptor.fetchLimit = 1
+//         self._coreModels = Query(descriptor)
+//         // self._dataModels = Query(descriptor)
+//     }
+
+//     var wrappedValue: [Model] {
+//         self.coreModels + self.dataModels
+//     }
+// }
+
+// MARK: Errors
+
+enum DatabaseError: Error {
+    case InitializationError(String, Error? = nil)
+    case readError(String, Error? = nil)
+    case writeError(String, Error? = nil)
 }

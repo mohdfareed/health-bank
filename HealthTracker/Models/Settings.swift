@@ -3,8 +3,7 @@ import SwiftData
 import SwiftUI
 
 /// The app settings.
-@MainActor
-struct AppSettings {
+@MainActor struct AppSettings {
     @AppStorage("\(Self.self).HealthKit")
     var enableHealthKit: Bool?
 
@@ -16,8 +15,8 @@ struct AppSettings {
 }
 
 /// A daily calories budget of the user.
-@Model
-final class CaloriesBudgets: SingletonModel {
+@Model final class CaloriesBudgets: SingletonModel {
+    var id = UUID()
     /// The date the budget was set.
     var date: Date = Date()
     /// The daily calorie budget.

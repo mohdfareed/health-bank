@@ -41,7 +41,7 @@ extension Date {
         to date: Date, in unit: Calendar.Component,
         using calendar: Calendar = .current
     ) -> Int? {
-        var dateComponents = calendar.dateComponents(
+        let dateComponents = calendar.dateComponents(
             [unit], from: self, to: date
         )
         return dateComponents.value(for: unit)
