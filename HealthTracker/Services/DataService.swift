@@ -4,10 +4,10 @@ import SwiftUI
 
 class DataContainer {
     internal let logger = AppLogger.new(for: DataContainer.self)
-    private let container: ModelContainer
+    let container: ModelContainer
+    let stores: [any Store]
 
     @MainActor var mainContext: ModelContext { self.container.mainContext }
-    let stores: [any Store]
 
     private lazy var subscription: any Cancellable = {
         NotificationCenter.default.publisher(
@@ -31,7 +31,7 @@ class DataContainer {
         self.logger.debug("App data container initialized.")
     }
 
-    @MainActor func load<M>(
+    func load<M>(
         _ descriptor: FetchDescriptor<M>, context: ModelContext
     ) where M: DataModel {
         self.stores.forEach {
@@ -94,8 +94,7 @@ extension Store {
 }
 
 extension EnvironmentValues {
-    @Entry var dataContainer = DataContainer()
-    @MainActor @Entry var dataContext: ModelContext = DataContainer().mainContext
+    @Entry var dataContext = ModelContext(DataContainer().container)
 }
 
 // MARK: Wrappers

@@ -33,5 +33,6 @@ import SwiftData
         self.source = source
         self.date = date
         self.calories = calories
+        self.duration = duration
     }
 }

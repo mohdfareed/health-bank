@@ -1,6 +1,5 @@
 import Foundation
 
-// @MainActor
 // struct UnitsService {
 //     // @AppStorage(Model.singletonKey) private var id: Model.ID?
 

@@ -52,4 +52,18 @@ extension UUID: @retroactive RawRepresentable {
     public init?(rawValue: String) {
         self.init(uuidString: rawValue)
     }
+
+    public static let zero: UUID = .init(
+        uuidString:
+            "00000000-0000-0000-0000-000000000000"
+    )!
+}
+
+@MainActor extension Binding {
+    func defaulted<T>(to defaultValue: T) -> Binding<T> where Value == T? {
+        return Binding<T>(
+            get: { self.wrappedValue ?? defaultValue },
+            set: { self.wrappedValue = $0 }
+        )
+    }
 }

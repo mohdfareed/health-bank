@@ -3,7 +3,7 @@ import OSLog
 import SwiftData
 
 /// The supported sources of data.
-enum DataSource: String {
+enum DataSource: Codable {
     case HealthKit
     case CoreData
 
