@@ -29,9 +29,22 @@
 		00DCE4D42D6FF1A000848689 /* HealthTrackerUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = HealthTrackerUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		00DE87CD2D989E20006E19BC /* Exceptions for "HealthTracker" folder in "HealthTracker" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = 00DCE4B52D6FF19E00848689 /* HealthTracker */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		00DCE4B82D6FF19E00848689 /* HealthTracker */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				00DE87CD2D989E20006E19BC /* Exceptions for "HealthTracker" folder in "HealthTracker" target */,
+			);
 			path = HealthTracker;
 			sourceTree = "<group>";
 		};

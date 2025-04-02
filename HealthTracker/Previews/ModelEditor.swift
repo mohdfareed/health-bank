@@ -18,26 +18,28 @@ struct PreviewModelEditor<Model: PersistentModel, RowContent: View>: View {
     }
 
     var body: some View {
-        HStack {
-            Text("\(model.id.hashValue)").foregroundColor(.pink)
-            Spacer()
-            if self.context.insertedModelsArray.contains(where: { $0.id == model.id }) {
-                Image(systemName: "plus").foregroundStyle(.green)
-            } else if self.context.changedModelsArray.contains(where: { $0.id == model.id }) {
-                Image(systemName: "pencil").foregroundStyle(.purple)
-            } else if self.context.deletedModelsArray.contains(where: { $0.id == model.id }) {
-                Image(systemName: "trash").foregroundStyle(.red)
-            } else {
-                Image(systemName: "checkmark").foregroundStyle(.blue)
+        VStack {
+            HStack {
+                Spacer()
+                Text("\(model.id)").font(.footnote).padding().multilineTextAlignment(.center)
+                    .fontDesign(.monospaced).tint(.pink)
+
+                Spacer()
             }
-        }
-        rowContent(model)
-        HStack {
-            saveButton(model).buttonStyle(.borderless)
-            Spacer()
-            editButton(model).buttonStyle(.borderless)
-            Spacer()
-            deleteButton(model).buttonStyle(.borderless)
+
+            Divider()
+            rowContent(model)
+            Divider()
+
+            HStack {
+                Spacer()
+                saveButton(model).buttonStyle(.borderless)
+                Spacer()
+                editButton(model).buttonStyle(.borderless)
+                Spacer()
+                deleteButton(model).buttonStyle(.borderless)
+                Spacer()
+            }
         }
     }
 
@@ -72,34 +74,48 @@ struct PreviewModelEditor<Model: PersistentModel, RowContent: View>: View {
     private func saveButton(_ item: Model) -> some View {
         AnyView(
             Button(action: {
-                let model: Model? = context.registeredModel(
-                    for: self.model.persistentModelID
-                )
-
-                if model == nil {
-                    self.context.insert(self.model)
-                }
-
-                do {
-                    try self.context.save()
-                } catch {
-                    print("Failed to save \(Model.self): \(error)")
-                }
+                self.context.insert(self.model)
             }) {
-                let model: Model? = context.registeredModel(
+                let registeredModel: Model? = context.registeredModel(
                     for: self.model.persistentModelID
                 )
-                if model != nil {
+                let isRegistered = registeredModel != nil
+                let isInserted = self.context.insertedModelsArray.contains(where: {
+                    $0.persistentModelID == model.persistentModelID
+                })
+
+                if isInserted && isRegistered {
                     Image(systemName: "square.and.arrow.down").tint(.green)
-                } else {
-                    Image(systemName: "square.and.arrow.down")
+                } else if isInserted && !isRegistered {
+                    Image(systemName: "square.and.arrow.down").tint(.red)
+                } else if !isInserted && isRegistered {  // in-sync
+                    Image(systemName: "checkmark").tint(.green)
+                } else {  // !isInserted && !isRegistered
+                    Image(systemName: "checkmark").tint(.red)
                 }
             }
         )
     }
 }
 
-@MainActor func row(_ name: String, value: String) -> some View {
+extension PreviewModelEditor {
+    static func card(
+        model: Model, editor: ((Model) -> Void)? = nil,
+        @ViewBuilder _ rowContent: @escaping (Model) -> RowContent
+    ) -> some View {
+        Group {
+            PreviewModelEditor(model: model, editor: editor) {
+                rowContent($0)
+            }
+        }
+        .padding()
+        .background(.background.secondary)
+        .cornerRadius(12)
+        .padding()
+    }
+}
+
+@MainActor func cardRow(_ name: String, value: String) -> some View {
     HStack {
         Text(name).foregroundStyle(.primary)
         Spacer()
@@ -117,15 +133,21 @@ struct PreviewModelEditor<Model: PersistentModel, RowContent: View>: View {
     }
 
     struct PreviewModelEditorView: View {
+        @Environment(\.modelContext) var context
         @Query var models: [PreviewModel]
-        var model: PreviewModel? { models.first }
 
+        var model: PreviewModel? { models.first }
         var body: some View {
-            List {
-                PreviewModelEditor(
-                    model: model ?? PreviewModel(),
-                    editor: { $0.value = Int.random(in: 0..<100) }
-                ) { row("Value", value: "\($0.value)") }
+            switch models.count {
+            case 0:
+                Text("No models found.").foregroundStyle(.red)
+            default:
+                PreviewModelEditor.card(model: model!) {
+                    cardRow("Value", value: "\($0.value)")
+                }
+                Button("Save") {
+                    try! self.context.save()
+                }
             }
         }
     }
@@ -133,6 +155,9 @@ struct PreviewModelEditor<Model: PersistentModel, RowContent: View>: View {
 
 #Preview {
     PreviewModelEditorView()
-        .modelContainer(for: PreviewModel.self, inMemory: true)
+        .modelContainer(
+            for: PreviewModel.self, inMemory: true,
+            isAutosaveEnabled: false
+        )
         .preferredColorScheme(.dark)
 }

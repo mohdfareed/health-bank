@@ -5,30 +5,31 @@ struct TableEditor<Model: PersistentModel, RowContent: View>: View {
     @Environment(\.modelContext) var context: ModelContext
     @Query(animation: .default) private var models: [Model]
 
-    private let factory: () -> Model
-    private let modifier: ((Model) -> Void)?
+    private let factory: (() -> Model)?
+    private let editor: ((Model) -> Void)?
     private let rowContent: (Model) -> RowContent
 
     private var allModels: [Model] {
         let deleted = self.context.deletedModelsArray.filter { $0 is Model }
-        return self.models + (deleted as! [Model])
+        return (self.models + (deleted as? [Model] ?? [])).sorted(by: {
+            $0.id < $1.id
+        })
     }
 
     init(
-        factory: @escaping () -> Model,
-        modifier: ((Model) -> Void)? = nil,
+        factory: (() -> Model)? = nil, editor: ((Model) -> Void)? = nil,
         @ViewBuilder _ rowContent: @escaping (Model) -> RowContent
     ) {
         self.factory = factory
-        self.modifier = modifier
+        self.editor = editor
         self.rowContent = rowContent
     }
 
     var body: some View {
         NavigationView {
-            List {
+            ScrollView {
                 ForEach(self.allModels, id: \.id) {
-                    PreviewModelEditor(model: $0, editor: modifier) {
+                    PreviewModelEditor.card(model: $0, editor: editor) {
                         self.rowContent($0)
                     }
                 }
@@ -46,11 +47,15 @@ struct TableEditor<Model: PersistentModel, RowContent: View>: View {
     }
 
     private func addButton() -> some View {
-        AnyView(
-            Button(action: {
-                self.context.insert(self.factory())
-            }) { Image(systemName: "plus") }
-        )
+        var view = AnyView(EmptyView())
+        if let factory = self.factory {
+            view = AnyView(
+                Button(action: {
+                    self.context.insert(factory())
+                }) { Image(systemName: "plus") }
+            )
+        }
+        return view
     }
 
     private func saveButton() -> some View {
@@ -75,8 +80,8 @@ struct TableEditor<Model: PersistentModel, RowContent: View>: View {
         var body: some View {
             TableEditor(
                 factory: { PreviewModel() },
-                modifier: { $0.value = Int.random(in: 0..<100) }
-            ) { row("Value", value: "\($0.value)") }
+                editor: { $0.value = Int.random(in: 0..<100) }
+            ) { cardRow("Value", value: "\($0.value)") }
         }
     }
 #endif

@@ -10,7 +10,7 @@ extension Sequence {
     }
 
     func points<X, Y>(x: KeyPath<Element, X>, y: KeyPath<Element, Y>) -> [any DataPoint<X, Y>] {
-        return map { ValuePoint(x: $0[keyPath: x], y: $0[keyPath: y]) }
+        return map { GenericPoint(x: $0[keyPath: x], y: $0[keyPath: y]) }
     }
 }
 

@@ -2,28 +2,35 @@ import Foundation
 import OSLog
 import SwiftData
 
+// MARK: Data Store
+
 /// The supported sources of data.
 enum DataSource: Codable {
     case HealthKit
     case CoreData
-
-    /// All sources.
-    static var all: [DataSource] {
-        [.HealthKit, .CoreData]
-    }
 }
 
-/// A data model. All models which interact with the app's data store
-/// conform to this protocol.
-protocol DataModel: PersistentModel {
+/// A protocol for data models that originate from a data source.
+protocol DataResource: PersistentModel {
     /// The source of the data.
     var source: DataSource { get }
 }
 
-// A historical data model.
-protocol HistoricalDataModel: DataModel {
-    /// The date the record was created.
-    var date: Date { get }
+/// An application store that is the source of data.
+protocol ResourceStore<SupportedModel> {
+    /// The type of models the store supports.
+    associatedtype SupportedModel: DataResource
+    /// The source of the store's data.
+    static var source: DataSource { get }
+
+    /// Creates or updates a record in the store.
+    func save(_ model: SupportedModel) throws
+    /// Deletes a record from the store.
+    func delete(_ model: SupportedModel) throws
+    /// Fetches records matching a predicate. The fetched records are always
+    /// only those sourced from the store.
+    func fetch<M>(_ descriptor: FetchDescriptor<M>) throws -> [M]
+    where M == SupportedModel
 }
 
 // MARK: Plotting
@@ -37,29 +44,7 @@ protocol DataPoint<X, Y> {
 }
 
 /// A data point default implementation.
-struct ValuePoint<X, Y>: DataPoint {
+struct GenericPoint<X, Y>: DataPoint {
     var x: X
     var y: Y
-}
-
-// MARK: Data Store
-
-/// An application data store accessible from SwiftUI.
-/// This type is used by the `DataContainer` to provide a SwiftData
-/// in-memory buffer for the store.
-protocol Store<Model> {
-    associatedtype Model: DataModel
-
-    /// The data sources supported by the store.
-    /// The store will only handle data from one of these sources and
-    /// data conforming to the `DataModel` protocol.
-    var sources: [DataSource] { get }
-
-    func save(_ model: Model) throws
-    /// Deletes a record.
-    func delete(_ model: Model) throws
-
-    /// Fetches records matching a predicate.
-    func fetch<M>(_ descriptor: FetchDescriptor<M>) throws -> [M]
-    where M == Model
 }

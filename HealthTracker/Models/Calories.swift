@@ -2,10 +2,10 @@ import Foundation
 import SwiftData
 
 /// Entry of consumed calories.
-@Model final class CaloriesConsumed: HistoricalDataModel {
+@Model final class CaloriesConsumed: DataResource {
     var source: DataSource
+    /// The date the record was created.
     var date: Date
-
     /// The consumed calories.
     var calories: Double
 
@@ -17,10 +17,10 @@ import SwiftData
 }
 
 /// Entry of burned calories.
-@Model final class CaloriesBurned: HistoricalDataModel {
+@Model final class CaloriesBurned: DataResource {
     var source: DataSource
+    /// The date the record was created.
     var date: Date
-
     /// The burned calories.
     var calories: Double
     /// The duration of the activity.

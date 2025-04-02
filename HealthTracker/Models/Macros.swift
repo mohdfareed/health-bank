@@ -2,10 +2,10 @@ import Foundation
 import SwiftData
 
 /// The proteins of a calories entry.
-@Model final class CalorieProteins: HistoricalDataModel {
+@Model final class CalorieProteins: DataResource {
     var source: DataSource
+    /// The date the record was created.
     var date: Date
-
     /// The proteins of the calories.
     var protein: Double
 
@@ -17,10 +17,10 @@ import SwiftData
 }
 
 /// The fat of the calories.
-@Model final class CalorieFat: HistoricalDataModel {
+@Model final class CalorieFat: DataResource {
     var source: DataSource
+    /// The date the record was created.
     var date: Date
-
     /// The fat of the calories.
     var fat: Double
 
@@ -32,10 +32,10 @@ import SwiftData
 }
 
 /// The carbohydrates of the calories.
-@Model final class CalorieCarbs: HistoricalDataModel {
+@Model final class CalorieCarbs: DataResource {
     var source: DataSource
+    /// The date the record was created.
     var date: Date
-
     /// The carbs of the calories.
     var carbs: Double
 
