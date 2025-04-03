@@ -11,27 +11,22 @@ import SwiftUI
 struct SingletonQuery<Model: PersistentModel>: DynamicProperty {
     private let logger = AppLogger.new(for: Self.self)
     @Query var models: [Model]
+    var wrappedValue: Model? { return self.models.first }
 
-    var wrappedValue: Model? {
-        if self.models.count > 1 {
-            logger.warning(
-                "Found (\(self.models.count)) models for type \(Model.self)."
-            )
-        }
-        return self.models.first
+    init(query: Query<Model, [Model]>? = nil) {
+        self._models = Query(
+            filter: #Predicate { _ in true },
+            sort: \.persistentModelID, order: .forward
+        )
     }
 
     init(_ id: PersistentIdentifier?) {
-        guard let id = id else {
-            self._models = Query(
-                filter: #Predicate { _ in false },
-                sort: \.persistentModelID, order: .forward
-            )
-            return
-        }
+        let filter =
+            id == nil
+            ? #Predicate<Model> { _ in false }
+            : #Predicate { $0.persistentModelID == id! }
         self._models = Query(
-            filter: #Predicate { $0.persistentModelID == id },
-            sort: \.persistentModelID, order: .forward
+            filter: filter, sort: \.persistentModelID, order: .forward
         )
     }
 }

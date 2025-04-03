@@ -1,6 +1,8 @@
 import SwiftData
 import SwiftUI
 
+// MARK: Editor
+
 struct PreviewModelEditor<Model: PersistentModel, RowContent: View>: View {
     @Environment(\.modelContext) var context
     @State private var model: Model
@@ -21,9 +23,9 @@ struct PreviewModelEditor<Model: PersistentModel, RowContent: View>: View {
         VStack {
             HStack {
                 Spacer()
-                Text("\(model.id)").font(.footnote).padding().multilineTextAlignment(.center)
-                    .fontDesign(.monospaced).tint(.pink)
-
+                Text("\(String(describing: model.persistentModelID.hashValue))")
+                    .multilineTextAlignment(.center)
+                    .font(.footnote).fontDesign(.monospaced).bold()
                 Spacer()
             }
 
@@ -42,7 +44,11 @@ struct PreviewModelEditor<Model: PersistentModel, RowContent: View>: View {
             }
         }
     }
+}
 
+// MARK: Buttons & Status
+
+extension PreviewModelEditor {
     private func editButton(_ item: Model) -> some View {
         AnyView(
             Button(action: {
@@ -80,23 +86,27 @@ struct PreviewModelEditor<Model: PersistentModel, RowContent: View>: View {
                     for: self.model.persistentModelID
                 )
                 let isRegistered = registeredModel != nil
-                let isInserted = self.context.insertedModelsArray.contains(where: {
-                    $0.persistentModelID == model.persistentModelID
-                })
+                let isPersisted = !self.context.insertedModelsArray.contains(
+                    where: {
+                        $0.persistentModelID == model.persistentModelID
+                    }
+                )  // not yet to be persisted
 
-                if isInserted && isRegistered {
+                if isRegistered && isPersisted {  // in-sync
                     Image(systemName: "square.and.arrow.down").tint(.green)
-                } else if isInserted && !isRegistered {
+                } else if isRegistered && !isPersisted {
                     Image(systemName: "square.and.arrow.down").tint(.red)
-                } else if !isInserted && isRegistered {  // in-sync
-                    Image(systemName: "checkmark").tint(.green)
-                } else {  // !isInserted && !isRegistered
-                    Image(systemName: "checkmark").tint(.red)
+                } else if !isRegistered && isPersisted {
+                    Image(systemName: "plus.circle.fill").tint(.green)
+                } else {  // !isRegistered && !isPersisted
+                    Image(systemName: "plus.circle.fill").tint(.red)
                 }
             }
         )
     }
 }
+
+// MARK: Card Design
 
 extension PreviewModelEditor {
     static func card(
@@ -127,23 +137,27 @@ extension PreviewModelEditor {
 
 #if DEBUG
     @Model final class PreviewModel {
-        @Attribute(.unique) var id: UUID = UUID()
         var value: Int = 0
         init() {}
     }
 
     struct PreviewModelEditorView: View {
         @Environment(\.modelContext) var context
-        @Query var models: [PreviewModel]
+        @Query(animation: .default) var models: [PreviewModel]
 
         var model: PreviewModel? { models.first }
         var body: some View {
             switch models.count {
             case 0:
-                Text("No models found.").foregroundStyle(.red)
+                Text("No models found.").foregroundStyle(.red).padding()
+                Button("Create") {
+                    self.context.insert(PreviewModel())
+                }.buttonStyle(.borderedProminent)
             default:
-                PreviewModelEditor.card(model: model!) {
-                    cardRow("Value", value: "\($0.value)")
+                withAnimation{
+                    PreviewModelEditor.card(model: model!) {
+                        cardRow("Value", value: "\($0.value)")
+                    }
                 }
                 Button("Save") {
                     try! self.context.save()
@@ -160,4 +174,5 @@ extension PreviewModelEditor {
             isAutosaveEnabled: false
         )
         .preferredColorScheme(.dark)
+        .resetSettings()
 }

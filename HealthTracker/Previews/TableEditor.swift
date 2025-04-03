@@ -90,4 +90,5 @@ struct TableEditor<Model: PersistentModel, RowContent: View>: View {
     PreviewModelTableView()
         .modelContainer(for: PreviewModel.self, inMemory: true)
         .preferredColorScheme(.dark)
+        .resetSettings()
 }

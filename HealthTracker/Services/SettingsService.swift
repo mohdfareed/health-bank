@@ -1,130 +1,151 @@
 import SwiftData
 import SwiftUI
 
-/// A protocol to define a settings model. It is used to define a structure
-/// in the `UserDefaults` database. A default initializer is required to define
-/// the default values for the settings.
-protocol Settings { init() }
-/// A protocol to which all app settings value types conform.
-protocol SettingsValue: Codable, Sendable {}
-/// A type of a key path to a settings value.
-typealias SettingsKeyPath<S: Settings, V: SettingsValue> = KeyPath<S, V>
+/// A key for a settings value in the `UserDefaults` store.
+struct SettingsKey<Value: RawRepresentable & Sendable>: Sendable
+where Value.RawValue: SettingsValue {
+    /// The key for the setting in `UserDefaults`.
+    let id: String
+    /// The default value for the setting.
+    let `default`: Value
 
-/// A property wrapper to bind a settings value. This will fetch the value on
-/// reads and write to the `UserDefaults` on writes.
-@propertyWrapper
-struct SettingsBinding<Value: SettingsValue>: DynamicProperty, Sendable {
-    private let (id, defaultValue): (id: String, default: Value)
-    private let storeName: String?
-    private var defaults: UserDefaults {
-        guard let storeName = self.storeName else {
-            return UserDefaults.standard
-        }
-        return UserDefaults(suiteName: storeName) ?? UserDefaults.standard
+    init(_ key: String, default: Value) {
+        self.id = key
+        self.default = `default`
     }
 
-    init<S>(_ keyPath: SettingsKeyPath<S, Value>, store: String? = nil) {
-        (self.id, self.defaultValue) = keyPath.key
-        self.storeName = store
-    }
-
-    var wrappedValue: Value {
-        get {
-            self.defaults.object(forKey: self.id) as? Value ?? self.defaultValue
-        }
-        nonmutating set { self.defaults.set(newValue, forKey: self.id) }
-    }
-
-    var projectedValue: Binding<Value> {
-        return .init(
-            get: { self.wrappedValue },
-            set: { self.wrappedValue = $0 }
-        )
+    init(_ key: String) where Value: ExpressibleByNilLiteral {
+        self.init(key, default: nil)
     }
 }
-extension Binding { typealias Settings = SettingsBinding }
 
-/// A property wrapper to fetch a settings value. This will fetch the value
-/// from the `UserDefaults` on reads and write to the `UserDefaults` on
-/// writes. This is a wrapper around `AppStorage`.
-@MainActor @propertyWrapper
-struct SettingsQuery<Value: SettingsValue>: DynamicProperty, Sendable {
-    @AppStorage var storedValue: Value
-
-    init<S>(_ keyPath: SettingsKeyPath<S, Value>, store: UserDefaults? = nil) {
-        guard let store = createAppStore(key: keyPath.key, store: store) else {
-            fatalError("Failed to create AppStorage for key: \(keyPath.key)")
-        }
-        self._storedValue = store
+extension View {
+    func resetSettings() -> some View {
+        let defaults = UserDefaults.standard
+        defaults.removePersistentDomain(forName: AppLogger.appDomain)
+        return self
     }
+}
+
+// MARK: SwiftUI Integration
+
+/// A property wrapper to read and write settings values. The property wrapper
+/// uses `AppStorage` to store the value in the `UserDefaults` database.
+/// The wrapper uses `RawRepresentable` to convert settings values to and from
+/// the underlying type stored in `UserDefaults`. The settings can be unset
+/// by setting the value to `nil`. The default value is used when the settings
+/// value is not set or is not of the expected type.
+@MainActor @propertyWrapper
+struct SettingsQuery<Value: RawRepresentable & Sendable>: DynamicProperty
+where Value.RawValue: SettingsValue {
+    private let `default`: Value
+    @AppStorage var storage: Value.RawValue
 
     var wrappedValue: Value {
-        get { self.storedValue }
-        nonmutating set { self.storedValue = newValue }
+        get { Value(rawValue: self.storage) ?? self.default }
+        nonmutating set { self.storage = newValue.rawValue }
     }
 
     var projectedValue: Binding<Value> {
-        return .init(
-            get: { self.wrappedValue },
-            set: { self.wrappedValue = $0 }
+        Binding(get: { self.wrappedValue }, set: { self.wrappedValue = $0 })
+    }
+
+    init(_ key: SettingsKey<Value>, store: UserDefaults? = nil) {
+        self.default = key.default
+        self._storage = createStorage(
+            default: key.default.rawValue, id: key.id, store: store
         )
     }
 }
 extension Query { typealias Settings = SettingsQuery }
 
-// MARK: Extensions
+// MARK: Supported Types
 
-private typealias SettingsKey<V: SettingsValue> = (id: String, default: V)
-
-extension SettingsKeyPath {
-    /// Creates a settings key as a tuple of an ID and a default value.
-    fileprivate var key: SettingsKey<Value> {
-        let key = String(describing: self)
-        let defaultValue = Root()[keyPath: self]
-        return (key, default: defaultValue)
-    }
+/// A protocol to define the raw value stored in the `UserDefaults` database.
+/// It mirrors the `AppStorage` interface and **must not be implemented**.
+internal protocol SettingsValue: RawRepresentable {}
+extension Optional: SettingsValue, @retroactive RawRepresentable {
+    public init?(rawValue: Self) { self = rawValue }
+    public var rawValue: Self { self }
 }
 
-// Supported `UserDefaults` types
-extension String: SettingsValue {}
-extension Bool: SettingsValue {}
-extension Int: SettingsValue {}
-extension Double: SettingsValue {}
-extension PersistentIdentifier: SettingsValue {}
-extension Optional: SettingsValue where Wrapped: SettingsValue {}
+// AppStorage supported types
+extension String: SettingsValue, @retroactive RawRepresentable {}
+extension Bool: SettingsValue, @retroactive RawRepresentable {}
+extension Int: SettingsValue, @retroactive RawRepresentable {}
+extension Double: SettingsValue, @retroactive RawRepresentable {}
+extension URL: SettingsValue, @retroactive RawRepresentable {}
+extension Date: SettingsValue, @retroactive RawRepresentable {}
+extension Data: SettingsValue, @retroactive RawRepresentable {}
+extension PersistentIdentifier: SettingsValue, @retroactive RawRepresentable {}
 
-// Wrapper around `AppStorage` initialization
-private func createAppStore<Value>(
-    key: SettingsKey<Value>, store: UserDefaults? = nil
-) -> AppStorage<Value>? {
-    switch key {
+// MARK: `AppStorage` Integration
+
+private func createStorage<Value: SettingsValue>(
+    default: Value, id: String, store: UserDefaults? = nil
+) -> AppStorage<Value> {
+    switch AppStorage<Value>.self {
     // String =================================================================
-    case let key as SettingsKey<String>:
-        return AppStorage(wrappedValue: key.default, key.id, store: store) as? AppStorage
-    case let key as SettingsKey<String?>:
-        return AppStorage<String?>(key.id, store: store) as? AppStorage
+    case is AppStorage<String>.Type:
+        let value = `default` as! String
+        return AppStorage(wrappedValue: value, id, store: store) as! AppStorage
+    case is AppStorage<String?>.Type:
+        return AppStorage<String?>(id, store: store) as! AppStorage
+
     // Bool ===================================================================
-    case let key as SettingsKey<Bool>:
-        return AppStorage(wrappedValue: key.default, key.id, store: store) as? AppStorage
-    case let key as SettingsKey<Bool?>:
-        return AppStorage<Bool?>(key.id, store: store) as? AppStorage
+    case is AppStorage<Bool>.Type:
+        let value = `default` as! Bool
+        return AppStorage(wrappedValue: value, id, store: store) as! AppStorage
+    case is AppStorage<Bool?>.Type:
+        return AppStorage<Bool?>(id, store: store) as! AppStorage
+
     // Int ====================================================================
-    case let key as SettingsKey<Int>:
-        return AppStorage(wrappedValue: key.default, key.id, store: store) as? AppStorage
-    case let key as SettingsKey<Int?>:
-        return AppStorage<Int?>(key.id, store: store) as? AppStorage
+    case is AppStorage<Int>.Type:
+        let value = `default` as! Int
+        return AppStorage(wrappedValue: value, id, store: store) as! AppStorage
+    case is AppStorage<Int?>.Type:
+        return AppStorage<Int?>(id, store: store) as! AppStorage
+
     // Double =================================================================
-    case let key as SettingsKey<Double>:
-        return AppStorage(wrappedValue: key.default, key.id, store: store) as? AppStorage
-    case let key as SettingsKey<Double?>:
-        return AppStorage<Double?>(key.id, store: store) as? AppStorage
+    case is AppStorage<Double>.Type:
+        let value = `default` as! Double
+        return AppStorage(wrappedValue: value, id, store: store) as! AppStorage
+    case is AppStorage<Double?>.Type:
+        return AppStorage<Double?>(id, store: store) as! AppStorage
+
+    // URL ====================================================================
+    case is AppStorage<URL>.Type:
+        let value = `default` as! URL
+        return AppStorage(wrappedValue: value, id, store: store) as! AppStorage
+    case is AppStorage<URL?>.Type:
+        return AppStorage<URL?>(id, store: store) as! AppStorage
+
+    // Date ===================================================================
+    case is AppStorage<Date>.Type:
+        let value = `default` as! Date
+        return AppStorage(wrappedValue: value, id, store: store) as! AppStorage
+    case is AppStorage<Date?>.Type:
+        return AppStorage<Date?>(id, store: store) as! AppStorage
+
+    // Data ===================================================================
+    case is AppStorage<Data>.Type:
+        let value = `default` as! Data
+        return AppStorage(wrappedValue: value, id, store: store) as! AppStorage
+    case is AppStorage<Data?>.Type:
+        return AppStorage<Data?>(id, store: store) as! AppStorage
+
     // PersistentIdentifier ===================================================
-    case let key as SettingsKey<PersistentIdentifier>:
-        return AppStorage(wrappedValue: key.default, key.id, store: store) as? AppStorage
-    case let key as SettingsKey<PersistentIdentifier?>:
-        return AppStorage<PersistentIdentifier?>(key.id, store: store) as? AppStorage
-    // Default ================================================================
+    case is AppStorage<PersistentIdentifier>.Type:
+        let value = `default` as! PersistentIdentifier
+        return AppStorage(wrappedValue: value, id, store: store) as! AppStorage
+    case is AppStorage<PersistentIdentifier?>.Type:
+        let storage = AppStorage<PersistentIdentifier?>(id, store: store)
+        return storage as! AppStorage
+
+    // Unsupported ============================================================
     default:
-        return nil
+        fatalError(
+            "Unsupported settings type: \(id) = \(type(of: `default`))"
+        )
     }
 }

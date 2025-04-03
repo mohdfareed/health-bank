@@ -3,20 +3,22 @@ import SwiftData
 import SwiftUI
 
 /// The app settings.
-struct AppSettings: Settings {
+struct AppSettings {
     /// Whether to sync to HealthKit.
-    let healthKit: Bool? = nil
+    static let healthKit = SettingsKey<Bool?>("HealthKit")
     /// Whether to enable biometrics for the app.
-    var biometrics: Bool = false
+    static let biometrics = SettingsKey("Biometrics", default: false)
     /// Whether to enable notifications for the app.
-    var notifications: Bool = false
+    static let notifications = SettingsKey("Notifications", default: false)
     /// The active user daily calorie budget.
-    var caloriesBudget: PersistentIdentifier?
+    static let dailyCalorieBudget = SettingsKey<PersistentIdentifier?>(
+        "CalorieBudget", default: nil
+    )
     init() {}
 }
 
-/// A daily calories budget of the user.
-@Model final class CaloriesBudget: Settings {
+/// A daily budget of calories and macro-nutrients.
+@Model final class CalorieBudget {
     /// The date the budget was set.
     var date: Date = Date()
     /// The daily calorie budget.

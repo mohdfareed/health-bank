@@ -5,24 +5,23 @@ import SwiftUI
 
 enum AppError: Error {
     case runtimeError(String)
-    case notSupported(String)
 }
 
 /// A logger for the app.
 struct AppLogger {
-    private static let defaultSubsystem: String = {
+    static let appDomain: String = {
         Bundle.main.bundleIdentifier ?? "Debug.HealthTracker"
     }()
 
     static func new(for category: String) -> Logger {
         return Logger(
-            subsystem: AppLogger.defaultSubsystem, category: category
+            subsystem: AppLogger.appDomain, category: category
         )
     }
 
     static func new<T>(for category: T.Type) -> Logger {
         return Logger(
-            subsystem: AppLogger.defaultSubsystem, category: "\(T.self)"
+            subsystem: AppLogger.appDomain, category: "\(T.self)"
         )
     }
 }
@@ -45,6 +44,11 @@ extension UUID {
 }
 
 // MARK: JSON Serialization
+
+extension RawRepresentable where Self: Codable {
+    public var rawValue: String? { self.json }
+    public init?(rawValue: String?) { self.init(json: rawValue) }
+}
 
 extension Decodable {
     init?(json: String?) {

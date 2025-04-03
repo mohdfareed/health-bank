@@ -5,10 +5,7 @@ import SwiftData
 // MARK: Data Store
 
 /// The supported sources of data.
-enum DataSource: Codable {
-    case HealthKit
-    case CoreData
-}
+typealias DataSource = String
 
 /// A protocol for data models that originate from a data source.
 protocol DataResource: PersistentModel {
@@ -23,14 +20,13 @@ protocol ResourceStore<SupportedModel> {
     /// The source of the store's data.
     static var source: DataSource { get }
 
+    /// Fetches records matching a predicate.
+    func fetch<M>(_ descriptor: FetchDescriptor<M>) throws -> [M]
+    where M == SupportedModel
     /// Creates or updates a record in the store.
     func save(_ model: SupportedModel) throws
     /// Deletes a record from the store.
     func delete(_ model: SupportedModel) throws
-    /// Fetches records matching a predicate. The fetched records are always
-    /// only those sourced from the store.
-    func fetch<M>(_ descriptor: FetchDescriptor<M>) throws -> [M]
-    where M == SupportedModel
 }
 
 // MARK: Plotting
