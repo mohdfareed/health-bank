@@ -94,7 +94,10 @@ struct PreviewSettings: View {
 
 #Preview {
     PreviewSettingsView()
-        .modelContainer(for: PreviewModel.self, inMemory: true)
-        .preferredColorScheme(.dark).padding()
+        .modelContainer(
+            for: PreviewModel.self, inMemory: true,
+            isAutosaveEnabled: false
+        )
+        .preferredColorScheme(.dark)
         .resetSettings()
 }

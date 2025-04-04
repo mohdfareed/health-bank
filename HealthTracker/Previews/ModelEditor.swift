@@ -47,6 +47,7 @@ struct PreviewModelEditor<Model: PersistentModel, RowContent: View>: View {
                 Spacer()
             }
         }
+        .animation(.default, value: self.model)
         .animation(.default, value: self.isPersisted)
         .animation(.default, value: self.isRegistered)
     }
@@ -176,15 +177,13 @@ extension PreviewModelEditor {
                     self.context.insert(PreviewModel())
                 }.buttonStyle(.borderedProminent)
             default:
-                withAnimation {
-                    PreviewModelEditor.card(
-                        model: model,
-                        editor: {
-                            $0.value += 1
-                        }
-                    ) {
-                        cardRow("Value", value: "\($0.value)")
+                PreviewModelEditor.card(
+                    model: model,
+                    editor: {
+                        $0.value += 1
                     }
+                ) {
+                    cardRow("Value", value: "\($0.value)")
                 }
             }
         }

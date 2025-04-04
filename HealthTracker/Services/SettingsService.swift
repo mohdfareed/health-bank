@@ -41,9 +41,7 @@ struct SettingsQuery<Value: SettingsRawValue>: DynamicProperty {
 
     var wrappedValue: Value? {
         get { self.storage ?? self.default }
-        nonmutating set {
-            withAnimation(.default) { self.storage = newValue }
-        }
+        nonmutating set { self.storage = newValue }
     }
 
     var projectedValue: Binding<Value?> {
