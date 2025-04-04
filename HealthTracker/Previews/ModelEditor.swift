@@ -35,7 +35,11 @@ struct PreviewModelEditor<Model: PersistentModel, RowContent: View>: View {
 
             HStack {
                 Spacer()
-                saveButton(model).buttonStyle(.borderless)
+                if !self.isRegistered {
+                    insertButton(model).buttonStyle(.borderless)
+                } else {
+                    saveButton(model).buttonStyle(.borderless)
+                }
                 Spacer()
                 editButton(model).buttonStyle(.borderless)
                 Spacer()
@@ -43,12 +47,30 @@ struct PreviewModelEditor<Model: PersistentModel, RowContent: View>: View {
                 Spacer()
             }
         }
+        .animation(.default, value: self.isPersisted)
+        .animation(.default, value: self.isRegistered)
     }
 }
 
 // MARK: Buttons & Status
 
 extension PreviewModelEditor {
+    private var isRegistered: Bool {
+        let registeredModel: Model? = context.registeredModel(
+            for: self.model.persistentModelID
+        )
+        return registeredModel != nil
+    }
+
+    private var isPersisted: Bool {
+        let isPersisted = !self.context.insertedModelsArray.contains(
+            where: {
+                $0.persistentModelID == model.persistentModelID
+            }
+        )  // not yet to be persisted
+        return isPersisted
+    }
+
     private func editButton(_ item: Model) -> some View {
         AnyView(
             Button(action: {
@@ -77,29 +99,29 @@ extension PreviewModelEditor {
         )
     }
 
-    private func saveButton(_ item: Model) -> some View {
+    private func insertButton(_ item: Model) -> some View {
         AnyView(
             Button(action: {
                 self.context.insert(self.model)
             }) {
-                let registeredModel: Model? = context.registeredModel(
-                    for: self.model.persistentModelID
-                )
-                let isRegistered = registeredModel != nil
-                let isPersisted = !self.context.insertedModelsArray.contains(
-                    where: {
-                        $0.persistentModelID == model.persistentModelID
-                    }
-                )  // not yet to be persisted
-
-                if isRegistered && isPersisted {  // in-sync
-                    Image(systemName: "square.and.arrow.down").tint(.green)
-                } else if isRegistered && !isPersisted {
-                    Image(systemName: "square.and.arrow.down").tint(.red)
-                } else if !isRegistered && isPersisted {
+                if self.isRegistered {
                     Image(systemName: "plus.circle.fill").tint(.green)
-                } else {  // !isRegistered && !isPersisted
+                } else {
                     Image(systemName: "plus.circle.fill").tint(.red)
+                }
+            }
+        )
+    }
+
+    private func saveButton(_ item: Model) -> some View {
+        AnyView(
+            Button(action: {
+                try? self.context.save()
+            }) {
+                if self.isPersisted {  // in-sync
+                    Image(systemName: "square.and.arrow.down").tint(.green)
+                } else {  // !isRegistered && !isPersisted
+                    Image(systemName: "square.and.arrow.down").tint(.red)
                 }
             }
         )
@@ -145,7 +167,7 @@ extension PreviewModelEditor {
         @Environment(\.modelContext) var context
         @Query(animation: .default) var models: [PreviewModel]
 
-        var model: PreviewModel? { models.first }
+        var model: PreviewModel { models.first! }
         var body: some View {
             switch models.count {
             case 0:
@@ -154,13 +176,15 @@ extension PreviewModelEditor {
                     self.context.insert(PreviewModel())
                 }.buttonStyle(.borderedProminent)
             default:
-                withAnimation{
-                    PreviewModelEditor.card(model: model!) {
+                withAnimation {
+                    PreviewModelEditor.card(
+                        model: model,
+                        editor: {
+                            $0.value += 1
+                        }
+                    ) {
                         cardRow("Value", value: "\($0.value)")
                     }
-                }
-                Button("Save") {
-                    try! self.context.save()
                 }
             }
         }

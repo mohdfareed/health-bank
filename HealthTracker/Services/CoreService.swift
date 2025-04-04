@@ -3,26 +3,18 @@ import OSLog
 import SwiftData
 import SwiftUI
 
+/// An application error.
 enum AppError: Error {
     case runtimeError(String)
 }
 
-/// A logger for the app.
+/// The app's logger factory.
 struct AppLogger {
-    static let appDomain: String = {
-        Bundle.main.bundleIdentifier ?? "Debug.HealthTracker"
-    }()
-
     static func new(for category: String) -> Logger {
-        return Logger(
-            subsystem: AppLogger.appDomain, category: category
-        )
+        return Logger(subsystem: appDomain, category: category)
     }
-
     static func new<T>(for category: T.Type) -> Logger {
-        return Logger(
-            subsystem: AppLogger.appDomain, category: "\(T.self)"
-        )
+        return Logger(subsystem: appDomain, category: "\(T.self)")
     }
 }
 
@@ -45,31 +37,13 @@ extension UUID {
 
 // MARK: JSON Serialization
 
+// Settings `Codable` support
 extension RawRepresentable where Self: Codable {
     public var rawValue: String? { self.json }
     public init?(rawValue: String?) { self.init(json: rawValue) }
 }
 
-extension Decodable {
-    init?(json: String?) {
-        do {
-            guard let json = json else { return nil }
-            guard !json.isEmpty else { return nil }
-            guard let data = json.data(using: .utf8) else {
-                throw AppError.runtimeError(
-                    "Failed to generate data from JSON string: \(json)"
-                )
-            }
-            self = try JSONDecoder().decode(Self.self, from: data)
-        } catch {
-            AppLogger.new(for: Self.self).error(
-                "Failed to decode JSON: \(error)"
-            )
-            return nil
-        }
-    }
-}
-
+// Serialization
 extension Encodable {
     var json: String? {
         let encoder = JSONEncoder()
@@ -87,6 +61,27 @@ extension Encodable {
         } catch {
             AppLogger.new(for: Self.self).error(
                 "Failed to encode JSON: \(error)"
+            )
+            return nil
+        }
+    }
+}
+
+// Deserialization
+extension Decodable {
+    init?(json: String?) {
+        do {
+            guard let json = json else { return nil }
+            guard !json.isEmpty else { return nil }
+            guard let data = json.data(using: .utf8) else {
+                throw AppError.runtimeError(
+                    "Failed to generate data from JSON string: \(json)"
+                )
+            }
+            self = try JSONDecoder().decode(Self.self, from: data)
+        } catch {
+            AppLogger.new(for: Self.self).error(
+                "Failed to decode JSON: \(error)"
             )
             return nil
         }

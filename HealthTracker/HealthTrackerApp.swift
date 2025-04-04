@@ -2,6 +2,9 @@ import OSLog
 import SwiftData
 import SwiftUI
 
+/// The app's bundle identifier.
+let appDomain: String = Bundle.main.bundleIdentifier ?? "Debug.HealthTracker"
+
 @main struct HealthTrackerApp: App {
 	internal let logger = AppLogger.new(for: Self.self)
 	var container: ModelContainer
@@ -30,42 +33,56 @@ import SwiftUI
 
 	var body: some Scene {
 		WindowGroup {
-			AppView().modelContainer(self.container)
+			AppPreview().modelContainer(self.container)
 			// DashboardView().modelContainer(AppDataStore.container)
 		}
 	}
 }
 
-struct AppView: View {
-//	@Query.Settings(AppSettings.dailyCalorieBudget)
-//	var dailyCalorieBudget: PersistentIdentifier?
+struct AppPreview: View {
+	@Query.Settings(AppSettings.dailyCalorieBudget)
+	var dailyCalorieBudget: PersistentIdentifier?
+
+	init() {
+		print(AppSettings.dailyCalorieBudget)
+		AppLogger.new(for: Self.self).debug("AppView initialized.")
+		AppLogger.new(for: Self.self).info(
+			"AppSettings.dailyCalorieBudget: \(String(describing: AppSettings.dailyCalorieBudget))"
+		)
+		AppLogger.new(for: Self.self).error(
+			"AppSettings.dailyCalorieBudget: \(String(describing: AppSettings.dailyCalorieBudget))"
+		)
+		fatalError(
+			"AppSettings.dailyCalorieBudget: \(String(describing: AppSettings.dailyCalorieBudget))"
+		)
+	}
 
 	var body: some View {
 		VStack {
-			PreviewSettings(key: AppSettings.healthKit).padding()
-//			PreviewSingleton(id: self.dailyCalorieBudget).padding()
+			PreviewSettings("Settings", key: AppSettings.healthKit).padding()
+			//			PreviewSingleton(id: self.dailyCalorieBudget).padding()
 		}
 	}
 }
 
 #Preview {
-	AppView()
+	AppPreview()
+		//		.modelContainer(
+		//			try! ModelContainer(
+		//				for: Schema(
+		//					HealthTrackerApp.appModels + []
+		//				),
+		//				configurations: ModelConfiguration(
+		//					isStoredInMemoryOnly: true
+		//				),
+		//				ModelConfiguration(
+		//					isStoredInMemoryOnly: true
+		//				)
+		//			)
+		//		)
 		.modelContainer(
-			try! ModelContainer(
-				for: Schema(
-					HealthTrackerApp.appModels + []
-				),
-				configurations: ModelConfiguration(
-					isStoredInMemoryOnly: true
-				),
-				ModelConfiguration(
-					isStoredInMemoryOnly: true
-				)
-			)
+			for: CalorieBudget.self, inMemory: true
 		)
-		// .modelContainer(
-		// 	for: CalorieBudget.self, inMemory: true
-		// )
 		.preferredColorScheme(.dark)
 		.resetSettings()
 }

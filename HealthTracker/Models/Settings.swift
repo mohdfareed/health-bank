@@ -5,16 +5,15 @@ import SwiftUI
 /// The app settings.
 struct AppSettings {
     /// Whether to sync to HealthKit.
-    static let healthKit = SettingsKey<Bool?>("HealthKit")
+    static let healthKit = Settings<Bool>("HealthKit")
     /// Whether to enable biometrics for the app.
-    static let biometrics = SettingsKey("Biometrics", default: false)
+    static let biometrics = Settings("Biometrics", false)
     /// Whether to enable notifications for the app.
-    static let notifications = SettingsKey("Notifications", default: false)
+    static let notifications = Settings("Notifications", false)
     /// The active user daily calorie budget.
-    static let dailyCalorieBudget = SettingsKey<PersistentIdentifier?>(
-        "CalorieBudget", default: nil
+    static let dailyCalorieBudget = Settings<PersistentIdentifier>(
+        "CalorieBudget"
     )
-    init() {}
 }
 
 /// A daily budget of calories and macro-nutrients.

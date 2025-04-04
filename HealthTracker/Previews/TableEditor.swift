@@ -31,7 +31,7 @@ struct TableEditor<Model: PersistentModel, RowContent: View>: View {
                 ForEach(self.allModels, id: \.id) {
                     PreviewModelEditor.card(model: $0, editor: editor) {
                         self.rowContent($0)
-                    }
+                    }.animation(.default, value: $0)
                 }
             }
             .navigationTitle("Editor")
@@ -81,7 +81,7 @@ struct TableEditor<Model: PersistentModel, RowContent: View>: View {
             TableEditor(
                 factory: { PreviewModel() },
                 editor: { $0.value = Int.random(in: 0..<100) }
-            ) { cardRow("Value", value: "\($0.value)") }
+            ) { cardRow("Value", value: "\($0.value)").animation(.default, value: $0.value) }
         }
     }
 #endif
