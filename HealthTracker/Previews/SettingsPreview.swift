@@ -64,14 +64,18 @@ struct PreviewSettings: View {
 
 #if DEBUG
     struct PreviewSettingsModel {
-        static var first: Settings<Bool> { .init("First", false) }
-        static let second: Settings<Bool> = .init("Second", nil)
-        let third: Settings<Bool> = .init("Second", false)
+        static var first: Settings<Bool> { .init("First", default: false) }
+        static let second: Settings<Bool> = .init("Second", default: nil)
+        let third: Settings<Bool> = .init("Second", default: false)
         let singleton: Settings<PersistentIdentifier> = .init("Second")
         init() {}
     }
 
     struct PreviewSettingsView: View {
+        init() {
+            UserDefaults.standard.removePersistentDomain(forName: appDomain)
+        }
+
         var body: some View {
             Group {
                 PreviewSettings("Settings", key: PreviewSettingsModel.first)
@@ -99,5 +103,4 @@ struct PreviewSettings: View {
             isAutosaveEnabled: false
         )
         .preferredColorScheme(.dark)
-        .resetSettings()
 }

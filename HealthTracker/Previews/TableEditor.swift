@@ -79,6 +79,10 @@ struct TableEditor<Model: PersistentModel, RowContent: View>: View {
     struct PreviewModelTableView: View {
         @Query var models: [PreviewModel]
 
+        init() {
+            UserDefaults.standard.removePersistentDomain(forName: appDomain)
+        }
+
         var body: some View {
             TableEditor(
                 factory: { PreviewModel() },
@@ -95,5 +99,4 @@ struct TableEditor<Model: PersistentModel, RowContent: View>: View {
             isAutosaveEnabled: false
         )
         .preferredColorScheme(.dark)
-        .resetSettings()
 }

@@ -3,6 +3,9 @@ import OSLog
 import SwiftData
 import SwiftUI
 
+// MARK: Core Services
+// ============================================================================
+
 /// An application error.
 enum AppError: Error {
     case runtimeError(String)
@@ -36,12 +39,7 @@ extension UUID {
 }
 
 // MARK: JSON Serialization
-
-// Settings `Codable` support
-extension RawRepresentable where Self: Codable {
-    public var rawValue: String? { self.json }
-    public init?(rawValue: String?) { self.init(json: rawValue) }
-}
+// ============================================================================
 
 // Serialization
 extension Encodable {

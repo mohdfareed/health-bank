@@ -27,7 +27,7 @@ struct PreviewSingleton: View {
                 }
             }.padding()
 
-            if let id = self.singletonID {
+            if let id = self.singletonID?.hashValue {
                 Text("\(id)").tint(.pink)
                     .multilineTextAlignment(.center)
                     .font(.caption)
@@ -47,6 +47,8 @@ struct PreviewSingleton: View {
                     .foregroundStyle(.red).padding()
             }
         }
+        .animation(.default, value: self.singletonID)
+        .animation(.default, value: self.model)
     }
 
     private func createSingleton() {
@@ -56,6 +58,8 @@ struct PreviewSingleton: View {
 
         self.singletonID = model.id
         self._model.wrappedValue = .init(self.singletonID)
+        //        print("\(self.model)")
+        print("\(self._model)")
     }
 }
 
@@ -63,6 +67,10 @@ struct PreviewSingleton: View {
     struct PreviewSingletonView: View {
         @Query.Settings(PreviewSettingsModel().singleton)
         var singletonID: PersistentIdentifier?
+
+        init() {
+            UserDefaults.standard.removePersistentDomain(forName: appDomain)
+        }
 
         var body: some View {
             PreviewSingleton(id: singletonID).padding()
@@ -88,5 +96,4 @@ struct PreviewSingleton: View {
             isAutosaveEnabled: false
         )
         .preferredColorScheme(.dark)
-        .resetSettings()
 }

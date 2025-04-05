@@ -44,6 +44,7 @@ struct AppPreview: View {
 	var dailyCalorieBudget: PersistentIdentifier?
 
 	init() {
+		UserDefaults.standard.removePersistentDomain(forName: appDomain)
 		print(AppSettings.dailyCalorieBudget)
 		AppLogger.new(for: Self.self).debug("AppView initialized.")
 		AppLogger.new(for: Self.self).info(
@@ -60,7 +61,7 @@ struct AppPreview: View {
 	var body: some View {
 		VStack {
 			PreviewSettings("Settings", key: AppSettings.healthKit).padding()
-			//			PreviewSingleton(id: self.dailyCalorieBudget).padding()
+			PreviewSingleton(id: self.dailyCalorieBudget).padding()
 		}
 	}
 }
@@ -84,5 +85,4 @@ struct AppPreview: View {
 			for: CalorieBudget.self, inMemory: true
 		)
 		.preferredColorScheme(.dark)
-		.resetSettings()
 }

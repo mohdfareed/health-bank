@@ -2,6 +2,21 @@ import Foundation
 import OSLog
 import SwiftData
 
+// MARK: Settings
+
+/// A protocol to define the raw value stored in the `UserDefaults` database.
+/// It mirrors the `AppStorage` interface and **must not be implemented**.
+/// It must only implement the types supported by the `AppStorage` interface.
+internal protocol SettingsRawValue: Sendable {}
+
+/// A key for a settings value stored in the `UserDefaults` database.
+struct Settings<Value: Sendable>: Sendable {
+    /// The unique key for the value in `UserDefaults`.
+    let id: String
+    /// The default value for the setting.
+    let defaultValue: Value?
+}
+
 // MARK: Data Store
 
 /// The supported sources of data.

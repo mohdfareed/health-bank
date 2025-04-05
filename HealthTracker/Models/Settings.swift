@@ -7,12 +7,12 @@ struct AppSettings {
     /// Whether to sync to HealthKit.
     static let healthKit = Settings<Bool>("HealthKit")
     /// Whether to enable biometrics for the app.
-    static let biometrics = Settings("Biometrics", false)
+    static let biometrics = Settings("Biometrics", default: false)
     /// Whether to enable notifications for the app.
-    static let notifications = Settings("Notifications", false)
+    static let notifications = Settings("Notifications", default: false)
     /// The active user daily calorie budget.
     static let dailyCalorieBudget = Settings<PersistentIdentifier>(
-        "CalorieBudget"
+        "CalorieBudget", default: nil
     )
 }
 

@@ -1,8 +1,19 @@
 import Foundation
 
-typealias Advancer<T: Strideable> = (T, T.Stride) -> T
+// MARK: Errors
+// ============================================================================
+
+enum DataError: Error {
+    case InvalidData(String)
+    case InvalidDateRange(from: Date, to: Date)
+    case InvalidModel(String)
+    case DataTypeMismatch(expected: String, actual: String)
+}
 
 // MARK: Statistics
+// ============================================================================
+
+typealias Advancer<T: Strideable> = (T, T.Stride) -> T
 
 extension Sequence {
     func points<T>(_ keyPath: KeyPath<Element, T>) -> [T] {
@@ -33,6 +44,7 @@ extension Sequence where Element: AdditiveArithmetic & DurationProtocol {
 }
 
 // MARK: Data Binning
+// ============================================================================
 
 extension Collection where Element: DataPoint, Element.X: Strideable {
     /// Bin the data points into the range.
@@ -106,13 +118,4 @@ extension ClosedRange where Bound: Strideable {
         }
         return bins
     }
-}
-
-// MARK: Errors
-
-enum DataError: Error {
-    case InvalidData(String)
-    case InvalidDateRange(from: Date, to: Date)
-    case InvalidModel(String)
-    case DataTypeMismatch(expected: String, actual: String)
 }
