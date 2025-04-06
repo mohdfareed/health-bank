@@ -19,31 +19,21 @@ struct SingletonQuery<Model: PersistentModel>: DynamicProperty {
         animation: Animation = .default,
     ) {
         var descriptor = descriptor
-        descriptor.includePendingChanges = true
         descriptor.fetchLimit = 1
         self._models = Query(descriptor, animation: animation)
     }
 
     init(
         _ predicate: Predicate<Model>? = #Predicate { _ in true },
-        sortBy: [SortDescriptor<Model>] = [SortDescriptor(\.persistentModelID)],
+        sortBy: [SortDescriptor<Model>] = [
+            SortDescriptor(\.persistentModelID)
+        ],
         animation: Animation = .default,
     ) {
         let descriptor = FetchDescriptor<Model>(
             predicate: predicate, sortBy: sortBy
         )
         self.init(descriptor, animation: animation)
-    }
-
-    init(_ id: PersistentIdentifier?, animation: Animation = .default) {
-        guard let id = id else {
-            self.init(#Predicate { _ in false }, animation: animation)
-            return
-        }
-        self.init(
-            #Predicate { $0.persistentModelID == id },
-            animation: animation
-        )
     }
 }
 extension Query { typealias Singleton = SingletonQuery }

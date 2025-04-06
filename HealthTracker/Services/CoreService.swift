@@ -41,6 +41,19 @@ extension UUID {
 // MARK: JSON Serialization
 // ============================================================================
 
+extension RawRepresentable where Self: Codable {
+    public var rawValue: String? { self.json }
+    public init?(rawValue: String?) {
+        guard let rawValue = rawValue else { return nil }
+        self.init(json: rawValue)
+    }
+}
+
+extension UUID: @retroactive RawRepresentable {
+    public var rawValue: String { self.uuidString }
+    public init?(rawValue: String) { self.init(uuidString: rawValue) }
+}
+
 // Serialization
 extension Encodable {
     var json: String? {
@@ -67,9 +80,8 @@ extension Encodable {
 
 // Deserialization
 extension Decodable {
-    init?(json: String?) {
+    init?(json: String) {
         do {
-            guard let json = json else { return nil }
             guard !json.isEmpty else { return nil }
             guard let data = json.data(using: .utf8) else {
                 throw AppError.runtimeError(

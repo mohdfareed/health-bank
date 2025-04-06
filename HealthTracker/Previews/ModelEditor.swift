@@ -22,7 +22,7 @@ struct PreviewModelEditor<Model: PersistentModel, RowContent: View>: View {
         VStack {
             HStack {
                 Spacer()
-                Text("\(model.persistentModelID.hashValue)")
+                Text("\(model.id.hashValue)")
                     .multilineTextAlignment(.center)
                     .font(.footnote).fontDesign(.monospaced).bold()
                 Spacer()

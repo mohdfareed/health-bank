@@ -11,14 +11,16 @@ struct AppSettings {
     /// Whether to enable notifications for the app.
     static let notifications = Settings("Notifications", default: false)
     /// The active user daily calorie budget.
-    static let dailyCalorieBudget: Settings<PersistentIdentifier?> = .init(
-        "CalorieBudget", default: nil
+    static let dailyCalorieBudget: Settings<CalorieBudget.ID?> = .init(
+        "CalorieBudget", default: UUID()
     )
 }
 
 /// A daily budget of calories and macro-nutrients.
 @Model final class CalorieBudget {
-    @Attribute(.unique) var id: UUID = UUID.zero  // singleton
+    typealias ID = UUID
+    @Attribute(.unique) var id: UUID = UUID.zero
+
     /// The date the budget was set.
     var date: Date = Date()
     /// The daily calorie budget.

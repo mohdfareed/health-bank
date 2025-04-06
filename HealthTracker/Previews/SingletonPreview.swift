@@ -7,7 +7,7 @@ struct PreviewSingleton<T: PersistentModel>: View {
 
     init(
         id: Predicate<T>?, editor: ((T) -> Void)? = nil
-    ) where T.ID == PersistentIdentifier {
+    ) {
         self._model = .init(id)
         self.editor = editor
     }

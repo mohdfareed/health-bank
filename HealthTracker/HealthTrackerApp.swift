@@ -13,17 +13,17 @@ let appDomain: String = Bundle.main.bundleIdentifier ?? "Debug.HealthTracker"
 		CalorieBudget.self
 	]
 
-	//	static let dataModels: [any DataModel.Type] = [
-	//		CaloriesConsumed.self
-	//		//        CaloriesBurned.self,
-	//		//        CalorieProteins.self,
-	//		//        CalorieFat.self,
-	//		//        CalorieCarbs.self,
-	//	]
+	static let dataModels: [any DataResource.Type] = [
+		CaloriesConsumed.self,
+		CaloriesBurned.self,
+		CalorieProteins.self,
+		CalorieFat.self,
+		CalorieCarbs.self,
+	]
 
 	init() {
 		self.container = try! ModelContainer(
-			for: Schema(Self.appModels + []),
+			for: Schema(Self.appModels + Self.dataModels),
 			configurations: ModelConfiguration(),
 			ModelConfiguration(
 				isStoredInMemoryOnly: true
@@ -40,8 +40,8 @@ let appDomain: String = Bundle.main.bundleIdentifier ?? "Debug.HealthTracker"
 }
 
 struct AppPreview: View {
-	// @Query.Settings(AppSettings.dailyCalorieBudget)
-	// var dailyCalorieBudget: PersistentIdentifier?
+	@Query.Settings(AppSettings.dailyCalorieBudget)
+	var dailyCalorieBudget: CalorieBudget.ID?
 
 	init() {
 		UserDefaults.standard.removePersistentDomain(forName: appDomain)
@@ -49,22 +49,19 @@ struct AppPreview: View {
 
 	var body: some View {
 		VStack {
-			PreviewSettings("Settings", key: AppSettings.healthKit).padding()
-			// HStack {
-			// 	Text("Singleton ID").font(.headline)
-			// 	Spacer()
-			// 	Text(String(describing: self.dailyCalorieBudget?.hashValue))
-			// }.padding(.horizontal, 32)
-
-			// PreviewSingleton<CalorieBudget>(
-			// 	id: self.dailyCalorieBudget,
-			// 	factory: { CalorieBudget() },
-			// 	editor: { $0.dailyCalories = Double.random(in: 0..<10000) }
-			// ).padding()
-
+			PreviewSettings("HealthKit", key: AppSettings.healthKit).padding()
+			if let singletonID = self.dailyCalorieBudget {
+				PreviewSingleton<CalorieBudget>(
+					id: #Predicate { $0.id == singletonID },
+					editor: { $0.dailyCalories = Double.random(in: 0..<10000) }
+				).padding()
+			}
 			TableEditor(
 				factory: { CalorieBudget() },
-				editor: { $0.dailyCalories = Double.random(in: 0..<10000) }
+				editor: {
+					self.dailyCalorieBudget = $0.id
+					$0.dailyCalories = Double.random(in: 0..<10000)
+				}
 			) { item in
 				cardRow(
 					"Calories",
@@ -78,21 +75,18 @@ struct AppPreview: View {
 
 #Preview {
 	AppPreview()
-		//		.modelContainer(
-		//			try! ModelContainer(
-		//				for: Schema(
-		//					HealthTrackerApp.appModels + []
-		//				),
-		//				configurations: ModelConfiguration(
-		//					isStoredInMemoryOnly: true
-		//				),
-		//				ModelConfiguration(
-		//					isStoredInMemoryOnly: true
-		//				)
-		//			)
-		//		)
 		.modelContainer(
-			for: CalorieBudget.self, inMemory: true
+			try! ModelContainer(
+				for: Schema(
+					HealthTrackerApp.appModels + HealthTrackerApp.dataModels
+				),
+				configurations: ModelConfiguration(
+					isStoredInMemoryOnly: true
+				),
+				ModelConfiguration(
+					isStoredInMemoryOnly: true
+				)
+			)
 		)
 		.preferredColorScheme(.dark)
 }

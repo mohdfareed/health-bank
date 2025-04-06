@@ -13,6 +13,7 @@ extension Date: SettingsValue {}
 extension Data: SettingsValue {}
 extension PersistentIdentifier: SettingsValue {}
 extension Optional: SettingsValue {}
+extension UUID: SettingsValue {}
 
 extension AppStorage {
     // String =================================================================
