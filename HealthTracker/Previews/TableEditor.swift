@@ -43,6 +43,11 @@ struct TableEditor<Model: PersistentModel, RowContent: View>: View {
                 ToolbarItemGroup(placement: .cancellationAction) {
                     saveButton()
                 }
+                ToolbarItemGroup(placement: .principal) {
+                    Text("Models: \(self.allModels.count)")
+                        .font(.footnote).fontDesign(.monospaced)
+                        .foregroundStyle(.secondary)
+                }
             }
             .animation(.default, value: self.allModels)
         }

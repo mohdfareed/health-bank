@@ -40,28 +40,38 @@ let appDomain: String = Bundle.main.bundleIdentifier ?? "Debug.HealthTracker"
 }
 
 struct AppPreview: View {
-	@Query.Settings(AppSettings.dailyCalorieBudget)
-	var dailyCalorieBudget: PersistentIdentifier?
+	// @Query.Settings(AppSettings.dailyCalorieBudget)
+	// var dailyCalorieBudget: PersistentIdentifier?
 
 	init() {
 		UserDefaults.standard.removePersistentDomain(forName: appDomain)
-		print(AppSettings.dailyCalorieBudget)
-		AppLogger.new(for: Self.self).debug("AppView initialized.")
-		AppLogger.new(for: Self.self).info(
-			"AppSettings.dailyCalorieBudget: \(String(describing: AppSettings.dailyCalorieBudget))"
-		)
-		AppLogger.new(for: Self.self).error(
-			"AppSettings.dailyCalorieBudget: \(String(describing: AppSettings.dailyCalorieBudget))"
-		)
-		fatalError(
-			"AppSettings.dailyCalorieBudget: \(String(describing: AppSettings.dailyCalorieBudget))"
-		)
 	}
 
 	var body: some View {
 		VStack {
 			PreviewSettings("Settings", key: AppSettings.healthKit).padding()
-			PreviewSingleton(id: self.dailyCalorieBudget).padding()
+			// HStack {
+			// 	Text("Singleton ID").font(.headline)
+			// 	Spacer()
+			// 	Text(String(describing: self.dailyCalorieBudget?.hashValue))
+			// }.padding(.horizontal, 32)
+
+			// PreviewSingleton<CalorieBudget>(
+			// 	id: self.dailyCalorieBudget,
+			// 	factory: { CalorieBudget() },
+			// 	editor: { $0.dailyCalories = Double.random(in: 0..<10000) }
+			// ).padding()
+
+			TableEditor(
+				factory: { CalorieBudget() },
+				editor: { $0.dailyCalories = Double.random(in: 0..<10000) }
+			) { item in
+				cardRow(
+					"Calories",
+					value: "\(String(describing: item.dailyCalories))"
+				)
+			}
+			.cornerRadius(25)
 		}
 	}
 }

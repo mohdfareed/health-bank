@@ -9,24 +9,40 @@ import SwiftUI
 /// is provided to fetch the first model of the specified type.
 @MainActor @propertyWrapper
 struct SingletonQuery<Model: PersistentModel>: DynamicProperty {
-    private let logger = AppLogger.new(for: Self.self)
     @Query var models: [Model]
-    var wrappedValue: Model? { return self.models.first }
+    var wrappedValue: Model? { self.models.first }
 
-    init(query: Query<Model, [Model]>? = nil) {
-        self._models = Query(
-            filter: #Predicate { _ in true },
-            sort: \.persistentModelID, order: .forward
-        )
+    init(_ query: Query<Model, [Model]>) { self._models = query }
+
+    init(
+        _ descriptor: FetchDescriptor<Model> = .init(),
+        animation: Animation = .default,
+    ) {
+        var descriptor = descriptor
+        descriptor.includePendingChanges = true
+        descriptor.fetchLimit = 1
+        self._models = Query(descriptor, animation: animation)
     }
 
-    init(_ id: PersistentIdentifier?) {
-        let filter =
-            id == nil
-            ? #Predicate<Model> { _ in false }
-            : #Predicate { $0.persistentModelID == id! }
-        self._models = Query(
-            filter: filter, sort: \.persistentModelID, order: .forward
+    init(
+        _ predicate: Predicate<Model>? = #Predicate { _ in true },
+        sortBy: [SortDescriptor<Model>] = [SortDescriptor(\.persistentModelID)],
+        animation: Animation = .default,
+    ) {
+        let descriptor = FetchDescriptor<Model>(
+            predicate: predicate, sortBy: sortBy
+        )
+        self.init(descriptor, animation: animation)
+    }
+
+    init(_ id: PersistentIdentifier?, animation: Animation = .default) {
+        guard let id = id else {
+            self.init(#Predicate { _ in false }, animation: animation)
+            return
+        }
+        self.init(
+            #Predicate { $0.persistentModelID == id },
+            animation: animation
         )
     }
 }

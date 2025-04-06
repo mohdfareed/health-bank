@@ -6,15 +6,26 @@ import SwiftData
 
 /// A protocol to define the raw value stored in the `UserDefaults` database.
 /// It mirrors the `AppStorage` interface and **must not be implemented**.
-/// It must only implement the types supported by the `AppStorage` interface.
-internal protocol SettingsRawValue: Sendable {}
+/// It is implemented internally by the supported types.
+internal protocol SettingsValue: Sendable {}
 
 /// A key for a settings value stored in the `UserDefaults` database.
-struct Settings<Value: Sendable>: Sendable {
+struct Settings<Value: SettingsValue>: Sendable {
     /// The unique key for the value in `UserDefaults`.
     let id: String
     /// The default value for the setting.
-    let defaultValue: Value?
+    let defaultValue: Value
+
+    init(_ id: String, default: Value) {
+        self.id = id
+        self.defaultValue = `default`
+    }
+
+    init(_ id: String, default: Value = nil)
+    where Value: ExpressibleByNilLiteral {
+        self.id = id
+        self.defaultValue = `default`
+    }
 }
 
 // MARK: Data Store

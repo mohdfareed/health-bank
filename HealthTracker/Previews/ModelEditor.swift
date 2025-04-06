@@ -5,8 +5,7 @@ import SwiftUI
 
 struct PreviewModelEditor<Model: PersistentModel, RowContent: View>: View {
     @Environment(\.modelContext) var context
-    @State private var model: Model
-
+    private var model: Model
     private let editor: ((Model) -> Void)?
     private let rowContent: (Model) -> RowContent
 
@@ -35,11 +34,9 @@ struct PreviewModelEditor<Model: PersistentModel, RowContent: View>: View {
 
             HStack {
                 Spacer()
-                if !self.isRegistered {
-                    insertButton(model).buttonStyle(.borderless)
-                } else {
-                    saveButton(model).buttonStyle(.borderless)
-                }
+                saveButton(model).buttonStyle(.borderless)
+                Spacer()
+                insertButton(model).buttonStyle(.borderless)
                 Spacer()
                 editButton(model).buttonStyle(.borderless)
                 Spacer()
@@ -159,7 +156,25 @@ extension PreviewModelEditor {
 // MARK: Preview
 
 #if DEBUG
-    @Model final class PreviewModel {
+    enum SingletonKey: String, Codable {
+        case first
+        case second
+        case `default`
+
+        var next: SingletonKey {
+            switch self {
+            case .first:
+                return .second
+            case .second:
+                return .default
+            case .default:
+                return .first
+            }
+        }
+    }
+
+    @Model class PreviewModel {
+        @Attribute(.unique) var key: String? = nil
         var value: Int = 0
         init() {}
     }

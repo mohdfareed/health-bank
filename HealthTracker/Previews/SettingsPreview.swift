@@ -3,17 +3,11 @@ import SwiftUI
 
 struct PreviewSettings: View {
     let title: String
-    let key: Settings<Bool>
+    @Query.Settings<Bool?> var query: Bool?
 
-    @Query.Settings<Bool> var query: Bool?
-    var indicator: Bool? {
-        UserDefaults.standard.get(self.key)
-    }
-
-    init(_ title: String, key: Settings<Bool>) {
+    init(_ title: String, key: Settings<Bool?>) {
         self.title = title
-        self.key = key
-        self._query = SettingsQuery(key)
+        self._query = AppStorage(key)
     }
 
     var body: some View {
@@ -23,16 +17,8 @@ struct PreviewSettings: View {
                 Spacer()
                 Self.statusIndicator(self.query ?? false)
             }
-
             Divider()
-            Toggle(isOn: $query.defaulted(to: false)) { Text("Editor") }
-            Divider()
-
-            HStack {
-                Text("Indicator")
-                Spacer()
-                Self.statusIndicator(self.indicator ?? false)
-            }
+            Toggle(isOn: self.$query.defaulted(to: false)) { Text("Status") }
         }
         .padding()
         .background(.background.secondary)
@@ -64,10 +50,8 @@ struct PreviewSettings: View {
 
 #if DEBUG
     struct PreviewSettingsModel {
-        static var first: Settings<Bool> { .init("First", default: false) }
-        static let second: Settings<Bool> = .init("Second", default: nil)
-        let third: Settings<Bool> = .init("Second", default: false)
-        let singleton: Settings<PersistentIdentifier> = .init("Second")
+        static var first: Settings<Bool?> { .init("First", default: false) }
+        let singleton: Settings<SingletonKey?> = .init("Singleton")
         init() {}
     }
 
@@ -80,15 +64,6 @@ struct PreviewSettings: View {
             Group {
                 PreviewSettings("Settings", key: PreviewSettingsModel.first)
             }.padding(.horizontal)
-
-            HStack {
-                Text("External Indicator").font(.headline).padding(.horizontal)
-                Spacer()
-                PreviewSettings.statusIndicator(
-                    UserDefaults.standard.get(PreviewSettingsModel.first)
-                ).padding(.horizontal)
-            }.padding(.horizontal)
-
             Group {
                 PreviewSettings("Preview", key: PreviewSettingsModel.first)
             }.padding(.horizontal)
