@@ -12,15 +12,14 @@ struct AppSettings {
     static let notifications = Settings("Notifications", default: false)
     /// The active user daily calorie budget.
     static let dailyCalorieBudget: Settings<CalorieBudget.ID?> = .init(
-        "CalorieBudget", default: UUID()
+        "CalorieBudget", default: nil
     )
 }
 
 /// A daily budget of calories and macro-nutrients.
-@Model final class CalorieBudget {
+@Model final class CalorieBudget: Singleton {
     typealias ID = UUID
-    @Attribute(.unique) var id: UUID = UUID.zero
-
+    var id: UUID = UUID()
     /// The date the budget was set.
     var date: Date = Date()
     /// The daily calorie budget.

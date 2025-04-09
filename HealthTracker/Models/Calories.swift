@@ -2,8 +2,10 @@ import Foundation
 import SwiftData
 
 /// Entry of consumed calories.
-@Model final class CaloriesConsumed: DataResource {
+@Model final class CaloriesConsumed: DataRecord {
+    var id: UUID = UUID()
     var source: DataSource
+
     /// The date the record was created.
     var date: Date
     /// The consumed calories.
@@ -17,8 +19,10 @@ import SwiftData
 }
 
 /// Entry of burned calories.
-@Model final class CaloriesBurned: DataResource {
+@Model final class CaloriesBurned: DataRecord {
+    var id: UUID = UUID()
     var source: DataSource
+
     /// The date the record was created.
     var date: Date
     /// The burned calories.

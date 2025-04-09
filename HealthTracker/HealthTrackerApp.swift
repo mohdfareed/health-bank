@@ -13,7 +13,7 @@ let appDomain: String = Bundle.main.bundleIdentifier ?? "Debug.HealthTracker"
 		CalorieBudget.self
 	]
 
-	static let dataModels: [any DataResource.Type] = [
+	static let dataModels: [any DataRecord.Type] = [
 		CaloriesConsumed.self,
 		CaloriesBurned.self,
 		CalorieProteins.self,

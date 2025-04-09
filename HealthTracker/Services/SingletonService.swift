@@ -3,10 +3,7 @@ import SwiftData
 import SwiftUI
 
 /// A property wrapper to fetch a singleton model. If multiple models are
-/// found, the first one is returned, ordered by the model's persistence ID.
-/// The singleton criteria is defined by either the model's persistence ID,
-/// the model's user-defined ID, or a custom predicate. A default initializer
-/// is provided to fetch the first model of the specified type.
+/// found, the first one is returned.
 @MainActor @propertyWrapper
 struct SingletonQuery<Model: PersistentModel>: DynamicProperty {
     @Query var models: [Model]
@@ -34,6 +31,24 @@ struct SingletonQuery<Model: PersistentModel>: DynamicProperty {
             predicate: predicate, sortBy: sortBy
         )
         self.init(descriptor, animation: animation)
+    }
+
+    init(
+        _ id: Model.ID?,
+        sortBy: [SortDescriptor<Model>] = [
+            SortDescriptor(\.persistentModelID)
+        ],
+        animation: Animation = .default,
+    ) where Model: Singleton {
+        guard let id else {
+            self.init(sortBy: sortBy, animation: animation)
+            return
+        }
+
+        self.init(
+            #Predicate { $0.id == id },
+            sortBy: sortBy, animation: animation
+        )
     }
 }
 extension Query { typealias Singleton = SingletonQuery }

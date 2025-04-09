@@ -33,7 +33,6 @@ struct PreviewModelEditor<Model: PersistentModel, RowContent: View>: View {
             Divider()
 
             HStack {
-                Spacer()
                 saveButton(model).buttonStyle(.borderless)
                 Spacer()
                 insertButton(model).buttonStyle(.borderless)
@@ -41,7 +40,6 @@ struct PreviewModelEditor<Model: PersistentModel, RowContent: View>: View {
                 editButton(model).buttonStyle(.borderless)
                 Spacer()
                 deleteButton(model).buttonStyle(.borderless)
-                Spacer()
             }
         }
         .animation(.default, value: self.model)

@@ -8,7 +8,7 @@ import SwiftUI
 
 /// An application error.
 enum AppError: Error {
-    case runtimeError(String)
+    case runtimeError(String, Error? = nil)
 }
 
 /// The app's logger factory.
@@ -40,19 +40,6 @@ extension UUID {
 
 // MARK: JSON Serialization
 // ============================================================================
-
-extension RawRepresentable where Self: Codable {
-    public var rawValue: String? { self.json }
-    public init?(rawValue: String?) {
-        guard let rawValue = rawValue else { return nil }
-        self.init(json: rawValue)
-    }
-}
-
-extension UUID: @retroactive RawRepresentable {
-    public var rawValue: String { self.uuidString }
-    public init?(rawValue: String) { self.init(uuidString: rawValue) }
-}
 
 // Serialization
 extension Encodable {

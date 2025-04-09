@@ -2,8 +2,10 @@ import Foundation
 import SwiftData
 
 /// The proteins of a calories entry.
-@Model final class CalorieProteins: DataResource {
+@Model final class CalorieProteins: DataRecord {
+    var id: UUID = UUID()
     var source: DataSource
+
     /// The date the record was created.
     var date: Date
     /// The proteins of the calories.
@@ -17,8 +19,10 @@ import SwiftData
 }
 
 /// The fat of the calories.
-@Model final class CalorieFat: DataResource {
+@Model final class CalorieFat: DataRecord {
+    var id: UUID = UUID()
     var source: DataSource
+
     /// The date the record was created.
     var date: Date
     /// The fat of the calories.
@@ -32,8 +36,10 @@ import SwiftData
 }
 
 /// The carbohydrates of the calories.
-@Model final class CalorieCarbs: DataResource {
+@Model final class CalorieCarbs: DataRecord {
+    var id: UUID = UUID()
     var source: DataSource
+
     /// The date the record was created.
     var date: Date
     /// The carbs of the calories.
