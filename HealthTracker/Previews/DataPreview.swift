@@ -2,28 +2,27 @@ import HealthKit
 import SwiftData
 import SwiftUI
 
-@Model final class TestModel: DataRecord {
+@Model final class PreviewDataModel: DataRecord {
     var id: UUID = UUID()
     var source = DataSource()
     var value: Int = Int.random(in: 0...10)
     init() {}
 }
 
-extension TestModel: RemoteRecord {
-    typealias Query = TestQuery
-
-    struct TestQuery: RemoteQuery {
-        typealias Model = TestModel
+extension PreviewDataModel: RemoteRecord {
+    typealias Query = PreviewQuery
+    struct PreviewQuery: RemoteQuery {
+        typealias Model = PreviewDataModel
         var min: Int = 0
         var max: Int = 10
-        var sort: SortDescriptor<TestModel> = .init(\.value, order: .reverse)
+        var sort: SortDescriptor<Model> = .init(\.value, order: .reverse)
     }
 }
 
-extension TestModel.TestQuery: CoreQuery {
-    var descriptor: FetchDescriptor<TestModel> {
+extension PreviewDataModel.PreviewQuery: CoreQuery {
+    var descriptor: FetchDescriptor<PreviewDataModel> {
         let (min, max) = (self.min, self.max)
-        return FetchDescriptor<TestModel>(
+        return FetchDescriptor<PreviewDataModel>(
             predicate: #Predicate {
                 $0.value >= min && $0.value <= max
             },
@@ -32,9 +31,9 @@ extension TestModel.TestQuery: CoreQuery {
     }
 }
 
-extension TestModel: SimulationModel {}
-extension TestModel.TestQuery: SimulationQuery {
-    var predicate: Predicate<TestModel> { self.descriptor.predicate! }
+extension PreviewDataModel: SimulationModel {}
+extension PreviewDataModel.PreviewQuery: SimulationQuery {
+    var predicate: Predicate<PreviewDataModel> { self.descriptor.predicate! }
 }
 
 // MARK: Preview
@@ -57,7 +56,7 @@ struct PreviewDataEditor<Model: RemoteRecord, RowContent: View>: View {
         self.factory = factory
         self.editor = editor
         self.rowContent = rowContent
-        self._data = .init(query)
+        self._data = .init(query, inMemory: .init(sortOrder: query.descriptor.sortBy))
     }
 
     var body: some View {
@@ -124,9 +123,7 @@ struct PreviewDataEditor<Model: RemoteRecord, RowContent: View>: View {
                         try self.remoteContext.delete(changed)
                         try self.remoteContext.save(changed)
                     }
-
                     try self.context.save()
-                    self.$data.refresh()
                 } catch {
                     print("Failed to save: \(error)")
                 }
@@ -144,7 +141,7 @@ struct PreviewDataEditor<Model: RemoteRecord, RowContent: View>: View {
         var body: some View {
             PreviewDataEditor(
                 .init(),
-                factory: { TestModel() },
+                factory: { PreviewDataModel() },
                 editor: { $0.value = Int.random(in: 0..<10) }
             ) {
                 cardRow("Value", value: "\($0.value)")
@@ -158,10 +155,10 @@ struct PreviewDataEditor<Model: RemoteRecord, RowContent: View>: View {
 #Preview {
     PreviewDataEditorView()
         .modelContainer(
-            for: TestModel.self, inMemory: true
+            for: PreviewDataModel.self, inMemory: true
         )
         .remoteContext(
-            .init(stores: [SimulatedStore(using: [TestModel()])])
+            .init(stores: [SimulatedStore(using: [PreviewDataModel()])])
         )
         .preferredColorScheme(.dark)
 }

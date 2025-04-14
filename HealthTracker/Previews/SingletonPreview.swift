@@ -39,7 +39,7 @@ struct PreviewSingleton<T: PersistentModel>: View {
     struct PreviewSingletonView: View {
         @Environment(\.modelContext) var context
         @Query.Settings(PreviewSettingsModel().singleton)
-        var singletonID: SingletonKey?
+        var singletonID: PreviewSingletonKey?
 
         @AppStorage("singletonID")
         private var singletonIDStorage: PersistentIdentifier?
@@ -61,12 +61,12 @@ struct PreviewSingleton<T: PersistentModel>: View {
             PreviewSingleton<PreviewModel>(
                 id: #Predicate { $0.key == key },
                 editor: {
-                    self.singletonID = self.singletonID?.next ?? SingletonKey.first
+                    self.singletonID = self.singletonID?.next ?? PreviewSingletonKey.first
                     $0.value = Int.random(in: 0..<100)
                 }
             )
 
-            TableEditor(
+            PreviewTableEditor(
                 factory: { PreviewModel() },
                 editor: {
                     if self.key != $0.key {

@@ -7,7 +7,8 @@ let appDomain: String = Bundle.main.bundleIdentifier ?? "Debug.HealthTracker"
 
 @main struct HealthTrackerApp: App {
 	internal let logger = AppLogger.new(for: Self.self)
-	var container: ModelContainer
+	var localContainer: ModelContainer
+	var remoteContext: RemoteContext
 
 	static let appModels: [any PersistentModel.Type] = [
 		CalorieBudget.self
@@ -19,19 +20,25 @@ let appDomain: String = Bundle.main.bundleIdentifier ?? "Debug.HealthTracker"
 	]
 
 	init() {
-		self.container = try! ModelContainer(
+		self.localContainer = try! ModelContainer(
 			for: Schema(Self.appModels + Self.dataModels),
-			configurations: ModelConfiguration(),
-			ModelConfiguration(
-				isStoredInMemoryOnly: true
-			)
+			configurations: ModelConfiguration()
+		)
+		self.remoteContext = RemoteContext(
+			stores: [
+				SimulatedStore(using: [])
+			]
 		)
 	}
 
 	var body: some Scene {
 		WindowGroup {
-			AppPreview().modelContainer(self.container)
-			// DashboardView().modelContainer(AppDataStore.container)
+			AppPreview()
+				.modelContainer(self.localContainer)
+				.remoteContext(self.remoteContext)
+			// DashboardView()
+			// 	.modelContainer(AppDataStore.container)
+			// 	.remoteContext(self.remoteContext)
 		}
 	}
 }
@@ -53,7 +60,7 @@ struct AppPreview: View {
 					editor: { $0.dailyCalories = Double.random(in: 0..<10000) }
 				).padding()
 			}
-			TableEditor(
+			PreviewTableEditor(
 				factory: { CalorieBudget() },
 				editor: {
 					self.dailyCalorieBudget = $0.id
@@ -73,17 +80,13 @@ struct AppPreview: View {
 #Preview {
 	AppPreview()
 		.modelContainer(
-			try! ModelContainer(
+			try! .init(
 				for: Schema(
 					HealthTrackerApp.appModels + HealthTrackerApp.dataModels
 				),
-				configurations: ModelConfiguration(
-					isStoredInMemoryOnly: true
-				),
-				ModelConfiguration(
-					isStoredInMemoryOnly: true
-				)
+				configurations: .init(isStoredInMemoryOnly: true)
 			)
 		)
+		.remoteContext(.init(stores: [SimulatedStore()]))
 		.preferredColorScheme(.dark)
 }

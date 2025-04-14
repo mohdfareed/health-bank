@@ -154,12 +154,12 @@ extension PreviewModelEditor {
 // MARK: Preview
 
 #if DEBUG
-    enum SingletonKey: String, Codable {
+    enum PreviewSingletonKey: String, Codable {
         case first
         case second
         case `default`
 
-        var next: SingletonKey {
+        var next: PreviewSingletonKey {
             switch self {
             case .first:
                 return .second

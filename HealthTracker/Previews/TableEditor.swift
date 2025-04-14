@@ -1,7 +1,7 @@
 import SwiftData
 import SwiftUI
 
-struct TableEditor<Model: PersistentModel, RowContent: View>: View {
+struct PreviewTableEditor<Model: PersistentModel, RowContent: View>: View {
     @Environment(\.modelContext) var context: ModelContext
     @Query(animation: .default) private var models: [Model]
 
@@ -89,7 +89,7 @@ struct TableEditor<Model: PersistentModel, RowContent: View>: View {
         }
 
         var body: some View {
-            TableEditor(
+            PreviewTableEditor(
                 factory: { PreviewModel() },
                 editor: { $0.value = Int.random(in: 0..<100) }
             ) { cardRow("Value", value: "\($0.value)") }
