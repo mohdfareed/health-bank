@@ -92,51 +92,7 @@ struct PreviewSingleton<T: PersistentModel>: View {
     }
 #endif
 
-@Model class Recipe {
-    init() {}
-}
-struct RecipeList: View {
-    @Environment(\.modelContext) var context
-    @Query var recipes: [Recipe]
-    @AppStorage("selectedID") var selectedRecipeID: Recipe.ID?
-
-    var body: some View {
-        Text("Selected Recipe ID: \(selectedRecipeID?.hashValue ?? 0)")
-            .padding()
-        HStack {
-            Button("Add") {
-                let recipe = Recipe()
-                self.context.insert(recipe)
-                try? self.context.save()
-                // self.selectedRecipeID = recipe.persistentModelID
-            }
-            Button("Save") {
-                // try! self.context.save()
-            }
-        }
-        List(recipes) { recipe in
-            Button(action: {
-                print(self.selectedRecipeID?.hashValue ?? "nil")
-                self.selectedRecipeID = recipe.id
-                print(self.selectedRecipeID?.hashValue ?? "nil")
-            }) {
-                HStack {
-                    Text("\(recipe.persistentModelID.hashValue)")
-                        .font(.footnote).fontDesign(.monospaced).bold()
-                    if self.selectedRecipeID == recipe.persistentModelID {
-                        Spacer()
-                        Image(systemName: "checkmark.circle.fill")
-                            .foregroundStyle(.green)
-                            .font(.headline)
-                    }
-                }
-            }
-        }
-    }
-}
-
 #Preview {
-    // RecipeList()
     PreviewSingletonView()
         .modelContainer(
             for: PreviewModel.self, inMemory: true,

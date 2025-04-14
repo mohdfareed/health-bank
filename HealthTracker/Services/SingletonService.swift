@@ -4,14 +4,14 @@ import SwiftUI
 
 /// A property wrapper to fetch a singleton model. If multiple models are
 /// found, the first one is returned.
-@MainActor @propertyWrapper
+@propertyWrapper
 struct SingletonQuery<Model: PersistentModel>: DynamicProperty {
     @Query var models: [Model]
     var wrappedValue: Model? { self.models.first }
 
     init(_ query: Query<Model, [Model]>) { self._models = query }
 
-    init(
+    @MainActor init(
         _ descriptor: FetchDescriptor<Model> = .init(),
         animation: Animation = .default,
     ) {
@@ -20,7 +20,7 @@ struct SingletonQuery<Model: PersistentModel>: DynamicProperty {
         self._models = Query(descriptor, animation: animation)
     }
 
-    init(
+    @MainActor init(
         _ predicate: Predicate<Model>? = #Predicate { _ in true },
         sortBy: [SortDescriptor<Model>] = [
             SortDescriptor(\.persistentModelID)
@@ -33,7 +33,7 @@ struct SingletonQuery<Model: PersistentModel>: DynamicProperty {
         self.init(descriptor, animation: animation)
     }
 
-    init(
+    @MainActor init(
         _ id: Model.ID?,
         sortBy: [SortDescriptor<Model>] = [
             SortDescriptor(\.persistentModelID)
