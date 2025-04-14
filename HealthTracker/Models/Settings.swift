@@ -20,15 +20,14 @@ struct AppSettings {
 @Model final class CalorieBudget: Singleton {
     typealias ID = UUID
     var id: UUID = UUID()
+    init() {}
+
     /// The date the budget was set.
     var date: Date = Date()
     /// The daily calorie budget.
     var dailyCalories: Double? = 2000
-    /// The daily protein budgets.
-    var dailyProtein: Double? = 120
-    /// The daily fat budget.
-    var dailyFat: Double? = 60
-    /// The daily carbs budget.
-    var dailyCarbs: Double? = 245
-    init() {}
+    /// The daily calorie macros budgets.
+    var dailyMacros: CalorieMacros = CalorieMacros(
+        protein: 120, fat: 60, carbs: 245
+    )
 }

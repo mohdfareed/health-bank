@@ -4,7 +4,7 @@ import SwiftUI
 
 struct DataRecordsView<Model: DataRecord, Content: View>: View {
     @Environment(\.modelContext) private var localContext
-    @Environment(\.remoteContext) private var remoteContext
+    @Environment(\.previewContext) private var remoteContext
 
     @Query private var localRecords: [Model]
     @ViewBuilder private let content: ([Model]) -> Content
@@ -45,7 +45,7 @@ struct DataRecordsView<Model: DataRecord, Content: View>: View {
 }
 
 extension EnvironmentValues {
-    @Entry var remoteContext: ModelContext = {
+    @Entry var previewContext: ModelContext = {
         ModelContext(
             try! ModelContainer(
                 configurations: ModelConfiguration(
@@ -58,6 +58,6 @@ extension EnvironmentValues {
 
 extension View {
     func remoteContext(_ context: ModelContext) -> some View {
-        self.environment(\.remoteContext, context)
+        self.environment(\.previewContext, context)
     }
 }

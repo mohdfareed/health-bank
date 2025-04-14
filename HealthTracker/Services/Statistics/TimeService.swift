@@ -1,40 +1,5 @@
 import Foundation
 
-extension Collection where Element: DataPoint<Date, Element.Y> {
-    /// Bin the data points into the range.
-    func bin(
-        _ count: Int,
-        unit: Calendar.Component, calendar: Calendar = .current
-    ) -> [(Range<Element.X>, values: [Element.Y])]
-    where Element.X == Date {
-        guard
-            let min = self.points(\.x).min(),
-            let max = self.points(\.x).max(),
-            let steps = min.distance(to: max, in: unit, using: calendar)
-        else {
-            return []
-        }
-
-        let step = steps / count
-        return self.bin(step: step, unit: unit, calendar: calendar)
-    }
-
-    /// Bin the data points using the date by a specific unit.
-    func bin(
-        step: Int, anchor: Date? = nil,
-        unit: Calendar.Component, calendar: Calendar = .current
-    ) -> [(Range<Element.X>, values: [Element.Y])]
-    where Element.X == Date {
-        let advancer: Advancer<Date> = {
-            calendar.date(byAdding: unit, value: Int($1), to: $0)!
-        }
-
-        return self.bin(
-            step: Date.Stride(step), anchor: anchor, using: advancer
-        )
-    }
-}
-
 extension Date {
     /// Get the difference between two dates in a unit.
     func distance(
