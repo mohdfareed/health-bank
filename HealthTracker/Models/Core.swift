@@ -85,6 +85,13 @@ protocol Singleton: PersistentModel where ID == UUID {}
 /// It is implemented internally by the supported types.
 internal protocol SettingsValue: Sendable {}
 
+/// A protocol to define a settings value that can be stored as a string.
+/// New settings value types can be created by implementing this protocol.
+typealias StringSettingsValue = SettingsValue & RawRepresentable<String>
+/// A protocol to define a settings value that can be stored as an integer.
+/// New settings value types can be created by implementing this protocol.
+typealias IntSettingsValue = SettingsValue & RawRepresentable<Int>
+
 /// A key for a settings value stored in the `UserDefaults` database.
 /// It must be sendable to allow the key to be reused throughout the app.
 struct Settings<Value: SettingsValue>: Sendable {

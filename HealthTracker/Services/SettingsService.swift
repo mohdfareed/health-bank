@@ -2,7 +2,6 @@ import SwiftData
 import SwiftUI
 
 extension Query { typealias Settings = AppStorage }  // convenience
-typealias CodableSettings = SettingsValue & Codable & RawRepresentable<String>
 
 // Supported settings value types.
 extension String: SettingsValue {}
@@ -15,23 +14,10 @@ extension Data: SettingsValue {}
 extension PersistentIdentifier: SettingsValue {}
 extension Optional: SettingsValue {}
 
-// Implicitly supported types:
-// `RawRepresentable<String|Int>`
-
 // Support `UUID` in app storage.
 extension UUID: SettingsValue, @retroactive RawRepresentable {
     public var rawValue: String { self.uuidString }
     public init?(rawValue: String) { self.init(uuidString: rawValue) }
-}
-
-// Support `Codable` in app storage. Requires the type to implement
-// `RawRepresentable`. A default implementation is provided.
-extension RawRepresentable where Self: Codable {
-    public var rawValue: String { self.json ?? "" }
-    public init?(rawValue: String) {
-        guard rawValue.isEmpty == false else { return nil }
-        self.init(json: rawValue)
-    }  // raw value can't be String? because AppStorage doesn't support it
 }
 
 // MARK: `AppStorage` Integration
@@ -112,15 +98,6 @@ extension AppStorage {
     where Value == R?, R: RawRepresentable, R.RawValue == Int {
         self.init(key.id, store: store)
     }
-    // Codable ================================================================
-    init(_ key: Settings<Value>, store: UserDefaults? = nil)
-    where Value: Codable & RawRepresentable, Value.RawValue == String {
-        self.init(wrappedValue: key.default, key.id, store: store)
-    }
-    init<R>(_ key: Settings<Value>, store: UserDefaults? = nil)
-    where Value == R?, R: Codable & RawRepresentable, R.RawValue == String {
-        self.init(key.id, store: store)
-    }
 }
 
 // MARK: `UserDefaults` Integration
@@ -134,12 +111,18 @@ extension UserDefaults {
     func string(for key: Settings<String?>) -> String? {
         self.string(forKey: key.id)
     }
+    func set(_ value: String?, for key: Settings<String>) {
+        self.set(value, forKey: key.id)
+    }
     // Bool ===================================================================
     func bool(for key: Settings<Bool>) -> Bool {
         self.bool(forKey: key.id)
     }
     func bool(for key: Settings<Bool?>) -> Bool? {
         self.object(forKey: key.id) as? Bool
+    }
+    func set(_ value: Bool?, for key: Settings<Bool>) {
+        self.set(value, forKey: key.id)
     }
     // Int ====================================================================
     func int(for key: Settings<Int>) -> Int {
@@ -148,12 +131,18 @@ extension UserDefaults {
     func int(for key: Settings<Int?>) -> Int? {
         self.object(forKey: key.id) as? Int
     }
+    func set(_ value: Int?, for key: Settings<Int>) {
+        self.set(value, forKey: key.id)
+    }
     // Double =================================================================
     func double(for key: Settings<Double>) -> Double {
         self.double(forKey: key.id)
     }
     func double(for key: Settings<Double?>) -> Double? {
         self.object(forKey: key.id) as? Double
+    }
+    func set(_ value: Double?, for key: Settings<Double>) {
+        self.set(value, forKey: key.id)
     }
     // URL ====================================================================
     func url(for key: Settings<URL>) -> URL {
@@ -162,6 +151,9 @@ extension UserDefaults {
     func url(for key: Settings<URL?>) -> URL? {
         self.url(forKey: key.id)
     }
+    func set(_ value: URL?, for key: Settings<URL>) {
+        self.set(value, forKey: key.id)
+    }
     // Date ===================================================================
     func date(for key: Settings<Date>) -> Date {
         self.object(forKey: key.id) as? Date ?? key.default
@@ -169,12 +161,18 @@ extension UserDefaults {
     func date(for key: Settings<Date?>) -> Date? {
         self.object(forKey: key.id) as? Date
     }
+    func set(_ value: Date?, for key: Settings<Date>) {
+        self.set(value, forKey: key.id)
+    }
     // Data ===================================================================
     func data(for key: Settings<Data>) -> Data {
         self.data(forKey: key.id) ?? key.default
     }
     func data(for key: Settings<Data?>) -> Data? {
         self.data(forKey: key.id)
+    }
+    func set(_ value: Data?, for key: Settings<Data>) {
+        self.set(value, forKey: key.id)
     }
     // PersistentIdentifier - Unsupported =====================================
     // RawRepresentable | String ==============================================
@@ -189,6 +187,10 @@ extension UserDefaults {
     where R: RawRepresentable, R.RawValue == String {
         guard let rawValue = self.string(forKey: key.id) else { return nil }
         return R(rawValue: rawValue)
+    }
+    func set<R>(_ value: R?, for key: Settings<R>)
+    where R: RawRepresentable, R.RawValue == String {
+        self.set(value?.rawValue, forKey: key.id)
     }
     // RawRepresentable | Int =================================================
     func rawRepresentable<R>(for key: Settings<R>) -> R
@@ -205,19 +207,8 @@ extension UserDefaults {
         }
         return R(rawValue: rawValue)
     }
-    // Codable ================================================================
-    func codable<R>(for key: Settings<R>) -> R
-    where R: Codable {
-        guard let rawValue = self.string(forKey: key.id) else {
-            return key.default
-        }
-        return R(json: rawValue) ?? key.default
-    }
-    func codable<R>(for key: Settings<R?>) -> R?
-    where R: Codable {
-        guard let rawValue = self.string(forKey: key.id) else {
-            return nil
-        }
-        return R(json: rawValue)
+    func set<R>(_ value: R?, for key: Settings<R>)
+    where R: RawRepresentable, R.RawValue == Int {
+        self.set(value?.rawValue, forKey: key.id)
     }
 }

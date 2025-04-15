@@ -66,31 +66,6 @@ extension CalorieBurned.Query: CoreQuery {
 // MARK: Calorie Units
 // ============================================================================
 
-enum CalorieUnit: DataUnit {
-    typealias DimensionType = UnitEnergy
-    static let id: String = "CalorieUnit"
-    case calories, joules
-    var unit: DimensionType {
-        switch self {
-        case .calories: .kilocalories
-        case .joules: .kilojoules
-        }
-    }
-    init() { self = .calories }
-}
-
-enum MacrosUnit: DataUnit {
-    typealias DimensionType = UnitMass
-    static let id: String = "MacrosUnit"
-    case grams
-    var unit: DimensionType {
-        switch self {
-        case .grams: .grams
-        }
-    }
-    init() { self = .grams }
-}
-
 // MARK: Calorie Breakdown
 // ============================================================================
 

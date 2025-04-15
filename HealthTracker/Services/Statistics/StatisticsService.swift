@@ -22,8 +22,8 @@ extension Sequence {
 
     func points<X, Y>(
         x: KeyPath<Element, X>, y: KeyPath<Element, Y>
-    ) -> [DataPoint<X, Y>] {
-        return map { DataPoint(x: $0[keyPath: x], y: $0[keyPath: y]) }
+    ) -> [(x: X, y: Y)] {
+        return map { ($0[keyPath: x], $0[keyPath: y]) }
     }
 }
 
