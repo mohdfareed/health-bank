@@ -58,7 +58,7 @@ struct AppPreview: View {
 				PreviewSingleton<CalorieBudget>(
 					id: #Predicate { $0.id == singletonID },
 					editor: { $0.dailyCalories = Double.random(in: 0..<10000) }
-				).padding()
+				)
 			}
 			PreviewTableEditor(
 				factory: { CalorieBudget() },

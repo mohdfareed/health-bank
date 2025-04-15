@@ -26,11 +26,11 @@ extension UUID: SettingsValue, @retroactive RawRepresentable {
 // Support `Codable` in app storage. Requires the type to implement
 // `RawRepresentable`. A default implementation is provided.
 extension RawRepresentable where Self: Codable {
-    public var rawValue: String? { self.json }
-    public init?(rawValue: String?) {
-        guard let rawValue = rawValue else { return nil }
+    public var rawValue: String { self.json ?? "" }
+    public init?(rawValue: String) {
+        guard rawValue.isEmpty == false else { return nil }
         self.init(json: rawValue)
-    }
+    }  // raw value can't be String? because AppStorage doesn't support it
 }
 
 // MARK: `AppStorage` Integration

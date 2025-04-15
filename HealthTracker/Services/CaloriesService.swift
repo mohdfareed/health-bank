@@ -1,94 +1,143 @@
-// import Foundation
+import Foundation
+import SwiftData
 
-// extension ConsumedCalories {
-//     static let caloriesUnit = UnitEnergy.kilocalories
-//     static let proteinUnit = UnitMass.grams
-//     static let fatUnit = UnitMass.grams
-//     static let carbsUnit = UnitMass.grams
-// }
+// MARK: Calories Consumed
+// ============================================================================
 
-// extension BurnedCalories {
-//     static let caloriesUnit = UnitEnergy.kilocalories
-//     static let durationUnit = UnitDuration.seconds
-// }
+extension CalorieConsumed {
+    static let caloriesUnit = UnitEnergy.kilocalories
+    static let proteinUnit = UnitMass.grams
+    static let fatUnit = UnitMass.grams
+    static let carbsUnit = UnitMass.grams
+}
 
-// extension [ConsumedCalories] {
-//     /// The consumed calories as data points.
-//     var consumedData: [any DataPoint<Date, UInt>] {
-//         self.points(x: \.date, y: \.calories)
-//     }
+extension CalorieConsumed: RemoteRecord {
+    typealias Model = Query
+    struct Query: RemoteQuery {
+        typealias Model = CalorieConsumed
+        let from: Date
+        let to: Date
+        let withMacros: Bool
+    }
+}
 
-//     /// The protein data points.
-//     var proteinData: [any DataPoint<Date, UInt>] {
-//         self.filter { $0.macros.protein != nil }
-//             .points(x: \.date, y: \.macros.protein!)
-//     }
+extension CalorieConsumed.Query: CoreQuery {
+    var descriptor: FetchDescriptor<CalorieConsumed> {
+        let (from, to) = (self.from, self.to)
 
-//     /// The fat data points.
-//     var fatData: [any DataPoint<Date, UInt>] {
-//         self.filter { $0.macros.fat != nil }
-//             .points(x: \.date, y: \.macros.fat!)
-//     }
+        return FetchDescriptor<CalorieConsumed>(
+            predicate: #Predicate {
+                $0.date >= from && $0.date <= to
+            },
+            sortBy: [SortDescriptor(\.date)]
+        )
+    }
+}
 
-//     /// The carbs data points.
-//     var carbsData: [any DataPoint<Date, UInt>] {
-//         self.filter { $0.macros.carbs != nil }
-//             .points(x: \.date, y: \.macros.carbs!)
-//     }
-// }
+// MARK: Calorie Burned
+// ============================================================================
 
-// extension [BurnedCalories] {
-//     /// The consumed calories as negative data points.
-//     var consumedData: [any DataPoint<Date, UInt>] {
-//         self.points(x: \.date, y: \.calories)
-//     }
+extension CalorieBurned {
+    static let caloriesUnit = UnitEnergy.kilocalories
+    static let durationUnit = UnitDuration.seconds
+}
 
-//     /// The duration of the activities.
-//     var durationData: [any DataPoint<Date, TimeInterval>] {
-//         self.filter { $0.duration != nil }
-//             .points(x: \.date, y: \.duration!)
-//     }
-// }
+extension CalorieBurned: RemoteRecord {
+    typealias Model = Query
+    struct Query: RemoteQuery {
+        typealias Model = CalorieBurned
+        let from: Date
+        let to: Date
+    }
+}
 
-// extension ConsumedCalories {
-//     /// The total calories from the macros.
-//     func calcCalories() -> UInt? {
-//         guard let p = self.macros.protein, let f = self.macros.fat, let c = self.macros.carbs else {
-//             return nil
-//         }
-//         return ((p + c) * 4) + (f * 9)
-//     }
+extension CalorieBurned.Query: CoreQuery {
+    var descriptor: FetchDescriptor<CalorieBurned> {
+        let (from, to) = (self.from, self.to)
+        return FetchDescriptor<CalorieBurned>(
+            predicate: #Predicate {
+                $0.date >= from && $0.date <= to
+            },
+            sortBy: [SortDescriptor(\.date)]
+        )
+    }
+}
 
-//     /// The amount of protein in grams from the calories.
-//     func calFat() -> Double? {
-//         guard let protein = self.macros.protein, let carbs = self.macros.carbs else {
-//             return nil
-//         }
+// MARK: Calorie Units
+// ============================================================================
 
-//         let proteinCalories = protein * 4
-//         let carbsCalories = carbs * 4
-//         return Double(self.calories - proteinCalories - carbsCalories) / 9
-//     }
+enum CalorieUnit: DataUnit {
+    typealias DimensionType = UnitEnergy
+    static let id: String = "CalorieUnit"
+    case calories, joules
+    var unit: DimensionType {
+        switch self {
+        case .calories: .kilocalories
+        case .joules: .kilojoules
+        }
+    }
+    init() { self = .calories }
+}
 
-//     /// The amount of fat in grams from the calories.
-//     func calcProtein() -> Double? {
-//         guard let fat = self.macros.fat, let carbs = self.macros.carbs else {
-//             return nil
-//         }
+enum MacrosUnit: DataUnit {
+    typealias DimensionType = UnitMass
+    static let id: String = "MacrosUnit"
+    case grams
+    var unit: DimensionType {
+        switch self {
+        case .grams: .grams
+        }
+    }
+    init() { self = .grams }
+}
 
-//         let fatCalories = fat * 9
-//         let carbsCalories = carbs * 4
-//         return Double(self.calories - fatCalories - carbsCalories) / 4
-//     }
+// MARK: Calorie Breakdown
+// ============================================================================
 
-//     /// The amount of carbs in grams from the calories.
-//     func calcCarbs() -> Double? {
-//         guard let protein = self.macros.protein, let fat = self.macros.fat else {
-//             return nil
-//         }
+extension CalorieConsumed {
+    /// The total calories from the macros.
+    func calcCalories() -> Double? {
+        guard
+            let p = self.macros?.protein,
+            let f = self.macros?.fat,
+            let c = self.macros?.carbs
+        else { return nil }
+        return ((p + c) * 4) + (f * 9)
+    }
 
-//         let proteinCalories = protein * 4
-//         let fatCalories = fat * 9
-//         return Double(self.calories - proteinCalories - fatCalories) / 4
-//     }
-// }
+    /// The amount of protein in grams from the calories.
+    func calFat() -> Double? {
+        guard
+            let protein = self.macros?.protein,
+            let carbs = self.macros?.carbs
+        else { return nil }
+
+        let proteinCalories = protein * 4
+        let carbsCalories = carbs * 4
+        return Double(self.calories - proteinCalories - carbsCalories) / 9
+    }
+
+    /// The amount of fat in grams from the calories.
+    func calcProtein() -> Double? {
+        guard
+            let fat = self.macros?.fat,
+            let carbs = self.macros?.carbs
+        else { return nil }
+
+        let fatCalories = fat * 9
+        let carbsCalories = carbs * 4
+        return Double(self.calories - fatCalories - carbsCalories) / 4
+    }
+
+    /// The amount of carbs in grams from the calories.
+    func calcCarbs() -> Double? {
+        guard
+            let protein = self.macros?.protein,
+            let fat = self.macros?.fat
+        else { return nil }
+
+        let proteinCalories = protein * 4
+        let fatCalories = fat * 9
+        return Double(self.calories - proteinCalories - fatCalories) / 4
+    }
+}

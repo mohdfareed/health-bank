@@ -34,21 +34,23 @@ struct SingletonQuery<Model: PersistentModel>: DynamicProperty {
     }
 
     @MainActor init(
-        _ id: Model.ID?,
+        _ id: Model.ID? = UUID.zero,
         sortBy: [SortDescriptor<Model>] = [
             SortDescriptor(\.persistentModelID)
         ],
         animation: Animation = .default,
     ) where Model: Singleton {
-        guard let id else {
-            self.init(sortBy: sortBy, animation: animation)
-            return
+        if let id = id {
+            self.init(
+                #Predicate { $0.id == id },
+                sortBy: sortBy, animation: animation
+            )
+        } else {
+            self.init(
+                #Predicate { _ in false },
+                sortBy: sortBy, animation: animation
+            )
         }
-
-        self.init(
-            #Predicate { $0.id == id },
-            sortBy: sortBy, animation: animation
-        )
     }
 }
 extension Query { typealias Singleton = SingletonQuery }
