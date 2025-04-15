@@ -56,7 +56,7 @@ protocol RemoteStore {
 // ============================================================================
 
 /// A protocol for units of measurement for data.
-protocol DataUnit: SettingsValue, Codable, RawRepresentable<String> {
+protocol DataUnit: CodableSettings, CaseIterable {
     /// The type of the unit's dimension.
     associatedtype DimensionType: Dimension
     /// The unit's ID in the `UserDefaults` database.

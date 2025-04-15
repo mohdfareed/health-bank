@@ -31,7 +31,7 @@ struct InMemoryQuery<Model: DataRecord> {
 
 /// A property wrapper that fetches local and remote data. The remote data is
 /// initially empty and is populated when the
-@propertyWrapper
+@MainActor @propertyWrapper
 struct RemoteRecordsQuery<M>: DynamicProperty where M: RemoteRecord {
     @Environment(\.remoteContext) var context
     @State var remoteModels: [M] = []

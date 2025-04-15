@@ -2,6 +2,7 @@ import SwiftData
 import SwiftUI
 
 extension Query { typealias Settings = AppStorage }  // convenience
+typealias CodableSettings = SettingsValue & Codable & RawRepresentable<String>
 
 // Supported settings value types.
 extension String: SettingsValue {}
@@ -111,6 +112,15 @@ extension AppStorage {
     where Value == R?, R: RawRepresentable, R.RawValue == Int {
         self.init(key.id, store: store)
     }
+    // Codable ================================================================
+    init(_ key: Settings<Value>, store: UserDefaults? = nil)
+    where Value: Codable & RawRepresentable, Value.RawValue == String {
+        self.init(wrappedValue: key.default, key.id, store: store)
+    }
+    init<R>(_ key: Settings<Value>, store: UserDefaults? = nil)
+    where Value == R?, R: Codable & RawRepresentable, R.RawValue == String {
+        self.init(key.id, store: store)
+    }
 }
 
 // MARK: `UserDefaults` Integration
@@ -194,5 +204,20 @@ extension UserDefaults {
             return nil
         }
         return R(rawValue: rawValue)
+    }
+    // Codable ================================================================
+    func codable<R>(for key: Settings<R>) -> R
+    where R: Codable {
+        guard let rawValue = self.string(forKey: key.id) else {
+            return key.default
+        }
+        return R(json: rawValue) ?? key.default
+    }
+    func codable<R>(for key: Settings<R?>) -> R?
+    where R: Codable {
+        guard let rawValue = self.string(forKey: key.id) else {
+            return nil
+        }
+        return R(json: rawValue)
     }
 }
