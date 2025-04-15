@@ -52,26 +52,6 @@ protocol RemoteStore {
     func delete(_ model: any DataRecord) throws
 }
 
-// MARK: Data Analysis
-// ============================================================================
-
-/// A protocol for units of measurement for data.
-protocol DataUnit: CodableSettings, CaseIterable {
-    /// The type of the unit's dimension.
-    associatedtype DimensionType: Dimension
-    /// The unit's ID in the `UserDefaults` database.
-    static var id: String { get }
-    /// The equivalent measurement unit.
-    var unit: DimensionType { get }
-    init()  // The base unit.
-}
-
-/// A data point made up of 2 data values.
-struct DataPoint<X, Y> {
-    var x: X
-    var y: Y
-}
-
 // MARK: Utilities
 // ============================================================================
 
@@ -79,6 +59,9 @@ struct DataPoint<X, Y> {
 /// The ID can be attributed with `.unique` with `UUID.zero` as the default
 /// to guarantee a single instance of the model in the database.
 protocol Singleton: PersistentModel where ID == UUID {}
+
+// MARK: Settings
+// ============================================================================
 
 /// A protocol to define the raw value stored in the `UserDefaults` database.
 /// It mirrors the `AppStorage` interface and **must not be implemented**.

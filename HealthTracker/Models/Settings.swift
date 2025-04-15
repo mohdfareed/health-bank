@@ -10,6 +10,14 @@ struct AppSettings {
     static let biometrics = Settings("Biometrics", default: false)
     /// Whether to enable notifications for the app.
     static let notifications = Settings("Notifications", default: false)
+    /// The app's unit measurement system.
+    static let unitSystem = Settings<Locale.MeasurementSystem?>(
+        "MeasurementSystem", default: nil
+    )
+    /// The app's first day of the week.
+    static let firstDayOfWeek = Settings<Locale.Weekday?>(
+        "FirstWeekDay", default: nil
+    )
     /// The active user daily calorie budget.
     static let dailyCalorieBudget: Settings<CalorieBudget.ID?> = .init(
         "CalorieBudget", default: nil

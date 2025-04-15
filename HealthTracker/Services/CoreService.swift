@@ -38,6 +38,30 @@ extension UUID {
     }
 }
 
+// MARK: App Locale
+// ============================================================================
+
+@MainActor @propertyWrapper struct AppLocale: DynamicProperty {
+    @Environment(\.locale) var appLocale: Locale
+    var components: Locale.Components { .init(locale: self.appLocale) }
+
+    @AppStorage(AppSettings.unitSystem)
+    var unitSystem: Locale.MeasurementSystem?
+    @AppStorage(AppSettings.firstDayOfWeek)
+    var firstDayOfWeek: Locale.Weekday?
+
+    var wrappedValue: Locale {
+        var components = self.components
+        components.firstDayOfWeek =
+            self.firstDayOfWeek
+            ?? components.firstDayOfWeek
+        components.measurementSystem =
+            self.unitSystem
+            ?? components.measurementSystem
+        return Locale(components: components)
+    }
+}
+
 // MARK: JSON Serialization
 // ============================================================================
 

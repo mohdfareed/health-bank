@@ -47,7 +47,7 @@ struct RemoteRecordsQuery<M>: DynamicProperty where M: RemoteRecord {
     }
     var projectedValue: Self { self }
 
-    @MainActor init(_ query: M.Query, inMemory: InMemoryQuery<M> = .init())
+    init(_ query: M.Query, inMemory: InMemoryQuery<M> = .init())
     where M.Query: CoreQuery {
         self.remoteQuery = query
         self.inMemoryQuery = inMemory

@@ -20,6 +20,15 @@ extension UUID: SettingsValue, @retroactive RawRepresentable {
     public init?(rawValue: String) { self.init(uuidString: rawValue) }
 }
 
+// Support `Weekday` in app storage.
+extension Locale.Weekday: SettingsValue {}
+// Support `MeasurementSystem` in app storage.
+extension Locale.MeasurementSystem: SettingsValue {}
+extension Locale.MeasurementSystem: @retroactive RawRepresentable {
+    public var rawValue: String { self.identifier }
+    public init?(rawValue: String) { self.init(rawValue) }
+}
+
 // MARK: `AppStorage` Integration
 // ============================================================================
 

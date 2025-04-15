@@ -47,7 +47,7 @@ struct SingletonQuery<Model: PersistentModel>: DynamicProperty {
             )
         } else {
             self.init(
-                #Predicate { _ in false },
+                #Predicate { $0.id == UUID.zero },
                 sortBy: sortBy, animation: animation
             )
         }
