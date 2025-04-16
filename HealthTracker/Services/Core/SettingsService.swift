@@ -1,6 +1,9 @@
 import SwiftData
 import SwiftUI
 
+// MARK: Primitive Types
+// ============================================================================
+
 extension Query { typealias Settings = AppStorage }  // convenience
 
 // Supported settings value types.
@@ -13,21 +16,6 @@ extension Date: SettingsValue {}
 extension Data: SettingsValue {}
 extension PersistentIdentifier: SettingsValue {}
 extension Optional: SettingsValue {}
-
-// Support `UUID` in app storage.
-extension UUID: SettingsValue, @retroactive RawRepresentable {
-    public var rawValue: String { self.uuidString }
-    public init?(rawValue: String) { self.init(uuidString: rawValue) }
-}
-
-// Support `Weekday` in app storage.
-extension Locale.Weekday: SettingsValue {}
-// Support `MeasurementSystem` in app storage.
-extension Locale.MeasurementSystem: SettingsValue {}
-extension Locale.MeasurementSystem: @retroactive RawRepresentable {
-    public var rawValue: String { self.identifier }
-    public init?(rawValue: String) { self.init(rawValue) }
-}
 
 // MARK: `AppStorage` Integration
 // ============================================================================

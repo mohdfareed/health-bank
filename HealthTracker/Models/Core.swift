@@ -74,6 +74,13 @@ struct UnitDefinition<D: Dimension> {
     }
 }
 
+/// A protocol for services that can provide a localized unit.
+protocol UnitProvider {
+    func unit<D: Dimension>(
+        _ locale: Locale, _ usage: MeasurementFormatUnitUsage<D>
+    ) -> D?
+}
+
 /// A protocol for models with an ID trackable in the `UserDefaults` database.
 /// The ID can be attributed with `.unique` with `UUID.zero` as the default
 /// to guarantee a single instance of the model in the database.

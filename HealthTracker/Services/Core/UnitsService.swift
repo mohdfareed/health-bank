@@ -10,52 +10,96 @@ import SwiftUI
 /// the value is displayed in the app's locale's unit.
 @MainActor @propertyWrapper
 struct LocalizedUnit<D: Dimension>: DynamicProperty {
-    @AppLocale private var locale: Locale
+    @Environment(\.unitsService) var service
+    @AppLocale var locale: Locale  // TODO: test moving to service.
     @Binding private var value: Double
-
     @State var unit: D = .baseUnit()
     let definition: UnitDefinition<D>
     // TODO: Animate.
 
     var wrappedValue: Measurement<D> {
-        self.definition.measurement(self.value, for: self.locale)
+        self.service.measurement(
+            self.value, definition: self.definition, for: self.locale
+        )
     }
-    var projectedValue: Self { self }
+    var projectedValue: Self { self }  // remove
 
     var measurement: (value: Binding<Double>, unit: Binding<D>) {
-        let value = Binding<Double>(
-            get: {
-                let measurement = Measurement<D>(value: self.value)
-                return measurement.converted(to: self.unit).value
-            },
-            set: {
-                let measurement = Measurement(value: $0, unit: self.unit)
-                self.value = measurement.converted(to: .baseUnit()).value
-            }
+        let value = self.service.binding(
+            value: self.$value, as: self.unit
         )
         return (value, $unit)
-    }
+    }  // TODO: move into separate wrapper (UnitWriter) with its own state
 
     init(_ value: Binding<Double>, definition: UnitDefinition<D>) {
         self.definition = definition
         self._value = value
     }
+}
 
-    /// The formatted string of the localized value.
-    func formatted(
-        _ style: Measurement<D>.FormatStyle? = nil
-    ) -> String {
-        return self.definition.format(
-            self.wrappedValue.value, for: self.locale, style: style
-        )
+// MARK: Service
+// ============================================================================
+
+// TODO: move unit definition and unit writer logic to the service.
+// TODO:
+struct UnitsService {
+    /// The unit localization providers. Providers are mapped to their
+    /// priority. The higher the number, the higher the priority.
+    let providers: [Int: any UnitProvider]
+
+    /// The localized measurement of a value.
+    func measurement<D: Dimension>(
+        _ value: Double, definition: UnitDefinition<D>, for locale: Locale
+    ) -> Measurement<D> {
+        let unit = self.unit(definition, for: locale)
+        return Measurement(value: value, unit: .baseUnit()).converted(to: unit)
     }
 
-    /// The formatted string of the localized value in a specific unit.
-    func formatted(
-        as unit: D, _ style: Measurement<D>.FormatStyle? = nil,
-    ) -> String {
-        return self.definition.format(
-            self.wrappedValue.value, as: unit, for: self.locale, style: style
+    /// The localized measurement unit.
+    func unit<D>(_ definition: UnitDefinition<D>, for locale: Locale) -> D
+    where D: Dimension {
+        if let unit = self.providedUnit(for: locale, usage: definition.usage) {
+            return unit
+        }
+        if definition.usage == .asProvided {
+            return definition.displayUnit
+        }
+        return definition.unit(for: locale)
+    }
+
+    private func providedUnit<D: Dimension>(
+        for locale: Locale, usage: MeasurementFormatUnitUsage<D>
+    ) -> D? {
+        let priority = self.providers.keys.sorted(by: >)
+        for p in priority {
+            if let unit = self.providers[p]?.unit(locale, usage) {
+                return unit
+            }
+        }
+        return nil
+    }
+}
+
+// MARK: Units Conversion
+// ============================================================================
+
+extension UnitsService {
+    /// Create a binding of a value in a specific unit. when the new binding
+    /// is read, the value is converted from its base unit to the new unit.
+    /// When the new binding is written, the new value is converted from the
+    /// new unit to the base unit.
+    func binding<D>(value: Binding<Double>, as unit: D) -> Binding<Double>
+    where D: Dimension {
+        return Binding<Double>(
+            get: {
+                return Measurement<D>(
+                    value: value.wrappedValue, unit: .baseUnit()
+                ).converted(to: unit).value
+            },
+            set: {
+                let meas = Measurement(value: $0, unit: unit)
+                value.wrappedValue = meas.converted(to: .baseUnit()).value
+            }
         )
     }
 }
@@ -63,38 +107,20 @@ struct LocalizedUnit<D: Dimension>: DynamicProperty {
 // MARK: Extensions
 // ============================================================================
 
+extension EnvironmentValues {
+    /// The units localization service.
+    @Entry var unitsService: UnitsService = UnitsService(providers: [:])
+}
+
+extension View {
+    /// The units localization service.
+    func unitsService(_ service: UnitsService) -> some View {
+        self.environment(\.unitsService, service)
+    }
+}
+
 extension UnitDefinition {
-    /// The measurement of the localized value.
-    func measurement(_ value: Double, for locale: Locale) -> Measurement<D> {
-        let unit = self.unit(for: locale)
-        return Measurement<D>(value: value).converted(to: unit)
-    }
-
-    /// The formatted string of the localized value.
-    func format(
-        _ value: Double, for locale: Locale,
-        style: Measurement<D>.FormatStyle? = nil
-    ) -> String {
-        let measurement = self.measurement(value, for: locale)
-        var style = style ?? Measurement.FormatStyle(width: .abbreviated)
-        style.usage = self.usage
-        return measurement.formatted(style.locale(locale))
-    }
-
-    /// The formatted string of the localized value.
-    func format(
-        _ value: Double, as unit: D, for locale: Locale,
-        style: Measurement<D>.FormatStyle? = nil
-    ) -> String {
-        let measurement = self.measurement(value, for: locale)
-        var style = style ?? Measurement.FormatStyle(width: .abbreviated)
-        style.usage = .asProvided
-        return measurement.converted(to: unit).formatted(style.locale(locale))
-    }
-
-    /// The localized measurement unit.
     internal func unit(for locale: Locale) -> D {
-        if self.usage == .asProvided { return self.displayUnit }
         AppLogger.new(for: Self.self).warning(
             "Unit localization not implemented for: \(D.self)"
         )
@@ -108,39 +134,27 @@ extension Measurement where UnitType: Dimension {
     }
 }
 
-// MARK: Custom Units
-// ============================================================================
-
-extension UnitDuration {
-    // FIXME: Correct set `.wide` width to "days".
-    class var days: UnitDuration {
-        return UnitDuration(
-            symbol: "d",  // 1d = 60s * 60m * 24h
-            converter: UnitConverterLinear(coefficient: 60 * 60 * 24)
-        )
-    }
-}
-
 // MARK: Unit Definitions
 // ============================================================================
 
 extension UnitDefinition {
-    func unit(for locale: Locale) -> D where D == UnitDuration {
+    internal func unit(for locale: Locale) -> D where D == UnitDuration {
         return .init(forLocale: locale)
     }
-    func unit(for locale: Locale) -> D where D == UnitEnergy {
+    internal func unit(for locale: Locale) -> D where D == UnitEnergy {
         return .init(forLocale: locale, usage: self.usage)
     }
-    func unit(for locale: Locale) -> D where D == UnitLength {
+    internal func unit(for locale: Locale) -> D where D == UnitLength {
         return .init(forLocale: locale, usage: self.usage)
     }
-    func unit(for locale: Locale) -> D where D == UnitMass {
+    internal func unit(for locale: Locale) -> D where D == UnitMass {
         return .init(forLocale: locale, usage: self.usage)
     }
-    func unit(for locale: Locale) -> D where D == UnitVolume {
+    internal func unit(for locale: Locale) -> D where D == UnitVolume {
         return .init(forLocale: locale, usage: self.usage)
     }
-    func unit(for locale: Locale) -> D where D == UnitConcentrationMass {
+    internal func unit(for locale: Locale) -> D
+    where D == UnitConcentrationMass {
         return .init(forLocale: locale)
     }
 }

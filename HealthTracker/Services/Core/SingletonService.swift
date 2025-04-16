@@ -2,6 +2,9 @@ import Foundation
 import SwiftData
 import SwiftUI
 
+// MARK: `SwiftUI` Integration
+// ============================================================================
+
 /// A property wrapper to fetch a singleton model. If multiple models are
 /// found, the first one is returned.
 @MainActor @propertyWrapper
@@ -55,3 +58,12 @@ struct SingletonQuery<Model: PersistentModel>: DynamicProperty {
     }
 }
 extension Query { typealias Singleton = SingletonQuery }
+
+// MARK: Settings
+// ============================================================================
+
+// Support `UUID` in app storage.
+extension UUID: SettingsValue, @retroactive RawRepresentable {
+    public var rawValue: String { self.uuidString }
+    public init?(rawValue: String) { self.init(uuidString: rawValue) }
+}

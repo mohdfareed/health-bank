@@ -38,35 +38,6 @@ extension UUID {
     }
 }
 
-// MARK: App Locale
-// ============================================================================
-
-/// A property wrapper to access the app's locale, applying any user settings.
-@MainActor @propertyWrapper struct AppLocale: DynamicProperty {
-    // TODO: Test environment react updates.
-    @Environment(\.locale) var appLocale: Locale
-    var components: Locale.Components { .init(locale: self.appLocale) }
-    // TODO: Animate.
-    let animation: Animation? = nil
-
-    @AppStorage(AppSettings.unitSystem)
-    var unitSystem: Locale.MeasurementSystem?
-    @AppStorage(AppSettings.firstDayOfWeek)
-    var firstDayOfWeek: Locale.Weekday?
-
-    var wrappedValue: Locale {
-        var components = self.components
-        components.firstDayOfWeek =
-            self.firstDayOfWeek
-            ?? components.firstDayOfWeek
-        components.measurementSystem =
-            self.unitSystem
-            ?? components.measurementSystem
-        return Locale(components: components)
-    }
-    var projectedValue: Self { self }
-}
-
 // MARK: JSON Serialization
 // ============================================================================
 

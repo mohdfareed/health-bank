@@ -4,6 +4,7 @@ import SwiftUI
 let weightUnit = UnitDefinition<UnitMass>(usage: .personWeight)
 
 struct PreviewUnit: View {
+    @Environment(\.unitsService) var unitsService
     @AppLocale var locale: Locale
     @LocalizedUnit var weight: Measurement<UnitMass>
 
@@ -16,8 +17,7 @@ struct PreviewUnit: View {
             HStack {
                 Spacer()
                 Button(
-                    // "\(Measurement(value: 1.5, unit: UnitDuration.days).formatted(.measurement(width: .wide, usage: .asProvided)))"
-                    "\(CalorieConsumed.macrosUnit.format(self.weight.value, for: self.locale))"
+                    "\(self.unitsService.format(self.weight.value, definition: CalorieConsumed.macrosUnit, for: self.locale))"
                 ) {
                     print("Hello World!")
                 }
@@ -28,9 +28,11 @@ struct PreviewUnit: View {
                 HStack {
                     Text("Weight Unit").font(.headline)
                     Spacer()
-                    Text("\(self.$weight.formatted(.measurement(width: .wide)))")
-                        .fontDesign(.monospaced)
-                        .foregroundStyle(.secondary)
+                    Text(
+                        "\(self.$weight.formatted(.measurement(width: .wide)))"
+                    )
+                    .fontDesign(.monospaced)
+                    .foregroundStyle(.secondary)
                 }
                 Divider()
 
