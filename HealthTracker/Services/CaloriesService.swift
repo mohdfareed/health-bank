@@ -5,32 +5,27 @@ import SwiftData
 // ============================================================================
 
 extension CalorieConsumed {
-    static let caloriesUnit = UnitEnergy.kilocalories
-    static let proteinUnit = UnitMass.grams
-    static let fatUnit = UnitMass.grams
-    static let carbsUnit = UnitMass.grams
+    static var calorieUnit: UnitDefinition<UnitEnergy> { .init(usage: .food) }
+    // TODO: Test localized unit
+    static var macrosUnit: UnitDefinition<UnitMass> { .init(usage: .general) }
 }
 
 extension CalorieConsumed: RemoteRecord {
     typealias Model = Query
-    struct Query: RemoteQuery {
+    struct Query: RemoteQuery, CoreQuery {
         typealias Model = CalorieConsumed
         let from: Date
         let to: Date
-        let withMacros: Bool
-    }
-}
 
-extension CalorieConsumed.Query: CoreQuery {
-    var descriptor: FetchDescriptor<CalorieConsumed> {
-        let (from, to) = (self.from, self.to)
-
-        return FetchDescriptor<CalorieConsumed>(
-            predicate: #Predicate {
-                $0.date >= from && $0.date <= to
-            },
-            sortBy: [SortDescriptor(\.date)]
-        )
+        var descriptor: FetchDescriptor<CalorieConsumed> {
+            let (from, to) = (self.from, self.to)
+            return FetchDescriptor<CalorieConsumed>(
+                predicate: #Predicate {
+                    $0.date >= from && $0.date <= to
+                },
+                sortBy: [SortDescriptor(\.date)]
+            )
+        }
     }
 }
 
@@ -38,8 +33,10 @@ extension CalorieConsumed.Query: CoreQuery {
 // ============================================================================
 
 extension CalorieBurned {
-    static let caloriesUnit = UnitEnergy.kilocalories
-    static let durationUnit = UnitDuration.seconds
+    static var calorieUnit: UnitDefinition<UnitEnergy> {
+        .init(usage: .workout)
+    }
+    static var durationUnit: UnitDefinition<UnitDuration> { .init() }
 }
 
 extension CalorieBurned: RemoteRecord {
@@ -48,23 +45,18 @@ extension CalorieBurned: RemoteRecord {
         typealias Model = CalorieBurned
         let from: Date
         let to: Date
+
+        var descriptor: FetchDescriptor<CalorieBurned> {
+            let (from, to) = (self.from, self.to)
+            return FetchDescriptor<CalorieBurned>(
+                predicate: #Predicate {
+                    $0.date >= from && $0.date <= to
+                },
+                sortBy: [SortDescriptor(\.date)]
+            )
+        }
     }
 }
-
-extension CalorieBurned.Query: CoreQuery {
-    var descriptor: FetchDescriptor<CalorieBurned> {
-        let (from, to) = (self.from, self.to)
-        return FetchDescriptor<CalorieBurned>(
-            predicate: #Predicate {
-                $0.date >= from && $0.date <= to
-            },
-            sortBy: [SortDescriptor(\.date)]
-        )
-    }
-}
-
-// MARK: Calorie Units
-// ============================================================================
 
 // MARK: Calorie Breakdown
 // ============================================================================

@@ -5,6 +5,7 @@ import SwiftUI
 // MARK: `SwiftData` Integration
 // ============================================================================
 
+/// A protocol for remote queries that can be performed on local data stores.
 protocol CoreQuery: RemoteQuery where Model: PersistentModel {
     /// The local data store query descriptor.
     var descriptor: FetchDescriptor<Model> { get }

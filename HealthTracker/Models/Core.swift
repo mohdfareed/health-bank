@@ -55,6 +55,14 @@ protocol RemoteStore {
 // MARK: Utilities
 // ============================================================================
 
+/// The unit definition for a measurement value.
+struct UnitDefinition<D: Dimension> {
+    /// The unit formatting usage.
+    let usage: MeasurementFormatUnitUsage<D>
+    /// The display unit used if usage is `.asProvided`.
+    let displayUnit: D
+}
+
 /// A protocol for models with an ID trackable in the `UserDefaults` database.
 /// The ID can be attributed with `.unique` with `UUID.zero` as the default
 /// to guarantee a single instance of the model in the database.

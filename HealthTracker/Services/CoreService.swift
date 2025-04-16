@@ -41,7 +41,9 @@ extension UUID {
 // MARK: App Locale
 // ============================================================================
 
+/// A property wrapper to access the app's locale, applying any user settings.
 @MainActor @propertyWrapper struct AppLocale: DynamicProperty {
+    // TODO: Test environment react updates.
     @Environment(\.locale) var appLocale: Locale
     var components: Locale.Components { .init(locale: self.appLocale) }
 
