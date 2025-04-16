@@ -46,6 +46,8 @@ extension UUID {
     // TODO: Test environment react updates.
     @Environment(\.locale) var appLocale: Locale
     var components: Locale.Components { .init(locale: self.appLocale) }
+    // TODO: Animate.
+    let animation: Animation? = nil
 
     @AppStorage(AppSettings.unitSystem)
     var unitSystem: Locale.MeasurementSystem?
@@ -62,6 +64,7 @@ extension UUID {
             ?? components.measurementSystem
         return Locale(components: components)
     }
+    var projectedValue: Self { self }
 }
 
 // MARK: JSON Serialization

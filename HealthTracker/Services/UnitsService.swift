@@ -5,76 +5,109 @@ import SwiftUI
 // MARK: `SwiftUI` Integration
 // ============================================================================
 
+/// A property wrapper to localize a measurement with a unit definition.
+/// Internally, the unit is managed as its dimension's base unit. Otherwise,
+/// the value is displayed in the app's locale's unit.
 @MainActor @propertyWrapper
-struct UnitMeasurement<D: Dimension>: DynamicProperty {
-    @AppLocale var locale: Locale
-    @Binding var value: Double
+struct LocalizedUnit<D: Dimension>: DynamicProperty {
+    @AppLocale private var locale: Locale
+    @Binding private var value: Double
+
+    @State var unit: D = .baseUnit()
     let definition: UnitDefinition<D>
+    // TODO: Animate.
 
     var wrappedValue: Measurement<D> {
-        get {
-            Measurement(
-                value: self.value,
-                unit: self.definition.unit(for: self.locale)
-            )
-        }
-        nonmutating set { self.value = newValue.baseValue }
+        self.definition.measurement(self.value, for: self.locale)
     }
+    var projectedValue: Self { self }
 
-    var projectedValue: Binding<Measurement<D>> {
-        Binding(
-            get: { self.wrappedValue },
-            set: { self.wrappedValue = $0 }
+    var measurement: (value: Binding<Double>, unit: Binding<D>) {
+        let value = Binding<Double>(
+            get: {
+                let measurement = Measurement<D>(value: self.value)
+                return measurement.converted(to: self.unit).value
+            },
+            set: {
+                let measurement = Measurement(value: $0, unit: self.unit)
+                self.value = measurement.converted(to: .baseUnit()).value
+            }
         )
+        return (value, $unit)
     }
 
     init(_ value: Binding<Double>, definition: UnitDefinition<D>) {
         self.definition = definition
         self._value = value
     }
+
+    /// The formatted string of the localized value.
+    func formatted(
+        _ style: Measurement<D>.FormatStyle? = nil,
+        as unit: D? = nil
+    ) -> String {
+        guard let unit = unit else {
+            return self.definition.formatted(
+                self.wrappedValue, style: style, for: self.locale
+            )
+        }
+
+        var definition = self.definition
+        definition.usage = .asProvided
+        return definition.formatted(
+            self.wrappedValue.converted(to: unit),
+            style: style, for: self.locale
+        )
+    }
 }
 
 // MARK: Extensions
 // ============================================================================
 
-extension Measurement where UnitType: Dimension {
-    /// The value of the measurement in the base unit.
-    var baseValue: Double {
-        self.converted(to: UnitType.baseUnit()).value
-    }
-
-    /// Create a measurement with a value in the base unit of a dimension.
-    init(_ baseValue: Double, dimension: UnitType.Type) {
-        self.init(value: baseValue, unit: dimension.baseUnit())
-    }
-}
-
-extension UnitDuration {
-    // TODO: Test symbol width in formatted strings.
-    class Days: UnitDuration, @unchecked Sendable {}
-    class var days: UnitDuration {
-        return Days(
-            symbol: "d",
-            converter: UnitConverterLinear(coefficient: 60 * 60 * 24)
-        )
-    }
-}
-
 extension UnitDefinition {
-    init(
-        _ displayUnit: D = D.baseUnit(),
-        usage: MeasurementFormatUnitUsage<D> = .general
-    ) {
-        self.usage = usage
-        self.displayUnit = displayUnit
+    /// The measurement of the localized value.
+    func measurement(_ value: Double, for locale: Locale) -> Measurement<D> {
+        let unit = self.unit(for: locale)
+        return Measurement<D>(value: value).converted(to: unit)
     }
 
-    /// The localized unit.
-    func unit(for locale: Locale) -> D {
+    /// The formatted string of the localized value.
+    func formatted(
+        _ measurement: Measurement<D>,
+        style: Measurement<D>.FormatStyle? = nil,
+        for locale: Locale
+    ) -> String {
+        var style = style ?? Measurement.FormatStyle(width: .abbreviated)
+        style.usage = self.usage
+        return measurement.formatted(style.locale(locale))
+    }
+
+    /// The localized measurement unit.
+    internal func unit(for locale: Locale) -> D {
+        if self.usage == .asProvided { return self.displayUnit }
         AppLogger.new(for: Self.self).warning(
             "Unit localization not implemented for: \(D.self)"
         )
-        return D.baseUnit()
+        return .baseUnit()
+    }
+}
+
+extension Measurement where UnitType: Dimension {
+    init(value: Double = 0) {
+        self.init(value: value, unit: .baseUnit())
+    }
+}
+
+// MARK: Custom Units
+// ============================================================================
+
+extension UnitDuration {
+    // FIXME: Correct set `.wide` width to "days".
+    class var days: UnitDuration {
+        return UnitDuration(
+            symbol: "d",  // 1d = 60s * 60m * 24h
+            converter: UnitConverterLinear(coefficient: 60 * 60 * 24)
+        )
     }
 }
 
@@ -83,27 +116,21 @@ extension UnitDefinition {
 
 extension UnitDefinition {
     func unit(for locale: Locale) -> D where D == UnitDuration {
-        if self.usage == .asProvided { return self.displayUnit }
         return .init(forLocale: locale)
     }
     func unit(for locale: Locale) -> D where D == UnitEnergy {
-        if self.usage == .asProvided { return self.displayUnit }
         return .init(forLocale: locale, usage: self.usage)
     }
     func unit(for locale: Locale) -> D where D == UnitLength {
-        if self.usage == .asProvided { return self.displayUnit }
         return .init(forLocale: locale, usage: self.usage)
     }
     func unit(for locale: Locale) -> D where D == UnitMass {
-        if self.usage == .asProvided { return self.displayUnit }
         return .init(forLocale: locale, usage: self.usage)
     }
     func unit(for locale: Locale) -> D where D == UnitVolume {
-        if self.usage == .asProvided { return self.displayUnit }
         return .init(forLocale: locale, usage: self.usage)
     }
     func unit(for locale: Locale) -> D where D == UnitConcentrationMass {
-        if self.usage == .asProvided { return self.displayUnit }
         return .init(forLocale: locale)
     }
 }

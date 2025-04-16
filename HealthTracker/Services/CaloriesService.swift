@@ -5,9 +5,10 @@ import SwiftData
 // ============================================================================
 
 extension CalorieConsumed {
-    static var calorieUnit: UnitDefinition<UnitEnergy> { .init(usage: .food) }
-    // TODO: Test localized unit
-    static var macrosUnit: UnitDefinition<UnitMass> { .init(usage: .general) }
+    var calorieUnit: UnitDefinition<UnitEnergy> { .init(usage: .food) }
+    // TODO: Test localized unit (imperial). Convert to `.asProvided` if
+    //       not a domain-specific unit.
+    var macrosUnit: UnitDefinition<UnitMass> { .init(unit: .grams) }
 }
 
 extension CalorieConsumed: RemoteRecord {
@@ -33,10 +34,8 @@ extension CalorieConsumed: RemoteRecord {
 // ============================================================================
 
 extension CalorieBurned {
-    static var calorieUnit: UnitDefinition<UnitEnergy> {
-        .init(usage: .workout)
-    }
-    static var durationUnit: UnitDefinition<UnitDuration> { .init() }
+    var calorieUnit: UnitDefinition<UnitEnergy> { .init(usage: .workout) }
+    var durationUnit: UnitDefinition<UnitDuration> { .init() }
 }
 
 extension CalorieBurned: RemoteRecord {
