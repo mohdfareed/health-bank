@@ -2,7 +2,7 @@ import Foundation
 import SwiftData
 
 /// A calorie macros breakdown.
-struct CalorieMacros: Codable {
+struct CalorieMacros: Codable, Equatable {
     /// The protein breakdown.
     var protein: Double? = nil
     /// The fat breakdown.

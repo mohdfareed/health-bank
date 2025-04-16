@@ -16,7 +16,8 @@ struct PreviewUnit: View {
             HStack {
                 Spacer()
                 Button(
-                    "\(Measurement(value: 1.5, unit: UnitDuration.days).formatted(.measurement(width: .wide, usage: .asProvided)))"
+                    // "\(Measurement(value: 1.5, unit: UnitDuration.days).formatted(.measurement(width: .wide, usage: .asProvided)))"
+                    "\(CalorieConsumed.macrosUnit.format(self.weight.value, for: self.locale))"
                 ) {
                     print("Hello World!")
                 }
@@ -83,6 +84,14 @@ struct PreviewUnit: View {
                     Spacer()
                     Text(
                         "\(self.$weight.formatted(as: .metricTons))"
+                    )
+                }
+                Divider()
+                HStack {
+                    Text("MilliGrams")
+                    Spacer()
+                    Text(
+                        "\(self.$weight.formatted(as: .milligrams))"
                     )
                 }
             }

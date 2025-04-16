@@ -43,20 +43,19 @@ struct LocalizedUnit<D: Dimension>: DynamicProperty {
 
     /// The formatted string of the localized value.
     func formatted(
-        _ style: Measurement<D>.FormatStyle? = nil,
-        as unit: D? = nil
+        _ style: Measurement<D>.FormatStyle? = nil
     ) -> String {
-        guard let unit = unit else {
-            return self.definition.formatted(
-                self.wrappedValue, style: style, for: self.locale
-            )
-        }
+        return self.definition.format(
+            self.wrappedValue.value, for: self.locale, style: style
+        )
+    }
 
-        var definition = self.definition
-        definition.usage = .asProvided
-        return definition.formatted(
-            self.wrappedValue.converted(to: unit),
-            style: style, for: self.locale
+    /// The formatted string of the localized value in a specific unit.
+    func formatted(
+        as unit: D, _ style: Measurement<D>.FormatStyle? = nil,
+    ) -> String {
+        return self.definition.format(
+            self.wrappedValue.value, as: unit, for: self.locale, style: style
         )
     }
 }
@@ -72,14 +71,25 @@ extension UnitDefinition {
     }
 
     /// The formatted string of the localized value.
-    func formatted(
-        _ measurement: Measurement<D>,
-        style: Measurement<D>.FormatStyle? = nil,
-        for locale: Locale
+    func format(
+        _ value: Double, for locale: Locale,
+        style: Measurement<D>.FormatStyle? = nil
     ) -> String {
+        let measurement = self.measurement(value, for: locale)
         var style = style ?? Measurement.FormatStyle(width: .abbreviated)
         style.usage = self.usage
         return measurement.formatted(style.locale(locale))
+    }
+
+    /// The formatted string of the localized value.
+    func format(
+        _ value: Double, as unit: D, for locale: Locale,
+        style: Measurement<D>.FormatStyle? = nil
+    ) -> String {
+        let measurement = self.measurement(value, for: locale)
+        var style = style ?? Measurement.FormatStyle(width: .abbreviated)
+        style.usage = .asProvided
+        return measurement.converted(to: unit).formatted(style.locale(locale))
     }
 
     /// The localized measurement unit.
