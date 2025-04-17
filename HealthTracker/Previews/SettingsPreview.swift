@@ -61,10 +61,8 @@ struct PreviewSettings: View {
         }
 
         var body: some View {
-            Group {
+            VStack {
                 PreviewSettings("Settings", key: PreviewSettingsModel.first)
-            }.padding(.horizontal)
-            Group {
                 PreviewSettings("Preview", key: PreviewSettingsModel.first)
             }.padding(.horizontal)
         }

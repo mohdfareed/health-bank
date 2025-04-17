@@ -8,11 +8,9 @@ import SwiftUI
 
 /// A property wrapper to access the app's locale, applying any user settings.
 @MainActor @propertyWrapper struct AppLocale: DynamicProperty {
-    // REVIEW: Test environment reactive updates.
     @Environment(\.locale) private var appLocale: Locale
     private var components: Locale.Components { .init(locale: self.appLocale) }
-    // REVIEW: Animate.
-    private let animation: Animation? = nil
+    private let animation: Animation? = nil  // REVIEW: Animate.
 
     @AppStorage(AppSettings.unitSystem)
     var unitSystem: Locale.MeasurementSystem?

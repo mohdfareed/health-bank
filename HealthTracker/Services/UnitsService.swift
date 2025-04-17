@@ -9,8 +9,8 @@ import SwiftUI
 @MainActor @propertyWrapper
 struct LocalizedUnit<D: Dimension>: DynamicProperty {
     @Environment(\.unitsService) internal var service
-    @AppLocale() internal var locale: Locale  // REVIEW: test moving to service
-    internal let definition: UnitDefinition<D>  // the unit definition
+    @AppLocale() internal var locale: Locale
+    internal let definition: UnitDefinition<D>
 
     @Binding private var baseValue: Double  // value in base unit
     @State private var bindingUnit: D = .baseUnit()  // the binding value unit
