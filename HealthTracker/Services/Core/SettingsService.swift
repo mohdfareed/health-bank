@@ -6,7 +6,7 @@ import SwiftUI
 
 extension Query { typealias Settings = AppStorage }  // convenience
 
-// Supported settings value types.
+// Types natively supported by `UserDefaults`.
 extension String: SettingsValue {}
 extension Bool: SettingsValue {}
 extension Int: SettingsValue {}
@@ -16,6 +16,23 @@ extension Date: SettingsValue {}
 extension Data: SettingsValue {}
 extension PersistentIdentifier: SettingsValue {}
 extension Optional: SettingsValue {}
+
+// MARK: Supported Types
+// ============================================================================
+
+// App locale.
+extension Locale.Weekday: SettingsValue {}
+extension Locale.MeasurementSystem: SettingsValue {}
+extension Locale.MeasurementSystem: @retroactive RawRepresentable {
+    public var rawValue: String { self.identifier }
+    public init?(rawValue: String) { self.init(rawValue) }
+}
+
+// Model IDs.
+extension UUID: SettingsValue, @retroactive RawRepresentable {
+    public var rawValue: String { self.uuidString }
+    public init?(rawValue: String) { self.init(uuidString: rawValue) }
+}
 
 // MARK: `AppStorage` Integration
 // ============================================================================

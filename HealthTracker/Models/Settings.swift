@@ -1,14 +1,20 @@
 import Foundation
 import SwiftData
+import SwiftUI
+
+/// The app color theme.
+enum AppTheme: String, SettingsValue {
+    case system, dark, light
+}
 
 /// The app settings. It is a collection of settings keys as static properties.
 struct AppSettings {
-    /// Whether to sync to HealthKit.
-    static let healthKit = Settings<Bool?>("HealthKit")
+    /// The app theme.
+    static let theme = Settings<AppTheme>("AppTheme", default: .system)
     /// Whether to enable biometrics for the app. // TODO: Implement
     static let biometrics = Settings("Biometrics", default: false)
     /// Whether to enable notifications for the app. // TODO: Implement
-    static let notifications = Settings("Notifications", default: false)
+    static let notifications = Settings<Bool?>("Notifications")
 
     // App Locale =============================================================
 

@@ -33,13 +33,26 @@ struct LocalizedUnit<D: Dimension>: DynamicProperty {
     }
 }
 
-// MARK: Units Service
+// MARK: Service
 // ============================================================================
 
 struct UnitService {
     /// The unit localization providers. Providers are mapped to their
     /// priority. The higher the number, the higher the priority.
     let providers: [Int: any UnitProvider]
+
+    /// The localized measurement of a base-unit value.
+    func measurement<D>(_ value: Double, in unit: D) -> Measurement<D>
+    where D: Dimension {
+        Measurement(value: value, unit: .baseUnit()).converted(to: unit)
+    }
+
+    /// The measurement of a base-unit value.
+    func measurement<D: Dimension>(
+        _ value: Double, _ definition: UnitDefinition<D>, for locale: Locale
+    ) -> Measurement<D> {
+        self.measurement(value, in: self.unit(definition, for: locale))
+    }
 
     /// The localized measurement unit. Provided units are prioritized.
     /// If the unit's usage is `asProvided`, the display unit is used.
@@ -69,23 +82,10 @@ struct UnitService {
     }
 }
 
-// MARK: Unit Binding
+// MARK: Binding
 // ============================================================================
 
 extension UnitService {
-    /// The localized measurement of a base-unit value.
-    func measurement<D>(_ value: Double, in unit: D) -> Measurement<D>
-    where D: Dimension {
-        Measurement(value: value, unit: .baseUnit()).converted(to: unit)
-    }
-
-    /// The measurement of a base-unit value.
-    func measurement<D: Dimension>(
-        _ value: Double, _ definition: UnitDefinition<D>, for locale: Locale
-    ) -> Measurement<D> {
-        self.measurement(value, in: self.unit(definition, for: locale))
-    }
-
     /// Create a binding of a base-unit value in the provided unit. when the
     /// binding is read, the value is converted from its base unit to the
     /// provided unit. When the binding is modified, the new value is converted
@@ -115,6 +115,55 @@ extension UnitService {
     }
 }
 
+// MARK: Formatting
+// ============================================================================
+
+extension LocalizedUnit {
+    /// The localized string of a base-unit value.
+    func formatted(
+        as unit: D? = nil, _ style: Measurement<D>.FormatStyle? = nil
+    ) -> String {
+        self.service.format(
+            self.wrappedValue.value, as: unit, definition: self.definition,
+            for: self.locale, style: style
+        )
+    }
+
+    /// The localized string of a duration base-unit value.
+    func formatted(_ style: Duration.UnitsFormatStyle) -> String
+    where D == UnitDuration {
+        self.service.format(
+            self.wrappedValue.value, for: self.locale, style: style
+        )
+    }
+}
+
+extension UnitService {
+    /// The localized string of a base-unit value.
+    func format<D: Dimension>(
+        _ value: Double, as unit: D? = nil, definition: UnitDefinition<D>,
+        for locale: Locale, style: Measurement<D>.FormatStyle? = nil
+    ) -> String {
+        var meas = self.measurement(value, definition, for: locale)
+        var style = style ?? Measurement.FormatStyle(width: .abbreviated)
+        if let unit = unit {
+            meas = meas.converted(to: unit)
+            style.usage = .asProvided
+        }
+        return meas.formatted(style.locale(locale))
+    }
+
+    /// The localized string of a duration base-unit value.
+    func format(
+        _ value: Double, for locale: Locale, style: Duration.UnitsFormatStyle
+    ) -> String {
+        let meas = Measurement<UnitDuration>(value: value, unit: .baseUnit())
+        let seconds = meas.converted(to: UnitDuration.seconds).value
+        let duration = Duration.seconds(seconds)
+        return duration.formatted(style)
+    }
+}
+
 // MARK: Extensions
 // ============================================================================
 
@@ -130,6 +179,9 @@ extension View {
     }
 }
 
+// MARK: Definitions
+// ============================================================================
+
 extension UnitDefinition {
     /// The localized unit for a specific locale.
     internal func unit(for locale: Locale) -> D {
@@ -139,9 +191,6 @@ extension UnitDefinition {
         return .baseUnit()
     }
 }
-
-// MARK: Unit Definitions
-// ============================================================================
 
 extension UnitDefinition {
     internal func unit(for locale: Locale) -> D where D == UnitDuration {

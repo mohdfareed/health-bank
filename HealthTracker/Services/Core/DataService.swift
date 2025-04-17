@@ -100,8 +100,14 @@ struct RemoteContext {
             .filter { $0.source != .local }  // de-duplicate
     }
 
+    /// Sync the local data with the remote stores by deleting then saving.
+    func sync(_ added: [any DataRecord], _ deleted: [any DataRecord]) throws {
+        try deleted.forEach { try self.delete($0) }
+        try added.forEach { try self.save($0) }
+    }
+
     /// Save a local data backup to the remote stores.
-    func save(_ model: any DataRecord) throws {
+    private func save(_ model: any DataRecord) throws {
         guard model.source == .local else {
             throw AppError.runtimeError(
                 "Can't save non-local data to remote store: \(model)"
@@ -111,7 +117,7 @@ struct RemoteContext {
     }
 
     /// Delete a local data backup from the remote stores.
-    func delete(_ model: any DataRecord) throws {
+    private func delete(_ model: any DataRecord) throws {
         guard model.source == .local else {
             throw AppError.runtimeError(
                 "Can't delete non-local data from remote store: \(model)"
@@ -119,8 +125,6 @@ struct RemoteContext {
         }
         try self.stores.forEach { try $0.delete(model) }  // synchronize
     }
-
-    // TODO: Add method to process lists of added and deleted models.
 }
 
 // MARK: Extensions
