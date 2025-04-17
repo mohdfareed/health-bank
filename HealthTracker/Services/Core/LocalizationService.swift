@@ -1,14 +1,13 @@
-import Foundation
-import OSLog
-import SwiftData
 import SwiftUI
 
 // MARK: App Locale
 // ============================================================================
 
 /// A property wrapper to access the app's locale, applying any user settings.
-@MainActor @propertyWrapper struct AppLocale: DynamicProperty {
-    @Environment(\.locale) private var appLocale: Locale
+@MainActor @propertyWrapper
+struct AppLocale: DynamicProperty {
+    @Environment(\.locale)
+    private var appLocale: Locale
     private var components: Locale.Components { .init(locale: self.appLocale) }
     private let animation: Animation? = nil  // REVIEW: Animate.
 
@@ -34,56 +33,41 @@ import SwiftUI
 // ============================================================================
 
 extension LocalizedUnit {
-    /// The formatted string of the localized value.
-    func formatted(_ style: Measurement<D>.FormatStyle? = nil) -> String {
-        return self.service.format(
-            self.wrappedValue.value, definition: self.definition,
+    /// The localized string of a base-unit value.
+    func formatted(
+        as unit: D? = nil, _ style: Measurement<D>.FormatStyle? = nil
+    ) -> String {
+        self.service.format(
+            self.wrappedValue.value, as: unit, definition: self.definition,
             for: self.locale, style: style
         )
     }
 
-    /// The formatted string of the localized value in a specific unit.
-    func formatted(
-        as unit: D, _ style: Measurement<D>.FormatStyle? = nil
-    ) -> String {
-        return self.service.format(
-            self.wrappedValue.value, as: unit, for: self.locale, style: style
-        )
-    }
-
-    /// The formatted string of the localized duration value.
+    /// The localized string of a duration base-unit value.
     func formatted(_ style: Duration.UnitsFormatStyle) -> String
     where D == UnitDuration {
-        return self.service.format(
+        self.service.format(
             self.wrappedValue.value, for: self.locale, style: style
         )
     }
 }
 
-extension UnitsService {
-    /// The formatted string of the localized value.
+extension UnitService {
+    /// The localized string of a base-unit value.
     func format<D: Dimension>(
-        _ value: Double, definition: UnitDefinition<D>,
+        _ value: Double, as unit: D? = nil, definition: UnitDefinition<D>,
         for locale: Locale, style: Measurement<D>.FormatStyle? = nil
     ) -> String {
-        let meas = self.measurement(value, definition, for: locale)
+        var meas = self.measurement(value, definition, for: locale)
         var style = style ?? Measurement.FormatStyle(width: .abbreviated)
-        style.usage = definition.usage
+        if let unit = unit {
+            meas = meas.converted(to: unit)
+            style.usage = .asProvided
+        }
         return meas.formatted(style.locale(locale))
     }
 
-    /// The formatted string of the localized base-unit value as another unit.
-    func format<D: Dimension>(
-        _ value: Double, as unit: D, for locale: Locale,
-        style: Measurement<D>.FormatStyle? = nil
-    ) -> String {
-        let meas = Measurement<D>(value: value, unit: .baseUnit())
-        var style = style ?? Measurement.FormatStyle(width: .abbreviated)
-        style.usage = .asProvided
-        return meas.converted(to: unit).formatted(style.locale(locale))
-    }
-
-    /// The formatted string of the localized duration value.
+    /// The localized string of a duration base-unit value.
     func format(
         _ value: Double, for locale: Locale, style: Duration.UnitsFormatStyle
     ) -> String {
@@ -99,6 +83,7 @@ extension UnitsService {
 
 // Support `Weekday` in app storage.
 extension Locale.Weekday: SettingsValue {}
+
 // Support `MeasurementSystem` in app storage.
 extension Locale.MeasurementSystem: SettingsValue {}
 extension Locale.MeasurementSystem: @retroactive RawRepresentable {

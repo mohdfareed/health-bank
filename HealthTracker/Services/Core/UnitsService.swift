@@ -1,5 +1,3 @@
-import Foundation
-import SwiftData
 import SwiftUI
 
 // MARK: `SwiftUI` Integration
@@ -8,7 +6,8 @@ import SwiftUI
 /// A property wrapper to localize a measurement value using a unit definition.
 @MainActor @propertyWrapper
 struct LocalizedUnit<D: Dimension>: DynamicProperty {
-    @Environment(\.unitsService) internal var service
+    @Environment(\.unitService)
+    internal var service: UnitService
     @AppLocale() internal var locale: Locale
     internal let definition: UnitDefinition<D>
 
@@ -37,7 +36,7 @@ struct LocalizedUnit<D: Dimension>: DynamicProperty {
 // MARK: Units Service
 // ============================================================================
 
-struct UnitsService {
+struct UnitService {
     /// The unit localization providers. Providers are mapped to their
     /// priority. The higher the number, the higher the priority.
     let providers: [Int: any UnitProvider]
@@ -46,7 +45,8 @@ struct UnitsService {
     /// If the unit's usage is `asProvided`, the display unit is used.
     func unit<D>(_ definition: UnitDefinition<D>, for locale: Locale) -> D
     where D: Dimension {
-        if let unit = self.providedUnit(for: locale, usage: definition.usage) {
+        let unit = self.providedUnit(for: locale, usage: definition.usage)
+        if let unit = unit {
             return unit
         }  // prioritize provided units
         if definition.usage == .asProvided {
@@ -72,7 +72,7 @@ struct UnitsService {
 // MARK: Unit Binding
 // ============================================================================
 
-extension UnitsService {
+extension UnitService {
     /// The localized measurement of a base-unit value.
     func measurement<D>(_ value: Double, in unit: D) -> Measurement<D>
     where D: Dimension {
@@ -120,13 +120,13 @@ extension UnitsService {
 
 extension EnvironmentValues {
     /// The units localization service.
-    @Entry var unitsService: UnitsService = UnitsService(providers: [:])
+    @Entry var unitService: UnitService = UnitService(providers: [:])
 }
 
 extension View {
     /// The units localization service.
-    func unitsService(_ service: UnitsService) -> some View {
-        self.environment(\.unitsService, service)
+    func unitService(_ service: UnitService) -> some View {
+        self.environment(\.unitService, service)
     }
 }
 

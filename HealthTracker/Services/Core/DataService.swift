@@ -1,31 +1,5 @@
-import Combine
 import SwiftData
 import SwiftUI
-
-// MARK: `SwiftData` Integration
-// ============================================================================
-
-/// A protocol for remote queries that can be performed on local data stores.
-protocol CoreQuery: RemoteQuery where Model: PersistentModel {
-    /// The local data store query descriptor.
-    var descriptor: FetchDescriptor<Model> { get }
-}
-
-/// The in-memory filter to apply to data from remote sources.
-struct InMemoryQuery<Model: DataRecord> {
-    /// The data sources of the data. Query all sources if empty.
-    var sources: [DataSource] = []
-    /// The predicate to filter the data.
-    var predicate: Predicate<Model>? = nil
-    /// The sort order of the data.
-    var sortOrder: [SortDescriptor<Model>] = []
-    /// The limit of the data.
-    var limit: Int? = nil
-    /// The offset of the data.
-    var offset: Int = 0
-    /// The animation to apply to the data.
-    var animation: Animation = .default
-}
 
 // MARK: `SwiftUI` Integration
 // ============================================================================
@@ -34,11 +8,13 @@ struct InMemoryQuery<Model: DataRecord> {
 /// initially empty and is populated when the
 @MainActor @propertyWrapper
 struct RemoteRecordsQuery<M>: DynamicProperty where M: RemoteRecord {
-    @Environment(\.remoteContext) var context
+    @Environment(\.remoteContext)
+    var context: RemoteContext
+
+    @State private var isInitialized = false
     @State var remoteModels: [M] = []
     @Query var localModels: [M]
 
-    @State private var isInitialized = false
     let remoteQuery: M.Query
     let inMemoryQuery: InMemoryQuery<M>
 
@@ -109,3 +85,55 @@ struct RemoteRecordsQuery<M>: DynamicProperty where M: RemoteRecord {
     }
 }
 extension Query { typealias Remote = RemoteRecordsQuery }
+
+// MARK: Remote Data Context
+// ============================================================================
+
+/// A context for remote data stores.
+struct RemoteContext {
+    /// The data stores registered with the context.
+    let stores: [RemoteStore]
+
+    /// Fetch the data from the remote stores.
+    func fetch<M, Q>(_ query: Q) throws -> [M] where Q: RemoteQuery<M> {
+        try stores.reduce([]) { $0 + (try $1.fetch(query)) }
+            .filter { $0.source != .local }  // de-duplicate
+    }
+
+    /// Save a local data backup to the remote stores.
+    func save(_ model: any DataRecord) throws {
+        guard model.source == .local else {
+            throw AppError.runtimeError(
+                "Can't save non-local data to remote store: \(model)"
+            )
+        }
+        try self.stores.forEach { try $0.save(model) }  // synchronize
+    }
+
+    /// Delete a local data backup from the remote stores.
+    func delete(_ model: any DataRecord) throws {
+        guard model.source == .local else {
+            throw AppError.runtimeError(
+                "Can't delete non-local data from remote store: \(model)"
+            )
+        }
+        try self.stores.forEach { try $0.delete(model) }  // synchronize
+    }
+
+    // TODO: Add method to process lists of added and deleted models.
+}
+
+// MARK: Extensions
+// ============================================================================
+
+extension EnvironmentValues {
+    /// The remote data context for the app.
+    @Entry var remoteContext: RemoteContext = RemoteContext(stores: [])
+}
+
+extension View {
+    /// The remote data context for the app.
+    func remoteContext(_ context: RemoteContext) -> some View {
+        self.environment(\.remoteContext, context)
+    }
+}

@@ -1,8 +1,7 @@
 import Foundation
 import SwiftData
-import SwiftUI
 
-/// The app settings.
+/// The app settings. It is a collection of settings keys as static properties.
 struct AppSettings {
     /// Whether to sync to HealthKit.
     static let healthKit = Settings<Bool?>("HealthKit")
@@ -10,6 +9,9 @@ struct AppSettings {
     static let biometrics = Settings("Biometrics", default: false)
     /// Whether to enable notifications for the app. // TODO: Implement
     static let notifications = Settings("Notifications", default: false)
+
+    // App Locale =============================================================
+
     /// The app's unit measurement system.
     static let unitSystem = Settings<Locale.MeasurementSystem?>(
         "MeasurementSystem", default: nil
@@ -18,6 +20,9 @@ struct AppSettings {
     static let firstDayOfWeek = Settings<Locale.Weekday?>(
         "FirstWeekDay", default: nil
     )
+
+    // User Settings ==========================================================
+
     /// The active user daily calorie budget.
     static let dailyCalorieBudget: Settings<CalorieBudget.ID?> = .init(
         "DailyCalorieBudget", default: nil

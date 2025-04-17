@@ -105,13 +105,3 @@ struct BudgetReport<T: DurationProtocol> {
         self.progress = consumed / budget
     }
 }
-
-// MARK: Errors
-// ============================================================================
-
-enum DataError: Error {
-    case InvalidData(String)
-    case InvalidDateRange(from: Date, to: Date)
-    case InvalidModel(String)
-    case DataTypeMismatch(expected: String, actual: String)
-}

@@ -1,15 +1,9 @@
-import Foundation
 import OSLog
 import SwiftData
 import SwiftUI
 
 // MARK: Core Services
 // ============================================================================
-
-/// An application error.
-enum AppError: Error {
-    case runtimeError(String, Error? = nil)
-}
 
 /// The app's logger factory.
 struct AppLogger {
@@ -28,7 +22,8 @@ extension UUID {
     )!  // fail quickly
 }
 
-@MainActor extension Binding {
+@MainActor
+extension Binding {
     /// A binding that defaults to a value if the wrapped value is nil.
     func defaulted<T>(to defaultValue: T) -> Binding<T> where Value == T? {
         return Binding<T>(
@@ -36,6 +31,48 @@ extension UUID {
             set: { self.wrappedValue = $0 }
         )
     }
+}
+
+// MARK: Singleton Model
+// ============================================================================
+
+/// A property wrapper to fetch a singleton model. If multiple models are
+/// found, the first instance is used.
+@MainActor @propertyWrapper
+struct SingletonQuery<Model: PersistentModel>: DynamicProperty {
+    @Query private var models: [Model]
+    var wrappedValue: Model? { self.models.first }
+
+    init(_ query: Query<Model, [Model]>) { self._models = query }
+
+    init(  // default to using first model in store
+        _ descriptor: FetchDescriptor<Model> = .init(),
+        animation: Animation = .default,
+    ) {
+        var descriptor = descriptor
+        descriptor.fetchLimit = 1
+        self._models = Query(descriptor, animation: animation)
+    }
+
+    init(  // default to assuming unique zero ID implementation
+        _ id: Model.ID = UUID.zero,
+        sortBy: [SortDescriptor<Model>] = [
+            SortDescriptor(\.persistentModelID)
+        ],
+        animation: Animation = .default,
+    ) where Model: Singleton {
+        self.init(
+            .init(predicate: #Predicate { $0.id == id }, sortBy: sortBy),
+            animation: animation
+        )
+    }
+}
+extension Query { typealias Singleton = SingletonQuery }
+
+// Support `UUID` in app storage to store singleton IDs.
+extension UUID: SettingsValue, @retroactive RawRepresentable {
+    public var rawValue: String { self.uuidString }
+    public init?(rawValue: String) { self.init(uuidString: rawValue) }
 }
 
 // MARK: JSON Serialization
