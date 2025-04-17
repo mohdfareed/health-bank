@@ -130,7 +130,7 @@ struct PreviewDataEditor<Model: RemoteRecord, RowContent: View>: View {
 #if DEBUG
     struct PreviewDataEditorView: View {
         init() {
-            UserDefaults.standard.removePersistentDomain(forName: appDomain)
+            UserDefaults.standard.removePersistentDomain(forName: appID)
         }
 
         var body: some View {

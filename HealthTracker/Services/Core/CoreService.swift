@@ -73,10 +73,10 @@ extension Query { typealias Singleton = SingletonQuery }
 /// The app's logger factory.
 struct AppLogger {
     static func new(for category: String) -> Logger {
-        return Logger(subsystem: appDomain, category: category)
+        return Logger(subsystem: appID, category: category)
     }
     static func new<T>(for category: T.Type) -> Logger {
-        return Logger(subsystem: appDomain, category: "\(T.self)")
+        return Logger(subsystem: appID, category: "\(T.self)")
     }
 }
 

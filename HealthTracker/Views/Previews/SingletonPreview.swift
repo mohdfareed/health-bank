@@ -47,7 +47,7 @@ struct PreviewSingleton<T: Singleton>: View {
         var key: String? { singletonID?.rawValue }
 
         init() {
-            UserDefaults.standard.removePersistentDomain(forName: appDomain)
+            UserDefaults.standard.removePersistentDomain(forName: appID)
         }
 
         var body: some View {

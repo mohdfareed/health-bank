@@ -57,7 +57,7 @@ struct PreviewSettings: View {
 
     struct PreviewSettingsView: View {
         init() {
-            UserDefaults.standard.removePersistentDomain(forName: appDomain)
+            UserDefaults.standard.removePersistentDomain(forName: appID)
         }
 
         var body: some View {

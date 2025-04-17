@@ -85,7 +85,7 @@ struct PreviewTableEditor<Model: PersistentModel, RowContent: View>: View {
         @Query var models: [PreviewModel]
 
         init() {
-            UserDefaults.standard.removePersistentDomain(forName: appDomain)
+            UserDefaults.standard.removePersistentDomain(forName: appID)
         }
 
         var body: some View {
