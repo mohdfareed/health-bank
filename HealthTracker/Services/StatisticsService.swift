@@ -33,11 +33,17 @@ extension Sequence where Element: AdditiveArithmetic & DurationProtocol {
 // ============================================================================
 
 extension UnitDuration {
-    // FIXME: Correct set `.wide` width to "days".
     class var days: UnitDuration {
-        return UnitDuration(
+        .init(
             symbol: "d",  // 1d = 60s * 60m * 24h
             converter: UnitConverterLinear(coefficient: 60 * 60 * 24)
+        )
+    }
+
+    class var weeks: UnitDuration {
+        .init(
+            symbol: "w",  // 1wk = 60s * 60m * 24h * 7d
+            converter: UnitConverterLinear(coefficient: 60 * 60 * 24 * 7)
         )
     }
 }

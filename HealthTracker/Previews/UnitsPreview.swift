@@ -4,7 +4,7 @@ import SwiftUI
 let weightUnit = UnitDefinition<UnitMass>(usage: .personWeight)
 
 struct PreviewUnit: View {
-    // @Environment(\.unitsService) var unitsService
+    @Environment(\.unitsService) var unitsService
     @AppLocale var locale: Locale
     @LocalizedUnit var weight: Measurement<UnitMass>
     @State var selectedUnit: UnitMass = .grams
@@ -18,9 +18,9 @@ struct PreviewUnit: View {
             HStack {
                 Spacer()
                 Button(
-                    ""
+                    "\(self.unitsService.format(1_200_000, for: self.locale, style: .units(allowed: [.weeks], width: .abbreviated)))"
                 ) {
-                    print("Hello World!")
+                    print(UnitDuration.seconds.symbol)
                 }
                 Spacer()
             }

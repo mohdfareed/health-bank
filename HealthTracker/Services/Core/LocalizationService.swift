@@ -35,9 +35,7 @@ import SwiftUI
 
 extension LocalizedUnit {
     /// The formatted string of the localized value.
-    func formatted(
-        _ style: Measurement<D>.FormatStyle? = nil
-    ) -> String {
+    func formatted(_ style: Measurement<D>.FormatStyle? = nil) -> String {
         return self.service.format(
             self.wrappedValue.value, definition: self.definition,
             for: self.locale, style: style
@@ -46,11 +44,18 @@ extension LocalizedUnit {
 
     /// The formatted string of the localized value in a specific unit.
     func formatted(
-        as unit: D, _ style: Measurement<D>.FormatStyle? = nil,
+        as unit: D, _ style: Measurement<D>.FormatStyle? = nil
     ) -> String {
         return self.service.format(
-            self.wrappedValue.value, as: unit, definition: self.definition,
-            for: self.locale, style: style
+            self.wrappedValue.value, as: unit, for: self.locale, style: style
+        )
+    }
+
+    /// The formatted string of the localized duration value.
+    func formatted(_ style: Duration.UnitsFormatStyle) -> String
+    where D == UnitDuration {
+        return self.service.format(
+            self.wrappedValue.value, for: self.locale, style: style
         )
     }
 }
@@ -67,15 +72,25 @@ extension UnitsService {
         return meas.formatted(style.locale(locale))
     }
 
-    /// The formatted string of the localized value.
+    /// The formatted string of the localized base-unit value as another unit.
     func format<D: Dimension>(
-        _ value: Double, as unit: D, definition: UnitDefinition<D>,
-        for locale: Locale, style: Measurement<D>.FormatStyle? = nil
+        _ value: Double, as unit: D, for locale: Locale,
+        style: Measurement<D>.FormatStyle? = nil
     ) -> String {
-        let meas = self.measurement(value, definition, for: locale)
+        let meas = Measurement<D>(value: value, unit: .baseUnit())
         var style = style ?? Measurement.FormatStyle(width: .abbreviated)
         style.usage = .asProvided
         return meas.converted(to: unit).formatted(style.locale(locale))
+    }
+
+    /// The formatted string of the localized duration value.
+    func format(
+        _ value: Double, for locale: Locale, style: Duration.UnitsFormatStyle
+    ) -> String {
+        let meas = Measurement<UnitDuration>(value: value, unit: .baseUnit())
+        let seconds = meas.converted(to: UnitDuration.seconds).value
+        let duration = Duration.seconds(seconds)
+        return duration.formatted(style)
     }
 }
 
