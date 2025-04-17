@@ -6,15 +6,15 @@ import SwiftUI
 // ============================================================================
 
 /// A property wrapper to fetch a singleton model. If multiple models are
-/// found, the first one is returned.
+/// found, the first instance is used.
 @MainActor @propertyWrapper
 struct SingletonQuery<Model: PersistentModel>: DynamicProperty {
-    @Query var models: [Model]
+    @Query private var models: [Model]
     var wrappedValue: Model? { self.models.first }
 
     init(_ query: Query<Model, [Model]>) { self._models = query }
 
-    init(
+    init(  // default to using first model in store
         _ descriptor: FetchDescriptor<Model> = .init(),
         animation: Animation = .default,
     ) {
@@ -23,38 +23,17 @@ struct SingletonQuery<Model: PersistentModel>: DynamicProperty {
         self._models = Query(descriptor, animation: animation)
     }
 
-    init(
-        _ predicate: Predicate<Model>? = #Predicate { _ in true },
-        sortBy: [SortDescriptor<Model>] = [
-            SortDescriptor(\.persistentModelID)
-        ],
-        animation: Animation = .default,
-    ) {
-        let descriptor = FetchDescriptor<Model>(
-            predicate: predicate, sortBy: sortBy
-        )
-        self.init(descriptor, animation: animation)
-    }
-
-    init(
-        _ id: Model.ID? = UUID.zero,
+    init(  // default to assuming unique zero ID implementation
+        _ id: Model.ID = UUID.zero,
         sortBy: [SortDescriptor<Model>] = [
             SortDescriptor(\.persistentModelID)
         ],
         animation: Animation = .default,
     ) where Model: Singleton {
-        if let id = id {
-            self.init(
-                #Predicate { $0.id == id },
-                sortBy: sortBy, animation: animation
-            )
-        } else {
-            let zero = UUID.zero
-            self.init(
-                #Predicate { $0.id == zero },
-                sortBy: sortBy, animation: animation
-            )
-        }
+        self.init(
+            .init(predicate: #Predicate { $0.id == id }, sortBy: sortBy),
+            animation: animation
+        )
     }
 }
 extension Query { typealias Singleton = SingletonQuery }

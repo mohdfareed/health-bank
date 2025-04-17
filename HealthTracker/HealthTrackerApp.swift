@@ -15,8 +15,8 @@ let appDomain: String = Bundle.main.bundleIdentifier ?? "Debug.HealthTracker"
 	]
 
 	static let dataModels: [any (DataRecord & PersistentModel).Type] = [
-		CalorieConsumed.self,
-		CalorieBurned.self,
+		ConsumedCalorie.self,
+		BurnedCalorie.self,
 	]
 
 	init() {
@@ -56,20 +56,20 @@ struct AppPreview: View {
 			PreviewSettings("HealthKit", key: AppSettings.healthKit).padding()
 			if let singletonID = self.dailyCalorieBudget {
 				PreviewSingleton<CalorieBudget>(
-					id: #Predicate { $0.id == singletonID },
-					editor: { $0.dailyCalories = Double.random(in: 0..<10000) }
+					#Predicate { $0.id == singletonID },
+					editor: { $0.calories = Double.random(in: 0..<10000) }
 				)
 			}
 			PreviewTableEditor(
 				factory: { CalorieBudget() },
 				editor: {
 					self.dailyCalorieBudget = $0.id
-					$0.dailyCalories = Double.random(in: 0..<10000)
+					$0.calories = Double.random(in: 0..<10000)
 				}
 			) { item in
 				cardRow(
 					"Calories",
-					value: "\(String(describing: item.dailyCalories))"
+					value: "\(String(describing: item.calories))"
 				)
 			}
 			.cornerRadius(25)

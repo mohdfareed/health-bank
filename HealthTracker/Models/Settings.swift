@@ -6,9 +6,9 @@ import SwiftUI
 struct AppSettings {
     /// Whether to sync to HealthKit.
     static let healthKit = Settings<Bool?>("HealthKit")
-    /// Whether to enable biometrics for the app.
+    /// Whether to enable biometrics for the app. // TODO: Implement
     static let biometrics = Settings("Biometrics", default: false)
-    /// Whether to enable notifications for the app.
+    /// Whether to enable notifications for the app. // TODO: Implement
     static let notifications = Settings("Notifications", default: false)
     /// The app's unit measurement system.
     static let unitSystem = Settings<Locale.MeasurementSystem?>(
@@ -20,7 +20,7 @@ struct AppSettings {
     )
     /// The active user daily calorie budget.
     static let dailyCalorieBudget: Settings<CalorieBudget.ID?> = .init(
-        "CalorieBudget", default: nil
+        "DailyCalorieBudget", default: nil
     )
 }
 
@@ -33,9 +33,9 @@ struct AppSettings {
     /// The date the budget was set.
     var date: Date = Date()
     /// The daily calorie budget.
-    var dailyCalories: Double? = 2000
+    var calories: Double? = 2000
     /// The daily calorie macros budgets.
-    var dailyMacros: CalorieMacros = CalorieMacros(
+    var macros: CalorieMacros = CalorieMacros(
         protein: 120, fat: 60, carbs: 245
     )
 }

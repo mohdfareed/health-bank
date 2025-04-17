@@ -44,7 +44,10 @@ struct RemoteRecordsQuery<M>: DynamicProperty where M: RemoteRecord {
 
     var wrappedValue: [M] {
         Task { @MainActor in self.initialize() }
-        return self.filter(self.localModels + self.remoteModels)
+        let localModels = self.localModels.filter {
+            $0.source == .local  // remove backup of remote data
+        }
+        return self.filter(localModels + self.remoteModels)
     }
     var projectedValue: Self { self }
 
@@ -57,6 +60,7 @@ struct RemoteRecordsQuery<M>: DynamicProperty where M: RemoteRecord {
         )
     }
 
+    /// Refresh the remote data.
     func refresh() {
         do {
             let models = try self.context.fetch(self.remoteQuery)
@@ -70,12 +74,15 @@ struct RemoteRecordsQuery<M>: DynamicProperty where M: RemoteRecord {
         }
     }
 
+    /// Initialize the remote records query. This is called once on the first
+    /// access to the query to load the initial data.
     private func initialize() {
         guard !self.isInitialized else { return }
         self.refresh()
         self.isInitialized = true
     }
 
+    /// Apply the in-memory query to the models.
     private func filter(_ models: [M]) -> [M] {
         var models = models
 

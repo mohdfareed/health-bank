@@ -171,7 +171,8 @@ extension PreviewModelEditor {
         }
     }
 
-    @Model class PreviewModel {
+    @Model class PreviewModel: Singleton {
+        var id = UUID.init()
         @Attribute(.unique) var key: String? = nil
         var value: Int = 0
         init() {}

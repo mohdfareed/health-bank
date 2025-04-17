@@ -8,11 +8,11 @@ import SwiftUI
 
 /// A property wrapper to access the app's locale, applying any user settings.
 @MainActor @propertyWrapper struct AppLocale: DynamicProperty {
-    // TODO: Test environment react updates.
-    @Environment(\.locale) var appLocale: Locale
-    var components: Locale.Components { .init(locale: self.appLocale) }
-    // TODO: Animate.
-    let animation: Animation? = nil
+    // REVIEW: Test environment reactive updates.
+    @Environment(\.locale) private var appLocale: Locale
+    private var components: Locale.Components { .init(locale: self.appLocale) }
+    // REVIEW: Animate.
+    private let animation: Animation? = nil
 
     @AppStorage(AppSettings.unitSystem)
     var unitSystem: Locale.MeasurementSystem?
@@ -63,7 +63,7 @@ extension UnitsService {
         _ value: Double, definition: UnitDefinition<D>,
         for locale: Locale, style: Measurement<D>.FormatStyle? = nil
     ) -> String {
-        let meas = self.measurement(value, definition: definition, for: locale)
+        let meas = self.measurement(value, definition, for: locale)
         var style = style ?? Measurement.FormatStyle(width: .abbreviated)
         style.usage = definition.usage
         return meas.formatted(style.locale(locale))
@@ -74,7 +74,7 @@ extension UnitsService {
         _ value: Double, as unit: D, definition: UnitDefinition<D>,
         for locale: Locale, style: Measurement<D>.FormatStyle? = nil
     ) -> String {
-        let meas = self.measurement(value, definition: definition, for: locale)
+        let meas = self.measurement(value, definition, for: locale)
         var style = style ?? Measurement.FormatStyle(width: .abbreviated)
         style.usage = .asProvided
         return meas.converted(to: unit).formatted(style.locale(locale))

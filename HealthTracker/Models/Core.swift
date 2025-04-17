@@ -9,8 +9,12 @@ import SwiftUI
 
 /// The supported sources of data.
 enum DataSource: Codable, CaseIterable {
-    case local, healthKit, simulation
-    init() { self = .local }
+    case local, healthKit
+    init() { self = .local }  // default
+
+    #if DEBUG
+        case simulation
+    #endif
 }
 
 /// A protocol for data models that originate from a data source.
@@ -56,7 +60,7 @@ protocol RemoteStore {
 // ============================================================================
 
 /// The unit localization definition. The unit is localized by default
-/// unless usage is set to `.asProvided`, then the display unit is used.
+/// unless usage is set to `asProvided`, then the display unit is used.
 struct UnitDefinition<D: Dimension> {
     /// The unit formatting usage.
     var usage: MeasurementFormatUnitUsage<D>
@@ -68,7 +72,7 @@ struct UnitDefinition<D: Dimension> {
         self.displayUnit = D.baseUnit()
     }
 
-    init(unit: D) {  // init(.baseUnit()) is equivalent to .init(.asProvided)
+    init(unit: D) {  // init(.baseUnit()) is equivalent to init(.asProvided)
         self.usage = .asProvided
         self.displayUnit = unit
     }
@@ -78,7 +82,7 @@ struct UnitDefinition<D: Dimension> {
 protocol UnitProvider {
     func unit<D: Dimension>(
         _ locale: Locale, _ usage: MeasurementFormatUnitUsage<D>
-    ) -> D?
+    ) -> D?  // nil if not supported or not available
 }
 
 /// A protocol for models with an ID trackable in the `UserDefaults` database.

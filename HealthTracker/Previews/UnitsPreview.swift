@@ -4,9 +4,10 @@ import SwiftUI
 let weightUnit = UnitDefinition<UnitMass>(usage: .personWeight)
 
 struct PreviewUnit: View {
-    @Environment(\.unitsService) var unitsService
+    // @Environment(\.unitsService) var unitsService
     @AppLocale var locale: Locale
     @LocalizedUnit var weight: Measurement<UnitMass>
+    @State var selectedUnit: UnitMass = .grams
 
     init(_ binding: Binding<Double>) {
         self._weight = LocalizedUnit(binding, definition: weightUnit)
@@ -17,7 +18,7 @@ struct PreviewUnit: View {
             HStack {
                 Spacer()
                 Button(
-                    "\(self.unitsService.format(self.weight.value, definition: CalorieConsumed.macrosUnit, for: self.locale))"
+                    ""
                 ) {
                     print("Hello World!")
                 }
@@ -26,7 +27,7 @@ struct PreviewUnit: View {
 
             VStack {
                 HStack {
-                    Text("Weight Unit").font(.headline)
+                    Text("Weight").font(.headline)
                     Spacer()
                     Text(
                         "\(self.$weight.formatted(.measurement(width: .wide)))"
@@ -36,17 +37,17 @@ struct PreviewUnit: View {
                 }
                 Divider()
 
-                let units: [UnitMass] = [
-                    UnitMass.grams, UnitMass.kilograms,
-                    UnitMass.ounces, UnitMass.pounds,
-                ]
                 Picker("Locale", selection: self.$locale.$unitSystem) {
                     ForEach(Locale.MeasurementSystem.measurementSystems, id: \.identifier) {
                         locale in
                         Text(locale.rawValue).tag(locale)
                     }
                 }
-                Picker("Unit", selection: self.$weight.measurement.unit) {
+                let units: [UnitMass] = [
+                    UnitMass.grams, UnitMass.kilograms,
+                    UnitMass.ounces, UnitMass.pounds,
+                ]
+                Picker("Unit", selection: self.$weight.unit) {
                     ForEach(units, id: \.self) { unit in
                         Text(unit.symbol).tag(unit)
                     }
@@ -58,7 +59,7 @@ struct PreviewUnit: View {
 
             VStack {
                 HStack {
-                    Text("Weight")
+                    Text("Localized")
                     Spacer()
                     Text(
                         "\(self.$weight.formatted())"
@@ -106,16 +107,16 @@ struct PreviewUnit: View {
                 Spacer()
                 TextField(
                     "\(self.weight.formatted())",
-                    value: $weight.measurement.value,
+                    value: $weight.value,
                     format: .number.precision(.fractionLength(2))
                 )
                 .textFieldStyle(.automatic)
                 .multilineTextAlignment(.trailing)
-                Text("\(self.$weight.unit.symbol)")
+                Text("\(self.$weight.unit.wrappedValue.symbol)")
             }
             .padding()
         }
-        .animation(.default, value: self.locale)
+        // .animation(.default, value: self.locale)
         .animation(.default, value: self.weight)
     }
 }

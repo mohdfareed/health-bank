@@ -1,14 +1,14 @@
 import SwiftData
 import SwiftUI
 
-struct PreviewSingleton<T: PersistentModel>: View {
+struct PreviewSingleton<T: Singleton>: View {
     private let editor: ((T) -> Void)?
     @Query.Singleton var model: T?
 
     init(
-        id: Predicate<T>?, editor: ((T) -> Void)? = nil
+        _ predicate: Predicate<T>?, editor: ((T) -> Void)? = nil
     ) {
-        self._model = .init(id)
+        self._model = .init(.init(filter: predicate))
         self.editor = editor
     }
 
@@ -59,7 +59,7 @@ struct PreviewSingleton<T: PersistentModel>: View {
 
             let key = self.key
             PreviewSingleton<PreviewModel>(
-                id: #Predicate { $0.key == key },
+                #Predicate { $0.key == key },
                 editor: {
                     self.singletonID = self.singletonID?.next ?? PreviewSingletonKey.first
                     $0.value = Int.random(in: 0..<100)

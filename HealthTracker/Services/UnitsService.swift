@@ -5,68 +5,57 @@ import SwiftUI
 // MARK: `SwiftUI` Integration
 // ============================================================================
 
-/// A property wrapper to localize a measurement with a unit definition.
-/// Internally, the unit is managed as its dimension's base unit. Otherwise,
-/// the value is displayed in the app's locale's unit.
+/// A property wrapper to localize a measurement value using a unit definition.
 @MainActor @propertyWrapper
 struct LocalizedUnit<D: Dimension>: DynamicProperty {
-    @Environment(\.unitsService) var service
-    @AppLocale var locale: Locale  // TODO: test moving to service.
-    @Binding private var value: Double
-    @State var unit: D = .baseUnit()
-    let definition: UnitDefinition<D>
-    // TODO: Animate.
+    @Environment(\.unitsService) internal var service
+    @AppLocale() internal var locale: Locale  // REVIEW: test moving to service
+    internal let definition: UnitDefinition<D>  // the unit definition
+
+    @Binding private var baseValue: Double  // value in base unit
+    @State private var bindingUnit: D = .baseUnit()  // the binding value unit
+    // REVIEW: Animate.
+
+    var unit: Binding<D> { self.$bindingUnit }
+    var value: Binding<Double> {
+        self.service.binding(self.$baseValue, as: self.bindingUnit)
+    }  // value binding in provided binding unit
 
     var wrappedValue: Measurement<D> {
         self.service.measurement(
-            self.value, definition: self.definition, for: self.locale
+            self.baseValue, self.definition, for: self.locale
         )
-    }
-    var projectedValue: Self { self }  // remove
-
-    var measurement: (value: Binding<Double>, unit: Binding<D>) {
-        let value = self.service.binding(
-            value: self.$value, as: self.unit
-        )
-        return (value, $unit)
-    }  // TODO: move into separate wrapper (UnitWriter) with its own state
+    }  // measurement in localized unit
+    var projectedValue: Self { self }
 
     init(_ value: Binding<Double>, definition: UnitDefinition<D>) {
         self.definition = definition
-        self._value = value
+        self._baseValue = value
     }
 }
 
-// MARK: Service
+// MARK: Units Service
 // ============================================================================
 
-// TODO: move unit definition and unit writer logic to the service.
-// TODO:
 struct UnitsService {
     /// The unit localization providers. Providers are mapped to their
     /// priority. The higher the number, the higher the priority.
     let providers: [Int: any UnitProvider]
 
-    /// The localized measurement of a value.
-    func measurement<D: Dimension>(
-        _ value: Double, definition: UnitDefinition<D>, for locale: Locale
-    ) -> Measurement<D> {
-        let unit = self.unit(definition, for: locale)
-        return Measurement(value: value, unit: .baseUnit()).converted(to: unit)
-    }
-
-    /// The localized measurement unit.
+    /// The localized measurement unit. Provided units are prioritized.
+    /// If the unit's usage is `asProvided`, the display unit is used.
     func unit<D>(_ definition: UnitDefinition<D>, for locale: Locale) -> D
     where D: Dimension {
         if let unit = self.providedUnit(for: locale, usage: definition.usage) {
             return unit
-        }
+        }  // prioritize provided units
         if definition.usage == .asProvided {
             return definition.displayUnit
-        }
-        return definition.unit(for: locale)
+        }  // use the display unit
+        return definition.unit(for: locale)  // localized unit
     }
 
+    /// Get the first unit provided, sorted by provider priority.
     private func providedUnit<D: Dimension>(
         for locale: Locale, usage: MeasurementFormatUnitUsage<D>
     ) -> D? {
@@ -80,27 +69,49 @@ struct UnitsService {
     }
 }
 
-// MARK: Units Conversion
+// MARK: Unit Binding
 // ============================================================================
 
 extension UnitsService {
-    /// Create a binding of a value in a specific unit. when the new binding
-    /// is read, the value is converted from its base unit to the new unit.
-    /// When the new binding is written, the new value is converted from the
-    /// new unit to the base unit.
-    func binding<D>(value: Binding<Double>, as unit: D) -> Binding<Double>
+    /// The localized measurement of a base-unit value.
+    func measurement<D>(_ value: Double, in unit: D) -> Measurement<D>
     where D: Dimension {
-        return Binding<Double>(
-            get: {
-                return Measurement<D>(
-                    value: value.wrappedValue, unit: .baseUnit()
-                ).converted(to: unit).value
+        Measurement(value: value, unit: .baseUnit()).converted(to: unit)
+    }
+
+    /// The measurement of a base-unit value.
+    func measurement<D: Dimension>(
+        _ value: Double, _ definition: UnitDefinition<D>, for locale: Locale
+    ) -> Measurement<D> {
+        self.measurement(value, in: self.unit(definition, for: locale))
+    }
+
+    /// Create a binding of a base-unit value in the provided unit. when the
+    /// binding is read, the value is converted from its base unit to the
+    /// provided unit. When the binding is modified, the new value is converted
+    /// from the provided unit to its base unit.
+    internal func binding<D>(
+        _ value: Binding<Double>, as unit: D
+    ) -> Binding<Double>
+    where D: Dimension {
+        Binding<Double>(
+            get: {  // base -> unit
+                Measurement(value: value.wrappedValue, unit: .baseUnit())
+                    .converted(to: unit).value
             },
-            set: {
+            set: {  // unit -> base
                 let meas = Measurement(value: $0, unit: unit)
                 value.wrappedValue = meas.converted(to: .baseUnit()).value
             }
         )
+    }
+
+    /// Create a binding of a base-unit value in a localized unit.
+    internal func binding<D>(
+        _ value: Binding<Double>, _ definition: UnitDefinition<D>,
+        for locale: Locale
+    ) -> Binding<Double> where D: Dimension {
+        self.binding(value, as: self.unit(definition, for: locale))
     }
 }
 
@@ -120,17 +131,12 @@ extension View {
 }
 
 extension UnitDefinition {
+    /// The localized unit for a specific locale.
     internal func unit(for locale: Locale) -> D {
         AppLogger.new(for: Self.self).warning(
             "Unit localization not implemented for: \(D.self)"
-        )
+        )  // use base unit if not localized
         return .baseUnit()
-    }
-}
-
-extension Measurement where UnitType: Dimension {
-    init(value: Double = 0) {
-        self.init(value: value, unit: .baseUnit())
     }
 }
 

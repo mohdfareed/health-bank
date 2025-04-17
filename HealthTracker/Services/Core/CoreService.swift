@@ -25,7 +25,7 @@ extension UUID {
     /// A UUID that represents a zero value.
     public static let zero: UUID = .init(
         uuidString: "00000000-0000-0000-0000-000000000000"
-    )!  // fail early
+    )!  // fail quickly
 }
 
 @MainActor extension Binding {

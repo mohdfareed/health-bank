@@ -12,7 +12,7 @@ struct CalorieMacros: Codable, Equatable {
 }
 
 /// Entry of consumed calories.
-@Model final class CalorieConsumed: DataRecord {
+@Model final class ConsumedCalorie: DataRecord {
     var source = DataSource()
 
     /// The date the record was created.
@@ -30,7 +30,7 @@ struct CalorieMacros: Codable, Equatable {
 }
 
 /// Entry of burned calories.
-@Model final class CalorieBurned: DataRecord {
+@Model final class BurnedCalorie: DataRecord {
     var source = DataSource()
 
     /// The date the record was created.
