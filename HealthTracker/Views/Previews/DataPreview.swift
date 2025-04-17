@@ -107,22 +107,17 @@ struct PreviewDataEditor<Model: RemoteRecord, RowContent: View>: View {
         AnyView(
             Button(action: {
                 do {
-                    for deleted in self.context.deletedModelsArray {
-                        guard let deleted = deleted as? Model else { continue }
-                        print("Syncing deleted: \(deleted)")
-                        try self.remoteContext.delete(deleted)
-                    }
-                    for added in self.context.insertedModelsArray {
-                        guard let added = added as? Model else { continue }
-                        print("Syncing added: \(added)")
-                        try self.remoteContext.save(added)
-                    }
-                    for changed in self.context.changedModelsArray {
-                        guard let changed = changed as? Model else { continue }
-                        print("Syncing changed: \(changed)")
-                        try self.remoteContext.delete(changed)
-                        try self.remoteContext.save(changed)
-                    }
+                    let added = self.context.insertedModelsArray
+                        .compactMap { $0 as? any DataRecord }
+                    let deleted = self.context.deletedModelsArray
+                        .compactMap { $0 as? any DataRecord }
+                    let modified = self.context.changedModelsArray
+                        .compactMap { $0 as? any DataRecord }
+
+                    print("Syncing: \(added + deleted + modified)")
+                    try self.remoteContext.sync(
+                        added: added, deleted: deleted, modified: modified
+                    )
                     try self.context.save()
                 } catch {
                     print("Failed to save: \(error)")

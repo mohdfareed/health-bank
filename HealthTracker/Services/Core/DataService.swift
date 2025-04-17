@@ -101,9 +101,13 @@ struct RemoteContext {
     }
 
     /// Sync the local data with the remote stores by deleting then saving.
-    func sync(_ added: [any DataRecord], _ deleted: [any DataRecord]) throws {
-        try deleted.forEach { try self.delete($0) }
-        try added.forEach { try self.save($0) }
+    func sync(
+        added: [any DataRecord],
+        deleted: [any DataRecord],
+        modified: [any DataRecord] = []
+    ) throws {
+        try (deleted + modified).forEach { try self.delete($0) }
+        try (added + modified).forEach { try self.save($0) }
     }
 
     /// Save a local data backup to the remote stores.
