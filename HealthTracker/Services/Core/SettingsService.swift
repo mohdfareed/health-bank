@@ -21,9 +21,8 @@ extension Optional: SettingsValue {}
 // ============================================================================
 
 // App locale.
-extension Locale.Weekday: SettingsValue {}
-extension Locale.MeasurementSystem: SettingsValue {}
-extension Locale.MeasurementSystem: @retroactive RawRepresentable {
+extension Weekday: SettingsValue {}
+extension MeasurementSystem: SettingsValue, @retroactive RawRepresentable {
     public var rawValue: String { self.identifier }
     public init?(rawValue: String) { self.init(rawValue) }
 }

@@ -2,18 +2,16 @@ import HealthKit
 import SwiftData
 import SwiftUI
 
-protocol SimulationModel: RemoteRecord { init() }
-
-protocol SimulationQuery<Model>: RemoteQuery where Model: SimulationModel {
+protocol SimulationQuery<Model>: RemoteQuery
+where Model: PersistentModel {
     var predicate: Predicate<Model> { get }
 }
 
+/// A simulated remote store for development.
 class SimulatedStore: RemoteStore {
     let logger = AppLogger.new(for: SimulatedStore.self)
-    var models: [any SimulationModel]
-
-    init(using models: [any SimulationModel] = []) {
-        models.forEach { $0.source = .simulation }
+    var models: [any PersistentModel]
+    init(for models: [any PersistentModel] = []) {
         self.models = models
     }
 
@@ -32,7 +30,7 @@ class SimulatedStore: RemoteStore {
     }
 
     func save(_ model: any DataRecord) throws {
-        guard let model = model as? any SimulationModel else {
+        guard let model = model as? any PersistentModel else {
             return
         }
         self.models.append(model)
@@ -43,10 +41,10 @@ class SimulatedStore: RemoteStore {
     }
 
     func delete(_ model: any DataRecord) throws {
-        self.models.removeAll {
-            type(of: $0) == type(of: model)
-                && $0.id == model.id
+        guard let model = model as? any PersistentModel else {
+            return
         }
+        self.models.removeAll { $0.id == model.id }
         self.logger.info(
             "Deleted simulation model \(type(of: model))"
         )

@@ -11,24 +11,17 @@ struct UnitDefinition<D: Dimension> {
     /// The unit formatting usage.
     let usage: MeasurementFormatUnitUsage<D>
     /// The display unit to use if not localized.
-    let displayUnit: D
+    let baseUnit: D
     /// The alternative units allowed.
-    let alternatives: [D]
+    let alts: [D]
 
     init(
-        usage: MeasurementFormatUnitUsage<D> = .general,
-        alternatives: [D] = []
+        _ unit: D = .baseUnit(), alts: [D] = [],
+        usage: MeasurementFormatUnitUsage<D> = .general
     ) {
+        self.baseUnit = unit
+        self.alts = alts
         self.usage = usage
-        self.displayUnit = D.baseUnit()
-        self.alternatives = alternatives
-    }
-
-    // init(.baseUnit()) is equivalent to init(.asProvided)
-    init(unit: D, alternatives: [D] = []) {
-        self.usage = .asProvided
-        self.displayUnit = unit
-        self.alternatives = alternatives
     }
 }
 

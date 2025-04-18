@@ -9,7 +9,7 @@ import SwiftUI
     init() {}
 }
 
-extension PreviewDataModel: RemoteRecord {
+extension PreviewDataModel {
     typealias Query = PreviewQuery
     struct PreviewQuery: RemoteQuery {
         typealias Model = PreviewDataModel
@@ -31,7 +31,6 @@ extension PreviewDataModel.PreviewQuery: CoreQuery {
     }
 }
 
-extension PreviewDataModel: SimulationModel {}
 extension PreviewDataModel.PreviewQuery: SimulationQuery {
     var predicate: Predicate<PreviewDataModel> { self.descriptor.predicate! }
 }
@@ -39,20 +38,21 @@ extension PreviewDataModel.PreviewQuery: SimulationQuery {
 // MARK: Preview
 // ============================================================================
 
-struct PreviewDataEditor<Model: RemoteRecord, RowContent: View>: View {
+struct PreviewDataEditor<Query: RemoteQuery, RowContent: View>: View
+where Query.Model: PersistentModel {
     @Environment(\.modelContext) private var context
     @Environment(\.remoteContext) private var remoteContext
-    @Query.Remote var data: [Model]
+    @DataQuery var data: [Query.Model]
 
-    private let factory: (() -> Model)?
-    private let editor: ((Model) -> Void)?
-    private let rowContent: (Model) -> RowContent
+    private let factory: (() -> Query.Model)?
+    private let editor: ((Query.Model) -> Void)?
+    private let rowContent: (Query.Model) -> RowContent
 
     init(
-        _ query: Model.Query,
-        factory: (() -> Model)? = nil, editor: ((Model) -> Void)? = nil,
-        @ViewBuilder _ rowContent: @escaping (Model) -> RowContent
-    ) where Model.Query: CoreQuery {
+        _ query: Query,
+        factory: (() -> Query.Model)? = nil, editor: ((Query.Model) -> Void)? = nil,
+        @ViewBuilder _ rowContent: @escaping (Query.Model) -> RowContent
+    ) where Query: CoreQuery {
         self.factory = factory
         self.editor = editor
         self.rowContent = rowContent
@@ -95,7 +95,7 @@ struct PreviewDataEditor<Model: RemoteRecord, RowContent: View>: View {
                 Button(action: {
                     self.context.insert(factory())
                     let remote = factory()
-                    remote.source = .simulation
+                    // let remote = factory(source: .simulation)
                     try? self.remoteContext.stores.first?.save(remote)
                 }) { Image(systemName: "plus") }
             )
@@ -135,7 +135,7 @@ struct PreviewDataEditor<Model: RemoteRecord, RowContent: View>: View {
 
         var body: some View {
             PreviewDataEditor(
-                .init(),
+                PreviewDataModel.PreviewQuery(),
                 factory: { PreviewDataModel() },
                 editor: { $0.value = Int.random(in: 0..<10) }
             ) {
@@ -153,7 +153,7 @@ struct PreviewDataEditor<Model: RemoteRecord, RowContent: View>: View {
             for: PreviewDataModel.self, inMemory: true
         )
         .remoteContext(
-            .init(stores: [SimulatedStore(using: [PreviewDataModel()])])
+            .init(stores: [SimulatedStore(for: [PreviewDataModel()])])
         )
         .preferredColorScheme(.dark)
 }

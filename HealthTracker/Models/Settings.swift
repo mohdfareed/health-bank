@@ -1,61 +1,65 @@
 import Foundation
 import SwiftData
-import SwiftUI
 
-// MARK: App Settings
+// MARK: Settings
 // ============================================================================
 
 /// The app color theme.
-enum AppTheme: String, SettingsValue {
+enum AppTheme: String, SettingsValue, CaseIterable {
     case system, dark, light
 }
 
 /// The app settings as a static collection of keys.
-struct AppSettings {
+extension Settings {
     /// The app theme.
-    static let theme = Settings<AppTheme>("AppTheme", default: .system)
+    static var theme: Settings<AppTheme> { .init("Theme", default: .system) }
     /// Whether to enable biometrics for the app. // TODO: Implement
-    static let biometrics = Settings("Biometrics", default: false)
+    static var biometrics: Settings<Bool?> { .init("Biometrics") }
     /// Whether to enable notifications for the app. // TODO: Implement
-    static let notifications = Settings<Bool?>("Notifications")
+    static var notifications: Settings<Bool?> { .init("Notifications") }
 }
 
-// App Locale
-extension AppSettings {
-    /// The app's unit measurement system.
-    static let unitSystem = Settings<Locale.MeasurementSystem?>(
-        "MeasurementSystem", default: nil
-    )
-    /// The app's first day of the week.
-    static let firstDayOfWeek = Settings<Locale.Weekday?>(
-        "FirstWeekDay", default: nil
-    )
-}
-
-// Calorie Budget
-extension AppSettings {
-    /// The active user daily calorie budget.
-    static let dailyCalorieBudget: Settings<CalorieBudget.ID> = .init(
-        "DailyCalorieBudget", default: UUID()
-    )
-}
-
-// MARK: App Units
+// MARK: Localization
 // ============================================================================
 
-extension UnitDefinition {
-    /// The unit for calories consumed.
-    static var calorieUnit: UnitDefinition<UnitEnergy> {
-        .init(usage: .food)
-    }
+/// The app's measurement system.
+typealias MeasurementSystem = Locale.MeasurementSystem
+/// The app's first day of the week.
+typealias Weekday = Locale.Weekday
 
-    /// The unit for a calorie macros breakdown.
-    static var macrosUnit: UnitDefinition<UnitMass> {
-        .init(unit: .grams)
+extension Settings {
+    /// The app's unit measurement system.
+    static var unitSystem: Settings<MeasurementSystem?> {
+        .init("MeasurementSystem", default: nil)
     }
+    /// The app's first day of the week.
+    static var firstDayOfWeek: Settings<Weekday?> {
+        .init("FirstWeekDay", default: nil)
+    }
+}
 
-    /// The unit for a workout duration.
-    static var workoutUnit: UnitDefinition<UnitDuration> {
-        .init(alternatives: [.minutes, .hours])
+// MARK: Calorie Budget
+// ============================================================================
+
+/// A daily budget of calories and macro-nutrients.
+@Model final class CalorieBudget: Singleton {
+    typealias ID = UUID
+    var id: UUID = UUID()
+    init() {}
+
+    /// The date the budget was set.
+    var date: Date = Date()
+    /// The daily calorie budget.
+    var calories: Double = 2000
+    /// The daily calorie macros budgets.
+    var macros: CalorieMacros = CalorieMacros(
+        protein: 120, fat: 60, carbs: 245
+    )
+}
+
+extension Settings {
+    /// The active user daily calorie budget.
+    static var dailyCalorieBudget: Settings<CalorieBudget.ID> {
+        .init("DailyCalorieBudget", default: UUID())
     }
 }

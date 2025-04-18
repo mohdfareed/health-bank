@@ -50,8 +50,8 @@ struct PreviewSettings: View {
 
 #if DEBUG
     struct PreviewSettingsModel {
-        static var first: Settings<Bool?> { .init(id: "First", default: false) }
-        let singleton: Settings<PreviewSingletonKey?> = .init(id: "Singleton", default: nil)
+        static var first: Settings<Bool?> { .init("First", default: false) }
+        let singleton: Settings<PreviewSingletonKey?> = .init("Singleton", default: nil)
         init() {}
     }
 

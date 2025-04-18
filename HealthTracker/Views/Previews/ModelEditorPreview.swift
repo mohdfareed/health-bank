@@ -175,7 +175,7 @@ extension PreviewModelEditor {
         var id = UUID.init()
         @Attribute(.unique) var key: String? = nil
         var value: Int = 0
-        init() {}
+        required init() {}
     }
 
     struct PreviewModelEditorView: View {

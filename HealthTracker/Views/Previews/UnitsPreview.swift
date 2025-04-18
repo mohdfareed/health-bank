@@ -6,19 +6,21 @@ let weightUnit = UnitDefinition<UnitMass>(usage: .personWeight)
 struct PreviewUnit: View {
     @Environment(\.unitService) var unitService
     @AppLocale var locale: Locale
-    @LocalizedUnit var weight: Measurement<UnitMass>
-    @State var selectedUnit: UnitMass = .grams
+    @LocalizedMeasurement var weight: Measurement<UnitMass>
 
-    init(_ binding: Binding<Double>) {
-        self._weight = LocalizedUnit(binding, definition: weightUnit)
+    init(_ weight: Binding<Double?>) {
+        self._weight = LocalizedMeasurement(
+            weight, unit: .grams, definition: weightUnit
+        )
     }
 
     var body: some View {
         VStack {
             HStack {
                 Spacer()
+                let model = Measurement(value: 1_200_000, unit: UnitDuration.seconds)
                 Button(
-                    "\(self.unitService.format(1_200_000, for: self.locale, style: .units(allowed: [.weeks], width: .abbreviated)))"
+                    "\(model.duration.formatted(.units(allowed: [.weeks], width: .abbreviated)))"
                 ) {
                     print(UnitDuration.seconds.symbol)
                 }
@@ -29,16 +31,14 @@ struct PreviewUnit: View {
                 HStack {
                     Text("Weight").font(.headline)
                     Spacer()
-                    Text(
-                        "\(self.$weight.formatted(.measurement(width: .wide)))"
-                    )
-                    .fontDesign(.monospaced)
-                    .foregroundStyle(.secondary)
+                    Text("\(self.$weight.formatted(base: .measurement(width: .wide))))")
+                        .fontDesign(.monospaced)
+                        .foregroundStyle(.secondary)
                 }
                 Divider()
 
                 Picker("Locale", selection: self.$locale.$unitSystem) {
-                    ForEach(Locale.MeasurementSystem.measurementSystems, id: \.identifier) {
+                    ForEach(MeasurementSystem.measurementSystems, id: \.identifier) {
                         locale in
                         Text(locale.rawValue).tag(locale)
                     }
@@ -62,7 +62,7 @@ struct PreviewUnit: View {
                     Text("Localized")
                     Spacer()
                     Text(
-                        "\(self.$weight.formatted())"
+                        "\(self._weight.formatted())"
                     )
                 }
                 Divider()
@@ -70,7 +70,7 @@ struct PreviewUnit: View {
                     Text("Base Unit")
                     Spacer()
                     Text(
-                        "\(self.$weight.formatted(as: .baseUnit()))"
+                        "\(self._weight.formatted(as: .baseUnit()))"
                     )
                 }
                 Divider()
@@ -78,7 +78,7 @@ struct PreviewUnit: View {
                     Text("Pounds")
                     Spacer()
                     Text(
-                        "\(self.$weight.formatted(as: .pounds))"
+                        "\(self._weight.formatted(as: .pounds))"
                     )
                 }
                 Divider()
@@ -86,7 +86,7 @@ struct PreviewUnit: View {
                     Text("Metric Tons")
                     Spacer()
                     Text(
-                        "\(self.$weight.formatted(as: .metricTons))"
+                        "\(self._weight.formatted(as: .metricTons))"
                     )
                 }
                 Divider()
@@ -94,7 +94,7 @@ struct PreviewUnit: View {
                     Text("MilliGrams")
                     Spacer()
                     Text(
-                        "\(self.$weight.formatted(as: .milligrams))"
+                        "\(self._weight.formatted(as: .milligrams))"
                     )
                 }
             }
@@ -107,12 +107,12 @@ struct PreviewUnit: View {
                 Spacer()
                 TextField(
                     "\(self.weight.formatted())",
-                    value: $weight.value,
+                    value: self.$weight.value,
                     format: .number.precision(.fractionLength(2))
                 )
                 .textFieldStyle(.automatic)
                 .multilineTextAlignment(.trailing)
-                Text("\(self.$weight.unit.wrappedValue.symbol)")
+                Text("\(self.weight.unit.symbol)")
             }
             .padding()
         }
@@ -129,7 +129,7 @@ struct PreviewUnit: View {
         @State var weightValue: Double = 0.0
 
         var body: some View {
-            PreviewUnit(self.$weightValue)
+            PreviewUnit(self.$weightValue.optional(0))
                 .padding()
                 .background(.background.secondary)
                 .cornerRadius(25)

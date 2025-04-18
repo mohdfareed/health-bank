@@ -40,6 +40,22 @@ protocol CoreQuery: RemoteQuery where Model: PersistentModel {
     var descriptor: FetchDescriptor<Model> { get }
 }
 
+/// The in-memory filter to apply to data from remote sources.
+struct InMemoryQuery<Model: DataRecord> {
+    /// The data sources of the data. Query all sources if empty.
+    var sources: [DataSource] = []
+    /// The predicate to filter the data.
+    var predicate: Predicate<Model>? = nil
+    /// The sort order of the data.
+    var sortOrder: [SortDescriptor<Model>] = []
+    /// The limit of the data.
+    var limit: Int? = nil
+    /// The offset of the data.
+    var offset: Int = 0
+    /// The animation to apply to the data.
+    var animation: Animation = .default
+}
+
 // MARK: Remote Data Stores
 // ============================================================================
 

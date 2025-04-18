@@ -12,13 +12,11 @@ struct UnitService {
     /// If the unit's usage is `asProvided`, the display unit is used.
     func unit<D>(_ definition: UnitDefinition<D>, for locale: Locale) -> D
     where D: Dimension {
-        let unit = self.providedUnit(for: locale, usage: definition.usage)
-        if let unit = unit {
-            return unit
-        }  // prioritize provided units
         if definition.usage == .asProvided {
-            return definition.displayUnit
-        }  // use the display unit
+            return definition.baseUnit
+        }  // prioritize the base unit if not localized
+        let unit = self.providedUnit(for: locale, usage: definition.usage)
+        if let unit = unit { return unit }  // prioritize provided units
         return definition.unit(for: locale)  // localized unit
     }
 
@@ -60,7 +58,7 @@ extension UnitDefinition {
         AppLogger.new(for: Self.self).warning(
             "Unit localization not implemented for: \(D.self)"
         )  // use base unit if not localized
-        return .baseUnit()
+        return self.baseUnit
     }
 }
 
@@ -78,6 +76,9 @@ extension UnitDefinition {
         return .init(forLocale: locale, usage: self.usage)
     }
     fileprivate func unit(for locale: Locale) -> D where D == UnitVolume {
+        return .init(forLocale: locale, usage: self.usage)
+    }
+    fileprivate func unit(for locale: Locale) -> D where D == UnitSpeed {
         return .init(forLocale: locale, usage: self.usage)
     }
     fileprivate func unit(for locale: Locale) -> D

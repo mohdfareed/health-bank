@@ -2,7 +2,8 @@ import Combine
 import SwiftData
 import SwiftUI
 
-struct DataRecordsView<Model: DataRecord, Content: View>: View {
+struct DataRecordsView<Model, Content: View>: View
+where Model: DataRecord & PersistentModel {
     @Environment(\.modelContext) private var localContext
     @Environment(\.previewContext) private var remoteContext
 

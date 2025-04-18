@@ -5,51 +5,71 @@ import SwiftUI
 let appID: String = Bundle.main.bundleIdentifier ?? "Debug.HealthTracker"
 
 @main struct HealthTrackerApp: App {
+    @AppStorage(.theme)
+    internal var theme: AppTheme
     internal let logger = AppLogger.new(for: Self.self)
+
     private let models: [any PersistentModel.Type] = [
-        CalorieBudget.self,
-        ConsumedCalorie.self,
-        BurnedCalorie.self,
+        CoreDietaryCalorie.self,
+        CoreRestingCalorie.self,
+        CoreWorkout.self,
     ]
 
-    @AppStorage(AppSettings.theme)
-    internal var theme: AppTheme
-    internal var localContainer: ModelContainer
-    internal var remoteContext: RemoteContext
-    internal var unitService: UnitService
+    /// Sets up the app environment for the view.
+    func setup(_ view: some View) -> some View {
+        let simulatedModels: [any PersistentModel] = [
+            CoreDietaryCalorie(
+                100, macros: .init(protein: 10, fat: 5, carbs: 15),
+                on: Date().adding(-1, .day), from: .simulation
+            )
+        ]
 
-    init() {
-        self.localContainer = try! ModelContainer(
+        let remoteContext = RemoteContext(
+            stores: [
+                SimulatedStore(for: simulatedModels)
+            ]
+        )
+        let localContainer = try! ModelContainer(
             for: Schema(self.models),
             configurations: ModelConfiguration()
         )
-        self.remoteContext = RemoteContext(
-            stores: [
+        let unitService = UnitService(providers: [:])
 
-            ]
-        )
-        self.unitService = UnitService(providers: [:])
+        return withAnimation(.spring) {
+            view
+                .remoteContext(remoteContext)
+                .modelContainer(localContainer)
+                .unitService(unitService)
+                .preferredColorScheme(self.theme.colorScheme)
+                .animation(.default, value: self.theme)
+        }
     }
 
     var body: some Scene {
         WindowGroup {
-            SettingsView().setup(app: self)
+            VStack {
+                SettingsView().setup(app: self)
+                    .animation(.spring(), value: self.theme)
+            }.animation(.spring(), value: self.theme)
         }
     }
 }
 
 extension View {
     /// Sets up the app environment for the view.
-    func setup(app: HealthTrackerApp) -> some View {
-        self
-            .modelContainer(app.localContainer)
-            .remoteContext(app.remoteContext)
-            .unitService(app.unitService)
-            .preferredColorScheme(app.theme.colorScheme)
-    }
+    func setup(app: HealthTrackerApp) -> some View { app.setup(self) }
 }
 
-#Preview {
-    SettingsView().setup(app: .init())
-        .remoteContext(.init(stores: [SimulatedStore(for: [])]))
-}
+#if DEBUG
+    struct AppPreview: View {
+        @AppStorage(.theme)
+        internal var theme: AppTheme
+        var body: some View {
+            SettingsView().setup(app: .init())
+                .remoteContext(.init(stores: [SimulatedStore(for: [])]))
+                .preferredColorScheme(self.theme.colorScheme)
+                .animation(.default, value: self.theme)
+        }
+    }
+#endif
+#Preview { AppPreview() }

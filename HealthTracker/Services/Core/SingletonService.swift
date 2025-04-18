@@ -18,6 +18,7 @@ struct SingletonQuery<Model: Singleton>: DynamicProperty {
         self.context.insert(model)
         return model
     }
+    var projectedValue: Bindable<Model> { .init(self.wrappedValue) }
 }
 extension Query { typealias Singleton = SingletonQuery }
 

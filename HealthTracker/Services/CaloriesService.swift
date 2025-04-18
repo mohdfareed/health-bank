@@ -1,10 +1,65 @@
 import Foundation
 import SwiftData
 
-// MARK: Calorie Breakdown
+// MARK: Queries
 // ============================================================================
 
-extension NutritionCalorie {
+extension RemoteQuery {
+    static func burned(
+        from: Date = Date().floored(to: .day), to: Date = Date(),
+        min: Double = 0, max: Double = .infinity
+    ) -> CalorieQuery<Model> where Model: BurnedCalorie {
+        .init(from: from, to: to, min: min, max: max)
+    }
+
+    static func consumed(
+        from: Date = Date().floored(to: .day), to: Date = Date(),
+        min: Double = 0, max: Double = .infinity
+    ) -> CalorieQuery<Model> where Model: DietaryCalorie {
+        .init(from: from, to: to, min: min, max: max)
+    }
+
+    static func macros(
+        calories: CalorieQuery<Model>,
+    ) -> MacrosQuery<Model> where Model: DietaryCalorie {
+        .init(calories: calories)
+    }
+}
+
+// MARK: Local Queries
+// ============================================================================
+
+extension CalorieQuery: CoreQuery where C: PersistentModel {
+    var descriptor: FetchDescriptor<C> {
+        let (from, to, min, max) = (self.from, self.to, self.min, self.max)
+        return FetchDescriptor<C>(
+            predicate: #Predicate {
+                $0.date >= from && $0.date <= to
+                    && $0.calories > min && $0.calories < max
+            },
+            sortBy: [SortDescriptor(\.date)]
+        )
+    }
+}
+
+extension MacrosQuery: CoreQuery where C: PersistentModel {
+    var descriptor: FetchDescriptor<C> {
+        let (from, to) = (self.calories.from, self.calories.to)
+        let (min, max) = (self.calories.min, self.calories.max)
+        return FetchDescriptor<C>(
+            predicate: #Predicate {
+                $0.date >= from && $0.date <= to && $0.macros != nil
+                    && $0.calories > min && $0.calories < max
+            },
+            sortBy: [SortDescriptor(\.date)]
+        )
+    }
+}
+
+// MARK: Macros Breakdown
+// ============================================================================
+
+extension DietaryCalorie {
     /// The amount of calories calculated from the macros.
     func calculatedCalories() -> Double? {
         guard

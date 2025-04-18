@@ -26,10 +26,10 @@ struct AppLocale: DynamicProperty {
     private var components: Locale.Components { .init(locale: self.appLocale) }
     private let animation: Animation? = nil  // REVIEW: Animate.
 
-    @AppStorage(AppSettings.unitSystem)
-    var unitSystem: Locale.MeasurementSystem?
-    @AppStorage(AppSettings.firstDayOfWeek)
-    var firstDayOfWeek: Locale.Weekday?
+    @AppStorage(.unitSystem)
+    var unitSystem: MeasurementSystem?
+    @AppStorage(.firstDayOfWeek)
+    var firstDayOfWeek: Weekday?
 
     var wrappedValue: Locale {
         var components = self.components
@@ -62,7 +62,50 @@ extension UUID {
     /// A UUID that represents a zero value.
     public static let zero: UUID = .init(
         uuidString: "00000000-0000-0000-0000-000000000000"
-    )!  // fail quickly
+    )!  // tested
+}
+
+extension Weekday {
+    /// The days of the week.
+    static var allCases: [Self] {
+        [.monday, .tuesday, .wednesday, .thursday, .friday, .saturday, .sunday]
+    }
+}
+
+// MARK: Binding
+// ============================================================================
+
+@MainActor
+extension Binding {
+    /// A binding that defaults to a value if the wrapped value is nil.
+    func defaulted<T>(to defaultValue: T) -> Binding<T> where Value == T? {
+        .init(
+            get: { self.wrappedValue ?? defaultValue },
+            set: { self.wrappedValue = $0 }
+        )
+    }
+    /// A binding that defaults to a value if the wrapped value is nil.
+    func optional(_ defaultValue: Value) -> Binding<Value?> {
+        .init(
+            get: { self.wrappedValue },
+            set: { self.wrappedValue = $0 ?? defaultValue }
+        )
+    }
+
+    /// Convert an integer binding to a binding of a double value.
+    func double() -> Binding<Double> where Value: BinaryInteger {
+        Binding<Double>(
+            get: { Double(self.wrappedValue) },
+            set: { self.wrappedValue = Value($0) }
+        )
+    }
+    /// Convert a float binding to a binding of a double value.
+    func double() -> Binding<Double> where Value: BinaryFloatingPoint {
+        Binding<Double>(
+            get: { Double(self.wrappedValue) },
+            set: { self.wrappedValue = Value($0) }
+        )
+    }
 }
 
 // MARK: Serialization
