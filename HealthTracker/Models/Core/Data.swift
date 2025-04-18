@@ -24,7 +24,7 @@ enum DataSource: Codable, CaseIterable {
 /// A protocol for data models that originate from a data source.
 protocol DataRecord: PersistentModel {
     /// The source of the data.
-    var source: DataSource { get set }
+    var source: DataSource { get set }  // REVIEW: Make this a constant?
 }
 
 // MARK: Remote Data Stores

@@ -30,8 +30,8 @@ struct AppSettings {
     // User Settings ==========================================================
 
     /// The active user daily calorie budget.
-    static let dailyCalorieBudget: Settings<CalorieBudget.ID?> = .init(
-        "DailyCalorieBudget", default: nil
+    static let dailyCalorieBudget: Settings<CalorieBudget.ID> = .init(
+        "DailyCalorieBudget", default: UUID()
     )
 }
 

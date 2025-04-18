@@ -37,35 +37,41 @@ struct AppLocale: DynamicProperty {
 /// A property wrapper to fetch a singleton model. If multiple models are
 /// found, the first instance is used.
 @MainActor @propertyWrapper
-struct SingletonQuery<Model: PersistentModel>: DynamicProperty {
+struct SingletonQuery<Model: Singleton>: DynamicProperty {
+    @Environment(\.modelContext) private var context: ModelContext
     @Query private var models: [Model]
-    var wrappedValue: Model? { self.models.first }
+    private let factory: () -> Model
 
-    init(_ query: Query<Model, [Model]>) { self._models = query }
-
-    init(  // default to using first model in store
-        _ descriptor: FetchDescriptor<Model> = .init(),
-        animation: Animation = .default,
-    ) {
-        var descriptor = descriptor
-        descriptor.fetchLimit = 1
-        self._models = Query(descriptor, animation: animation)
+    var wrappedValue: Model {
+        if let model = self.models.first { return model }
+        let model = self.factory()
+        self.context.insert(model)
+        return model
     }
 
-    init(  // default to assuming unique zero ID implementation
-        _ id: Model.ID = UUID.zero,
+    init(
+        _ id: Model.ID = UUID.zero,  // assume unique zero id
         sortBy: [SortDescriptor<Model>] = [
             SortDescriptor(\.persistentModelID)
-        ],
+        ],  // sort in case of non-unique id
         animation: Animation = .default,
     ) where Model: Singleton {
-        self.init(
-            .init(predicate: #Predicate { $0.id == id }, sortBy: sortBy),
-            animation: animation
+        var descriptor = FetchDescriptor(
+            predicate: #Predicate { $0.id == id }, sortBy: sortBy,
         )
+        descriptor.fetchLimit = 1  // singleton
+        self._models = Query(descriptor, animation: animation)
+        self.factory = { Model(id: id) }
     }
 }
 extension Query { typealias Singleton = SingletonQuery }
+
+extension Singleton {
+    init(id: ID = UUID.zero) {
+        self.init()
+        self.id = id
+    }
+}
 
 // MARK: Extensions
 // ============================================================================
@@ -77,6 +83,17 @@ struct AppLogger {
     }
     static func new<T>(for category: T.Type) -> Logger {
         return Logger(subsystem: appID, category: "\(T.self)")
+    }
+}
+
+extension AppTheme {
+    /// The theme's color scheme.
+    var colorScheme: ColorScheme? {
+        switch self {
+        case .light: return .light
+        case .dark: return .dark
+        case .system: return nil
+        }
     }
 }
 

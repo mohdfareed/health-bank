@@ -11,25 +11,34 @@ struct LocalizedUnit<D: Dimension>: DynamicProperty {
     @AppLocale() internal var locale: Locale
     internal let definition: UnitDefinition<D>
 
-    @Binding private var baseValue: Double  // value in base unit
-    @State private var bindingUnit: D = .baseUnit()  // the binding value unit
+    @Binding private var baseValue: Double  // the value in its base unit
+    @Binding private var displayUnit: D  // the value display unit
     // REVIEW: Animate.
 
-    var unit: Binding<D> { self.$bindingUnit }
-    var value: Binding<Double> {
-        self.service.binding(self.$baseValue, as: self.bindingUnit)
-    }  // value binding in provided binding unit
-
     var wrappedValue: Measurement<D> {
-        self.service.measurement(
-            self.baseValue, self.definition, for: self.locale
+        Measurement<D>(
+            self.baseValue,
+            unit: self.service.unit(self.definition, for: self.locale)
         )
-    }  // measurement in localized unit
-    var projectedValue: Self { self }
+    }
 
-    init(_ value: Binding<Double>, definition: UnitDefinition<D>) {
+    var projectedValue: Binding<Measurement<D>> {
+        .init(
+            get: { self.wrappedValue.converted(to: self.displayUnit) },
+            set: {
+                self.baseValue = $0.converted(to: .baseUnit()).value
+                self.displayUnit = $0.unit
+            }
+        )
+    }
+
+    init(
+        _ value: Binding<Double>, unit: Binding<D>,
+        definition: UnitDefinition<D>
+    ) {
         self.definition = definition
         self._baseValue = value
+        self._displayUnit = unit
     }
 }
 
@@ -40,19 +49,6 @@ struct UnitService {
     /// The unit localization providers. Providers are mapped to their
     /// priority. The higher the number, the higher the priority.
     let providers: [Int: any UnitProvider]
-
-    /// The localized measurement of a base-unit value.
-    func measurement<D>(_ value: Double, in unit: D) -> Measurement<D>
-    where D: Dimension {
-        Measurement(value: value, unit: .baseUnit()).converted(to: unit)
-    }
-
-    /// The measurement of a base-unit value.
-    func measurement<D: Dimension>(
-        _ value: Double, _ definition: UnitDefinition<D>, for locale: Locale
-    ) -> Measurement<D> {
-        self.measurement(value, in: self.unit(definition, for: locale))
-    }
 
     /// The localized measurement unit. Provided units are prioritized.
     /// If the unit's usage is `asProvided`, the display unit is used.
@@ -82,85 +78,57 @@ struct UnitService {
     }
 }
 
-// MARK: Binding
-// ============================================================================
-
-extension UnitService {
-    /// Create a binding of a base-unit value in the provided unit. when the
-    /// binding is read, the value is converted from its base unit to the
-    /// provided unit. When the binding is modified, the new value is converted
-    /// from the provided unit to its base unit.
-    internal func binding<D>(
-        _ value: Binding<Double>, as unit: D
-    ) -> Binding<Double>
-    where D: Dimension {
-        Binding<Double>(
-            get: {  // base -> unit
-                Measurement(value: value.wrappedValue, unit: .baseUnit())
-                    .converted(to: unit).value
-            },
-            set: {  // unit -> base
-                let meas = Measurement(value: $0, unit: unit)
-                value.wrappedValue = meas.converted(to: .baseUnit()).value
-            }
-        )
-    }
-
-    /// Create a binding of a base-unit value in a localized unit.
-    internal func binding<D>(
-        _ value: Binding<Double>, _ definition: UnitDefinition<D>,
-        for locale: Locale
-    ) -> Binding<Double> where D: Dimension {
-        self.binding(value, as: self.unit(definition, for: locale))
-    }
-}
-
 // MARK: Formatting
 // ============================================================================
 
 extension LocalizedUnit {
-    /// The localized string of a base-unit value.
+    /// The localization style of the current value.
     func formatted(
-        as unit: D? = nil, _ style: Measurement<D>.FormatStyle? = nil
+        as unit: D, base: Measurement<D>.FormatStyle? = nil
     ) -> String {
-        self.service.format(
-            self.wrappedValue.value, as: unit, definition: self.definition,
-            for: self.locale, style: style
-        )
+        self.wrappedValue.converted(to: unit).formatted(self.style(base: base))
     }
 
-    /// The localized string of a duration base-unit value.
-    func formatted(_ style: Duration.UnitsFormatStyle) -> String
-    where D == UnitDuration {
-        self.service.format(
-            self.wrappedValue.value, for: self.locale, style: style
-        )
+    /// The localization style of the current value.
+    func formatted(
+        base: Measurement<D>.FormatStyle? = nil
+    ) -> String {
+        self.wrappedValue.formatted(self.style(base: base))
+    }
+
+    /// The localization style of the current value.
+    func style(
+        base: Measurement<D>.FormatStyle? = nil
+    ) -> Measurement<D>.FormatStyle {
+        self.service.style(self.definition, for: self.locale, base: base)
+    }
+
+    /// The localization style of the current value.
+    func style(
+        _ unit: D, base: Measurement<D>.FormatStyle? = nil
+    ) -> Measurement<D>.FormatStyle {
+        self.service.style(unit, for: self.locale, base: base)
     }
 }
 
 extension UnitService {
-    /// The localized string of a base-unit value.
-    func format<D: Dimension>(
-        _ value: Double, as unit: D? = nil, definition: UnitDefinition<D>,
-        for locale: Locale, style: Measurement<D>.FormatStyle? = nil
-    ) -> String {
-        var meas = self.measurement(value, definition, for: locale)
-        var style = style ?? Measurement.FormatStyle(width: .abbreviated)
-        if let unit = unit {
-            meas = meas.converted(to: unit)
-            style.usage = .asProvided
-        }
-        return meas.formatted(style.locale(locale))
+    /// The localization style of a base-unit value.
+    func style<D: Dimension>(
+        _ definition: UnitDefinition<D>,
+        for locale: Locale, base: Measurement<D>.FormatStyle? = nil
+    ) -> Measurement<D>.FormatStyle {
+        var style = base ?? Measurement.FormatStyle(width: .abbreviated)
+        style.usage = style.usage ?? definition.usage
+        return style.locale(locale)
     }
 
-    /// The localized string of a duration base-unit value.
-    func format(
-        _ value: Double, for locale: Locale, style: Duration.UnitsFormatStyle
-    ) -> String {
-        let meas = Measurement<UnitDuration>(value: value, unit: .baseUnit())
-        let seconds = meas.converted(to: UnitDuration.seconds).value
-        let duration = Duration.seconds(seconds)
-        return duration.formatted(style)
+    /// The localization style of a base-unit value.
+    func style<D: Dimension>(
+        _ unit: D, for locale: Locale, base: Measurement<D>.FormatStyle? = nil
+    ) -> Measurement<D>.FormatStyle {
+        var style = base ?? Measurement.FormatStyle(width: .abbreviated)
+        style.usage = .asProvided
+        return style.locale(locale)
     }
 }
 
@@ -176,6 +144,21 @@ extension View {
     /// The units localization service.
     func unitService(_ service: UnitService) -> some View {
         self.environment(\.unitService, service)
+    }
+}
+
+extension Measurement where UnitType: Dimension {
+    /// Create a measurement from a base unit value. Defaults to `baseUnit()`.
+    init(_ base: Double, unit: UnitType? = nil) {
+        self.init(value: value, unit: .baseUnit())
+        if let unit = unit { self.convert(to: unit) }
+    }
+}
+
+extension Measurement<UnitDuration> {
+    /// The measurement converted to a duration.
+    var duration: Duration {
+        .seconds(self.converted(to: .baseUnit()).value)
     }
 }
 

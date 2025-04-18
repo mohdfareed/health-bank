@@ -17,13 +17,13 @@ let package = Package(
     ],
     targets: [
         .target(
-            name: "\(App.name)App", path: App.file.path(),
+            name: "App", path: App.file.path(),
             exclude: [
                 "Assets.xcassets",
                 "HealthTracker.entitlements",
                 "Info.plist",
             ]
         ),
-        .testTarget(name: "\(App.name)AppTests", path: App.tests.path()),
+        .testTarget(name: "Tests", path: App.tests.path()),
     ]
 )

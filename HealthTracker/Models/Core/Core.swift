@@ -4,7 +4,7 @@ import SwiftData
 /// An application error.
 enum AppError: Error {
     /// An error that occurred during the app's execution.
-    case runtimeError(String, Error? = nil)
+    case runtimeError(String, Error? = nil)  // REVIEW: Add more cases.
 }
 
 // MARK: Utilities
@@ -12,8 +12,14 @@ enum AppError: Error {
 
 /// A protocol for models with an ID trackable in the `UserDefaults` database.
 /// The ID can be attributed with `.unique` with `UUID.zero` as the default
-/// to guarantee a single instance of the model in the database.
-protocol Singleton: PersistentModel where ID == UUID {}
+/// to guarantee a single instance of the model in the database. The singleton
+/// must provide a default value through the `init()` method.
+protocol Singleton: PersistentModel where ID == UUID {
+    /// The ID of the model. The first instance of a model with this ID,
+    /// according to a sort order, is considered the singleton.
+    var id: ID { get set }
+    init()
+}
 
 // MARK: Settings
 // ============================================================================
