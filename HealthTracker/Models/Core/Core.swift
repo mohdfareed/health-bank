@@ -7,7 +7,7 @@ enum AppError: Error {
     case runtimeError(String, Error? = nil)  // REVIEW: Add more cases.
 }
 
-// MARK: Utilities
+// MARK: Singleton
 // ============================================================================
 
 /// A protocol for models with an ID trackable in the `UserDefaults` database.
@@ -25,10 +25,8 @@ protocol Singleton: PersistentModel where ID == UUID {
 // ============================================================================
 
 /// A protocol to define the raw value stored in the `UserDefaults` database.
-/// It mirrors the `AppStorage` interface and **must not be implemented**.
-/// It is implemented internally by the supported types.
+/// It an be implemented with `String` or `Int` to support enumeration types.
 internal protocol SettingsValue: Sendable {}
-
 /// A protocol to define a settings value that can be stored as a string.
 /// New settings value types can be created by implementing this protocol.
 typealias StringSettingsValue = SettingsValue & RawRepresentable<String>
@@ -43,9 +41,7 @@ struct Settings<Value: SettingsValue>: Sendable {
     let id: String
     /// The default value for the setting.
     let `default`: Value
-}
 
-extension Settings {
     init(_ id: String, default: Value) {
         self.id = id
         self.default = `default`

@@ -1,7 +1,31 @@
 import Foundation
 import SwiftData
 
-/// A calorie macros breakdown.
+// MARK: Calorie Models
+// ============================================================================
+
+/// A protocol for all calorie records.
+protocol Calorie: DataRecord {
+    /// The date the record was created.
+    var date: Date { get }
+    /// The calories consumed or burned.
+    /// Positive values are consumed and negative values are burned.
+    var calories: Double { get }
+}
+
+/// A calorie burned through activity.
+protocol ActivityCalorie: Calorie {}
+
+/// A calorie burned through basal metabolism.
+protocol RestingCalorie: Calorie {}
+
+/// A calorie consumed through nutrition.
+protocol NutritionCalorie: Calorie {
+    /// The calorie macros breakdown.
+    var macros: CalorieMacros? { get }
+}
+
+/// A nutrition calorie macros breakdown.
 struct CalorieMacros: Codable, Equatable {
     /// The protein breakdown.
     var protein: Double? = nil
@@ -11,40 +35,40 @@ struct CalorieMacros: Codable, Equatable {
     var carbs: Double? = nil
 }
 
-/// Entry of consumed calories.
-@Model final class ConsumedCalorie: DataRecord {
-    var source = DataSource()
+// MARK: Calories Queries
+// ============================================================================
 
-    /// The date the record was created.
-    var date: Date
-    /// The consumed calories.
-    var calories: Double
-    /// The calorie macros breakdown.
-    var macros: CalorieMacros?
-
-    init(_ calories: Double, macros: CalorieMacros? = nil, on date: Date) {
-        self.date = date
-        self.calories = calories
-        self.macros = macros
-    }
+/// A query for calories consumed or burned.
+struct CalorieQuery<C: Calorie>: RemoteQuery {
+    typealias Model = C
+    /// The minimum date.
+    let from: Date = Date().floored(to: .day)
+    /// The maximum date.
+    let to: Date = Date()
 }
 
-/// Entry of burned calories.
-@Model final class BurnedCalorie: DataRecord {
-    var source = DataSource()
+/// A query for calories consumed with macros breakdown.
+struct MacrosCalorieQuery<C: NutritionCalorie>: RemoteQuery {
+    typealias Model = C
+    /// The calories query.
+    let calories: CalorieQuery<C>
+}
 
-    /// The date the record was created.
-    var date: Date
-    /// The burned calories.
-    var calories: Double
-    /// The duration of the activity.
-    var duration: TimeInterval
+// MARK: Calorie Budget
+// ============================================================================
 
-    init(
-        _ calories: Double, over duration: TimeInterval, on date: Date
-    ) {
-        self.date = date
-        self.calories = calories
-        self.duration = duration
-    }
+/// A daily budget of calories and macro-nutrients.
+@Model final class CalorieBudget: Singleton {
+    typealias ID = UUID
+    var id: UUID = UUID()
+    init() {}
+
+    /// The date the budget was set.
+    var date: Date = Date()
+    /// The daily calorie budget.
+    var calories: Double? = 2000
+    /// The daily calorie macros budgets.
+    var macros: CalorieMacros = CalorieMacros(
+        protein: 120, fat: 60, carbs: 245
+    )
 }

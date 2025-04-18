@@ -2,12 +2,15 @@ import Foundation
 import SwiftData
 import SwiftUI
 
+// MARK: App Settings
+// ============================================================================
+
 /// The app color theme.
 enum AppTheme: String, SettingsValue {
     case system, dark, light
 }
 
-/// The app settings. It is a collection of settings keys as static properties.
+/// The app settings as a static collection of keys.
 struct AppSettings {
     /// The app theme.
     static let theme = Settings<AppTheme>("AppTheme", default: .system)
@@ -15,9 +18,10 @@ struct AppSettings {
     static let biometrics = Settings("Biometrics", default: false)
     /// Whether to enable notifications for the app. // TODO: Implement
     static let notifications = Settings<Bool?>("Notifications")
+}
 
-    // App Locale =============================================================
-
+// App Locale
+extension AppSettings {
     /// The app's unit measurement system.
     static let unitSystem = Settings<Locale.MeasurementSystem?>(
         "MeasurementSystem", default: nil
@@ -26,27 +30,32 @@ struct AppSettings {
     static let firstDayOfWeek = Settings<Locale.Weekday?>(
         "FirstWeekDay", default: nil
     )
+}
 
-    // User Settings ==========================================================
-
+// Calorie Budget
+extension AppSettings {
     /// The active user daily calorie budget.
     static let dailyCalorieBudget: Settings<CalorieBudget.ID> = .init(
         "DailyCalorieBudget", default: UUID()
     )
 }
 
-/// A daily budget of calories and macro-nutrients.
-@Model final class CalorieBudget: Singleton {
-    typealias ID = UUID
-    var id: UUID = UUID()
-    init() {}
+// MARK: App Units
+// ============================================================================
 
-    /// The date the budget was set.
-    var date: Date = Date()
-    /// The daily calorie budget.
-    var calories: Double? = 2000
-    /// The daily calorie macros budgets.
-    var macros: CalorieMacros = CalorieMacros(
-        protein: 120, fat: 60, carbs: 245
-    )
+extension UnitDefinition {
+    /// The unit for calories consumed.
+    static var calorieUnit: UnitDefinition<UnitEnergy> {
+        .init(usage: .food)
+    }
+
+    /// The unit for a calorie macros breakdown.
+    static var macrosUnit: UnitDefinition<UnitMass> {
+        .init(unit: .grams)
+    }
+
+    /// The unit for a workout duration.
+    static var workoutUnit: UnitDefinition<UnitDuration> {
+        .init(alternatives: [.minutes, .hours])
+    }
 }

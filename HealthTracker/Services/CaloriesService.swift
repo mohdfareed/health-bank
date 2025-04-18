@@ -1,81 +1,10 @@
 import Foundation
 import SwiftData
 
-// MARK: Calories Consumed
-// ============================================================================
-
-extension ConsumedCalorie {
-    static var macrosUnit: UnitDefinition<UnitMass> { .init(unit: .grams) }
-    static var calorieUnit: UnitDefinition<UnitEnergy> { .init(usage: .food) }
-}  // units support
-
-extension ConsumedCalorie: RemoteRecord {
-    typealias Model = Query
-    struct Query: RemoteQuery {
-        typealias Model = ConsumedCalorie
-        /// The minimum date.
-        let from: Date = Date().floored(to: .day)
-        /// The maximum date.
-        let to: Date = Date()
-        /// Whether to include only records with macros.
-        let macros: Bool = false
-    }
-}  // remote query support
-
-extension ConsumedCalorie.Query: CoreQuery {
-    var descriptor: FetchDescriptor<ConsumedCalorie> {
-        let (from, to, macros) = (self.from, self.to, self.macros)
-        return FetchDescriptor<ConsumedCalorie>(
-            predicate: #Predicate {
-                $0.date >= from && $0.date <= to
-                    // macros NOT required or macros exist
-                    && (!macros || $0.macros != nil)
-            },
-            sortBy: [SortDescriptor(\.date)]
-        )
-    }
-}  // swift data support
-
-// MARK: Calorie Burned
-// ============================================================================
-
-extension BurnedCalorie {
-    static var durationUnit: UnitDefinition<UnitDuration> { .init() }
-    static var calorieUnit: UnitDefinition<UnitEnergy> {
-        .init(usage: .workout)
-    }
-}
-
-extension BurnedCalorie: RemoteRecord {
-    typealias Model = Query
-    struct Query: RemoteQuery {
-        typealias Model = BurnedCalorie
-        /// The minimum date.
-        let from: Date
-        /// The maximum date.
-        let to: Date
-        /// The minimum activity duration.
-        let duration: TimeInterval
-    }
-}
-
-extension BurnedCalorie.Query: CoreQuery {
-    var descriptor: FetchDescriptor<BurnedCalorie> {
-        let (from, to, duration) = (self.from, self.to, self.duration)
-        return FetchDescriptor<BurnedCalorie>(
-            predicate: #Predicate {
-                $0.date >= from && $0.date <= to
-                    && $0.duration >= duration
-            },
-            sortBy: [SortDescriptor(\.date)]
-        )
-    }
-}
-
 // MARK: Calorie Breakdown
 // ============================================================================
 
-extension ConsumedCalorie {
+extension NutritionCalorie {
     /// The amount of calories calculated from the macros.
     func calculatedCalories() -> Double? {
         guard

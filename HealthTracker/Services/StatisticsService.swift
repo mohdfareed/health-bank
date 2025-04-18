@@ -1,31 +1,29 @@
 import Foundation
 
-// MARK: Statistics
+// MARK: Budget
 // ============================================================================
 
-extension Sequence {
-    /// Create data points from a sequence of elements.
-    func points<T>(_ keyPath: KeyPath<Element, T>) -> [T] {
-        return map { $0[keyPath: keyPath] }
-    }
+/// A generated budget report performed on a collection of data.
+struct BudgetReport<T: DurationProtocol> {
+    /// The allocated budget amount.
+    let budget: T
+    /// The total amount of of the budget consumed.
+    let consumed: T
+    /// The remaining amount of the budget.
+    var remaining: T
+    /// The progress of the budget. It is a value between 0 and 1.
+    var progress: T
 
-    /// Create data points from a sequence of elements.
-    func points<X, Y>(
-        x: KeyPath<Element, X>, y: KeyPath<Element, Y>
-    ) -> [(x: X, y: Y)] { map { ($0[keyPath: x], $0[keyPath: y]) } }
-}
+    init(_ budget: T, on entries: any Collection<T>) throws
+    where T: BinaryFloatingPoint {
+        guard budget.magnitude > T.zero.magnitude else {
+            throw DataError.InvalidData("Budget must be greater than 0.")
+        }
 
-extension Sequence where Element: AdditiveArithmetic {
-    /// The sum of all data points.
-    func sum() -> Element { self.reduce(.zero, +) }
-}
-
-extension Sequence where Element: AdditiveArithmetic & DurationProtocol {
-    /// The average of all data points.
-    func average() -> Element? {
-        guard self.first(where: { _ in true }) != nil else { return nil }
-        let count = self.count(where: { _ in true })
-        return self.sum() / count
+        self.budget = budget
+        self.consumed = entries.sum()
+        self.remaining = budget - consumed
+        self.progress = consumed / budget
     }
 }
 
@@ -79,29 +77,31 @@ extension Date {
     }
 }
 
-// MARK: Budget
+// MARK: Statistics
 // ============================================================================
 
-/// A generated budget report performed on a collection of data.
-struct BudgetReport<T: DurationProtocol> {
-    /// The allocated budget amount.
-    let budget: T
-    /// The total amount of of the budget consumed.
-    let consumed: T
-    /// The remaining amount of the budget.
-    var remaining: T
-    /// The progress of the budget. It is a value between 0 and 1.
-    var progress: T
+extension Sequence {
+    /// Create data points from a sequence of elements.
+    func points<T>(_ keyPath: KeyPath<Element, T>) -> [T] {
+        return map { $0[keyPath: keyPath] }
+    }
 
-    init(_ budget: T, on entries: any Collection<T>) throws
-    where T: BinaryFloatingPoint {
-        guard budget.magnitude > T.zero.magnitude else {
-            throw DataError.InvalidData("Budget must be greater than 0.")
-        }
+    /// Create data points from a sequence of elements.
+    func points<X, Y>(
+        x: KeyPath<Element, X>, y: KeyPath<Element, Y>
+    ) -> [(x: X, y: Y)] { map { ($0[keyPath: x], $0[keyPath: y]) } }
+}
 
-        self.budget = budget
-        self.consumed = entries.sum()
-        self.remaining = budget - consumed
-        self.progress = consumed / budget
+extension Sequence where Element: AdditiveArithmetic {
+    /// The sum of all data points.
+    func sum() -> Element { self.reduce(.zero, +) }
+}
+
+extension Sequence where Element: AdditiveArithmetic & DurationProtocol {
+    /// The average of all data points.
+    func average() -> Element? {
+        guard self.first(where: { _ in true }) != nil else { return nil }
+        let count = self.count(where: { _ in true })
+        return self.sum() / count
     }
 }
