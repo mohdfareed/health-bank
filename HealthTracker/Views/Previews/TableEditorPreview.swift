@@ -43,7 +43,7 @@ struct PreviewTableEditor<Model: PersistentModel, RowContent: View>: View {
                 ToolbarItemGroup(placement: .cancellationAction) {
                     saveButton()
                 }
-                ToolbarItemGroup(placement: .principal) {
+                ToolbarItemGroup(placement: .automatic) {
                     Text("Models: \(self.allModels.count)")
                         .font(.footnote).fontDesign(.monospaced)
                         .foregroundStyle(.secondary)

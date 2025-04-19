@@ -54,7 +54,7 @@ extension UnitDefinition {
 
     /// The unit for a calorie macros breakdown.
     static var macro: UnitDefinition<UnitMass> {
-        .init(.grams)
+        .init(.grams, usage: .asProvided)
     }
 
     /// The unit for a weight record.

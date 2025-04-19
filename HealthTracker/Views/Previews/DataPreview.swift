@@ -77,7 +77,7 @@ where Query.Model: PersistentModel {
                 ToolbarItemGroup(placement: .cancellationAction) {
                     saveButton()
                 }
-                ToolbarItemGroup(placement: .principal) {
+                ToolbarItemGroup(placement: .automatic) {
                     Text("Data: \(self.data.count)")
                         .font(.footnote).fontDesign(.monospaced)
                         .foregroundStyle(.secondary)

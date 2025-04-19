@@ -90,31 +90,61 @@ private struct LocalizationSettings: View {
 struct CalorieBudgetEditor: View {
     @Query.Singleton var budget: CalorieBudget
 
+    let budgetError = Text(String(localized: "Budget must be greater than 0"))
+        .foregroundStyle(.red)
+
     var body: some View {
         MeasurementField(
             text: String(localized: "Calories"),
-            image: AppIcons.dietaryCalorie, fractions: 0,
+            image: AppIcons.dietaryCalorie, color: .orange, fractions: 0,
+            validator: {
+                guard $0 ?? 0 < 0 else {
+                    return Text(String(localized: "Daily calories"))
+                }
+                return self.budgetError
+            },
             measurement: .init(
                 self.$budget.calories.optional(0), definition: .calorie
             )
         )
+
         MeasurementField(
             text: String(localized: "Protein"),
-            image: AppIcons.protein, fractions: 0,
+            image: AppIcons.protein, color: .green, fractions: 0,
+            validator: {
+                guard $0 ?? 0 < 0 else {
+                    return Text(String(localized: "Daily proteins"))
+                }
+                return self.budgetError
+            },
             measurement: .init(
                 self.$budget.macros.protein, definition: .macro
             )
         )
+
         MeasurementField(
             text: String(localized: "Fat"),
-            image: AppIcons.fat, fractions: 0,
+            image: AppIcons.fat, color: .yellow, fractions: 0,
+            validator: {
+                guard $0 ?? 0 < 0 else {
+                    return Text(String(localized: "Daily fats"))
+                }
+                return self.budgetError
+            },
             measurement: .init(
                 self.$budget.macros.fat, definition: .macro
             )
         )
+
         MeasurementField(
             text: String(localized: "Carbs"),
-            image: AppIcons.carbs, fractions: 0,
+            image: AppIcons.carbs, color: .purple, fractions: 0,
+            validator: {
+                guard $0 ?? 0 < 0 else {
+                    return Text(String(localized: "Daily carbohydrates"))
+                }
+                return self.budgetError
+            },
             measurement: .init(
                 self.$budget.macros.carbs, definition: .macro
             )

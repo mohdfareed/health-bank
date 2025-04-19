@@ -21,7 +21,6 @@ let package = Package(
             exclude: [
                 "Assets.xcassets",
                 "HealthTracker.entitlements",
-                "Info.plist",
             ]
         ),
         .testTarget(name: "Tests", path: App.tests.path()),

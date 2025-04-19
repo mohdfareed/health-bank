@@ -60,7 +60,6 @@ struct AppView: View {
                 SettingsView()
             }
         }
-        .tabViewStyle(.sidebarAdaptable)
         .environment(\.locale, self.locale)
         .preferredColorScheme(self.theme.colorScheme)
     }

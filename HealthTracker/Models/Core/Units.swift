@@ -20,7 +20,7 @@ struct UnitDefinition<D: Dimension> {
         usage: MeasurementFormatUnitUsage<D> = .general
     ) {
         self.baseUnit = unit
-        self.alts = alts
+        self.alts = alts + [unit]
         self.usage = usage
     }
 }
