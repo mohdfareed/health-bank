@@ -15,35 +15,6 @@ struct AppLogger {
     }
 }
 
-// MARK: Locale
-// ============================================================================
-
-/// A property wrapper to access the app's locale, applying any user settings.
-@MainActor @propertyWrapper
-struct AppLocale: DynamicProperty {
-    @Environment(\.locale)
-    private var appLocale: Locale
-    private var components: Locale.Components { .init(locale: self.appLocale) }
-    private let animation: Animation? = nil  // REVIEW: Animate.
-
-    @AppStorage(.unitSystem)
-    var unitSystem: MeasurementSystem?
-    @AppStorage(.firstDayOfWeek)
-    var firstDayOfWeek: Weekday?
-
-    var wrappedValue: Locale {
-        var components = self.components
-        components.firstDayOfWeek =
-            self.firstDayOfWeek
-            ?? components.firstDayOfWeek
-        components.measurementSystem =
-            self.unitSystem
-            ?? components.measurementSystem
-        return Locale(components: components)
-    }
-    var projectedValue: Self { self }
-}
-
 // MARK: Extensions
 // ============================================================================
 

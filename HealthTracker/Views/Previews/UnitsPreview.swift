@@ -37,7 +37,7 @@ struct PreviewUnit: View {
                 }
                 Divider()
 
-                Picker("Locale", selection: self.$locale.$unitSystem) {
+                Picker("Locale", selection: self.$locale.units) {
                     ForEach(MeasurementSystem.measurementSystems, id: \.identifier) {
                         locale in
                         Text(locale.rawValue).tag(locale)

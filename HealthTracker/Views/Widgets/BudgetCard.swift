@@ -44,7 +44,6 @@
 //                 .progressViewStyle(.linear)
 //                 .frame(height: 8)
 //                 .cornerRadius(4)
-//                 .animation(.easeInOut, value: self.progress)
 //         }
 //     }
 // }
