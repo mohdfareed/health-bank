@@ -21,7 +21,7 @@ struct SettingsView: View {
                 }
 
                 Button(
-                    String(localized: "Reset Settings"),
+                    String(localized: "Reset All Settings"),
                     role: .destructive
                 ) { UserDefaults.standard.resetSettings() }
             }
@@ -94,60 +94,67 @@ struct CalorieBudgetEditor: View {
         .foregroundStyle(.red)
 
     var body: some View {
-        MeasurementField(
-            text: String(localized: "Calories"),
-            image: AppIcons.dietaryCalorie, color: .orange, fractions: 0,
-            validator: {
-                guard $0 ?? 0 < 0 else {
-                    return Text(String(localized: "Daily calories"))
-                }
-                return self.budgetError
-            },
-            measurement: .init(
-                self.$budget.calories.optional(0), definition: .calorie
-            )
-        )
+        // MeasurementField(
+        //     text: String(localized: "Calories"),
+        //     image: AppIcons.dietaryCalorie, color: .orange, fractions: 0,
+        //     validator: {
+        //         guard $0 ?? 0 < 0 else {
+        //             return Text(String(localized: "Daily calories"))
+        //         }
+        //         return self.budgetError
+        //     },
+        //     measurement: .init(
+        //         self.$budget.calories.optional(0), definition: .calorie
+        //     ),
+        //     computed: self.budget.calculatedCalories()
+        // )
 
-        MeasurementField(
-            text: String(localized: "Protein"),
-            image: AppIcons.protein, color: .green, fractions: 0,
-            validator: {
-                guard $0 ?? 0 < 0 else {
-                    return Text(String(localized: "Daily proteins"))
-                }
-                return self.budgetError
-            },
-            measurement: .init(
-                self.$budget.macros.protein, definition: .macro
-            )
-        )
+        // MeasurementField(
+        //     text: String(localized: "Protein"),
+        //     image: AppIcons.protein, color: .green, fractions: 0,
+        //     validator: {
+        //         guard $0 ?? 0 < 0 else {
+        //             return Text(String(localized: "Daily proteins"))
+        //         }
+        //         return self.budgetError
+        //     },
+        //     measurement: .init(
+        //         self.$budget.macros.defaulted(to: .init()).protein,
+        //         definition: .macro
+        //     ),
+        //     computed: self.budget.calculatedProtein()
+        // )
 
-        MeasurementField(
-            text: String(localized: "Fat"),
-            image: AppIcons.fat, color: .yellow, fractions: 0,
-            validator: {
-                guard $0 ?? 0 < 0 else {
-                    return Text(String(localized: "Daily fats"))
-                }
-                return self.budgetError
-            },
-            measurement: .init(
-                self.$budget.macros.fat, definition: .macro
-            )
-        )
+        // MeasurementField(
+        //     text: String(localized: "Carbs"),
+        //     image: AppIcons.carbs, color: .purple, fractions: 0,
+        //     validator: {
+        //         guard $0 ?? 0 < 0 else {
+        //             return Text(String(localized: "Daily carbohydrates"))
+        //         }
+        //         return self.budgetError
+        //     },
+        //     measurement: .init(
+        //         self.$budget.macros.defaulted(to: .init()).carbs,
+        //         definition: .macro
+        //     ),
+        //     computed: self.budget.calculatedFat()
+        // )
 
-        MeasurementField(
-            text: String(localized: "Carbs"),
-            image: AppIcons.carbs, color: .purple, fractions: 0,
-            validator: {
-                guard $0 ?? 0 < 0 else {
-                    return Text(String(localized: "Daily carbohydrates"))
-                }
-                return self.budgetError
-            },
-            measurement: .init(
-                self.$budget.macros.carbs, definition: .macro
-            )
-        )
+        // MeasurementField(
+        //     text: String(localized: "Fat"),
+        //     image: AppIcons.fat, color: .yellow, fractions: 0,
+        //     validator: {
+        //         guard $0 ?? 0 < 0 else {
+        //             return Text(String(localized: "Daily fats"))
+        //         }
+        //         return self.budgetError
+        //     },
+        //     measurement: .init(
+        //         self.$budget.macros.defaulted(to: .init()).fat,
+        //         definition: .macro
+        //     ),
+        //     computed: self.budget.calculatedFat()
+        // )
     }
 }

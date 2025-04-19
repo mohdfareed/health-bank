@@ -6,56 +6,57 @@ import SwiftUI
 /// A property wrapper to localize a measurement value using a unit definition.
 @MainActor @propertyWrapper
 struct LocalizedMeasurement<D: Dimension>: DynamicProperty {
-    @Environment(\.unitService)
-    internal var service: UnitService
     @AppLocale() internal var locale: Locale
-    internal let definition: UnitDefinition<D>
+    @Environment(\.unitService)
+    private var service: UnitService
+    private let animation: Animation?  // REVIEW: test
 
-    @State private var displayUnit: D?  // the value display unit
-    @Binding private var baseValue: Double?  // the value in its base unit
-    // REVIEW: Animate.
+    @Binding private var baseValue: Double  // the value in the base unit
+    @State private var selectedUnit: D?  // the user selected unit
 
-    var wrappedValue: Measurement<D> {
-        Measurement(
-            value: self.baseValue ?? .zero, unit: self.definition.baseUnit
-        ).converted(to: self.localizedUnit)
-    }  // used for display
-    var projectedValue: Self { self }
-
-    var unit: Binding<D?> {
-        .init(get: { self.displayUnit }, set: { self.displayUnit = $0 })
+    /// The unit definition for the measurement.
+    let definition: UnitDefinition<D>
+    /// The localized unit for the measurement.
+    var localizedUnit: D {
+        self.service.unit(self.definition, for: self.locale)
     }
 
-    var value: Binding<Double?> {
+    /// The localized measurement.
+    var wrappedValue: Measurement<D> {
+        Measurement(
+            value: self.baseValue, unit: self.definition.baseUnit
+        ).converted(to: self.localizedUnit)
+    }  // used for localized display
+    var projectedValue: Self { self }
+
+    /// The user-selected unit of the measurement.
+    var unit: Binding<D> {
         .init(
-            get: {
-                guard self.baseValue != nil else { return nil }
-                return wrappedValue.value
-            },
+            get: { self.selectedUnit ?? self.localizedUnit },
+            set: { self.selectedUnit = $0 }
+        ).animation(self.animation)
+    }  // used by input fields
+
+    /// The measurement value in the user-selected unit.
+    var value: Binding<Double> {
+        .init(
+            get: { wrappedValue.converted(to: self.unit.wrappedValue).value },
             set: {
-                guard let value = $0 else {
-                    self.baseValue = nil
-                    return
-                }
                 let measurement = Measurement(
-                    value: value, unit: self.localizedUnit
+                    value: $0, unit: self.unit.wrappedValue
                 ).converted(to: self.definition.baseUnit)
                 self.baseValue = measurement.value
             }
-        )
-    }  // used for input fields
-
-    var localizedUnit: D {
-        if let displayUnit = self.displayUnit { return displayUnit }
-        return self.service.unit(self.definition, for: self.locale)
-    }
+        ).animation(self.animation)
+    }  // used by input fields
 
     init(
-        _ value: Binding<Double?>, unit: D? = nil,
-        definition: UnitDefinition<D>
+        _ value: Binding<Double>, unit: D? = nil,
+        definition: UnitDefinition<D>, animation: Animation? = nil
     ) {
-        self.displayUnit = unit
+        self.selectedUnit = unit
         self.definition = definition
+        self.animation = animation
         self._baseValue = value
     }
 }

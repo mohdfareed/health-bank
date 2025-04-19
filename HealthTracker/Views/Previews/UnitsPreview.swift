@@ -8,7 +8,7 @@ struct PreviewUnit: View {
     @AppLocale var locale: Locale
     @LocalizedMeasurement var weight: Measurement<UnitMass>
 
-    init(_ weight: Binding<Double?>) {
+    init(_ weight: Binding<Double>) {
         self._weight = LocalizedMeasurement(
             weight, unit: .grams, definition: weightUnit
         )
@@ -129,7 +129,7 @@ struct PreviewUnit: View {
         @State var weightValue: Double = 0.0
 
         var body: some View {
-            PreviewUnit(self.$weightValue.optional(0))
+            PreviewUnit(self.$weightValue)
                 .padding()
                 .background(.background.secondary)
                 .cornerRadius(25)

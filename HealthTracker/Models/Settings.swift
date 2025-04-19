@@ -42,17 +42,15 @@ extension Settings {
 // ============================================================================
 
 /// A daily budget of calories and macro-nutrients.
-@Model final class CalorieBudget: Singleton {
+@Model final class CalorieBudget: Singleton, DietaryCalorie {
     typealias ID = UUID
     var id: UUID = UUID()
     init() {}
 
-    /// The date the budget was set.
+    var source: DataSource = DataSource.init()
     var date: Date = Date()
-    /// The daily calorie budget.
     var calories: Double = 2000
-    /// The daily calorie macros budgets.
-    var macros: CalorieMacros = CalorieMacros(
+    var macros: CalorieMacros? = CalorieMacros(
         protein: 120, fat: 60, carbs: 245
     )
 }
