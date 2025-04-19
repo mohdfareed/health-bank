@@ -28,7 +28,11 @@ struct MeasurementField<D: Dimension>: View {
         self.fractions = fractions
     }
 
-    var rawValue: Double? { self.$measurement.value.wrappedValue }
+    var rawValue: Double {
+        get { self.$measurement.value.wrappedValue }
+        nonmutating set { self.$measurement.value.wrappedValue = newValue }
+    }
+
     var body: some View {
         DataRow(
             title: Text(self.title), subtitle: computedText(),
@@ -52,9 +56,7 @@ extension MeasurementField {
         ) {}
         .multilineTextAlignment(.trailing)
         .onChange(of: self.measurement.value) {
-            self.$measurement.value.wrappedValue = self.validator(
-                self.$measurement.value.wrappedValue
-            )
+            self.rawValue = self.validator(rawValue)
         }
     }
 
@@ -78,6 +80,7 @@ extension MeasurementField {
     private func computedText() -> Text {
         let unit = self.$measurement.unit.wrappedValue.symbol
         guard let computed = self.computed else { return Text(unit) }
+        guard computed != self.rawValue else { return Text(unit) }
 
         let measurement = Measurement(
             value: computed, unit: self.$measurement.definition.baseUnit

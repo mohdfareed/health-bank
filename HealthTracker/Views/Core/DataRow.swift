@@ -26,6 +26,8 @@ struct DataRow<Content: View>: View {
             HStack {
                 if let image = self.image {
                     image.symbolVariant(.fill).imageScale(.medium)
+                        .frame(minWidth: 16, maxWidth: 16)
+                        .padding(.trailing, 8)
                         .foregroundStyle(self.color)
                 }
 

@@ -9,7 +9,7 @@ struct LocalizedMeasurement<D: Dimension>: DynamicProperty {
     @AppLocale() internal var locale: Locale
     @Environment(\.unitService)
     private var service: UnitService
-    private let animation: Animation?  // REVIEW: test
+    private let animation: Animation  // REVIEW: test
 
     @Binding private var baseValue: Double  // the value in the base unit
     @State private var selectedUnit: D?  // the user selected unit
@@ -52,7 +52,7 @@ struct LocalizedMeasurement<D: Dimension>: DynamicProperty {
 
     init(
         _ value: Binding<Double>, unit: D? = nil,
-        definition: UnitDefinition<D>, animation: Animation? = nil
+        definition: UnitDefinition<D>, animation: Animation = .default
     ) {
         self.selectedUnit = unit
         self.definition = definition
