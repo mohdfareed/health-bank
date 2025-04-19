@@ -21,6 +21,7 @@ struct AppLocale: DynamicProperty {
         components.firstDayOfWeek =
             self.firstDayOfWeek
             ?? components.firstDayOfWeek
+
         components.measurementSystem =
             self.unitSystem
             ?? components.measurementSystem

@@ -52,3 +52,13 @@ struct Settings<Value: SettingsValue>: Sendable {
         self.default = `default`
     }
 }
+
+/// A type-erased settings key.
+struct AnySettings: Sendable {
+    let id: String
+    let `default`: SettingsValue
+    init<Value>(_ key: Settings<Value>) where Value: SettingsValue {
+        self.id = key.id
+        self.default = key.default
+    }
+}

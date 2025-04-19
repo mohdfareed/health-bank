@@ -5,23 +5,25 @@ struct SettingsView: View {
     @AppStorage(.dailyCalorieBudget)
     var calorieBudget: CalorieBudget.ID
 
-    init() {
-        print("Loading settings...")
-
-    }
-
     var body: some View {
         NavigationView {
             Form {
                 Section(header: Text(String(localized: "Daily Calorie Budget"))) {
                     CalorieBudgetEditor(budget: .init(self.calorieBudget))
                 }
+
                 Section(header: Text(String(localized: "General Settings"))) {
                     GeneralSettings()
                 }
+
                 Section(header: Text(String(localized: "Localization"))) {
                     LocalizationSettings()
                 }
+
+                Button(
+                    String(localized: "Reset Settings"),
+                    role: .destructive
+                ) { UserDefaults.standard.resetSettings() }
             }
             .navigationTitle(String(localized: "Settings"))
         }
@@ -39,13 +41,15 @@ private struct GeneralSettings: View {
             selection: self.$theme
         ) {
             ForEach(AppTheme.allCases, id: \.self) { theme in
-                Text(theme.identifier).tag(theme)
+                Text(theme.localized).tag(theme)
             }
         }
+
         Toggle(
             String(localized: "Enable Biometrics"),
             isOn: self.$biometrics.defaulted(to: false)
         )
+
         Toggle(
             String(localized: "Enable Notifications"),
             isOn: self.$notifications.defaulted(to: false)
@@ -54,30 +58,31 @@ private struct GeneralSettings: View {
 }
 
 private struct LocalizationSettings: View {
-    @AppStorage(.unitSystem)
-    var units: MeasurementSystem?
-    @AppStorage(.firstDayOfWeek)
-    var firstWeekDay: Weekday?
+    @AppLocale() var locale: Locale
 
     var body: some View {
         Picker(
-            String(localized: "Measurement"),
-            selection: self.$units.defaulted(
-                to: Locale.autoupdatingCurrent.measurementSystem
-            )
+            String(localized: "Measurements"),
+            selection: self.$locale.units,
         ) {
             let systems = MeasurementSystem.measurementSystems
             ForEach(systems, id: \.self) { system in
-                Text(system.identifier).tag(system)
+                Text(system.localized).tag(system)
             }
         }
+
         Picker(
             String(localized: "First Weekday"),
-            selection: self.$firstWeekDay
-        ) {
-            ForEach(Weekday.allCases, id: \.self) { weekday in
-                Text(weekday.abbreviated).tag(weekday)
+            selection: self.$locale.firstWeekDay,
+            content: {
+                ForEach(Weekday.allCases, id: \.self) { weekday in
+                    Text(weekday.localized).tag(weekday)
+                }
             }
+        ) {
+            Label(
+                self.locale.firstDayOfWeek.abbreviated, systemImage: ""
+            ).labelStyle(.titleOnly)
         }
     }
 }

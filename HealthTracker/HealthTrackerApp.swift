@@ -30,7 +30,10 @@ let appID: String = Bundle.main.bundleIdentifier ?? "Debug.HealthTracker"
 
     var body: some Scene {
         WindowGroup {
-            AppView.setup(app: self)
+            AppView()
+                .modelContainer(self.localContainer)
+                .remoteContext(self.remoteContext)
+                .unitService(self.unitService)
         }
     }
 }
@@ -38,17 +41,35 @@ let appID: String = Bundle.main.bundleIdentifier ?? "Debug.HealthTracker"
 struct AppView: View {
     @AppStorage(.theme)
     internal var theme: AppTheme
+    @AppLocale()
+    internal var locale: Locale
 
-    var body: some View {
-        SettingsView().preferredColorScheme(self.theme.colorScheme)
+    init(reset: Bool = false) {
+        if reset { UserDefaults.standard.resetSettings() }
     }
 
-    static func setup(app: HealthTrackerApp) -> some View {
-        return Self()
-            .modelContainer(app.localContainer)
-            .remoteContext(app.remoteContext)
-            .unitService(app.unitService)
+    var body: some View {
+        TabView {
+            Tab(String(localized: "Dashboard"), systemImage: "square.grid.2x2") {
+                SettingsView()
+            }
+            Tab(String(localized: "Data"), systemImage: "list.clipboard") {
+                SettingsView()
+            }
+            Tab(String(localized: "Settings"), systemImage: "gear") {
+                SettingsView()
+            }
+        }
+        .tabViewStyle(.sidebarAdaptable)
+        .environment(\.locale, self.locale)
+        .preferredColorScheme(self.theme.colorScheme)
     }
 }
 
-#Preview { AppView.setup(app: .init()) }
+#Preview {
+    let app = HealthTrackerApp()
+    AppView(reset: true)
+        .modelContainer(app.localContainer)
+        .remoteContext(app.remoteContext)
+        .unitService(app.unitService)
+}

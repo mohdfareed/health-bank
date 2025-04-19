@@ -20,7 +20,7 @@ struct AppIcons {
 // ============================================================================
 
 extension AppTheme {
-    var identifier: String {
+    var localized: String {
         switch self {
         case .system: return String(localized: "system").localizedCapitalized
         case .dark: return String(localized: "dark").localizedCapitalized
@@ -30,15 +30,22 @@ extension AppTheme {
 }
 
 extension Weekday {
-    var identifier: String {
+    var localized: String {
         switch self {
-        case .sunday: return String(localized: "sunday").localizedCapitalized
-        case .monday: return String(localized: "monday").localizedCapitalized
-        case .tuesday: return String(localized: "tuesday").localizedCapitalized
-        case .wednesday: return String(localized: "wednesday").localizedCapitalized
-        case .thursday: return String(localized: "thursday").localizedCapitalized
-        case .friday: return String(localized: "friday").localizedCapitalized
-        case .saturday: return String(localized: "saturday").localizedCapitalized
+        case .sunday:
+            return String(localized: "sunday").localizedCapitalized
+        case .monday:
+            return String(localized: "monday").localizedCapitalized
+        case .tuesday:
+            return String(localized: "tuesday").localizedCapitalized
+        case .wednesday:
+            return String(localized: "wednesday").localizedCapitalized
+        case .thursday:
+            return String(localized: "thursday").localizedCapitalized
+        case .friday:
+            return String(localized: "friday").localizedCapitalized
+        case .saturday:
+            return String(localized: "saturday").localizedCapitalized
         default: return self.rawValue.localizedCapitalized
         }
     }
@@ -57,7 +64,7 @@ extension Weekday {
 }
 
 extension MeasurementSystem {
-    var identifier: String {
+    var localized: String {
         switch self {
         case .metric: return String(localized: "metric").localizedCapitalized
         case .us: return String(localized: "us").localizedUppercase

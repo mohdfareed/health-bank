@@ -63,3 +63,20 @@ extension Settings {
         .init("DailyCalorieBudget", default: UUID())
     }
 }
+
+// MARK: Reset Settings
+// ============================================================================
+
+extension AnySettings {
+    /// The keys for resettable settings.
+    static var resettable: [AnySettings] {
+        [
+            .init(.theme),
+            .init(.biometrics),
+            .init(.notifications),
+            .init(.unitSystem),
+            .init(.firstDayOfWeek),
+            .init(.dailyCalorieBudget),
+        ]
+    }
+}

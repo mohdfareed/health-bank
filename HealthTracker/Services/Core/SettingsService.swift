@@ -1,6 +1,15 @@
 import SwiftData
 import SwiftUI
 
+extension UserDefaults {
+    /// Resets the app's resettable settings to their default values.
+    func resetSettings() {
+        for key in AnySettings.resettable {
+            self.removeObject(forKey: key.id)
+        }
+    }
+}
+
 // MARK: Primitive Types
 // ============================================================================
 
