@@ -3,13 +3,17 @@ import SwiftUI
 
 struct SettingsView: View {
     @AppStorage(.dailyCalorieBudget)
-    var calorieBudget: CalorieBudget.ID
+    var budgetID: CalorieBudget.ID
 
     var body: some View {
         NavigationView {
             Form {
                 Section(header: Text(String(localized: "Daily Calorie Budget"))) {
-                    CalorieBudgetEditor(budget: .init(self.calorieBudget))
+                    DailyBudgetSettings(budget: .init(self.budgetID))
+                }
+
+                NavigationLink(destination: BudgetsHistory()) {
+                    Text(String(localized: "Budget History"))
                 }
 
                 Section(header: Text(String(localized: "General Settings"))) {
@@ -87,74 +91,31 @@ private struct LocalizationSettings: View {
     }
 }
 
-struct CalorieBudgetEditor: View {
+private struct DailyBudgetSettings: View {
     @Query.Singleton var budget: CalorieBudget
+    var body: some View { CalorieEditor(budget: self.budget) }
+}
 
-    let budgetError = Text(String(localized: "Budget must be greater than 0"))
-        .foregroundStyle(.red)
-
+private struct BudgetsHistory: View {
+    @Query var budgets: [CalorieBudget]
     var body: some View {
-        // MeasurementField(
-        //     text: String(localized: "Calories"),
-        //     image: AppIcons.dietaryCalorie, color: .orange, fractions: 0,
-        //     validator: {
-        //         guard $0 ?? 0 < 0 else {
-        //             return Text(String(localized: "Daily calories"))
-        //         }
-        //         return self.budgetError
-        //     },
-        //     measurement: .init(
-        //         self.$budget.calories.optional(0), definition: .calorie
-        //     ),
-        //     computed: self.budget.calculatedCalories()
-        // )
-
-        // MeasurementField(
-        //     text: String(localized: "Protein"),
-        //     image: AppIcons.protein, color: .green, fractions: 0,
-        //     validator: {
-        //         guard $0 ?? 0 < 0 else {
-        //             return Text(String(localized: "Daily proteins"))
-        //         }
-        //         return self.budgetError
-        //     },
-        //     measurement: .init(
-        //         self.$budget.macros.defaulted(to: .init()).protein,
-        //         definition: .macro
-        //     ),
-        //     computed: self.budget.calculatedProtein()
-        // )
-
-        // MeasurementField(
-        //     text: String(localized: "Carbs"),
-        //     image: AppIcons.carbs, color: .purple, fractions: 0,
-        //     validator: {
-        //         guard $0 ?? 0 < 0 else {
-        //             return Text(String(localized: "Daily carbohydrates"))
-        //         }
-        //         return self.budgetError
-        //     },
-        //     measurement: .init(
-        //         self.$budget.macros.defaulted(to: .init()).carbs,
-        //         definition: .macro
-        //     ),
-        //     computed: self.budget.calculatedFat()
-        // )
-
-        // MeasurementField(
-        //     text: String(localized: "Fat"),
-        //     image: AppIcons.fat, color: .yellow, fractions: 0,
-        //     validator: {
-        //         guard $0 ?? 0 < 0 else {
-        //             return Text(String(localized: "Daily fats"))
-        //         }
-        //         return self.budgetError
-        //     },
-        //     measurement: .init(
-        //         self.$budget.macros.defaulted(to: .init()).fat,
-        //         definition: .macro
-        //     ),
-        //     computed: self.budget.calculatedFat()
-        // )
+        NavigationView {
+            List(self.budgets) { budget in
+                NavigationLink(value: budget) {
+                    DataRow(
+                        title: Text(budget.date.formatted()),
+                        subtitle: Text(budget.calories.formatted()),
+                        image: Image(systemName: "calendar"),
+                        color: .primary
+                    ) {
+                        Text(budget.calories.formatted())
+                    }
+                }
+            }
+            .navigationTitle(String(localized: "Calorie Budgets History"))
+            .navigationDestination(for: CalorieBudget.self) { budget in
+                CalorieEditor(budget: budget)
+            }
+        }
     }
 }

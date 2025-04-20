@@ -16,6 +16,12 @@ struct SingletonQuery<Model: Singleton>: DynamicProperty {
         if let model = self.models.first { return model }
         let model = self.factory()
         self.context.insert(model)
+
+        do { try self.context.save() } catch {
+            AppLogger.new(for: Model.self).error(
+                "Failed to save singleton model: \(error)"
+            )
+        }
         return model
     }
     var projectedValue: Bindable<Model> { .init(self.wrappedValue) }

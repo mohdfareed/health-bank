@@ -21,6 +21,7 @@ protocol DietaryCalorie: Calorie {
 }
 
 /// A nutrition calorie macros breakdown.
+/// This must be hashable to support querying.
 struct CalorieMacros: Codable, Hashable {
     /// The protein breakdown.
     var protein: Double? = nil

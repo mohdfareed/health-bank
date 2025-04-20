@@ -1,5 +1,6 @@
 import Foundation
 import SwiftData
+import SwiftUI
 
 // MARK: Queries
 // ============================================================================
@@ -53,6 +54,22 @@ extension MacrosQuery: CoreQuery where C: PersistentModel {
             },
             sortBy: [SortDescriptor(\.date)]
         )
+    }
+}
+
+// MARK: Macros Extensions
+// ============================================================================
+
+@MainActor
+extension Binding<CalorieMacros?> {
+    var proteinValue: Binding<Double> {
+        self.defaulted(to: .init()).protein.defaulted(to: 0)
+    }
+    var fatValue: Binding<Double> {
+        self.defaulted(to: .init()).fat.defaulted(to: 0)
+    }
+    var carbsValue: Binding<Double> {
+        self.defaulted(to: .init()).carbs.defaulted(to: 0)
     }
 }
 

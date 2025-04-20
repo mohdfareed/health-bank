@@ -1,31 +1,40 @@
 import SwiftUI
 
-// MARK: View
+// MARK: ViewModel
 // ============================================================================
 
-struct MeasurementField<D: Dimension>: View {
-    @LocalizedMeasurement
-    var measurement: Measurement<D>
+struct MeasurementFieldVM {
     let computed: Double?
     let validator: (Double) -> Double
-
     let title: String
     let (image, color): (Image?, Color)
     let fractions: Int  // the number of digits
 
-    init(
-        _ measurement: LocalizedMeasurement<D>,
+    init(  // TODO: use vm to reuse model view configuration
         title: String, image: Image? = nil, color: Color = .primary,
         computed: Double? = nil, fractions: Int = 0,
         validator: @escaping (Double) -> Double = { $0 }
     ) {
-        self._measurement = measurement
         self.computed = computed
         self.validator = validator
         self.title = title
         self.image = image
         self.color = color
         self.fractions = fractions
+    }
+}
+
+// MARK: View
+// ============================================================================
+
+struct MeasurementField<D: Dimension>: View {
+    @LocalizedMeasurement
+    private var measurement: Measurement<D>
+    private let vm: MeasurementFieldVM
+
+    init(_ measurement: LocalizedMeasurement<D>, vm: MeasurementFieldVM) {
+        self._measurement = measurement
+        self.vm = vm
     }
 
     var rawValue: Double {
@@ -35,11 +44,13 @@ struct MeasurementField<D: Dimension>: View {
 
     var body: some View {
         DataRow(
-            title: Text(self.title), subtitle: computedText(),
-            image: self.image, color: self.color
+            title: Text(self.vm.title), subtitle: computedText(),
+            image: self.vm.image, color: self.vm.color
         ) {
             self.valueField()
-            self.unitPicker()
+            if self.$measurement.definition.alts.count > 1 {
+                self.unitPicker()
+            }
         }
     }
 }
@@ -51,12 +62,12 @@ extension MeasurementField {
     private func valueField() -> some View {
         TextField(
             value: self.$measurement.value,
-            format: .number.precision(.fractionLength(self.fractions)),
+            format: .number.precision(.fractionLength(self.vm.fractions)),
             prompt: Text(String(localized: "Value"))
         ) {}
         .multilineTextAlignment(.trailing)
         .onChange(of: self.measurement.value) {
-            self.rawValue = self.validator(rawValue)
+            self.rawValue = self.vm.validator(rawValue)
         }
     }
 
@@ -67,10 +78,9 @@ extension MeasurementField {
                 let format = Measurement<D>.FormatStyle(
                     width: .wide,
                     numberFormatStyle: .number.precision(
-                        .fractionLength(self.fractions)
+                        .fractionLength(self.vm.fractions)
                     )
                 )
-
                 let style = self.$measurement.style(u, base: format)
                 Text(meas.formatted(style).localizedCapitalized).tag(u)
             }
@@ -79,14 +89,14 @@ extension MeasurementField {
 
     private func computedText() -> Text {
         let unit = self.$measurement.unit.wrappedValue.symbol
-        guard let computed = self.computed else { return Text(unit) }
+        guard let computed = self.vm.computed else { return Text(unit) }
         guard computed != self.rawValue else { return Text(unit) }
 
         let measurement = Measurement(
             value: computed, unit: self.$measurement.definition.baseUnit
         ).converted(to: self.$measurement.unit.wrappedValue)
         let value = measurement.value.formatted(
-            .number.precision(.fractionLength(self.fractions))
+            .number.precision(.fractionLength(self.vm.fractions))
         )
 
         let icon = Text(Image(systemName: "function")).font(.caption)
@@ -111,21 +121,21 @@ extension MeasurementField {
         @State var measurement = TestMeasurement()
         var body: some View {
             MeasurementField(
-                .init(
+                LocalizedMeasurement(
                     self.$measurement.value,
                     definition: self.measurement.definition,
                 ),
-                title: "Measurement",
-                image: Image(systemName: "flame"), color: .red,
-                computed: 150, fractions: 0,
-                validator: { $0 < 0 ? 0 : $0 }
+                vm: MeasurementFieldVM(
+                    title: "Measurement",
+                    image: Image(systemName: "flame"), color: .red,
+                    computed: 150, fractions: 0,
+                    validator: { $0 < 0 ? 0 : $0 }
+                )
             )
         }
     }
 #endif
 
 #Preview {
-    Form {
-        MeasurementFieldTest()
-    }
+    Form { MeasurementFieldTest() }
 }
