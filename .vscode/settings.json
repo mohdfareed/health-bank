@@ -1,12 +1,17 @@
 {
-  // swift
-  "swift.disableSwiftPackageManagerIntegration": true,
-  "[swift]": {
-    "editor.defaultFormatter": "swiftlang.swift-vscode"
-  },
   // debugging
   "lldb.library": "/Applications/Xcode.app/Contents/SharedFrameworks/LLDB.framework/Versions/A/LLDB",
   "lldb.launch.expressions": "native",
+  // swift
+  "sweetpad.xcodegen.autogenerate": true,
+  "files.exclude": {
+    "*.xcodeproj": true,
+  },
+  "[swift]": {
+    "editor.defaultFormatter": "swiftlang.swift-vscode",
+    "editor.detectIndentation": false,
+    "editor.indentSize": 4,
+  },
   // json
   "[json]": {
     "editor.detectIndentation": false,
@@ -20,23 +25,25 @@
   "cSpell.ignorePaths": [
     ".git",
     ".github",
+    ".build",
     ".vscode",
     ".gitignore",
+    "Configuration",
+    "Project.yml"
   ],
   "cSpell.words": [
     "autoupdating",
     "borderless",
-    "carb",
     "checkmark",
-    "Datas",
-    "Parseable",
-    "preconcurrency",
+    "healthkit",
     "questionmark",
     "refreshable",
     "subheadline",
     "subview",
     "subviews",
     "xcassets",
+    "xcodegen",
+    "xcodeproj",
     "XCUI",
     "xmark"
   ]

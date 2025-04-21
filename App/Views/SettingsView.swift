@@ -18,9 +18,6 @@ struct SettingsView: View {
 
                 Section(header: Text(String(localized: "General Settings"))) {
                     GeneralSettings()
-                }
-
-                Section(header: Text(String(localized: "Localization"))) {
                     LocalizationSettings()
                 }
 
@@ -48,16 +45,6 @@ private struct GeneralSettings: View {
                 Text(theme.localized).tag(theme)
             }
         }
-
-        Toggle(
-            String(localized: "Enable Biometrics"),
-            isOn: self.$biometrics.defaulted(to: false)
-        )
-
-        Toggle(
-            String(localized: "Enable Notifications"),
-            isOn: self.$notifications.defaulted(to: false)
-        )
     }
 }
 

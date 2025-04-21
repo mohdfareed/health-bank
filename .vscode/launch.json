@@ -1,11 +1,22 @@
 {
-  "version": "0.2.0",
   "configurations": [
     {
-      "type": "sweetpad-lldb",
-      "request": "attach",
-      "name": "Attach to running app",
-      "preLaunchTask": "sweetpad: launch"
+      "type": "swift",
+      "request": "launch",
+      "args": [],
+      "cwd": "${workspaceFolder:health-tracker}",
+      "name": "Debug HealthTracker",
+      "program": "${workspaceFolder:health-tracker}/.build/debug/HealthTracker",
+      "preLaunchTask": "swift: Build Debug HealthTracker"
+    },
+    {
+      "type": "swift",
+      "request": "launch",
+      "args": [],
+      "cwd": "${workspaceFolder:health-tracker}",
+      "name": "Release HealthTracker",
+      "program": "${workspaceFolder:health-tracker}/.build/release/HealthTracker",
+      "preLaunchTask": "swift: Build Release HealthTracker"
     }
   ]
 }

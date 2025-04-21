@@ -3,55 +3,36 @@
   "tasks": [
     {
       "type": "sweetpad",
-      "action": "build",
+      "action": "launch",
+      "isBackground": true,
       "problemMatcher": [
         "$sweetpad-watch",
         "$sweetpad-xcodebuild-default",
         "$sweetpad-xcbeautify-errors",
         "$sweetpad-xcbeautify-warnings"
       ],
-      "label": "build",
-      "detail": "Build the app",
+      "label": "sweetpad: launch",
+      "detail": "Build and Launch the app",
+      "group": "build"
+    },
+    {
+      "type": "swift",
+      "args": [
+        "build",
+        "--build-tests",
+        "-Xswiftc",
+        "-diagnostic-style=llvm"
+      ],
+      "env": {},
+      "cwd": "/Users/mohdfareed/Developer/health-tracker",
+      "disableTaskQueue": true,
       "group": {
         "kind": "build",
         "isDefault": true
-      }
-    },
-    {
-      "type": "sweetpad",
-      "action": "clean",
-      "problemMatcher": [
-        "$sweetpad-watch",
-        "$sweetpad-xcodebuild-default",
-        "$sweetpad-xcbeautify-errors",
-        "$sweetpad-xcbeautify-warnings"
-      ],
-      "label": "clean",
-      "detail": "Clean the app"
-    },
-    {
-      "type": "sweetpad",
-      "action": "launch",
-      "problemMatcher": [
-        "$sweetpad-watch",
-        "$sweetpad-xcodebuild-default",
-        "$sweetpad-xcbeautify-errors",
-        "$sweetpad-xcbeautify-warnings"
-      ],
-      "label": "launch",
-      "detail": "Build and Launch the app"
-    },
-    {
-      "type": "sweetpad",
-      "action": "resolve-dependencies",
-      "problemMatcher": [
-        "$sweetpad-watch",
-        "$sweetpad-xcodebuild-default",
-        "$sweetpad-xcbeautify-errors",
-        "$sweetpad-xcbeautify-warnings"
-      ],
-      "label": "resolve-dependencies",
-      "detail": "Resolve dependencies"
+      },
+      "problemMatcher": [],
+      "label": "swift: Build All",
+      "detail": "swift build --build-tests -Xswiftc -diagnostic-style=llvm"
     }
   ]
 }

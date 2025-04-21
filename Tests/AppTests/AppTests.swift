@@ -1,9 +1,17 @@
 import Foundation
+import SwiftUI
 import Testing
 
 @testable import HealthTracker
 
-struct HealthTrackerTests {
+struct AppTests {
+    @Test func testAppBuild() async throws {
+        print("Testing app...")
+        let app = await MainApp()
+        #expect((app as (any App)?) != nil)
+        print(app)
+    }
+
     // @Test func testCycleDaysAndRemainingDays() async throws {
     //     // Arrange: Create a WeeklyBudget with a reset day of Monday.
     //     let budget = WeeklyBudget(budget: 14000, resetDay: .monday)

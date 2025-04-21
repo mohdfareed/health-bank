@@ -134,8 +134,8 @@ extension MeasurementField {
             )
         }
     }
-#endif
 
-#Preview {
-    Form { MeasurementFieldTest() }
-}
+    #Preview {
+        Form { MeasurementFieldTest() }
+    }
+#endif

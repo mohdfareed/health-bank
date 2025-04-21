@@ -11,7 +11,7 @@ final class HealthTrackerUITestsLaunchTests: XCTestCase {
     }
 
     @MainActor
-    func testLaunch() throws {
+        func testLaunch() throws {
         let app = XCUIApplication()
         app.launch()
 
