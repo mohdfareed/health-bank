@@ -39,7 +39,4 @@ packages: # SPM dependencies
 fileGroups: # Project files
   - Assets
   - Configuration
-  - Scripts
-  - Package.swift
-  - Project.yml
   - README.md
