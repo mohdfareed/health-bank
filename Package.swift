@@ -12,7 +12,6 @@ let package = Package(
     name: App.name,
     defaultLocalization: "en",
     platforms: [.iOS(.v18), .watchOS(.v11), .macOS(.v15)],
-
     products: [
         .executable(name: App.name, targets: [App.name])
     ],

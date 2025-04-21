@@ -9,7 +9,5 @@
     "figma.figma-vscode-extension",
     // git
     "eamodio.gitlens",
-    "github.vscode-github-actions",
-    "github.vscode-pull-request-github",
   ]
 }

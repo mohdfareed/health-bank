@@ -21,17 +21,21 @@
     "editor.detectIndentation": false,
     "editor.indentSize": 2,
   },
+  // general
+  "commentAnchors.workspace.excludeFiles": "**/{.build}/**/*",
   // spelling
   "cSpell.ignorePaths": [
     ".git",
     ".github",
     ".build",
     ".vscode",
-    ".gitignore",
     "Configuration",
+    ".gitignore",
+    "Package.resolved",
     "Project.yml"
   ],
   "cSpell.words": [
+    "appiconset",
     "autoupdating",
     "borderless",
     "checkmark",
@@ -41,6 +45,7 @@
     "subheadline",
     "subview",
     "subviews",
+    "watchos",
     "xcassets",
     "xcodegen",
     "xcodeproj",

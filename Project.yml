@@ -3,18 +3,14 @@ configs:
   Debug: debug
   Release: release
 
-options:
-  bundleIdPrefix: com.MohdFareed
-  deploymentTarget:
-    iOS: 18.0
-
 settings:
   DEVELOPMENT_TEAM: B67CHZC3GP
   SWIFT_VERSION: 6.0
   DEAD_CODE_STRIPPING: true
   ENABLE_USER_SCRIPT_SANDBOXING: true
-  GENERATE_INFOPLIST_FILE: YES
-  ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS: YES
+  GENERATE_INFOPLIST_FILE: true
+  ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS: true
+  CODE_SIGN_ALLOW_ENTITLEMENTS_MODIFICATION: true
 
   INFOPLIST_KEY_LSApplicationCategoryType:
     - public.app-category.healthcare-fitness
@@ -22,47 +18,28 @@ settings:
   CURRENT_PROJECT_VERSION: 1
   MARKETING_VERSION: 1.0
 
-targets:
+  ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+  ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME: AccentColor
+  ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS: true
+
+options:
+  bundleIdPrefix: com.MohdFareed
+  deploymentTarget:
+    iOS: 18.0
+  createIntermediateGroups: true
+
+include: # Build targets
+  - path: Configuration/Targets.yml
+    relativePaths: false
+
+packages: # SPM dependencies
   HealthTracker:
-    type: application
-    platform: iOS
-    sources: App
+    path: .
 
-    scheme:
-      testTargets:
-        - HealthTrackerTests
-        - HealthTrackerUITests
-      gatherCoverageData: true
-
-    entitlements:
-      path: Configuration/App.entitlements
-      properties:
-        com.apple.developer.healthkit: true
-
-    info:
-      path: Configuration/AppInfo.plist
-      properties:
-        UILaunchStoryboardName: LaunchScreen
-        NSHealthShareUsageDescription: |
-          Show your Apple Health data in the app.
-        NSHealthUpdateUsageDescription: |
-          Backup your app data to Apple Health.
-        UISupportedInterfaceOrientations:
-          - UIInterfaceOrientationPortrait
-          - UIInterfaceOrientationPortraitUpsideDown
-          - UIInterfaceOrientationLandscapeLeft
-          - UIInterfaceOrientationLandscapeRight
-
-  HealthTrackerTests:
-    type: bundle.unit-test
-    platform: iOS
-    sources: Tests/AppTests
-    dependencies:
-      - target: HealthTracker
-
-  HealthTrackerUITests:
-    type: bundle.ui-testing
-    platform: iOS
-    sources: Tests/UITests
-    dependencies:
-      - target: HealthTracker
+fileGroups: # Project files
+  - Assets
+  - Configuration
+  - Scripts
+  - Package.swift
+  - Project.yml
+  - README.md

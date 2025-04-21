@@ -19,7 +19,7 @@ extension Settings {
     static var notifications: Settings<Bool?> { .init("Notifications") }
 }
 
-// TODO: Add settings to set app icon and accent color.
+// TODO: Add settings to set app icon (style/theme) and accent color.
 
 // MARK: Localization
 // ============================================================================
