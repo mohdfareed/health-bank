@@ -1,21 +1,19 @@
 #!/usr/bin/env python3
 
 """
-Generates the Xcode icon assets. It generates `.appiconset` folders with the
-icons in the provided folder. The icons must be 1024x1024 PNG files.
+Imports app icons into the project. It generates `.appiconset` assets using
+the icons at the provided path. The icons must be 1024x1024 PNG files.
 """
 
 import argparse
 import dataclasses
-import json
 import shutil
-import subprocess
-import sys
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
 
 ASSETS_PATH = Path(__file__).parent.parent / "Assets" / "Assets.xcassets"
+ICON_PATH = Path(__file__).parent.parent / "Configuration" / "AppIcon.json"
 ICON_SIZE = "1024x1024"
 
 
@@ -42,49 +40,17 @@ def main(icons: Path, path: Path):
 
 
 def create_icon_set(icon: Path, path: Path):
-    # copy the icon
+    # create icon set
     icon_set = (path / icon.stem).with_suffix(".appiconset")
     icon_set.mkdir(parents=True, exist_ok=True)
-    shutil.copyfile(icon, icon_set / icon.name)
-    # icon.replace(icon_set / icon.name)
 
-    # create the contents.json file
-    app_icon = create_icon(icon)
-    contents = json.dumps(
-        dataclasses.asdict(app_icon),
-        indent=2,
-        sort_keys=True,
-    )
-    (icon_set / "Contents.json").write_text(contents)
+    # copy icon and configuration
+    shutil.copyfile(ICON_PATH, icon_set / "Contents.json")
+    shutil.copyfile(icon, icon_set / "AppIcon.png")
+    # icon.replace(icon_set / "AppIcon.png")
 
 
-def create_icon(icon: Path) -> "AppIcon":
-    watch_os_image = Icon(
-        filename=icon.name,
-        idiom="universal",
-        platform="watchos",
-        size=ICON_SIZE,
-    )
-    ios_image = Icon(
-        filename=icon.name,
-        idiom="universal",
-        platform="ios",
-        size=ICON_SIZE,
-    )
-    appearances = [
-        Appearance(appearance="luminosity", value="dark"),
-        Appearance(appearance="luminosity", value="tinted"),
-    ]
-
-    icons = [watch_os_image, ios_image]
-    for appearance in appearances:
-        app_icon = dataclasses.replace(ios_image)
-        app_icon.appearances = [appearance]
-        icons.append(app_icon)
-    return AppIcon(icons=icons)
-
-
-# region: CLI
+# region: Models
 
 
 @dataclass
@@ -99,7 +65,12 @@ class Icon:
     idiom: str
     platform: str
     size: str
-    appearances: list[Appearance] = field(default_factory=lambda: [])
+    appearances: list[Appearance] | None = None
+
+    @property
+    def json(self) -> dict[str, Any]:
+        contents = dataclasses.asdict(self)
+        return {k: v for k, v in contents.items() if v is not None}
 
 
 @dataclass
@@ -109,12 +80,16 @@ class AppIcon:
         default_factory=lambda: {"author": "xcode", "version": 1}
     )
 
-    # def json(self) -> dict[str, Any]:
-    #     contents = dataclasses.asdict(self)
-    #     contents = {k: v for k, v in contents.items() if v is not None}
+    @property
+    def json(self) -> dict[str, Any]:
+        return {
+            "images": [icon.json for icon in self.icons],
+            "info": self.info,
+        }
 
 
 # endregion
+
 # region: CLI
 
 
@@ -129,7 +104,7 @@ if __name__ == "__main__":
         description=(__doc__ or "").strip(), formatter_class=ScriptFormatter
     )
 
-    parser.add_argument("icons", type=Path, help="the icons folder path")
+    parser.add_argument("icons", type=Path, help="the icons directory path")
     parser.add_argument(
         "-p",
         "--path",
@@ -138,20 +113,8 @@ if __name__ == "__main__":
         default=ASSETS_PATH,
     )
 
-    # Parse arguments
     args = parser.parse_args()
-    try:  # Install the application
-        main(args.icons, args.path)
-
-    # Handle user interrupts
-    except KeyboardInterrupt:
-        print("Aborted!")
-        sys.exit(1)
-
-    # Handle shell errors
-    except subprocess.CalledProcessError as error:
-        print(f"Error: {error}", file=sys.stderr)
-        sys.exit(1)
+    main(args.icons, args.path)
 
 
 # endregion

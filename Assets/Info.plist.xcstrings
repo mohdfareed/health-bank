@@ -18,7 +18,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Show your Apple Health data in the app."
+            "value" : "Display Apple Health data in the app."
           }
         }
       }
@@ -29,7 +29,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Backup your app data to Apple Health."
+            "value" : "Backup app data to Apple Health."
           }
         }
       }
