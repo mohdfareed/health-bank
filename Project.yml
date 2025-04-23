@@ -1,9 +1,50 @@
+# MARK: Configuration
+# =============================================================================
+
 name: HealthTracker
+
+options:
+  bundleIdPrefix: com.MohdFareed
+  deploymentTarget:
+    iOS: 18.0
+  createIntermediateGroups: true
+
 configs:
   Debug: debug
   Release: release
 
+# Use SPM for dependencies.
+packages:
+  HealthTracker:
+    path: .
+
+# MARK: Project Files
+# =============================================================================
+# REVIEW: check synced folder support:
+# https://github.com/yonaskolb/XcodeGen/pull/1541
+
+fileGroups:
+  - Assets
+  - Configuration
+  - README.md
+
+# MARK: Settings
+# =============================================================================
+
 settings:
+  # App Info
+  INFOPLIST_KEY_LSApplicationCategoryType:
+    - public.app-category.healthcare-fitness
+  INFOPLIST_KEY_CFBundleDisplayName: Health Tracker
+  CURRENT_PROJECT_VERSION: 1
+  MARKETING_VERSION: 1.0
+
+  # App Style
+  ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+  ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME: AccentColor
+  ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS: true
+
+  # Build Settings
   DEVELOPMENT_TEAM: B67CHZC3GP
   SWIFT_VERSION: 6.0
   DEAD_CODE_STRIPPING: true
@@ -12,31 +53,60 @@ settings:
   ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS: true
   CODE_SIGN_ALLOW_ENTITLEMENTS_MODIFICATION: true
 
-  INFOPLIST_KEY_LSApplicationCategoryType:
-    - public.app-category.healthcare-fitness
-  INFOPLIST_KEY_CFBundleDisplayName: Health Tracker
-  CURRENT_PROJECT_VERSION: 1
-  MARKETING_VERSION: 1.0
+# MARK: Targets
+# =============================================================================
 
-  ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
-  ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME: AccentColor
-  ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS: true
-
-options:
-  bundleIdPrefix: com.MohdFareed
-  deploymentTarget:
-    iOS: 18.0
-  createIntermediateGroups: true
-
-include: # Build targets
-  - path: Configuration/Targets.yml
-    relativePaths: false
-
-packages: # SPM dependencies
+targets:
   HealthTracker:
-    path: .
+    type: application
+    platform: iOS
+    sources:
+      - App
+      - path: Assets
+        buildPhase: resources
 
-fileGroups: # Project files
-  - Assets
-  - Configuration
-  - README.md
+    scheme:
+      testTargets: # TestsTarget.yml
+        - HealthTrackerTests
+        - HealthTrackerUITests
+      gatherCoverageData: true
+
+    entitlements:
+      path: Configuration/App.entitlements # signing entitlements
+      properties:
+        com.apple.developer.healthkit: true
+
+    info:
+      path: Configuration/AppInfo.plist
+      properties:
+        UILaunchStoryboardName: LaunchScreen # render app windows
+        NSHealthShareUsageDescription: |
+          Show your Apple Health data in the app.
+        NSHealthUpdateUsageDescription: |
+          Backup your app data to Apple Health.
+        UISupportedInterfaceOrientations:
+          - UIInterfaceOrientationPortrait
+          - UIInterfaceOrientationPortraitUpsideDown
+          - UIInterfaceOrientationLandscapeLeft
+          - UIInterfaceOrientationLandscapeRight
+
+  # MARK: Tests Targets
+  # ===========================================================================
+
+  HealthTrackerTests:
+    type: bundle.unit-test
+    platform: iOS
+    sources: Tests/AppTests
+    options:
+      - transitivelyLinkDependencies: true
+    dependencies:
+      - target: HealthTracker
+
+  HealthTrackerUITests:
+    type: bundle.ui-testing
+    platform: iOS
+    sources: Tests/UITests
+    options:
+      - transitivelyLinkDependencies: true
+    dependencies:
+      - target: HealthTracker

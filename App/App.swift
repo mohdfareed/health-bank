@@ -2,7 +2,7 @@ import SwiftData
 import SwiftUI
 
 /// The app's bundle identifier.
-let appID: String = Bundle.main.bundleIdentifier ?? "Debug.HealthTracker"
+let appID: String = Bundle.main.bundleIdentifier ?? "Debug.App"
 
 @main struct MainApp: App {
     internal let logger = AppLogger.new(for: Self.self)

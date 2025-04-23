@@ -2,7 +2,7 @@
 
 """
 Imports app icons into the project. It generates `.appiconset` assets using
-the icons at the provided path using the provided app icon configuration.
+the PNG icons at the provided path using an app icon JSON configuration.
 """
 
 import argparse
@@ -10,33 +10,34 @@ import shutil
 from pathlib import Path
 
 _APP = Path(__file__).parent.parent  # script -> Scripts -> repo
-ASSETS_PATH = _APP / "Assets" / "Assets.xcassets"
-ICON_CONFIG_PATH = _APP / "Configuration" / "AppIcon.json"
+ICONS = _APP / "Configuration" / "Icons"
+ASSETS = _APP / "Assets" / "Assets.xcassets"
+ICON_CONFIG = _APP / "Configuration" / "AppIcon.json"
 
 
 def main(icons: Path, path: Path, config: Path) -> None:
     # validation
-    if not icons.is_dir() or not icons.exists():
-        raise NotADirectoryError(f"Path is not a directory: {icons}")
-    if not path.is_dir() and path.exists():
-        raise NotADirectoryError(f"Path is not a directory: {path}")
-    path.mkdir(parents=True, exist_ok=True)
+    if not icons.is_dir():
+        raise FileNotFoundError({"Icons": icons})
+    if not path.is_dir():
+        raise NotADirectoryError({"Assets": path})
+    if not config.is_file():
+        raise FileNotFoundError({"Configuration": config})
 
-    # create app icons
-    for icon in sorted(icons.iterdir()):
-        if icon.suffix != ".png":
-            print(f"Skipping {icon.name}...")
-            continue
+    # create icons
+    for icon in icons.glob("*.png"):
+        create_icon(icon, path, config)
 
-        # create icon set
-        print(f"Creating: {icon.name}")
-        icon_set = (path / icon.stem).with_suffix(".appiconset")
-        icon_set.mkdir(parents=True, exist_ok=True)
 
-        # copy files
-        shutil.copyfile(config, icon_set / "Contents.json")
-        shutil.copyfile(icon, icon_set / "AppIcon.png")
-        # icon.replace(icon_set / "AppIcon.png")
+def create_icon(icon: Path, path: Path, config: Path) -> None:
+    # create app icon
+    print(f"Creating: {icon.name}")
+    icon_set = (path / icon.stem).with_suffix(".appiconset")
+    icon_set.mkdir(parents=True, exist_ok=True)
+
+    # copy files
+    shutil.copyfile(config, icon_set / "Contents.json")
+    shutil.copyfile(icon, icon_set / "AppIcon.png")
 
 
 # region: CLI
@@ -54,20 +55,27 @@ if __name__ == "__main__":
     )
 
     parser.add_argument(
-        "-p",
-        "--path",
+        "-a",
+        "--assets",
         type=Path,
-        help="xcode assets path",
-        default=ASSETS_PATH,
+        help="the xcode assets path",
+        default=ASSETS,
     )
+
     parser.add_argument(
         "-c",
         "--config",
         type=Path,
-        help="xcode app icon configuration path",
-        default=ICON_CONFIG_PATH,
+        help="the xcode icon configuration path",
+        default=ICON_CONFIG,
     )
-    parser.add_argument("icons", type=Path, help="the icons directory path")
+
+    parser.add_argument(
+        "icons",
+        type=Path,
+        help="the icons path",
+        default=ICONS,
+    )
 
     args = parser.parse_args()
     main(args.icons, args.path, args.config)
