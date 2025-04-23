@@ -8,6 +8,7 @@ struct AppView: View {
     internal var locale: Locale
 
     var body: some View {
+        Image(systemName: "AppLogo")
         TabView {
             Tab(
                 String(localized: "Dashboard"),

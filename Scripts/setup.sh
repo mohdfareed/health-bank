@@ -1,6 +1,9 @@
 #!/usr/bin/env zsh
 
-echo "Setting up project scripts..."
-chmod +x Scripts/*
-echo "Generating Xcode project..."
+echo "Generating project..."
 swift run xcodegen
+
+echo
+
+echo "Generating assets..."
+./Scripts/assets.py

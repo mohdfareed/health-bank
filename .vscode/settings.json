@@ -4,9 +4,9 @@
   "lldb.launch.expressions": "native",
   // swift
   "sweetpad.xcodegen.autogenerate": true,
-  "files.exclude": {
-    "*.xcodeproj": true,
-  },
+  // "files.exclude": {
+  //   "*.xcodeproj": true,
+  // },
   "[swift]": {
     "editor.defaultFormatter": "swiftlang.swift-vscode",
     "editor.detectIndentation": false,
@@ -46,6 +46,7 @@
     "subheadline",
     "subview",
     "subviews",
+    "symbolset",
     "watchos",
     "xcassets",
     "xcodegen",

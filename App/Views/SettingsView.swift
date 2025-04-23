@@ -99,7 +99,7 @@ private struct BudgetsHistory: View {
                     }
                 }
             }
-            .navigationTitle(String(localized: "Calorie Budgets History"))
+            .navigationTitle(String(localized: "Calorie Budgets"))
             .navigationDestination(for: CalorieBudget.self) { budget in
                 CalorieEditor(budget: budget)
             }
