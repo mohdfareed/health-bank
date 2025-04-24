@@ -5,5 +5,5 @@ swift run xcodegen
 
 echo
 
-echo "Generating assets..."
+echo "Generating app icon..."
 ./Scripts/assets.py

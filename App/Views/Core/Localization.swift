@@ -1,9 +1,12 @@
 import Foundation
+import SwiftUI
 
 // MARK: Iconography
 // ============================================================================
 
 struct AppIcons {
+    static let logo = "heart.text.clipboard.fill"
+
     static let burnedCalorie = "flame"
     static let dietaryCalorie = "fork.knife"
 
@@ -14,6 +17,27 @@ struct AppIcons {
 
     static let weight = "figure"
     static let workout = "figure.run"
+}
+
+// extension Color {
+//     static var logoPrimaryColor: Color {
+//         Color("logoPrimary")
+//     }
+//     static var logoSecondaryColor: Color {
+//         Color("logoSecondary")
+//     }
+// }
+
+extension AppIcons {
+    static var logoColor: Gradient {
+        Gradient(colors: [.logoPrimary, .logoSecondary])
+    }
+    static var logoImage: some View {
+        Image(systemName: logo)
+            .resizable()
+            .aspectRatio(contentMode: .fit)
+            .foregroundStyle(logoColor)
+    }
 }
 
 // MARK: Settings

@@ -13,7 +13,9 @@ configs:
   Debug: debug
   Release: release
 
-# Use SPM for dependencies.
+# MARK: Dependencies
+# =============================================================================
+
 packages:
   HealthTracker:
     path: .
@@ -24,8 +26,8 @@ packages:
 # https://github.com/yonaskolb/XcodeGen/pull/1541
 
 fileGroups:
-  - Assets
   - Configuration
+  - Assets
   - README.md
 
 # MARK: Settings
@@ -38,19 +40,19 @@ settings:
   INFOPLIST_KEY_CFBundleDisplayName: Health Tracker
   CURRENT_PROJECT_VERSION: 1
   MARKETING_VERSION: 1.0
+  DEVELOPMENT_TEAM: B67CHZC3GP
 
-  # App Style
+  # Asset Catalog
   ASSETCATALOG_COMPILER_APPICON_NAME: AppLogo
-  ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME: AccentColor
+  ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME: Accent
   ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS: true
+  ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS: true
 
   # Build Settings
-  DEVELOPMENT_TEAM: B67CHZC3GP
   SWIFT_VERSION: 6.0
   DEAD_CODE_STRIPPING: true
   ENABLE_USER_SCRIPT_SANDBOXING: true
   GENERATE_INFOPLIST_FILE: true
-  ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS: true
   CODE_SIGN_ALLOW_ENTITLEMENTS_MODIFICATION: true
 
 # MARK: Targets

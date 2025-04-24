@@ -1,5 +1,6 @@
 .build/
 .swiftpm/
 
-Assets/Generated.xcassets
 *.xcodeproj
+Package.resolved
+Assets/Generated.xcassets

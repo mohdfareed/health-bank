@@ -1,5 +1,11 @@
-# Health Tracker App
+# Health Bank
 
-SwiftUI app that allows users to track their calorie intake over time.
-It utilizes budgets over any period of time, reading calorie data from the
-HealthKit API.
+An iOS app to track and visualize health metrics. The app allows users to track
+data stored locally or on `HealthKit`, set budgets, and visualize their
+progress over time.
+
+
+## Requirements
+
+- XCode 16.0+
+- [FigmaExport](https://github.com/RedMadRobot/figma-export)

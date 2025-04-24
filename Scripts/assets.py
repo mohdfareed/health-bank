@@ -3,19 +3,28 @@
 
 import argparse
 import shutil
+import subprocess
 from pathlib import Path
 
 _APP = Path(__file__).parent.parent  # script -> Scripts -> repo
 
 ICONS = _APP / "Assets" / "Icons"
 ASSETS = _APP / "Assets" / "Generated.xcassets"
+LOGO = _APP / "Assets" / "Logo.swift"
 
 ICON_CONFIG = _APP / "Configuration" / "Icon.json"
-SYMBOL_CONFIG = _APP / "Configuration" / "Symbol.json"
+# SYMBOL_CONFIG = _APP / "Configuration" / "Symbol.json"
 
 
 def main() -> None:
     shutil.rmtree(ASSETS, ignore_errors=True)
+
+    # create app logo
+    subprocess.run(
+        ["swift", "run", LOGO],
+        check=True,
+        capture_output=True,
+    )
 
     # create app icons
     for icon in sorted(ICONS.glob("*.png")):
@@ -23,11 +32,12 @@ def main() -> None:
         asset = (ASSETS / icon.stem).with_suffix(".appiconset")
         create_asset(asset, icon, ICON_CONFIG)
 
-    # create app symbols
-    for symbol in sorted(ICONS.glob("*.svg")):
-        print(f"Creating symbol: {symbol.name}")
-        asset = (ASSETS / symbol.stem).with_suffix(".symbolset")
-        create_asset(asset, symbol, SYMBOL_CONFIG)
+    # # create app symbols
+    # for symbol in sorted(ICONS.glob("*.svg")):
+    #     print(f"Creating symbol: {symbol.name}")
+    #     asset = (ASSETS / symbol.stem).with_suffix(".symbolset")
+    #     create_asset(asset, symbol, SYMBOL_CONFIG)
+    # REMOVED: handle symbols manually through SF Symbols and Xcode.
 
 
 def create_asset(path: Path, asset: Path, config: Path) -> None:
