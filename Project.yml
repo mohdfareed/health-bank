@@ -1,7 +1,7 @@
 # MARK: Configuration
 # =============================================================================
 
-name: HealthTracker
+name: HealthBank
 
 options:
   bundleIdPrefix: com.MohdFareed
@@ -17,7 +17,7 @@ configs:
 # =============================================================================
 
 packages:
-  HealthTracker:
+  HealthBank:
     path: .
 
 # MARK: Project Files
@@ -46,7 +46,6 @@ settings:
   ASSETCATALOG_COMPILER_APPICON_NAME: AppLogo
   ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME: Accent
   ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS: true
-  ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS: true
 
   # Build Settings
   SWIFT_VERSION: 6.0
@@ -59,7 +58,7 @@ settings:
 # =============================================================================
 
 targets:
-  HealthTracker:
+  HealthBank:
     type: application
     platform: iOS
     sources:
@@ -69,21 +68,21 @@ targets:
 
     scheme:
       testTargets:
-        - HealthTrackerTests
-        - HealthTrackerUITests
+        - HealthBankTests
+        - HealthBankUITests
       gatherCoverageData: true
 
     entitlements:
-      path: Configuration/App.entitlements # signing entitlements
+      path: HealthBank.xcodeproj/App.entitlements # signing entitlements
       properties:
         com.apple.developer.healthkit: true
 
     info:
-      path: Configuration/AppInfo.plist
+      path: HealthBank.xcodeproj/Info.plist # app info.plist
       properties:
         UILaunchScreen:
-          UIColorName: AccentColor
-          UIImageName: AppLogo
+          UIColorName: Accent
+          UIImageName: AppIcon
         NSHealthShareUsageDescription: |
           Show your Apple Health data in the app.
         NSHealthUpdateUsageDescription: |
@@ -97,20 +96,20 @@ targets:
   # MARK: Tests Targets
   # ===========================================================================
 
-  HealthTrackerTests:
+  HealthBankTests:
     type: bundle.unit-test
     platform: iOS
     sources: Tests/AppTests
     options:
       - transitivelyLinkDependencies: true
     dependencies:
-      - target: HealthTracker
+      - target: HealthBank
 
-  HealthTrackerUITests:
+  HealthBankUITests:
     type: bundle.ui-testing
     platform: iOS
     sources: Tests/UITests
     options:
       - transitivelyLinkDependencies: true
     dependencies:
-      - target: HealthTracker
+      - target: HealthBank

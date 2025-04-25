@@ -5,7 +5,7 @@ import PackageDescription
 
 struct App {
     /// The name of the app package.
-    static let name: String = "HealthTracker"
+    static let name: String = "HealthBank"
 }
 
 let package = Package(
@@ -25,9 +25,7 @@ let package = Package(
         .executableTarget(
             name: App.name,
             path: "App",
-            resources: [
-                .process("../Assets")
-            ]
+            resources: [.process("../Assets")]
         ),
 
         .testTarget(

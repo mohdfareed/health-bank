@@ -1,6 +1,6 @@
 import XCTest
 
-final class HealthTrackerUITestsLaunchTests: XCTestCase {
+final class HealthBankUITestsLaunchTests: XCTestCase {
 
     override class var runsForEachTargetApplicationUIConfiguration: Bool {
         true
@@ -11,7 +11,7 @@ final class HealthTrackerUITestsLaunchTests: XCTestCase {
     }
 
     @MainActor
-        func testLaunch() throws {
+    func testLaunch() throws {
         let app = XCUIApplication()
         app.launch()
 

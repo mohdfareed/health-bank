@@ -1,21 +1,22 @@
+import AppAssets
 import SwiftData
 import SwiftUI
 
 @MainActor struct CalorieEditorVM {
     let calorie = MeasurementFieldVM(
-        title: "Calories", image: Image(systemName: AppIcons.burnedCalorie),
+        title: "Calories", image: Image(systemName: AppSymbols.burnedCalorie),
         color: .red, fractions: 0, validator: { $0 < 0 ? 0 : $0 }
     )
     let protein = MeasurementFieldVM(
-        title: "Protein", image: Image(systemName: AppIcons.protein),
+        title: "Protein", image: Image(systemName: AppSymbols.protein),
         color: .purple, fractions: 0, validator: { $0 < 0 ? 0 : $0 }
     )
     let carbs = MeasurementFieldVM(
-        title: "Carbs", image: Image(systemName: AppIcons.carbs),
+        title: "Carbs", image: Image(systemName: AppSymbols.carbs),
         color: .green, fractions: 0, validator: { $0 < 0 ? 0 : $0 }
     )
     let fat = MeasurementFieldVM(
-        title: "Fat", image: Image(systemName: AppIcons.fat),
+        title: "Fat", image: Image(systemName: AppSymbols.fat),
         color: .yellow, fractions: 0, validator: { $0 < 0 ? 0 : $0 }
     )
 }

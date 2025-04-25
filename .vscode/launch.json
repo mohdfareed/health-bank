@@ -5,18 +5,18 @@
       "request": "launch",
       "args": [],
       "cwd": "${workspaceFolder:health-tracker}",
-      "name": "Debug HealthTracker",
-      "program": "${workspaceFolder:health-tracker}/.build/debug/HealthTracker",
-      "preLaunchTask": "swift: Build Debug HealthTracker"
+      "name": "Debug HealthBank",
+      "program": "${workspaceFolder:health-tracker}/.build/debug/HealthBank",
+      "preLaunchTask": "swift: Build Debug HealthBank"
     },
     {
       "type": "swift",
       "request": "launch",
       "args": [],
       "cwd": "${workspaceFolder:health-tracker}",
-      "name": "Release HealthTracker",
-      "program": "${workspaceFolder:health-tracker}/.build/release/HealthTracker",
-      "preLaunchTask": "swift: Build Release HealthTracker"
+      "name": "Release HealthBank",
+      "program": "${workspaceFolder:health-tracker}/.build/release/HealthBank",
+      "preLaunchTask": "swift: Build Release HealthBank"
     }
   ]
 }

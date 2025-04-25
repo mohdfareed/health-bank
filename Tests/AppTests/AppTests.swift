@@ -2,7 +2,7 @@ import Foundation
 import SwiftUI
 import Testing
 
-@testable import HealthTracker
+@testable import HealthBank
 
 struct AppTests {
     @Test func testAppBuild() async throws {
