@@ -7,11 +7,10 @@ struct AppView: View {
     @AppLocale()
     internal var locale: Locale
 
-    var body: some View {
-        AppLogo
-        Image("Logo.svg").resizable().aspectRatio(contentMode: .fit)
-        Image("Icons/Logo.svg").resizable().aspectRatio(contentMode: .fit)
+    @State private var isTapped: Bool = false
+    @State private var isTappedAlt: Bool = false
 
+    var body: some View {
         TabView {
             Tab(
                 String(localized: "Dashboard"),

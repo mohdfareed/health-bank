@@ -1,6 +1,7 @@
 .build/
 .swiftpm/
+*.xcodeproj/
 
-*.xcodeproj
+.env
 Package.resolved
-Assets/Generated.xcassets
+*/Generated.*

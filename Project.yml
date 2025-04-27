@@ -26,8 +26,13 @@ packages:
 # https://github.com/yonaskolb/XcodeGen/pull/1541
 
 fileGroups:
-  - Configuration
+  - .vscode
   - Assets
+  - Scripts
+  - .gitignore
+  - Package.resolved
+  - Package.swift
+  - Project.yml
   - README.md
 
 # MARK: Settings
@@ -43,8 +48,8 @@ settings:
   DEVELOPMENT_TEAM: B67CHZC3GP
 
   # Asset Catalog
-  ASSETCATALOG_COMPILER_APPICON_NAME: AppLogo
-  ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME: Accent
+  ASSETCATALOG_COMPILER_APPICON_NAME: appLogo
+  ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME: accent
   ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS: true
 
   # Build Settings
@@ -81,8 +86,8 @@ targets:
       path: HealthBank.xcodeproj/Info.plist # app info.plist
       properties:
         UILaunchScreen:
-          UIColorName: Accent
-          UIImageName: AppIcon
+          UIColorName: accent
+          UIImageName: logo
         NSHealthShareUsageDescription: |
           Show your Apple Health data in the app.
         NSHealthUpdateUsageDescription: |

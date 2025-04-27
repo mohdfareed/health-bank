@@ -1,4 +1,3 @@
-import AppAssets
 import SwiftData
 import SwiftUI
 

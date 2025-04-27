@@ -6,16 +6,16 @@ import SwiftUI
 // ============================================================================
 
 extension ShapeStyle where Self == Color {
-    public static var logoPrimary: Color {
-        Color(red: 255 / 255, green: 71 / 255, blue: 65 / 255)
+    public static var primaryLogo: Color {
+        Color("PrimaryLogo")
     }
-    public static var logoSecondary: Color {
-        Color(red: 255 / 255, green: 94 / 255, blue: 163 / 255)
+    public static var secondaryLogo: Color {
+        Color("SecondaryLogo")
     }
 
     public static var logoGradient: LinearGradient {
         LinearGradient(
-            colors: [.logoPrimary, .logoSecondary],
+            colors: [.primaryLogo, .secondaryLogo],
             startPoint: .top, endPoint: .bottom
         )
     }
@@ -25,7 +25,8 @@ extension ShapeStyle where Self == Color {
 // ============================================================================
 
 public struct AppSymbols {
-    // static let logo = "heart.text.clipboard.fill"
+    static let logo = "logo"
+    static let logoAlt = "logo.alt"
 
     static let burnedCalorie = "flame"
     static let dietaryCalorie = "fork.knife"
@@ -43,19 +44,19 @@ public struct AppSymbols {
 // ============================================================================
 
 extension Image {
-    static var appLogo: Image { return Image("Icons/Logo.svg") }
-    static var appLogoFilled: Image { return Image("Icons/LogoFilled.svg") }
+    static var logo: Image { return Image(AppSymbols.logo) }
+    static var logoAlt: Image { return Image(AppSymbols.logoAlt) }
 }
 
 var AppLogo: some View {
-    Image.appLogo
+    Image.logo
         .resizable()
         .aspectRatio(contentMode: .fit)
         .foregroundStyle(.logoGradient)
 }
 
 var AppLogoAlt: some View {
-    Image.appLogoFilled
+    Image.logoAlt
         .resizable()
         .aspectRatio(contentMode: .fit)
         .foregroundStyle(.logoGradient)
