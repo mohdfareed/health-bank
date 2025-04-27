@@ -19,8 +19,6 @@ extension Settings {
     static var notifications: Settings<Bool?> { .init("Notifications") }
 }
 
-// TODO: Add settings to set app icon (style/theme) and accent color.
-
 // MARK: Localization
 // ============================================================================
 
@@ -44,12 +42,11 @@ extension Settings {
 // ============================================================================
 
 /// A daily budget of calories and macro-nutrients.
-@Model final class CalorieBudget: Singleton, DietaryCalorie {
+@Model final class CalorieBudget: Singleton {
     typealias ID = UUID
     var id: UUID = UUID()
     init() {}
 
-    var source: DataSource = DataSource.init()
     var date: Date = Date()
     var calories: Double = 2000
     var macros: CalorieMacros? = CalorieMacros(
@@ -76,7 +73,7 @@ extension AnySettings {
             .init(.notifications),
             .init(.unitSystem),
             .init(.firstDayOfWeek),
-            .init(.dailyCalorieBudget),
+            // .init(.dailyCalorieBudget),
         ]
     }
 }
