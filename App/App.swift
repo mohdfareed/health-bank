@@ -16,7 +16,7 @@ let appID: String = Bundle.main.bundleIdentifier ?? "Debug.App"
                 CoreDietaryCalorie.self,
                 CoreRestingCalorie.self,
                 CoreWorkout.self,
-                CalorieBudget.self,  // FIXME: breaks the app
+                CalorieBudget.self,
             ]),
             configurations: ModelConfiguration()
         )

@@ -8,7 +8,7 @@ import SwiftUI
 extension ShapeStyle where Self == Color {
     public static var logoGradient: LinearGradient {
         LinearGradient(
-            colors: [.logoPrimary, .logoSecondary],
+            colors: [Color("LogoPrimary"), Color("LogoSecondary")],
             startPoint: .bottom, endPoint: .top
         )
     }

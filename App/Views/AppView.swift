@@ -7,12 +7,7 @@ struct AppView: View {
     @AppLocale()
     internal var locale: Locale
 
-    @State private var isTapped: Bool = false
-    @State private var isTappedAlt: Bool = false
-
     var body: some View {
-        AppLogo
-        AppLogoAlt
         TabView {
             Tab(
                 String(localized: "Dashboard"),

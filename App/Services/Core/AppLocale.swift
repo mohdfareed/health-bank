@@ -9,7 +9,6 @@ struct AppLocale: DynamicProperty {
     @Environment(\.locale)
     private var appLocale: Locale
     private var components: Locale.Components { .init(locale: self.appLocale) }
-    private let animation: Animation? = nil  // REVIEW: Animate.
 
     @AppStorage(.unitSystem)
     private var unitSystem: MeasurementSystem?

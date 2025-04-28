@@ -27,10 +27,8 @@ packages:
 
 fileGroups:
   - .vscode
-  - Assets
   - Scripts
   - .gitignore
-  - Package.resolved
   - Package.swift
   - Project.yml
   - README.md

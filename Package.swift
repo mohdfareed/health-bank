@@ -25,7 +25,7 @@ let package = Package(
         .executableTarget(
             name: App.name,
             path: "App",
-            resources: [.process("../Assets")]
+            resources: [.process("Assets")],
         ),
 
         .testTarget(
