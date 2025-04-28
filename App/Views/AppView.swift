@@ -11,6 +11,8 @@ struct AppView: View {
     @State private var isTappedAlt: Bool = false
 
     var body: some View {
+        AppLogo
+        AppLogoAlt
         TabView {
             Tab(
                 String(localized: "Dashboard"),

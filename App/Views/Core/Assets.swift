@@ -6,17 +6,10 @@ import SwiftUI
 // ============================================================================
 
 extension ShapeStyle where Self == Color {
-    public static var primaryLogo: Color {
-        Color("PrimaryLogo")
-    }
-    public static var secondaryLogo: Color {
-        Color("SecondaryLogo")
-    }
-
     public static var logoGradient: LinearGradient {
         LinearGradient(
-            colors: [.primaryLogo, .secondaryLogo],
-            startPoint: .top, endPoint: .bottom
+            colors: [.logoPrimary, .logoSecondary],
+            startPoint: .bottom, endPoint: .top
         )
     }
 }
@@ -25,9 +18,6 @@ extension ShapeStyle where Self == Color {
 // ============================================================================
 
 public struct AppSymbols {
-    static let logo = "logo"
-    static let logoAlt = "logo.alt"
-
     static let burnedCalorie = "flame"
     static let dietaryCalorie = "fork.knife"
 
@@ -44,8 +34,8 @@ public struct AppSymbols {
 // ============================================================================
 
 extension Image {
-    static var logo: Image { return Image(AppSymbols.logo) }
-    static var logoAlt: Image { return Image(AppSymbols.logoAlt) }
+    static var logo: Image { return Image("Logo") }
+    static var logoAlt: Image { return Image("LogoAlt") }
 }
 
 var AppLogo: some View {
