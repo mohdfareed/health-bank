@@ -10,4 +10,5 @@ progress over time.
 ## Requirements
 
 - XCode 16.0+
-- [FigmaExport](https://github.com/RedMadRobot/figma-export)
+- [SF Symbols Optimizer](https://www.figma.com/community/plugin/1265484574589944515/sf-symbols-optimizer)
+- ~~[FigmaExport](https://github.com/RedMadRobot/figma-export)~~

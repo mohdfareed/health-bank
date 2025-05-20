@@ -4,7 +4,6 @@ import Foundation
 import PackageDescription
 
 struct App {
-    /// The name of the app package.
     static let name: String = "HealthBank"
 }
 

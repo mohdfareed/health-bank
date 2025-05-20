@@ -26,8 +26,11 @@ packages:
 # https://github.com/yonaskolb/XcodeGen/pull/1541
 
 fileGroups:
+  # folders
+  - .github
   - .vscode
   - Scripts
+  # files
   - .gitignore
   - Package.swift
   - Project.yml
@@ -45,7 +48,7 @@ settings:
   MARKETING_VERSION: 1.0
   DEVELOPMENT_TEAM: B67CHZC3GP
 
-  # Asset Catalog``
+  # Asset Catalog
   ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
   ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME: Accent
   ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS: true
@@ -70,12 +73,6 @@ targets:
       - path: Assets
         buildPhase: resources
 
-    scheme:
-      testTargets:
-        - HealthBankTests
-        - HealthBankUITests
-      gatherCoverageData: true
-
     entitlements:
       path: HealthBank.xcodeproj/App.entitlements # signing entitlements
       properties:
@@ -96,6 +93,12 @@ targets:
           - UIInterfaceOrientationPortraitUpsideDown
           - UIInterfaceOrientationLandscapeLeft
           - UIInterfaceOrientationLandscapeRight
+
+    scheme:
+      testTargets:
+        - HealthBankTests
+        - HealthBankUITests
+      gatherCoverageData: true
 
   # MARK: Tests Targets
   # ===========================================================================

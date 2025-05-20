@@ -7,12 +7,8 @@ import SwiftUI
 @MainActor @propertyWrapper
 struct LocalizedMeasurement<D: Dimension>: DynamicProperty {
     @AppLocale() internal var locale: Locale
-    @Environment(\.unitService)
-    private var service: UnitService
-    private let animation: Animation  // REVIEW: test
-
-    @Binding private var baseValue: Double  // the value in the base unit
-    @State private var selectedUnit: D?  // the user selected unit
+    @Environment(\.unitService) private var service: UnitService
+    @Binding var baseValue: Double  // the value in the base unit
 
     /// The unit definition for the measurement.
     let definition: UnitDefinition<D>
@@ -29,35 +25,18 @@ struct LocalizedMeasurement<D: Dimension>: DynamicProperty {
     }  // used for localized display
     var projectedValue: Self { self }
 
-    /// The user-selected unit of the measurement.
-    var unit: Binding<D> {
-        .init(
-            get: { self.selectedUnit ?? self.localizedUnit },
-            set: { self.selectedUnit = $0 }
-        ).animation(self.animation)
-    }  // used by input fields
-
-    /// The measurement value in the user-selected unit.
-    var value: Binding<Double> {
-        .init(
-            get: { wrappedValue.converted(to: self.unit.wrappedValue).value },
-            set: {
-                let measurement = Measurement(
-                    value: $0, unit: self.unit.wrappedValue
-                ).converted(to: self.definition.baseUnit)
-                self.baseValue = measurement.value
-            }
-        ).animation(self.animation)
-    }  // used by input fields
-
     init(
-        _ value: Binding<Double>, unit: D? = nil,
-        definition: UnitDefinition<D>, animation: Animation = .default
+        _ value: Binding<Double>, definition: UnitDefinition<D>,
+        animation: Animation = .default
     ) {
-        self.selectedUnit = unit
+        self._baseValue = value.animation(animation)
         self.definition = definition
-        self.animation = animation
-        self._baseValue = value
+    }
+
+    /// Set the value of the measurement. Default to the localized unit.
+    func update(_ value: Double, unit: D? = nil) {
+        let meas = Measurement(value: value, unit: unit ?? self.localizedUnit)
+        self.baseValue = meas.converted(to: self.definition.baseUnit).value
     }
 }
 
