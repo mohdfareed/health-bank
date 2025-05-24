@@ -43,7 +43,7 @@ settings:
   # App Info
   INFOPLIST_KEY_LSApplicationCategoryType:
     - public.app-category.healthcare-fitness
-  INFOPLIST_KEY_CFBundleDisplayName: Health Tracker
+  INFOPLIST_KEY_CFBundleDisplayName: Health Bank
   CURRENT_PROJECT_VERSION: 1
   MARKETING_VERSION: 1.0
   DEVELOPMENT_TEAM: B67CHZC3GP

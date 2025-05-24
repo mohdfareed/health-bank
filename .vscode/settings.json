@@ -4,9 +4,6 @@
   "lldb.launch.expressions": "native",
   // swift
   "sweetpad.xcodegen.autogenerate": true,
-  // "files.exclude": {
-  //   "*.xcodeproj": true,
-  // },
   "[swift]": {
     "editor.defaultFormatter": "swiftlang.swift-vscode",
     "editor.detectIndentation": false,

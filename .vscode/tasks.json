@@ -24,7 +24,7 @@
         "-diagnostic-style=llvm"
       ],
       "env": {},
-      "cwd": "/Users/mohdfareed/Developer/health-tracker",
+      "cwd": "${workspaceFolder:health-bank}",
       "disableTaskQueue": true,
       "group": {
         "kind": "build",
