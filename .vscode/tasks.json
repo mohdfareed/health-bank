@@ -14,25 +14,6 @@
       "label": "sweetpad: launch",
       "detail": "Build and Launch the app",
       "group": "build"
-    },
-    {
-      "type": "swift",
-      "args": [
-        "build",
-        "--build-tests",
-        "-Xswiftc",
-        "-diagnostic-style=llvm"
-      ],
-      "env": {},
-      "cwd": "${workspaceFolder:health-bank}",
-      "disableTaskQueue": true,
-      "group": {
-        "kind": "build",
-        "isDefault": true
-      },
-      "problemMatcher": [],
-      "label": "swift: Build All",
-      "detail": "swift build --build-tests -Xswiftc -diagnostic-style=llvm"
     }
   ]
 }

@@ -18,37 +18,17 @@
     "editor.detectIndentation": false,
     "editor.indentSize": 2,
   },
-  // general
-  "commentAnchors.workspace.excludeFiles": "**/{.build}/**/*",
+  // TODOs
+  "commentAnchors.workspace.excludeFiles": "**/.build/**/*",
   // spelling
   "cSpell.ignorePaths": [
-    ".git",
     ".github",
-    ".build",
     ".vscode",
-    "Configuration",
     ".gitignore",
     "Package.resolved",
     "Project.yml"
   ],
   "cSpell.words": [
-    "AppSymbolset",
-    "autoupdating",
-    "borderless",
-    "checkmark",
-    "healthkit",
-    "Mohd",
-    "questionmark",
-    "refreshable",
-    "subheadline",
-    "subview",
-    "subviews",
-    "symbolset",
-    "watchos",
-    "xcassets",
-    "xcodegen",
-    "xcodeproj",
-    "XCUI",
-    "xmark"
+    "subheadline"
   ]
 }

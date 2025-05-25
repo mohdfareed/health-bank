@@ -46,13 +46,13 @@ settings:
   INFOPLIST_KEY_CFBundleDisplayName: Health Bank
   CURRENT_PROJECT_VERSION: 1
   MARKETING_VERSION: 1.0
-  DEVELOPMENT_TEAM: B67CHZC3GP
+  DEVELOPMENT_TEAM: ${HEALTH_BANK_TEAM_ID}
 
   # Asset Catalog
   ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
   ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME: Accent
   ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS: true
-  ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS: true
+  ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS: false
 
   # Build Settings
   SWIFT_VERSION: 6.0
@@ -70,16 +70,22 @@ targets:
     platform: iOS
     sources:
       - App
-      - path: Assets
+      - path: App/Assets
         buildPhase: resources
+
+    scheme:
+      testTargets:
+        - HealthBankTests
+        - HealthBankUITests
+      gatherCoverageData: true
 
     entitlements:
       path: HealthBank.xcodeproj/App.entitlements # signing entitlements
       properties:
         com.apple.developer.healthkit: true
 
-    info:
-      path: HealthBank.xcodeproj/Info.plist # app info.plist
+    info: # App Metadata
+      path: HealthBank.xcodeproj/Info.plist
       properties:
         UILaunchScreen:
           UIColorName: LaunchScreenBG
@@ -93,12 +99,6 @@ targets:
           - UIInterfaceOrientationPortraitUpsideDown
           - UIInterfaceOrientationLandscapeLeft
           - UIInterfaceOrientationLandscapeRight
-
-    scheme:
-      testTargets:
-        - HealthBankTests
-        - HealthBankUITests
-      gatherCoverageData: true
 
   # MARK: Tests Targets
   # ===========================================================================

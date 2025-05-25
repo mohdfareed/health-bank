@@ -7,7 +7,7 @@ import Testing
 struct AppTests {
     @Test func testAppBuild() async throws {
         print("Testing app...")
-        let app = await MainApp()
+        let app = MainApp()
         #expect((app as (any App)?) != nil)
         print(app)
     }
