@@ -3,10 +3,16 @@ import SwiftUI
 // MARK: Colors
 // ============================================================================
 
+extension Color {
+    static var logoPrimary: Color { Color("LogoPrimary") }
+    static var logoSecondary: Color { Color("LogoSecondary") }
+    static var accent: Color { Color("Accent") }
+}
+
 extension ShapeStyle where Self == Color {
     public static var logoGradient: LinearGradient {
         LinearGradient(
-            colors: [Color("LogoPrimary"), Color("LogoSecondary")],
+            colors: [Color.logoPrimary, Color.logoSecondary],
             startPoint: .bottom, endPoint: .top
         )
     }
@@ -15,26 +21,24 @@ extension ShapeStyle where Self == Color {
 // MARK: Iconography
 // ============================================================================
 
-public struct AppSymbols {
-    static let burnedCalorie = "flame"
-    static let dietaryCalorie = "fork.knife"
+extension Image {
+    static var logo: Image { Image("Logo") }
+    static var logoAlt: Image { Image("LogoAlt") }
 
-    static let macros = "chart.pie"
-    static let protein = "dumbbell"
-    static let fat = "drop.circle"
-    static let carbs = "carrot"
+    static var burnedCalorie: Image { Image(systemName: "flame") }
+    static var dietaryCalorie: Image { Image(systemName: "fork.knife") }
 
-    static let weight = "figure"
-    static let workout = "figure.run"
+    static var macros: Image { Image(systemName: "chart.pie") }
+    static var protein: Image { Image(systemName: "dumbbell") }
+    static var fat: Image { Image(systemName: "drop.circle") }
+    static var carbs: Image { Image(systemName: "carrot") }
+
+    static var weight: Image { Image(systemName: "figure") }
+    static var workout: Image { Image(systemName: "figure.run") }
 }
 
 // MARK: App Logo
 // ============================================================================
-
-extension Image {
-    static var logo: Image { Image("Logo") }
-    static var logoAlt: Image { Image("LogoAlt") }
-}
 
 var AppLogo: some View {
     Image.logo

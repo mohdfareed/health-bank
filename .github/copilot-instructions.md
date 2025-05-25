@@ -1,64 +1,45 @@
-# LLM Integration Instructions
+# Project Overview
 
-Health Bank enables users to track and display health metrics, both from Apple HealthKit and local storage (with optional iCloud sync).
-
-## Guiding Principles
-
-- **Simplicity**: Favor the simplest solution; avoid unnecessary complexity and abstraction.
-- **Consistency**: Maintain uniformity in code style, naming conventions, and architecture.
-- **Documentation**: Use self-explanatory code and only add concise comments where needed.
-- **Testing**: Focus tests on critical functionality; keep test suite minimal and maintainable.
-- **Standards**: Follow Apple best practices, official guidelines, and example code conventions; prompt for approval before adopting any new conventions.
-
-## Tech Stack
-
-SwiftUI, SwiftData, AppStorage, HealthKit; project managed via XcodeGen, SPM, and Figma.
+Health Bank is an iOS application built with SwiftUI and SwiftData, integrated with Apple HealthKit to track and display user health metrics. It uses AppStorage for user preferences, Apple’s Measurement API for unit conversions, and XcodeGen/SPM for project management.
 
 ## Architecture & Data Flow
 
-### Architecture
+- **HealthKit**: Source-of-truth for externally generated metrics.
+- **SwiftData**: Local store for app-created entries.
+- **Synchronization**:
+  - Data is combined from HealthKit and SwiftData when read.
+  - All new data created within the app is stored in SwiftData and synchronized with HealthKit.
+  - SwiftData is the source of truth for app-generated data.
+- **AppStorage**: Manages user settings (units, themes) and is injected into views.
+- **Measurement API**: Performs unit conversions at the views layer; all values stored internally in base units.
 
-- Follow an MVVM-like structure:
-  - Models: Define data structures and interfaces. **No logic here.**
-  - Services: Contain all logic and implementations. **No models here.**
-  - Views: Handle UI via `@State`/`@Binding` (SwiftUI layer).
-    - Everything visible to the user is defiend here, including user-facing text.
+## Project Guidelines
 
-### Data & State Management
+- `Models/` contains data structures and protocols/interfaces.
+- `Services/` contains implementations and business logic.
+- `Views/` handles the state and view logic.
 
-- Read health metrics from `HealthKit` and `SwiftData`.
-- Write new data to both, with `SwiftData` as the canonical source.
-  - `HealthKit` is the source of truth for health data created outside the app.
-  - `SwiftData` is the source of truth for data created within the app.
-- Use `AppStorage` for user settings, such as units and themes.
+- **ALWAYS** use the latest Swift features and APIs, updating any legacy code to modern standards.
+- **ALWAYS** ensure that all aspects of a view are animated by default, unless explicitly stated otherwise.
+- **ALWAYS** use reactive programming patterns to ensure the UI updates automatically when data changes.
 
-### Units & Localization
+## Core Assistant Guidelines
 
-- Use Apple’s Measurement API for all unit conversions.
-- Values are stored in base units internally.
-- Values can be displayed by default according to user locale and preferences.
-- Display unit can be overridden per view according to pre-defined supported units.
+1. **Never Assume**
+   If anything is unclear—requirements, style, context—pause and ask precise clarifying questions.
 
-## Code Cleanup & Refactoring
+2. **Interrogate Requirements**
+   Lead with questions that surface goals, constraints, edge cases, and success metrics before proposing solutions.
 
-1. Review the `REVIEW.md` file for context and existing notes.
-2. Apply your changes.
-3. Review the codebase as a whole for opportunities to simplify or improve code quality.
-4. Adopt the latest SwiftUI APIs; replace deprecated patterns.
-5. Ensure all changes are consistent with the existing code style and architecture.
-6. Remove unused code and files.
-7. Update the `REVIEW.md` file to reflect your
+5. **Persistent Notes**
+   Use `REVIEW.md` as your knowledge base of the project.
+   Track decisions, style rules, requirements, rationales, etc. in this file.
+   This is your permanent record of the project. It is your own notebook, not just a temporary scratchpad.
+   It is not used by the user and for your use only.
 
-## Knowledge Base Usage
+6. **Self-Verification**
+   When appropriate, include quick self-checks (e.g., sample inputs/outputs, minimal tests) to validate your proposals.
 
-- Treat `REVIEW.md` as an engineer's personal wiki and to-do tracker for the project.
-- Every time you explore or modify code, update `REVIEW.md` with:
-  - Notes on key files and their purposes.
-  - Observations, decisions, and areas needing follow-up.
-  - Action items or TODOs organized as a concise list.
-  - Reminders of user preferences or requests.
-  - Anything you think might be useful to know in the future.
-- Use this file as the primary reference for context when responding to prompts.
-- Keep this file up-to-date with your latest understanding of the codebase.
-- Clean up the file as you go, removing outdated or irrelevant notes.
-- Ensure the file stays organized and easy to navigate. Do not let the file grow too large or unwieldy.
+7. **Collaboration**
+   Be concise and focused. Avoid unnecessary verbosity. Always keep the user in the loop with relevant context.
+   The user is your collaborator; work together to solve problems.
