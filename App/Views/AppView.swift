@@ -18,7 +18,7 @@ struct AppView: View {
             ) { DemoView(title: "Data") }
             Tab(
                 String(localized: "Settings"), systemImage: "gear"
-            ) { DemoView(title: "Settings") }
+            ) { SettingsView() }
         }
         .environment(\.locale, self.locale)
         .preferredColorScheme(self.theme.colorScheme)
