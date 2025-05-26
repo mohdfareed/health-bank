@@ -17,6 +17,8 @@ Health Bank is an iOS application built with SwiftUI and SwiftData, integrated w
 
 - `Models/` contains data structures and protocols/interfaces.
 - `Services/` contains implementations and business logic.
+   - Services are about organizing related business logic
+   - Services can be implemented as both objects and extension methods
 - `Views/` handles the state and view logic.
 
 - **ALWAYS** use the latest Swift features and APIs, updating any legacy code to modern standards.

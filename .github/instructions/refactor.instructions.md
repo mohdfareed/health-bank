@@ -5,8 +5,9 @@
    - Record all confirmed rules in `REVIEW.md`.
 
 2. **Design Before Code**
-   - Sketch proposed changes or new features in ASCII or prose.
+   - Sketch proposed changes or new features in Meramid or code snippets.
    - Review and refine sketches with the user; update `REVIEW.md` accordingly.
+   - Never apply a change the user has not given explicit approval for.
 
 3. **Incremental Implementation**
    - Break work into small, testable chunks.
