@@ -1,17 +1,32 @@
-// HealthBankApp.swift
-
+import SwiftData
 import SwiftUI
 
-@main
-struct MainApp: App {
-    var body: some Scene {
-        WindowGroup {
-            ContentView()
+struct AppView: View {
+    @AppStorage(.theme)
+    internal var theme: AppTheme
+    @AppLocale()
+    internal var locale: Locale
+
+    var body: some View {
+        TabView {
+            Tab(
+                String(localized: "Dashboard"),
+                systemImage: "square.grid.2x2"
+            ) { DemoView(title: "Dashboard") }
+            Tab(
+                String(localized: "Data"), systemImage: "list.clipboard"
+            ) { DemoView(title: "Data") }
+            Tab(
+                String(localized: "Settings"), systemImage: "gear"
+            ) { DemoView(title: "Settings") }
         }
+        .environment(\.locale, self.locale)
+        .preferredColorScheme(self.theme.colorScheme)
     }
 }
 
-struct ContentView: View {
+struct DemoView: View {
+    var title: String
     var body: some View {
         NavigationStack {
             VStack(spacing: 20) {
@@ -24,7 +39,7 @@ struct ContentView: View {
                     .font(.largeTitle)
                     .fontWeight(.bold)
 
-                Text("Project Setup Complete")
+                Text(title)
                     .font(.title2)
 
                 Divider()
@@ -44,5 +59,5 @@ struct ContentView: View {
 }
 
 #Preview {
-    ContentView()
+    AppView()
 }

@@ -11,7 +11,8 @@ public protocol Calorie: DataRecord {
 // MARK: - Dietary Calories
 // ============================================================================
 
-public struct Macros {
+/// Represents macro-nutrient breakdown of calories.
+public struct CalorieMacros: Codable, Hashable {
     /// Protein contents in grams.
     public var protein: Double?
     /// Fat contents in grams.
@@ -19,27 +20,25 @@ public struct Macros {
     /// Carbohydrate contents in grams.
     public var carbs: Double?
 
-    public init(
-        protein: Double? = nil, fat: Double? = nil, carbs: Double? = nil
-    ) {
-        self.protein = protein
-        self.fat = fat
-        self.carbs = carbs
+    public init(p: Double? = nil, f: Double? = nil, c: Double? = nil) {
+        self.protein = p
+        self.fat = f
+        self.carbs = c
     }
 }
 
 /// Represents dietary calorie intake.
-@Model
-public final class DietaryIntake: Calorie {
+@Model public final class DietaryEnergy: Calorie {
     public var calories: Double
     public var date: Date
     public var source: DataSource
 
     // Optional macro-nutrient breakdown
-    public var macros: Macros?
+    public var macros: CalorieMacros?
 
     public init(
-        _ value: Double, date: Date, source: DataSource, macros: Macros? = nil
+        _ value: Double, date: Date, source: DataSource,
+        macros: CalorieMacros? = nil
     ) {
         self.calories = value
         self.date = date
@@ -57,8 +56,7 @@ public enum WorkoutType: Codable, CaseIterable {
 }
 
 /// Represents active energy expenditure from physical activity.
-@Model
-public final class ActiveEnergy: Calorie {
+@Model public final class ActiveEnergy: Calorie {
     public var calories: Double
     public var date: Date
     public var source: DataSource
@@ -81,8 +79,7 @@ public final class ActiveEnergy: Calorie {
 }
 
 /// Represents resting energy expenditure (basal metabolic rate).
-@Model
-public final class RestingEnergy: Calorie {
+@Model public final class RestingEnergy: Calorie {
     public var calories: Double
     public var date: Date
     public var source: DataSource
@@ -91,5 +88,29 @@ public final class RestingEnergy: Calorie {
         self.calories = value
         self.date = date
         self.source = source
+    }
+}
+
+// MARK: - Calorie Units
+// ============================================================================
+
+extension Calorie {
+    /// The unit for calorie values.
+    static var unit: UnitDefinition<UnitEnergy> {
+        .init(.kilocalories, usage: .food)
+    }
+}
+
+extension CalorieMacros {
+    /// The unit for a calorie macros breakdown.
+    static var unit: UnitDefinition<UnitMass> {
+        .init(.grams, usage: .asProvided)
+    }
+}
+
+extension ActiveEnergy {
+    /// The unit for a workout duration.
+    static var unit: UnitDefinition<UnitDuration> {
+        .init(.minutes, alts: [.minutes, .hours])
     }
 }

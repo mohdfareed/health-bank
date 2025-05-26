@@ -2,8 +2,7 @@ import Foundation
 import SwiftData
 
 /// SwiftData model for weight records.
-@Model
-public final class Weight: DataRecord {
+@Model public final class Weight: DataRecord {
     public var date: Date
     public var source: DataSource
 
@@ -14,5 +13,12 @@ public final class Weight: DataRecord {
         self.date = date
         self.weight = weight
         self.source = source
+    }
+}
+
+extension Weight {
+    /// The unit for a weight record.
+    static var unit: UnitDefinition<UnitMass> {
+        .init(.kilograms, usage: .personWeight)
     }
 }
