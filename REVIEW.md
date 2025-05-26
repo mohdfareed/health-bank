@@ -167,3 +167,129 @@ The architecture and design principles aim to address:
 
 ## 13. Medical Rationale for Flexible Budgeting
 The approach of weekly or flexible caloric budgeting, as opposed to strict daily limits, is supported by nutritional science. The human body responds to energy balance over extended periods, not requiring exact daily consistency. This flexibility can be psychologically healthier, allowing for natural variations in appetite and activity while still supporting overall health goals.
+
+## 14. Project Review & Status (As of 2025-05-26)
+
+### General Observations:
+*   **Project Structure**: The project follows the defined structure (`Models/`, `Services/`, `Views/`).
+*   **XcodeGen/SPM**: The project uses XcodeGen and Swift Package Manager, which is good for managing project configuration and dependencies.
+*   **SwiftUI & SwiftData**: The core technologies are in place.
+*   **HealthKit Integration**: Foundational elements for HealthKit are present, but the `HealthKit Sync Service` mentioned in the design is not yet implemented.
+*   **AppStorage for Settings**: `SettingsService.swift` and `Settings.swift` suggest user preferences are being managed, likely via AppStorage as planned.
+*   **Measurement API**: No explicit `UnitsService.swift` was found, but the principle of using Measurement API is sound. This service should be created.
+*   **Localization**: `App/Views/Localization.swift` and `Assets/Info.plist.xcstrings` indicate that localization is being considered, which is excellent.
+*   **Assets**: A good set of assets (icons, colors, launch screen) are in place.
+
+### Areas for Improvement & Best Practices:
+
+*   **`REVIEW.md` Updates**: The document is largely up-to-date with the initial design. Some planned services (e.g., `UnitsService`, `BudgetService`, `HealthKit Sync Service`, `DataProvider` implementations) are not yet present in the `Services/` directory. The "File Structure (Current Plan)" section should be updated to reflect the actual files as they are created.
+*   **Testing**:
+    *   `AppTests.swift` and `UITests.swift` exist, which is a good start. Ensure comprehensive unit and UI tests are added as features are developed.
+    *   Consider a strategy for testing SwiftData and HealthKit interactions, which can be complex.
+*   **Error Handling**: No explicit error handling strategy is visible yet. This will be crucial, especially for HealthKit and SwiftData operations. Define how errors are propagated to the UI and logged.
+*   **Asynchronous Operations**: Ensure modern Swift concurrency (`async/await`) is used for HealthKit, SwiftData, and any network operations, rather than relying solely on Combine where `async/await` might be more appropriate or simpler.
+*   **Dependency Management in Services/Views**: Clarify how dependencies (like `DataProvider` instances or `UserSettings`) will be injected into services and views (e.g., environment objects, initializer injection).
+*   **`Project.yml` Review**: Ensure `Project.yml` is clean and correctly configured. For instance, check target memberships for files, build settings, and scheme configurations.
+*   **`Info.plist`**: Review `Info.plist` for necessary keys, especially privacy descriptions for HealthKit access (e.g., `NSHealthShareUsageDescription`, `NSHealthUpdateUsageDescription`).
+*   **Secrets Management**: If any API keys or secrets are planned for future features, establish a secure way to manage them (e.g., Xcode configurations and `plist` files, not hardcoding).
+*   **Code Style & Linting**: Consider adding SwiftLint to enforce a consistent code style and catch potential issues early.
+*   **CI/CD**: For a production-ready app, setting up a Continuous Integration/Continuous Deployment pipeline (e.g., Xcode Cloud, GitHub Actions) would be beneficial.
+*   **Documentation**: Add in-code documentation (DocC) for public APIs, especially in `Models/` and `Services/`.
+
+### Production Readiness Checklist (High-Level):
+*   [ ] Comprehensive error handling and reporting.
+*   [ ] Robust data validation (input and from HealthKit).
+*   [ ] Thorough testing (unit, integration, UI).
+*   [ ] Performance optimization (especially for large datasets).
+*   [ ] Accessibility (VoiceOver, Dynamic Type).
+*   [ ] Finalized UI/UX design and polish.
+*   [ ] App Store submission requirements met (privacy policy, screenshots, etc.).
+
+### Next Steps (Based on Current State):
+1.  Implement the `DataProvider` protocols and their SwiftData/HealthKit concrete implementations.
+2.  Create the `UnitsService` for managing Measurement conversions.
+3.  Begin implementation of the `BudgetService` and other core statistics services.
+4.  Start developing the initial views, focusing on reactive data display.
+
+This review provides a snapshot. The project is at a good foundational stage to start building out the core data and statistics services. Addressing the points above will help ensure a robust and maintainable application.
+
+## 15. Detailed Code Review & Refinement Plan (As of 2025-05-26)
+
+Following a detailed file-by-file review and user feedback, the following refinements and action items have been identified:
+
+### A. Core Architecture & Design Decisions:
+
+1.  **`UnitsService` and Unit Management**:
+    *   **Current State**: The existing `UnitsService` (in `App/Services/Units/`) with its provider system is considered over-engineered for the project's needs. The `UnitDefinition` in models might also be more complex than necessary.
+    *   **Desired State**:
+        *   Values have a defined base unit (as currently).
+        *   Display units primarily follow user's general measurement system preference (Metric, US, UK), settable in app settings and defaulting to `Locale.current.measurementSystem`.
+        *   Optionally support HealthKit preferred units; priority to be determined.
+        *   Users should *not* override units on a per-type basis beyond these preferences.
+    *   **Action**: Postpone immediate changes. After other refinements (logging, error handling, async/await), conduct a focused design session to simplify `UnitsService` and related model aspects for unit management.
+
+2.  **Asynchronous Operations (Combine vs. `async/await`)**:
+    *   **Decision**: Prioritize `async/await` for all new asynchronous code, including `DataProvider` implementations and service layer methods, aligning with modern Swift practices. Combine can be used if it offers a clear advantage for specific reactive stream scenarios.
+    *   **Action**: Update `DataProvider` protocol to use `async/await`.
+
+3.  **Error Handling & Logging**:
+    *   **Logging**: Continue using `OSLog` via `AppLogger`. Adhere to standard log levels and privacy best practices. Future telemetry will integrate with this or use dedicated SDKs.
+    *   **Error Handling Strategy**:
+        *   Expand `AppError` in `App/Models/Core.swift` to include specific, nested error types for different domains (e.g., `HealthKitError`, `StorageError`, `NetworkError`).
+        *   Utilize Swift's `Error` protocol, `Result` type where appropriate, and `throws` with `async/await`.
+        *   Define clear error propagation paths from data layers to UI, distinguishing between user-facing and internal errors.
+    *   **Action**: Update `AppError` definition.
+
+### B. Project Setup & Developer Experience:
+
+1.  **XcodeGen in `Package.swift`**:
+    *   **Rationale**: Including XcodeGen as a package dependency is a pragmatic choice to simplify setup for contributors by ensuring LSP/IntelliSense works without requiring external global installations (like Homebrew).
+    *   **Action**: Keep as is.
+
+2.  **`README.md` Enhancement**:
+    *   **Need**: The README requires more detail for new developers.
+    *   **Action**: Expand `README.md` to include:
+        *   Project Overview & Features (briefly).
+        *   Prerequisites (Xcode version).
+        *   Getting Started: `.env` setup, project generation (`swift run xcodegen`), opening the project.
+        *   Building, Running, Testing.
+        *   Brief Project Structure overview.
+
+### C. Testing:
+
+1.  **Testing Strategy**:
+    *   **Goal**: Concise tests covering essential functionality.
+    *   **What to Test**:
+        *   **Models**: Validation, computed properties, custom encoding/decoding.
+        *   **Services (Business Logic)**: Pure functions, interactions with (mocked) data providers, edge cases.
+        *   **Data Providers**: Logic for combining data; SwiftData interactions (with in-memory store); mock HealthKit APIs.
+        *   **View Models**: State changes.
+        *   **UI (UITests)**: High-level critical user flows, navigation.
+    *   **How to Test**:
+        *   **Unit Tests (XCTest, Swift Testing `#expect`)**: For models, services, view models.
+        *   **AAA Pattern**: Arrange, Act, Assert.
+        *   **Dependency Injection & Mocking**: Design services for DI to enable mocking of dependencies (e.g., data providers).
+    *   **Action**:
+        *   Add a dedicated "Testing Strategy" section to `REVIEW.md`.
+        *   Uncomment and adapt existing tests in `AppTests.swift` once services are implemented.
+        *   Prioritize testing business logic in services.
+
+### D. Specific File/Code Level Todos:
+
+*   **`App/Models/Core.swift`**:
+    *   Expand `AppError` as per the error handling strategy.
+*   **`App/Models/Data.swift`**:
+    *   Change `DataProvider` protocol methods from Combine publishers to `async/await` functions.
+*   **`AppTests/AppTests.swift`**:
+    *   Review and update commented-out tests to align with current models and future service implementations.
+
+### E. Implementation Order:
+1.  Update `REVIEW.md` with this detailed plan (this step).
+2.  Modify `DataProvider` protocol to use `async/await`.
+3.  Expand `AppError` in `Core.swift`.
+4.  Enhance `README.md`.
+5.  Discuss and redesign the `UnitsService` and unit management in models.
+6.  Implement `DataProvider` concrete classes.
+7.  Implement other services (`BudgetService`, `HealthKitSyncService`).
+8.  Develop Views.
+9.  Write tests concurrently with service and view development.

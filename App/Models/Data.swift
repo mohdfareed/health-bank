@@ -1,7 +1,6 @@
 // DataProvider.swift
 // Data provider protocols for accessing health data
 
-import Combine
 import Foundation
 
 // MARK: - Data Models
@@ -35,20 +34,21 @@ public protocol DataProvider {
     ///   - timeRange: Optional time range to filter by
     ///   - limit: Maximum number of records to fetch
     ///   - offset: Number of records to skip
-    /// - Returns: A publisher that emits the records
+    /// - Returns: An array of matching records.
+    /// - Throws: An error if fetching fails.
     func fetch<T: DataRecord>(
         _ type: T.Type,
         in timeRange: ClosedRange<Date>?,
         limit: Int?, offset: Int?
-    ) -> AnyPublisher<[T], Error>
+    ) async throws -> [T]
 
     /// Stores a record.
     /// - Parameter record: The record to store
-    /// - Returns: A publisher that completes when the operation is done
-    func store<T: DataRecord>(_ record: T) -> AnyPublisher<Void, Error>
+    /// - Throws: An error if storing fails.
+    func store<T: DataRecord>(_ record: T) async throws
 
     /// Deletes a record.
     /// - Parameter record: The record to delete
-    /// - Returns: A publisher that completes when the operation is done
-    func delete<T: DataRecord>(_ record: T) -> AnyPublisher<Void, Error>
+    /// - Throws: An error if deleting fails.
+    func delete<T: DataRecord>(_ record: T) async throws
 }

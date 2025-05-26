@@ -45,7 +45,6 @@ extension UserDefaults {
             .init(.notifications),
             .init(.unitSystem),
             .init(.firstDayOfWeek),
-            // .init(.dailyCalorieBudget),
         ] {
             self.removeObject(forKey: settings.id)
         }

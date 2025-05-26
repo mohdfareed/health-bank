@@ -15,10 +15,3 @@ import SwiftData
         self.source = source
     }
 }
-
-extension Weight {
-    /// The unit for a weight record.
-    static var unit: UnitDefinition<UnitMass> {
-        .init(.kilograms, usage: .personWeight)
-    }
-}

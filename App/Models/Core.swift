@@ -3,8 +3,31 @@ import SwiftData
 
 /// An application error.
 enum AppError: Error {
-    /// An error that occurred during the app's execution.
-    case runtimeError(String, Error? = nil)  // REVIEW: Add more cases.
+    /// An error related to HealthKit operations.
+    case healthKit(HealthKitError)
+    /// An error related to data storage operations (e.g., SwiftData).
+    case storage(StorageError)
+    /// An error related to unit conversion or localization.
+    case localization(String, underlyingError: Error? = nil)
+    /// A generic runtime error with a descriptive message.
+    case runtimeError(String, underlyingError: Error? = nil)
+}
+
+/// Specific errors related to HealthKit operations.
+enum HealthKitError: Error {
+    case queryFailed(Error, String? = nil)
+    case saveFailed(Error, String? = nil)
+    case deleteFailed(Error, String? = nil)
+    case authorizationFailed(Error)
+    case unexpectedError(String)
+}
+
+/// Specific errors related to data storage operations (e.g., SwiftData).
+enum StorageError: Error {
+    case fetchFailed(Error, String? = nil)  // E.g., "Failed to fetch X model"
+    case saveFailed(Error, String? = nil)  // E.g., "Failed to save X model"
+    case deleteFailed(Error, String? = nil)  // E.g., "Failed to delete X model"
+    case modelNotFound(String)  // E.g., "Model X with ID Y not found"
 }
 
 // MARK: Singleton
@@ -19,6 +42,28 @@ protocol Singleton: PersistentModel where ID == UUID {
     /// according to a sort order, is considered the singleton.
     var id: ID { get set }
     init()
+}
+
+// MARK: Units System
+// ============================================================================
+
+/// The unit localization definition.
+struct UnitDefinition<D: Dimension> {
+    /// The unit formatting usage.
+    let usage: MeasurementFormatUnitUsage<D>
+    /// The display unit to use if not localized.
+    let baseUnit: D
+    /// The alternative units allowed for the unit.
+    let altUnits: [D]
+
+    init(
+        _ unit: D = .baseUnit(), alts: [D] = [],
+        usage: MeasurementFormatUnitUsage<D> = .general
+    ) {
+        self.baseUnit = unit
+        self.altUnits = alts
+        self.usage = usage
+    }
 }
 
 // MARK: Settings System
@@ -60,27 +105,5 @@ struct AnySettings: Sendable {
     init<Value>(_ key: Settings<Value>) where Value: SettingsValue {
         self.id = key.id
         self.default = key.default
-    }
-}
-
-// MARK: Units System
-// ============================================================================
-
-/// The unit localization definition.
-struct UnitDefinition<D: Dimension> {
-    /// The unit formatting usage.
-    let usage: MeasurementFormatUnitUsage<D>
-    /// The display unit to use if not localized.
-    let baseUnit: D
-    /// The alternative units allowed.
-    let alts: [D]
-
-    init(
-        _ unit: D = .baseUnit(), alts: [D] = [],
-        usage: MeasurementFormatUnitUsage<D> = .general
-    ) {
-        self.baseUnit = unit
-        self.alts = alts + [unit]
-        self.usage = usage
     }
 }
