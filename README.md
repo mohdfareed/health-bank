@@ -7,8 +7,8 @@ progress over time.
 
 ## Development
 
-Development team: set environment variables in `.env` file.
+Development team: set environment variables in `health-bank/.env` file.
 
 ```bash
-export HEALTH_BANK_TEAM_ID=your_team_id
+HEALTH_BANK_TEAM_ID=your_team_id
 ```

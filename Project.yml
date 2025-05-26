@@ -29,6 +29,7 @@ fileGroups:
   # folders
   - .github
   - .vscode
+  - Assets
   - Scripts
   # files
   - .gitignore
@@ -70,7 +71,7 @@ targets:
     platform: iOS
     sources:
       - App
-      - path: App/Assets
+      - path: Assets
         buildPhase: resources
 
     scheme:

@@ -10,9 +10,6 @@ struct App {
 let package = Package(
     name: App.name,
     platforms: [.iOS(.v18), .watchOS(.v11), .macOS(.v15)],
-    products: [
-        .executable(name: App.name, targets: [App.name])
-    ],
 
     dependencies: [
         .package(
@@ -21,12 +18,10 @@ let package = Package(
     ],
 
     targets: [
-        .executableTarget(
+        .target(
             name: App.name,
             path: "App",
-            resources: [
-                .process("Assets")
-            ],
+            resources: [.process("../Assets")],
         ),
 
         .testTarget(

@@ -4,4 +4,4 @@
 
 .env
 Package.resolved
-*/Generated.*
+**/*.generated.*
