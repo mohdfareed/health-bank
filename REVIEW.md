@@ -293,3 +293,74 @@ Following a detailed file-by-file review and user feedback, the following refine
 7.  Implement other services (`BudgetService`, `HealthKitSyncService`).
 8.  Develop Views.
 9.  Write tests concurrently with service and view development.
+
+### F. View Layer Refinements (as of 2025-05-26):
+
+#### 1. `DataRow.swift` Refactoring:
+*   **Objective**: Align with HIG and improve clarity.
+*   **Text Handling**:
+    *   `title`: Single line, `.headline` font, truncates with tail.
+    *   `subtitle`: Up to two lines, `.subheadline` font, secondary color, truncates with tail.
+    *   `caption`: Up to two lines, `.caption` font, tertiary color, truncates with tail.
+*   **Layout**:
+    *   Removed "•" separator between title and subtitle.
+    *   Improved spacing and padding for better visual hierarchy.
+    *   Image size standardized.
+*   **Animations**: Rely on default SwiftUI animations for row-level changes and content updates within the row.
+
+#### 2. `MeasurementField.swift` Refactoring Plan:
+*   **Objective**: Improve usability, align with HIG, and integrate validation and computed value display.
+*   **ViewModel (`MeasurementFieldVM`)**:
+    *   Add `validator: ((Double) -> String?)?` for input validation.
+    *   `prompt` to default to a generic "Enter value".
+*   **State Management**:
+    *   `@State private var validationError: String?` to hold validation messages.
+    *   `TextField` to bind to `inputValue` (representing value in the current display unit).
+    *   `selectedUnit` (bound to `LocalizedMeasurement.overrideUnit`) for unit selection.
+*   **View Structure (using `DataRow`)**:
+    *   `DataRow.title`: `vm.title`.
+    *   `DataRow.subtitle`: Display `vm.computed` value (formatted in `selectedUnit`), prefixed with an icon (e.g., `Image(systemName: "function")`) or "Est:".
+    *   `DataRow.caption`: Display `validationError` string if present.
+    *   `DataRow.content`: `HStack` containing the value input `TextField` and the unit `Picker`.
+*   **Value Input (`TextField`)**:
+    *   Bound to `inputValue`.
+    *   Text color changes to red if `validationError != nil`.
+    *   `.onChange(of: inputValue)`:
+        *   Run `vm.validator`. If invalid, set `validationError`.
+        *   If valid, clear `validationError` and update `LocalizedMeasurement.baseValue` via its `update()` method.
+*   **Unit Picker (`Picker`)**:
+    *   Bound to `selectedUnit`.
+    *   `.onChange(of: selectedUnit)`:
+        *   Update `inputValue` to reflect `LocalizedMeasurement.wrappedValue.value` (the value in the new unit).
+        *   Clear `validationError`.
+*   **Computed Value Display**: Integrated into `DataRow.subtitle`.
+*   **Reset to Computed Value**:
+    *   The "arrow.clockwise" icon in the picker (or a more explicit button) will trigger a reset.
+    *   Action: Update `LocalizedMeasurement.baseValue` to `vm.computed` (after appropriate unit conversion) and refresh `inputValue`.
+*   **Error Indication (HIG)**: Invalid input will be indicated by a red text color in the field and a descriptive message in the `DataRow.caption` area.
+*   **Value Conversion on Unit Change**: `inputValue` will update to reflect the equivalent value when the unit is changed by the user.
+
+#### 3. `SettingsView.swift` Refactoring and Calorie Budget Management Plan:
+*   **Objective**: Align `SettingsView` with HIG and plan for a comprehensive calorie budget management feature.
+*   **`SettingsView.swift` Refinements**:
+    *   **Navigation**: Changed `NavigationView` to `NavigationStack`.
+    *   **Reset Settings**: Added an `Alert` for confirmation before resetting all settings.
+    *   **Calorie Budget Section**:
+        *   Adopts **Option B**: Displays a summary of the current active calorie budget (if set).
+        *   Provides a `NavigationLink` to a new, dedicated "Manage Calorie Budgets" screen.
+        *   The existing `DailyBudgetSettings` and `BudgetsHistory` sub-views will be superseded by this new management screen.
+    *   **AppStorage Keys**: Updated to use constants from `UserSettings` (e.g., `UserSettings.dailyCalorieBudget`).
+*   **New "Calorie Budget Management" View (Conceptual Plan - To Be Implemented Separately)**:
+    *   **Location**: A new, dedicated view, navigated to from `SettingsView`.
+    *   **Main Screen Features**:
+        *   Clear display of the *currently active* budget.
+        *   A `List` of historical/saved budgets (using `DataRow` for each). Rows to show budget name/date, key figures (calories, optional macros), and "Active" status.
+        *   A "+" button (navigation bar) to initiate creation of a new budget.
+    *   **Interactions**:
+        *   Tapping a historical budget: Navigate to an edit/detail view, or use context menus/swipe actions for "Set as Active", "Edit", "Duplicate", "Delete".
+    *   **Create/Edit Budget Screen**:
+        *   Fields for: descriptive name (optional), Total Calories (`MeasurementField`), optional Protein/Carbs/Fat (`MeasurementFields`).
+        *   Clear indication of optional fields.
+        *   Save/Done functionality.
+    *   **Activation**: Clear confirmation when a budget (new or historical) is set as active. `AppStorage` for the active budget ID will be updated.
+*   **Macros**: To be optional in budget creation/editing.

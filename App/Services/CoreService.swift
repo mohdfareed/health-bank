@@ -36,10 +36,28 @@ extension UUID {
     )!  // tested
 }
 
-extension Weekday {
+extension Weekday: @retroactive CaseIterable {
     /// The days of the week.
-    static var all: [Self] {
+    public static var allCases: [Self] {
         [.monday, .tuesday, .wednesday, .thursday, .friday, .saturday, .sunday]
+    }
+}
+
+@MainActor
+extension Binding {
+    /// A binding that defaults to a value if the wrapped value is nil.
+    func defaulted<T>(to defaultValue: T) -> Binding<T> where Value == T? {
+        .init(
+            get: { self.wrappedValue ?? defaultValue },
+            set: { self.wrappedValue = $0 }
+        )
+    }
+    /// A binding that defaults to a value if the wrapped value is nil.
+    func optional(_ defaultValue: Value) -> Binding<Value?> {
+        .init(
+            get: { self.wrappedValue },
+            set: { self.wrappedValue = $0 ?? defaultValue }
+        )
     }
 }
 
