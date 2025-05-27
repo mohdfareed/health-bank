@@ -364,3 +364,46 @@ Following a detailed file-by-file review and user feedback, the following refine
         *   Save/Done functionality.
     *   **Activation**: Clear confirmation when a budget (new or historical) is set as active. `AppStorage` for the active budget ID will be updated.
 *   **Macros**: To be optional in budget creation/editing.
+
+# Animation Review & Design Workshop - May 26, 2025
+
+## Step 1: Session Kickoff
+
+**Objective**: Review and refactor the use of animations across all SwiftUI views in the "Health Bank" project. The aim is to establish a pattern where UI changes are animated by default, adhering to Apple's best practices, while minimizing boilerplate code. Animations should only be explicitly disabled when not desired.
+
+**Scope**: All SwiftUI views within the `/Users/mohdfareed/Developer/health-bank/App/Views/` directory. We'll examine how state changes trigger UI updates and how animations are (or should be) applied.
+
+**Constraints**:
+*   Utilize SwiftUI's native animation capabilities (e.g., `.animation()`, `withAnimation {}`, `Transaction`).
+*   Prioritize clarity and maintainability of the animation code.
+
+**Success Criteria**:
+1.  A clear strategy for "animate by default" is established and applied.
+2.  Key views demonstrate smooth and appropriate animations for common user interactions and data changes.
+3.  Instances where animations should be disabled are identified and handled correctly.
+4.  The animation code is concise and follows SwiftUI best practices.
+5.  The user feels confident in applying these animation principles to new and existing views.
+
+**User Confirmation**: Confirmed by user.
+**Specific Areas of Concern/Priority**: General approach to achieve "animate by default" with minimal boilerplate, adhering to Apple's guidelines for a polished, native feel.
+
+## Step 2: Interrogative Dialog - Current Animation Practices & Preferences
+
+**User Input Summary**:
+*   **Current Usage**: The user is unsure if the current pattern in `DataRow.swift` (using `.animation(.default, value: someValue)`) is an Apple-recommended best practice. This is a key question for the session.
+*   **Desired "Animate by Default"**: The primary goal is to have UI changes animate by default using `.default` animation, without requiring extensive manual animation code for every view or change in the future.
+*   **Adherence to Apple Guidelines**: A strong desire to make the app look and feel as if Apple designed it, following their guidelines and best practices for animations to achieve a polished experience.
+*   **Interactions & Polish**: All interactions should feel polished, implying animations for user-triggered events and data-driven UI updates.
+*   **Disabling Animations**: The mechanism for disabling is secondary to achieving the "animate by default" behavior, as long as it's possible.
+
+**Initial Copilot Observations (from code scan)**:
+*   `.animation(.default, value: someValue)` is used in `DataRow.swift` for specific data changes.
+*   No `withAnimation {}` blocks were found in the views.
+
+**Key Questions Arising & Discussion Points**:
+*   **Apple's Recommended Practices for "Animate by Default"**: How does SwiftUI encourage or facilitate a global or widespread default animation behavior?
+*   **Implicit vs. Explicit Animations**: The current use is implicit (`.animation()` modifier). Is this the best approach for a default, or should `withAnimation {}` be considered for certain scenarios?
+*   **Scope of Default Animation**: Should it apply to *all* state changes, or are there categories of changes that should be excluded by default?
+*   **Animation Types**: While `.default` is the starting point, are there common scenarios where Apple guidelines would suggest specific animation curves (e.g., `easeInOut`, `spring`) for better UX?
+*   **Performance**: Could a very broad "animate everything" approach have performance implications, and how can this be mitigated?
+*   **Controlling Animations**: How to easily override or disable the default animation when needed (e.g., for initial view appearance, or for changes that should be instant).

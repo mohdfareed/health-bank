@@ -2,31 +2,39 @@ import SwiftData
 import SwiftUI
 
 struct SettingsView: View {
-    @AppStorage(.dailyCalorieBudget)
-    var budgetID: CalorieBudget.ID
+    @AppStorage(.dailyCalorieBudget) var budgetID: UUID
+    @State private var reset = false
 
     var body: some View {
-        NavigationView {
+        NavigationStack {
             Form {
                 Section(header: Text(String(localized: "General Settings"))) {
                     GeneralSettings()
                     LocalizationSettings()
                 }
 
-                Section(header: Text(String(localized: "Daily Calorie Budget"))) {
-                    DailyBudgetSettings(budget: .init(self.budgetID))
-                }
-
-                NavigationLink(destination: BudgetsHistory()) {
-                    Text(String(localized: "Budget History"))
-                }
-
                 Button(
                     String(localized: "Reset All Settings"),
                     role: .destructive
-                ) { UserDefaults.standard.resetSettings() }
+                ) { reset = true }
             }
             .navigationTitle(String(localized: "Settings"))
+
+            .alert(String(localized: "Confirm Reset"), isPresented: $reset) {
+                Button(String(localized: "Reset"), role: .destructive) {
+                    UserDefaults.standard.resetSettings()
+                }
+                Button(String(localized: "Cancel"), role: .cancel) {}
+            } message: {
+                Text(
+                    String(
+                        localized: """
+                            Are you sure you want to reset all settings?
+                            This action cannot be undone.
+                            """
+                    )
+                )
+            }
         }
     }
 }
@@ -103,66 +111,6 @@ private struct LocalizationSettings: View {
     }
 }
 
-private struct DailyBudgetSettings: View {
-    @Query.Singleton var budget: CalorieBudget
-    var body: some View {
-        Form {
-            Section(header: Text(String(localized: "Daily Budget"))) {
-                DatePicker(
-                    String(localized: "Date"),
-                    selection: self.$budget.date,
-                    displayedComponents: .date
-                )
-                .datePickerStyle(.compact)
-
-                Stepper(
-                    String(localized: "Calories: \(self.budget.calories.formatted())"),
-                    value: self.$budget.calories,
-                    in: 0...10_000
-                )
-
-                if let macros = self.budget.macros {
-                    Text("P: \(macros.protein ?? 0) F: \(macros.fat ?? 0) C: \(macros.carbs ?? 0)")
-                        .font(.caption)
-                }
-            }
-        }
-        .navigationTitle(String(localized: "Daily Budget"))
-    }
-}
-
-private struct BudgetsHistory: View {
-    @Query var budgets: [CalorieBudget]
-    var body: some View {
-        NavigationView {
-            List(self.budgets) { budget in
-                NavigationLink(value: budget) {
-                    DataRow(
-                        title: Text(budget.date.formatted()),
-                        subtitle: Text(budget.calories.formatted()),
-                        image: Image(systemName: "calendar"),
-                        color: .primary
-                    ) {
-                        Text(budget.calories.formatted())
-                    }
-                }
-            }
-            .navigationTitle(String(localized: "Calorie Budgets"))
-            .navigationDestination(for: CalorieBudget.self) { budget in
-                VStack {
-                    Text(budget.date.formatted())
-                        .font(.headline)
-                    Text(budget.calories.formatted())
-                        .font(.subheadline)
-                    if let macros = budget.macros {
-                        Text(
-                            "P: \(macros.protein ?? 0) F: \(macros.fat ?? 0) C: \(macros.carbs ?? 0)"
-                        )
-                        .font(.caption)
-                    }
-                }
-                .padding()
-            }
-        }
-    }
+#Preview {
+    SettingsView().modelContainer(for: CalorieBudget.self)
 }

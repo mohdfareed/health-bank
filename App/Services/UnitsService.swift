@@ -1,46 +1,6 @@
 import HealthKit
 import SwiftUI
 
-// MARK: Measurements
-// ============================================================================
-
-private struct LocalizedMeasurementValue<D: Dimension> {
-    let definition: UnitDefinition<D>
-    let locale: Locale
-    let overrideUnit: D?
-    var effectiveUnit: D {
-        overrideUnit ?? definition.unit(for: locale)
-    }
-
-    func toDisplayValue(base: Double) -> Measurement<D> {
-        Measurement(value: base, unit: definition.baseUnit).converted(to: effectiveUnit)
-    }
-
-    func toBaseValue(display: Double, in unit: D?) -> Double {
-        let inputUnit = unit ?? effectiveUnit
-        return Measurement(value: display, unit: inputUnit).converted(to: definition.baseUnit).value
-    }
-
-    func availableUnits() -> [D] {
-        var units: Set<D> = [
-            definition.baseUnit,
-            definition.unit(for: locale),
-        ]
-        definition.altUnits.forEach { units.insert($0) }
-
-        return units.sorted {
-            $0.symbol.localizedCompare($1.symbol) == .orderedAscending
-        }
-    }
-}
-
-extension Measurement<UnitDuration> {
-    /// The measurement converted to a duration.
-    var duration: Duration {
-        .seconds(self.converted(to: .seconds).value)
-    }
-}
-
 // MARK: Units
 // ============================================================================
 
@@ -84,6 +44,13 @@ private func nativeUnit<D: Dimension>(
     }
 }
 
+extension Measurement<UnitDuration> {
+    /// The measurement converted to a duration.
+    var duration: Duration {
+        .seconds(self.converted(to: .seconds).value)
+    }
+}
+
 // MARK: `SwiftUI` Integration
 // ============================================================================
 
@@ -94,36 +61,48 @@ private func nativeUnit<D: Dimension>(
 struct LocalizedMeasurement<D: Dimension>: DynamicProperty {
     @AppLocale var locale
     @Binding var baseValue: Double
-    @Binding var overrideUnit: D?
+    @State var unit: D?
 
     let definition: UnitDefinition<D>
-    private var adapter: LocalizedMeasurementValue<D> {
-        .init(definition: definition, locale: locale, overrideUnit: overrideUnit)
-    }
+    var effectiveUnit: D { unit ?? definition.unit(for: locale) }
 
     var wrappedValue: Measurement<D> {
-        adapter.toDisplayValue(base: baseValue)
+        Measurement(value: baseValue, unit: definition.baseUnit)
+            .converted(to: effectiveUnit)
     }
     var projectedValue: Self { self }
 
-    init(
-        baseValue: Binding<Double>,
-        definition: UnitDefinition<D>,
-        overrideUnit: Binding<D?>,
-        animation: Animation = .default
-    ) {
-        self._baseValue = baseValue.animation(animation)
-        self._overrideUnit = overrideUnit
-        self.definition = definition
+    var value: Binding<Double> {
+        Binding(
+            get: { wrappedValue.value },
+            set: { newValue in
+                baseValue =
+                    Measurement(value: newValue, unit: effectiveUnit)
+                    .converted(to: definition.baseUnit).value
+            }
+        )
     }
 
-    /// Update the `baseValue` from an input value provided in a specific unit.
-    func update(_ inputValue: Double, unit: D? = nil) {
-        baseValue = adapter.toBaseValue(display: inputValue, in: unit)
+    init(
+        baseValue: Binding<Double>, definition: UnitDefinition<D>,
+        animation: Animation = .default
+    ) {
+        self.definition = definition
+        self._baseValue = baseValue.animation(animation)
+        self._unit = State(initialValue: definition.unit(for: locale))
     }
 
     /// Provides a list of units suitable for user selection in a picker.
     func availableUnits() -> [D] {
-        adapter.availableUnits()
+        let displayUnit = definition.unit(for: locale)
+        var units: [String: D] = [:]
+
+        units[definition.baseUnit.symbol] = definition.baseUnit
+        units[displayUnit.symbol] = displayUnit
+        definition.altUnits.forEach { units[$0.symbol] = $0 }
+
+        return units.values.sorted {
+            $0.symbol.localizedCompare($1.symbol) == .orderedAscending
+        }
     }
 }
