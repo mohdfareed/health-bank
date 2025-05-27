@@ -43,7 +43,6 @@ struct DataRow<Content: View>: View {
                     .imageScale(.medium)
                     .foregroundStyle(vm.color)
                     .frame(width: 24, height: 24)
-                    .padding(.trailing, 4)
                     .animation(.default, value: vm.color)
                     .animation(.default, value: vm.image)
             }

@@ -59,6 +59,21 @@ extension MeasurementSystem {
     }
 }
 
+// case cardio, weightlifting, cycling, walking, running, other
+extension WorkoutType {
+    var localized: String {
+        switch self {
+        case .cardio: return String(localized: "cardio").localizedCapitalized
+        case .weightlifting:
+            return String(localized: "weightlifting").localizedCapitalized
+        case .cycling: return String(localized: "cycling").localizedCapitalized
+        case .walking: return String(localized: "walking").localizedCapitalized
+        case .running: return String(localized: "running").localizedCapitalized
+        case .other: return String(localized: "other").localizedCapitalized
+        }
+    }
+}
+
 // MARK: Measurements
 // ============================================================================
 

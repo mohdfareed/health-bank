@@ -51,7 +51,7 @@ public struct CalorieMacros: Codable, Hashable {
 // ============================================================================
 
 /// The workout types.
-public enum WorkoutType: Codable, CaseIterable {
+public enum WorkoutType: String, Codable, CaseIterable {
     case cardio, weightlifting, cycling, walking, running, other
 }
 
@@ -64,7 +64,7 @@ public enum WorkoutType: Codable, CaseIterable {
     /// The workout duration.
     public var duration: TimeInterval?
     /// The workout type.
-    public var workoutType: WorkoutType?
+    public var workout: WorkoutType?
 
     public init(
         _ value: Double, date: Date, source: DataSource = .local,
@@ -73,7 +73,7 @@ public enum WorkoutType: Codable, CaseIterable {
         self.calories = value
         self.date = date
         self.duration = duration
-        self.workoutType = workoutType
+        self.workout = workoutType
         self.source = source
     }
 }

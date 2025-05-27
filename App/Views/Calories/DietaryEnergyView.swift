@@ -27,8 +27,7 @@ struct DietaryEnergyRecordView: View {
 
     var body: some View {
         RecordView(
-            record,
-            title: title
+            record, title: title, icon: Image.dietaryCalorie, color: .blue
         ) { isEditing in
             VStack {  // Increased spacing a bit
                 MeasurementField(
@@ -38,7 +37,7 @@ struct DietaryEnergyRecordView: View {
                     ),
                     vm: MeasurementFieldVM(
                         title: Text("Calories"),
-                        image: Image.dietaryCalorie,  // Using icon from Assets.swift
+                        image: Image.burnedCalorie,  // Using icon from Assets.swift
                         color: .orange,
                         fractions: 0
                     ),
@@ -131,19 +130,22 @@ struct DietaryEnergyRecordView_Preview: View {
 
     var body: some View {
         NavigationView {
-            List {
+            VStack {
                 Section("Record with Macros") {
                     DietaryEnergyRecordView(
                         title: "Breakfast", record: $dietaryEnergy1
                     )
+                    .modifier(CardStyle())
                 }
                 Section("Record without Macros") {
                     DietaryEnergyRecordView(
                         title: "Snack", record: $dietaryEnergy2
                     )
+                    .modifier(CardStyle())
                 }
             }
             .navigationTitle("Dietary Energy")
+            .padding()
         }
     }
 }

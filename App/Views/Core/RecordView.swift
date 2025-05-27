@@ -4,6 +4,9 @@ import SwiftUI
 // The parent view is responsible for managing state and changes.
 public struct RecordView<Record: DataRecord, FieldsContent: View>: View {
     let title: LocalizedStringKey
+    let icon: Image?
+    let color: Color?
+
     var record: Record
     let fieldsContent: (Bool) -> FieldsContent
 
@@ -12,9 +15,13 @@ public struct RecordView<Record: DataRecord, FieldsContent: View>: View {
 
     public init(
         _ record: Record, title: LocalizedStringKey,
+        icon: Image? = nil, color: Color? = nil,
         @ViewBuilder fieldsContent: @escaping (Bool) -> FieldsContent,
     ) {
         self.title = title
+        self.icon = icon
+        self.color = color
+
         self.record = record
         self.fieldsContent = fieldsContent
         self._editDate = State(initialValue: record.date)
@@ -23,6 +30,9 @@ public struct RecordView<Record: DataRecord, FieldsContent: View>: View {
     public var body: some View {
         VStack(alignment: .leading, spacing: 12) {
             HStack {
+                if let icon {
+                    icon.foregroundStyle(color ?? .primary).imageScale(.large)
+                }
                 Text(title)
                     .font(.headline)
                     .lineLimit(1)

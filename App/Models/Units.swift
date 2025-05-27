@@ -7,7 +7,7 @@ extension Weight {
     }
 }
 
-extension Calorie {
+extension DietaryEnergy {
     /// The unit for calorie values.
     static var unit: UnitDefinition<UnitEnergy> {
         .init(.kilocalories, usage: .food)

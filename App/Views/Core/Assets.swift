@@ -30,8 +30,10 @@ extension Image {
     // Records
     static var burnedCalorie: Image { Image(systemName: "flame") }
     static var dietaryCalorie: Image { Image(systemName: "fork.knife") }
-    static var weight: Image { Image(systemName: "figure") }
+    static var restingCalorie: Image { Image(systemName: "zzz") }
     static var workout: Image { Image(systemName: "figure.run") }
+    static var duration: Image { Image(systemName: "timer") }
+    static var weight: Image { Image(systemName: "figure") }
 
     // Macros
     static var macros: Image { Image(systemName: "chart.pie") }

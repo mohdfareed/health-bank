@@ -1,5 +1,8 @@
 import SwiftUI
 
+// TODO: non-measurement field, measurement field with picker, and without,
+// are not aligned
+
 // MARK: ViewModel
 // ============================================================================
 
