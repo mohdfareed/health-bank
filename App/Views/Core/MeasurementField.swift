@@ -25,16 +25,21 @@ import SwiftUI
 // ============================================================================
 
 struct MeasurementField<D: Dimension>: View {
-    @LocalizedMeasurement private var measurement: Measurement<D>
+    @LocalizedMeasurement private var meas: Measurement<D>
     private var vm: MeasurementFieldVM
+    private var editable: Bool = false
 
-    init(_ measurement: LocalizedMeasurement<D>, vm: MeasurementFieldVM) {
-        self._measurement = measurement
+    init(
+        _ meas: LocalizedMeasurement<D>, vm: MeasurementFieldVM,
+        editable: Bool = false
+    ) {
+        self._meas = meas
         self.vm = vm
+        self.editable = editable
     }
 
     var body: some View {
-        let u = self.measurement.unit.symbol
+        let u = self.meas.unit.symbol
 
         DataRow(
             vm: .init(
@@ -45,8 +50,13 @@ struct MeasurementField<D: Dimension>: View {
             )
         ) {
             HStack {
-                self.valueField()
-                if $measurement.availableUnits().count > 1 {
+                if editable {
+                    editableField()
+                } else {
+                    valueField()
+                }
+
+                if $meas.availableUnits().count > 1 {
                     self.unitPicker()  // only if there are multiple units
                 } else {
                     Spacer().frame(minWidth: 16, maxWidth: 16)
@@ -54,17 +64,17 @@ struct MeasurementField<D: Dimension>: View {
             }
         }
 
-        .onChange(of: $measurement.unit) { oldUnit, newUnit in
+        .onChange(of: $meas.unit) { oldUnit, newUnit in
             // Reset to display unit
             guard newUnit == nil else { return }
             withAnimation(.default) {
-                $measurement.unit = oldUnit
+                $meas.unit = oldUnit
             }
 
             // Reset to computed value
             guard let computed = self.vm.computed else { return }
             withAnimation(.default) {
-                $measurement.baseValue = computed
+                $meas.baseValue = computed
             }
         }
     }
@@ -75,20 +85,29 @@ struct MeasurementField<D: Dimension>: View {
 
 extension MeasurementField {
     private func valueField() -> some View {
+        Text(
+            meas.value,
+            format: .number.precision(.fractionLength(self.vm.fractions)),
+        )
+        .multilineTextAlignment(.trailing)
+        .animation(.default, value: meas.unit)
+    }
+
+    private func editableField() -> some View {
         TextField(
-            value: $measurement.value,
+            value: $meas.value,
             format: .number.precision(.fractionLength(self.vm.fractions)),
         ) {}
         .multilineTextAlignment(.trailing)
-        .animation(.default, value: measurement.unit)
+        .animation(.default, value: meas.unit)
     }
 
     private func unitPicker() -> some View {
         Picker(
-            "", selection: $measurement.$unit,
+            "", selection: $meas.$unit,
             content: {
-                ForEach($measurement.availableUnits(), id: \.self) { u in
-                    let meas = measurement.converted(to: u)
+                ForEach($meas.availableUnits(), id: \.self) { u in
+                    let meas = meas.converted(to: u)
                     let style = Measurement<D>.FormatStyle(
                         width: .wide,
                         usage: .asProvided,
@@ -102,7 +121,7 @@ extension MeasurementField {
                 }
 
                 // Reset option
-                if vm.computed != $measurement.baseValue {
+                if self.vm.computed != nil && vm.computed != $meas.baseValue {
                     Divider()
                     Label(
                         String(localized: "Estimate"),
@@ -115,7 +134,7 @@ extension MeasurementField {
     }
 
     private func computedText() -> Text? {
-        if self.vm.computed == $measurement.baseValue {
+        if self.vm.computed == $meas.baseValue {
             return nil
         }
         guard let computed = self.vm.computed else {
@@ -123,8 +142,8 @@ extension MeasurementField {
         }
 
         let measurementValue = Measurement(
-            value: computed, unit: $measurement.definition.baseUnit
-        ).converted(to: measurement.unit)
+            value: computed, unit: $meas.definition.baseUnit
+        ).converted(to: meas.unit)
         let value = measurementValue.value.formatted(
             .number.precision(.fractionLength(self.vm.fractions))
         )
@@ -161,6 +180,7 @@ struct MeasurementField_Preview: View {
                 )
             )
         }
+        .modifier(CardStyle())
         .padding()
     }
 }

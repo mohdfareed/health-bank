@@ -9,10 +9,6 @@ import Foundation
 /// The supported sources of data.
 public enum DataSource: Codable, CaseIterable {
     case local, healthKit
-
-    #if DEBUG
-        case simulation
-    #endif
 }
 
 /// Base protocol for all health data records.

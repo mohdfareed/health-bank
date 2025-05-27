@@ -11,7 +11,7 @@ class DataRowVM {
     let color: Color
 
     init(
-        title: Text, subtitle: Text? = nil,
+        title: Text = Text(""), subtitle: Text? = nil,
         caption: Text? = nil, image: Image? = nil,
         color: Color = .primary,
     ) {
@@ -36,14 +36,14 @@ struct DataRow<Content: View>: View {
     }
 
     var body: some View {
-        HStack(spacing: 12) {  // Added spacing for better visual separation
+        HStack(spacing: 12) {
             if let image = vm.image {
                 image
                     .symbolVariant(.fill)
                     .imageScale(.medium)
                     .foregroundStyle(vm.color)
-                    .frame(width: 24, height: 24)  // Consistent size for icon area
-                    .padding(.trailing, 4)  // Reduced padding slightly
+                    .frame(width: 24, height: 24)
+                    .padding(.trailing, 4)
                     .animation(.default, value: vm.color)
                     .animation(.default, value: vm.image)
             }
@@ -51,7 +51,6 @@ struct DataRow<Content: View>: View {
             VStack(alignment: .leading, spacing: 2) {
                 HStack {
                     vm.title
-                        .font(.headline)
                         .lineLimit(1)
                         .truncationMode(.tail)
                         .animation(.default, value: vm.title)
@@ -80,7 +79,6 @@ struct DataRow<Content: View>: View {
             Spacer()
             self.content()
         }
-        .padding(.vertical, 8)  // Add some vertical padding to the row
     }
 }
 
@@ -88,13 +86,12 @@ struct DataRow<Content: View>: View {
 // ============================================================================
 
 #Preview {
-    Form {
+    VStack {
         DataRow(
             vm: .init(
                 title: Text("Primary Title Text"),
-                subtitle: Text(
-                    "Optional Subtitle, can be a bit longer and will wrap to two lines if needed."),
-                caption: Text("Optional caption providing extra context, also wraps."),
+                subtitle: Text("Optional Subtitle."),
+                caption: Text("Optional caption."),
                 image: Image(systemName: "heart.fill"), color: .red
             )
         ) {
@@ -116,11 +113,13 @@ struct DataRow<Content: View>: View {
         DataRow(
             vm: .init(
                 title: Text("Title and Caption"),
-                caption: Text("This row only has a title and a caption below it."),
+                caption: Text("This row only has a title and a caption."),
                 image: Image(systemName: "bell.fill"), color: .orange
             )
         ) {
             Toggle("", isOn: .constant(true))
         }
     }
+    .modifier(CardStyle())
+    .padding()
 }
