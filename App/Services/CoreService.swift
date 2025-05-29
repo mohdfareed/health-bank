@@ -29,18 +29,21 @@ extension AppTheme {
     }
 }
 
-extension UUID {
-    /// A UUID that represents a zero value.
-    public static let zero: UUID = .init(
-        uuidString: "00000000-0000-0000-0000-000000000000"
-    )!  // tested
-}
-
 extension Weekday: @retroactive CaseIterable {
     /// The days of the week.
     public static var allCases: [Self] {
         [.monday, .tuesday, .wednesday, .thursday, .friday, .saturday, .sunday]
     }
+}
+
+// MARK: Helpers
+// ============================================================================
+
+extension UUID {
+    /// A UUID that represents a zero value.
+    public static let zero: UUID = .init(
+        uuidString: "00000000-0000-0000-0000-000000000000"
+    )!  // tested
 }
 
 @MainActor extension Binding {
@@ -57,32 +60,6 @@ extension Weekday: @retroactive CaseIterable {
         .init(
             get: { self.wrappedValue },
             set: { self.wrappedValue = $0 ?? defaultValue }
-        )
-    }
-
-    /// Create a two-way Binding into any class instance's property.
-    static func keyPath<Root: AnyObject>(
-        _ root: Root, _ keyPath: WritableKeyPath<Root, Value>
-    ) -> Binding<Value> {
-        .init(
-            get: { root[keyPath: keyPath] },
-            set: { newValue in
-                var mutableRoot = root
-                mutableRoot[keyPath: keyPath] = newValue
-            }
-        )
-    }
-
-    /// Create a two-way Binding into any class instance's property.
-    static func keyPath<Root: AnyObject>(
-        _ root: Root, _ keyPath: WritableKeyPath<Root, Value?>
-    ) -> Binding<Value?> {
-        .init(
-            get: { root[keyPath: keyPath] },
-            set: { newValue in
-                var mutableRoot = root
-                mutableRoot[keyPath: keyPath] = newValue
-            }
         )
     }
 }
@@ -133,3 +110,6 @@ extension Decodable {
         }
     }
 }
+
+// MARK: Bindings
+// ============================================================================

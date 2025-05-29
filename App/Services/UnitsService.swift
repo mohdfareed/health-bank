@@ -53,19 +53,6 @@ struct LocalizedMeasurement<D: Dimension>: DynamicProperty {
     @State var displayUnit: D?
     let definition: UnitDefinition<D>
 
-    var wrappedValue: Measurement<D> {
-        get {
-            return Measurement(
-                value: baseValue ?? 0, unit: definition.baseUnit
-            )
-            .converted(to: unit.wrappedValue)
-        }
-        nonmutating set {
-            baseValue = newValue.converted(to: definition.baseUnit).value
-        }
-    }
-    var projectedValue: Self { self }
-
     var value: Binding<Double?> {
         Binding(
             get: { wrappedValue.value },
@@ -85,19 +72,18 @@ struct LocalizedMeasurement<D: Dimension>: DynamicProperty {
         )
     }
 
-    init(_ value: Binding<Double>, definition: UnitDefinition<D>) {
-        self.definition = definition
-        self._baseValue = value.optional(0)
-        // self._displayUnit = State(initialValue: definition.unit(for: locale))
-        self._displayUnit = State(initialValue: definition.unit(for: Locale.current))
+    var wrappedValue: Measurement<D> {
+        get {
+            return Measurement(
+                value: baseValue ?? 0, unit: definition.baseUnit
+            )
+            .converted(to: unit.wrappedValue)
+        }
+        nonmutating set {
+            baseValue = newValue.converted(to: definition.baseUnit).value
+        }
     }
-
-    init(_ value: Binding<Double?>, definition: UnitDefinition<D>) {
-        self.definition = definition
-        self._baseValue = value
-        // self._displayUnit = State(initialValue: definition.unit(for: locale))
-        self._displayUnit = State(initialValue: definition.unit(for: Locale.current))
-    }
+    var projectedValue: Self { self }
 
     /// Provides a list of units suitable for user selection in a picker.
     func availableUnits() -> [D] {
@@ -113,6 +99,25 @@ struct LocalizedMeasurement<D: Dimension>: DynamicProperty {
             $0.symbol.localizedCompare($1.symbol) == .orderedAscending
         }
     }
+}
+
+extension LocalizedMeasurement {
+    init(_ value: Binding<Double>, definition: UnitDefinition<D>) {
+        self.definition = definition
+        self._baseValue = value.optional(0)
+        self._displayUnit = State(
+            initialValue: definition.unit(for: Locale.current)
+        )
+    }
+
+    init(_ value: Binding<Double?>, definition: UnitDefinition<D>) {
+        self.definition = definition
+        self._baseValue = value
+        self._displayUnit = State(
+            initialValue: definition.unit(for: Locale.current)
+        )
+    }
+
 }
 
 extension Measurement<UnitDuration> {

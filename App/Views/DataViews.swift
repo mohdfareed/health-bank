@@ -7,13 +7,13 @@ import SwiftUI
 // ============================================================================
 
 struct CaloriesRow: View {
-    @Binding var calorie: DietaryEnergy
+    @Binding var calorie: Calorie
 
     var body: some View {
         MeasurementRow(
             measurement: calorie.measurement,
             title: "Calorie", image: Image.dietaryCalorie, tint: .orange,
-            computed: calorie.calculatedCalories(),
+            computed: (calorie as? DietaryEnergy)?.calculatedCalories(),
             format: .number.precision(.fractionLength(0)),
         )
     }

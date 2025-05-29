@@ -59,7 +59,8 @@ typealias Weekday = Locale.Weekday
         p: 120, f: 60, c: 245  // grams
     )
 
-    var singletonID: String = UUID().uuidString
+    @Attribute(.unique)
+    var id = UUID()
     init() {}
 }
 
@@ -70,6 +71,7 @@ typealias Weekday = Locale.Weekday
     var activity: TimeInterval? = nil  // minutes
     var calories: Double? = nil  // burned
 
-    var singletonID: String = UUID().uuidString
+    @Attribute(.unique)
+    var id = UUID()
     init() {}
 }

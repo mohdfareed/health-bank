@@ -5,7 +5,7 @@ import SwiftData
 /// All calorie values are stored in kilocalories (kcal).
 public protocol Calorie: DataRecord {
     /// Energy value in kilocalories.
-    var calories: Double { get set }
+    var calories: Double { get nonmutating set }
 }
 
 // MARK: - Dietary Calories

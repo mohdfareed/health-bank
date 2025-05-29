@@ -25,7 +25,7 @@ extension Query { typealias Singleton = SingletonQuery }
 extension Singleton {
     init(id: UUID = UUID.zero) {
         self.init()
-        self.singletonID = id.uuidString
+        self.id = id
     }
 }
 
@@ -51,11 +51,10 @@ extension SingletonQuery {
         sortBy: [SortDescriptor<Model>] = [SortDescriptor(\.persistentModelID)],
         animation: Animation = .default,
     ) {
-        // let singletonID: String = id.uuidString
+        // FIXME: `singletonID` resolves a computed property
+        let singletonID = id
         var descriptor = FetchDescriptor(
-            // predicate: #Predicate {
-            //     $0.singletonID == singletonID
-            // },
+            predicate: #Predicate { $0.id == singletonID },
             sortBy: sortBy,
         )
         descriptor.fetchLimit = 1  // singleton

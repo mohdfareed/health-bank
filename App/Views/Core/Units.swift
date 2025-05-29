@@ -2,54 +2,82 @@ import Foundation
 import SwiftData
 import SwiftUI
 
-// FIXME: must not rely on type directly like DietaryEnergy
+// MARK: Weight
+// ============================================================================
 
 extension Weight {
     @MainActor var measurement: LocalizedMeasurement<UnitMass> {
-        .init(
-            .keyPath(self, \.weight),
-            definition: .init(
+        LocalizedMeasurement(
+            Binding(
+                get: { self.weight },
+                set: { self.weight = $0 }
+            ),
+            definition: UnitDefinition(
                 .kilograms, alts: [.pounds], usage: .personWeight
             )
         )
     }
 }
 
-extension Calorie where Self: AnyObject {
+// MARK: Calorie
+// ============================================================================
+
+extension Calorie {
     @MainActor var measurement: LocalizedMeasurement<UnitEnergy> {
-        .init(
-            .keyPath(self, \.calories),
-            definition: .init(.kilocalories, usage: .food)
+        LocalizedMeasurement(
+            Binding(
+                get: { self.calories },
+                set: { self.calories = $0 }
+            ),
+            definition: UnitDefinition(.kilocalories, usage: .food)
         )
     }
 }
+
+// MARK: Macros
+// ============================================================================
 
 extension DietaryEnergy {
     @MainActor var carbsMeasurement: LocalizedMeasurement<UnitMass> {
-        .init(
-            .keyPath(self, \.macros.carbs).defaulted(to: 0),
-            definition: .init(.grams, usage: .asProvided)
+        LocalizedMeasurement(
+            Binding(
+                get: { self.macros.carbs },
+                set: { self.macros.carbs = $0 }
+            ),
+            definition: UnitDefinition(.grams, usage: .asProvided)
         )
     }
     @MainActor var proteinMeasurement: LocalizedMeasurement<UnitMass> {
-        .init(
-            .keyPath(self, \.macros.protein).defaulted(to: 0),
-            definition: .init(.grams, usage: .asProvided)
+        LocalizedMeasurement(
+            Binding(
+                get: { self.macros.protein },
+                set: { self.macros.protein = $0 }
+            ),
+            definition: UnitDefinition(.grams, usage: .asProvided)
         )
     }
     @MainActor var fatMeasurement: LocalizedMeasurement<UnitMass> {
-        .init(
-            .keyPath(self, \.macros.fat).defaulted(to: 0),
-            definition: .init(.grams, usage: .asProvided)
+        LocalizedMeasurement(
+            Binding(
+                get: { self.macros.fat },
+                set: { self.macros.fat = $0 }
+            ),
+            definition: UnitDefinition(.grams, usage: .asProvided)
         )
     }
 }
 
+// MARK: Activity
+// ============================================================================
+
 extension ActiveEnergy {
     @MainActor var durationMeasurement: LocalizedMeasurement<UnitDuration> {
-        .init(
-            .keyPath(self, \.duration).defaulted(to: 0),
-            definition: .init(
+        LocalizedMeasurement(
+            Binding(
+                get: { self.duration },
+                set: { self.duration = $0 }
+            ),
+            definition: UnitDefinition(
                 .minutes, alts: [.seconds, .hours], usage: .asProvided
             )
         )

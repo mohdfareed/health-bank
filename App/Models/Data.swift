@@ -14,7 +14,7 @@ public enum DataSource: Codable, CaseIterable, Hashable {
 /// Base protocol for all health data records.
 public protocol DataRecord {
     /// When the data was recorded.
-    var date: Date { get }
+    var date: Date { get nonmutating set }
     /// Where the data originated from.
     var source: DataSource { get }
 }
