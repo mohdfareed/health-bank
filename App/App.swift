@@ -26,6 +26,7 @@ let appID: String = Bundle.main.bundleIdentifier ?? "Debug.App"
         WindowGroup {
             AppView()
                 .modelContainer(self.localContainer)
+                .appLocale()
         }
     }
 }

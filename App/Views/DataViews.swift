@@ -1,5 +1,8 @@
 import SwiftUI
 
+// FIXME: must not rely on type directly like DietaryEnergy
+// This is done to reuse it with calorie budgets and goals
+
 // MARK: Dietary Energy
 // ============================================================================
 
@@ -7,20 +10,12 @@ struct CaloriesRow: View {
     @Binding var calorie: DietaryEnergy
 
     var body: some View {
-        DetailedRow(
-            title: Text(String(localized: "Calories")),
-            subtitle: calorie.measurement.computedText(
-                calorie.calculatedCalories(),
-                format: .number.precision(.fractionLength(0))
-            ),
-            details: nil,
-            image: Image.dietaryCalorie, tint: .orange
-        ) {
-            MeasurementField(
-                measurement: calorie.measurement,
-                format: .number.precision(.fractionLength(0))
-            )
-        }
+        MeasurementRow(
+            measurement: calorie.measurement,
+            title: "Calorie", image: Image.dietaryCalorie, tint: .orange,
+            computed: calorie.calculatedCalories(),
+            format: .number.precision(.fractionLength(0)),
+        )
     }
 }
 
@@ -31,20 +26,13 @@ struct MacrosProteinRow: View {
     @Binding var calorie: DietaryEnergy
 
     var body: some View {
-        DetailedRow(
-            title: Text(String(localized: "Protein")),
-            subtitle: calorie.proteinMeasurement.computedText(
-                calorie.calculatedProtein(),
-                format: .number.precision(.fractionLength(0))
-            ),
-            details: nil,
-            image: Image.protein, tint: .purple
-        ) {
-            MeasurementField(
-                measurement: calorie.proteinMeasurement,
-                format: .number.precision(.fractionLength(0))
-            )
-        }
+        MeasurementRow(
+            measurement: calorie.proteinMeasurement,
+            title: "Protein", image: Image.protein, tint: .purple,
+            computed: calorie.calculatedProtein(),
+            format: .number.precision(.fractionLength(0)),
+
+        )
     }
 }
 
@@ -52,20 +40,13 @@ struct MacrosCarbsRow: View {
     @Binding var calorie: DietaryEnergy
 
     var body: some View {
-        DetailedRow(
-            title: Text(String(localized: "Carbohydrates")),
-            subtitle: calorie.carbsMeasurement.computedText(
-                calorie.calculatedCarbs(),
-                format: .number.precision(.fractionLength(0))
-            ),
-            details: nil,
-            image: Image.carbs, tint: .green
-        ) {
-            MeasurementField(
-                measurement: calorie.carbsMeasurement,
-                format: .number.precision(.fractionLength(0))
-            )
-        }
+        MeasurementRow(
+            measurement: calorie.carbsMeasurement,
+            title: "Carbohydrates", image: Image.carbs, tint: .green,
+            computed: calorie.calculatedCarbs(),
+            format: .number.precision(.fractionLength(0)),
+
+        )
     }
 }
 
@@ -73,20 +54,13 @@ struct MacrosFatRow: View {
     @Binding var calorie: DietaryEnergy
 
     var body: some View {
-        DetailedRow(
-            title: Text(String(localized: "Fat")),
-            subtitle: calorie.fatMeasurement.computedText(
-                calorie.calculatedFat(),
-                format: .number.precision(.fractionLength(0))
-            ),
-            details: nil,
-            image: Image.fat, tint: .yellow
-        ) {
-            MeasurementField(
-                measurement: calorie.fatMeasurement,
-                format: .number.precision(.fractionLength(0))
-            )
-        }
+        MeasurementRow(
+            measurement: calorie.fatMeasurement,
+            title: "Fat", image: Image.fat, tint: .yellow,
+            computed: calorie.calculatedFat(),
+            format: .number.precision(.fractionLength(0)),
+
+        )
     }
 }
 
@@ -97,16 +71,14 @@ struct RestingCaloriesRow: View {
     @Binding var calorie: RestingEnergy
 
     var body: some View {
-        DetailedRow(
-            title: Text(String(localized: "Resting Calories")),
-            subtitle: nil, details: nil,
-            image: Image.restingCalorie, tint: .purple
-        ) {
-            MeasurementField(
-                measurement: calorie.measurement,
-                format: .number.precision(.fractionLength(0))
-            )
-        }
+        MeasurementRow(
+            measurement: calorie.measurement,
+            title: "Resting Calories",
+            image: Image.restingCalorie, tint: .purple,
+            computed: nil,
+            format: .number.precision(.fractionLength(0)),
+
+        )
     }
 }
 
@@ -114,16 +86,13 @@ struct BurnedCaloriesRow: View {
     @Binding var calorie: ActiveEnergy
 
     var body: some View {
-        DetailedRow(
-            title: Text(String(localized: "Burned Calories")),
-            subtitle: nil, details: nil,
-            image: Image.calories, tint: .orange
-        ) {
-            MeasurementField(
-                measurement: calorie.measurement,
-                format: .number.precision(.fractionLength(0))
-            )
-        }
+        MeasurementRow(
+            measurement: calorie.measurement,
+            title: "Burned Calories",
+            image: Image.calories, tint: .orange,
+            computed: nil,
+            format: .number.precision(.fractionLength(0)),
+        )
     }
 }
 
@@ -131,16 +100,13 @@ struct ActivityRow: View {
     @Binding var calorie: ActiveEnergy
 
     var body: some View {
-        DetailedRow(
-            title: Text(String(localized: "Activity Duration")),
-            subtitle: nil, details: nil,
-            image: Image.activeCalorie, tint: .green
-        ) {
-            MeasurementField(
-                measurement: calorie.durationMeasurement,
-                format: .number.precision(.fractionLength(0))
-            )
-        }
+        MeasurementRow(
+            measurement: calorie.measurement,
+            title: "Activity Calories",
+            image: Image.activeCalorie, tint: .green,
+            computed: nil,
+            format: .number.precision(.fractionLength(0)),
+        )
     }
 }
 
@@ -151,15 +117,12 @@ struct WeightRow: View {
     @Binding var weight: Weight
 
     var body: some View {
-        DetailedRow(
-            title: Text(String(localized: "Weight")),
-            subtitle: nil, details: nil,
-            image: Image.weight, tint: .indigo
-        ) {
-            MeasurementField(
-                measurement: weight.measurement,
-                format: .number.precision(.fractionLength(0))
-            )
-        }
+        MeasurementRow(
+            measurement: weight.measurement,
+            title: "Weight",
+            image: Image.weight, tint: .indigo,
+            computed: nil,
+            format: .number.precision(.fractionLength(2)),
+        )
     }
 }

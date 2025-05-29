@@ -4,8 +4,7 @@ import SwiftUI
 struct AppView: View {
     @AppStorage(.theme)
     internal var theme: AppTheme
-    @AppLocale()
-    internal var locale: Locale
+    // @AppLocale private var locale
 
     var body: some View {
         TabView {
@@ -20,7 +19,7 @@ struct AppView: View {
                 String(localized: "Settings"), systemImage: "gear"
             ) { SettingsView() }
         }
-        .environment(\.locale, self.locale)
+        // .environment(\.locale, self.locale)
         .preferredColorScheme(self.theme.colorScheme)
     }
 }

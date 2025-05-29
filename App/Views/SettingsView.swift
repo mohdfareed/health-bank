@@ -14,7 +14,11 @@ struct SettingsView: View {
                     LocalizationSettings()
                 }
 
+                // TODO: convert budgets and goals to accept a list types
+                // User chooses the types then provides a budget for each
                 BudgetSettings(budgetsID)
+                // TODO: convert goals to accept a list types
+                // User chooses the types then provides a goal for each
                 GoalSettings(goalsID)
 
                 Button(
@@ -88,7 +92,7 @@ private struct GeneralSettings: View {
 }
 
 private struct LocalizationSettings: View {
-    @AppLocale() var locale: Locale
+    @AppLocale private var locale
 
     var body: some View {
         Picker(
@@ -123,32 +127,36 @@ private struct LocalizationSettings: View {
 }
 
 private struct BudgetSettings: View {
-    @Query.Singleton var budgets: Budgets
+    // @Query.Singleton var budgets: Budgets
+    @State var budgets: Budgets
     init(_ id: UUID) {
-        self._budgets = .init(id)
+        // self._budgets = .init(id)
+        self._budgets = .init(initialValue: .init())
     }
 
     var body: some View {
         Section(header: Text(String(localized: "Daily Budgets"))) {
-            CaloriesRow(calorie: $budgets.energyBudget)
-            MacrosProteinRow(calorie: $budgets.energyBudget)
-            MacrosCarbsRow(calorie: $budgets.energyBudget)
-            MacrosFatRow(calorie: $budgets.energyBudget)
+            // CaloriesRow(calorie: $budgets.energyBudget)
+            // MacrosProteinRow(calorie: $budgets.energyBudget)
+            // MacrosCarbsRow(calorie: $budgets.energyBudget)
+            // MacrosFatRow(calorie: $budgets.energyBudget)
         }
     }
 }
 
 private struct GoalSettings: View {
-    @Query.Singleton var goals: Goals
+    // @Query.Singleton var goals: Goals
+    @State var goals: Goals
     init(_ id: UUID) {
-        self._goals = .init(id)
+        // self._goals = .init(id)
+        self._goals = .init(initialValue: .init())
     }
 
     var body: some View {
         Section(header: Text(String(localized: "Daily Goals"))) {
-            WeightRow(weight: $goals.weightGoal)
-            BurnedCaloriesRow(calorie: $goals.energyGoal)
-            ActivityRow(calorie: $goals.energyGoal)
+            // WeightRow(weight: $goals.weightGoal)
+            // BurnedCaloriesRow(calorie: $goals.energyGoal)
+            // ActivityRow(calorie: $goals.energyGoal)
         }
     }
 }

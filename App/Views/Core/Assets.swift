@@ -50,6 +50,7 @@ extension Image {
     static var saveIcon: Image { Image(systemName: "checkmark.circle.fill") }
     static var cancelIcon: Image { Image(systemName: "xmark.circle.fill") }
     static var dateIcon: Image { Image(systemName: "calendar") }
+    static var resetIcon: Image { Image(systemName: "arrow.clockwise") }
 }
 
 // MARK: Logos

@@ -1,3 +1,4 @@
+import SwiftData
 import SwiftUI
 
 struct DetailedRow<Content: View>: View {
@@ -44,32 +45,66 @@ struct MeasurementField<Unit: Dimension>: View {
     @LocalizedMeasurement var measurement: Measurement<Unit>
     let format: FloatingPointFormatStyle<Double>
 
+    var measFormat: Measurement<Unit>.FormatStyle {
+        .measurement(
+            width: .wide, usage: .asProvided,
+            numberFormatStyle: format
+        )
+    }
+
     var body: some View {
-        HStack(alignment: .center, spacing: 0) {
+        HStack(alignment: .center) {
             TextField("", value: $measurement.value, format: format)
                 .multilineTextAlignment(.trailing)
-            unitsPicker
+
+            if $measurement.availableUnits().count > 1 {
+                picker.frame(minWidth: 8, maxWidth: 8).fixedSize()
+            } else {
+                Spacer(minLength: 16).fixedSize()
+            }
         }
     }
 
-    var unitsPicker: some View {
+    var picker: some View {
         Picker("", selection: $measurement.unit) {
             ForEach($measurement.availableUnits(), id: \.self) {
-                let label = measurement.converted(to: $0).formatted(
-                    .measurement(
-                        width: .abbreviated, usage: .asProvided,
-                        numberFormatStyle: format
-                    )
-                ).localizedCapitalized
-
-                if $0 != measurement.unit {
-                    Text(label).tag($0 as Unit?)
-                } else {
-                    Text(measurement.unit.symbol).tag(nil as Unit?)
-                }
+                Text(
+                    measurement.converted(to: $0).formatted(
+                        .measurement(
+                            width: .wide, usage: .asProvided,
+                            numberFormatStyle: format
+                        )
+                    ).localizedCapitalized
+                ).tag($0)
             }
         }
         .labelsHidden()
+    }
+}
+
+struct MeasurementRow<Unit: Dimension>: View {
+    @LocalizedMeasurement var measurement: Measurement<Unit>
+    let title: String.LocalizationValue
+    let image: Image?
+    let tint: Color?
+
+    let computed: Double?
+    let format: FloatingPointFormatStyle<Double>
+
+    var body: some View {
+        DetailedRow(
+            title: Text(String(localized: title)),
+            subtitle: Text(measurement.unit.symbol).textScale(.secondary),
+            details: $measurement.computedText(
+                computed, format: format
+            ),
+            image: image, tint: tint
+        ) {
+            MeasurementField(
+                measurement: $measurement,
+                format: format
+            )
+        }
     }
 }
 
@@ -90,7 +125,7 @@ extension LocalizedMeasurement {
         ).converted(to: self.unit.wrappedValue)
 
         let text = measurement.value.formatted(format)
-        let icon = Text(Image(systemName: "function")).font(.caption)
+        let icon = Text(Image(systemName: "function")).font(.footnote.bold())
         return Text("\(icon): \(text)").textScale(.secondary)
     }
 }
@@ -98,19 +133,26 @@ extension LocalizedMeasurement {
 // MARK: Preview
 // ============================================================================
 
-#Preview {
-    VStack {
-        DetailedRow(
-            title: Text("Primary Title"),
-            subtitle: Text("Optional Subtitle."),
-            details: Text("Optional Caption."),
-            image: Image(systemName: "heart.fill"), tint: .logoPrimary
-        ) {
-            MeasurementField(
-                measurement: Weight(50).measurement,
-                format: .number.precision(.fractionLength(0))
-            )
-        }
+struct MeasurementRow_Previews: View {
+    @Query.Singleton() private var budgets: Budgets
+    @State private var weight = Weight(70.0)
+    @State private var toggle = false
+
+    var body: some View {
+        MeasurementRow(
+            measurement: .init(
+                $budgets.calories,
+                definition: .init(.kilocalories, usage: .food)
+            ),
+            title: "Calories", image: Image.calories, tint: .orange,
+            computed: 2000, format: .number.precision(.fractionLength(0)),
+        )
+
+        MeasurementRow(
+            measurement: weight.measurement,
+            title: "Weight", image: Image.weight, tint: .purple,
+            computed: nil, format: .number.precision(.fractionLength(2)),
+        )
 
         DetailedRow(
             title: Text("Primary Title"),
@@ -118,9 +160,17 @@ extension LocalizedMeasurement {
             details: Text("Optional Caption."),
             image: Image(systemName: "heart.fill"), tint: .healthKit
         ) {
-            Toggle("", isOn: .constant(true))
+            Toggle("", isOn: $toggle)
         }
     }
-    .modifier(CardStyle())
-    .padding()
+}
+
+#Preview {
+    List {
+        MeasurementRow_Previews()
+            .modelContainer(
+                for: [DietaryEnergy.self, Weight.self],
+                inMemory: true
+            )
+    }
 }

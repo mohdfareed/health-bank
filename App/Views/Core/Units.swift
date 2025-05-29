@@ -2,6 +2,8 @@ import Foundation
 import SwiftData
 import SwiftUI
 
+// FIXME: must not rely on type directly like DietaryEnergy
+
 extension Weight {
     @MainActor var measurement: LocalizedMeasurement<UnitMass> {
         .init(
