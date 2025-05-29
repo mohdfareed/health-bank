@@ -9,6 +9,7 @@
     "editor.detectIndentation": false,
     "editor.indentSize": 4,
   },
+  "sweetpad.build.xcodeWorkspacePath": "HealthBank.xcodeproj/project.xcworkspace",
   // json
   "[json]": {
     "editor.detectIndentation": false,
@@ -35,5 +36,5 @@
     "subheadline",
     "xcodeproj",
     "xmark"
-  ]
+  ],
 }

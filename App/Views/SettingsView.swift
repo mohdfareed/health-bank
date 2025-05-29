@@ -2,7 +2,8 @@ import SwiftData
 import SwiftUI
 
 struct SettingsView: View {
-    @AppStorage(.dailyCalorieBudget) var budgetID: UUID
+    @AppStorage(.dailyBudgets) var budgetsID: UUID
+    @AppStorage(.dailyGoals) var goalsID: UUID
     @State private var reset = false
 
     var body: some View {
@@ -13,28 +14,38 @@ struct SettingsView: View {
                     LocalizationSettings()
                 }
 
+                BudgetSettings(budgetsID)
+                GoalSettings(goalsID)
+
                 Button(
                     String(localized: "Reset All Settings"),
                     role: .destructive
                 ) { reset = true }
             }
             .navigationTitle(String(localized: "Settings"))
+            .resetAlert(isPresented: $reset)
+        }
+    }
+}
 
-            .alert(String(localized: "Confirm Reset"), isPresented: $reset) {
-                Button(String(localized: "Reset"), role: .destructive) {
-                    UserDefaults.standard.resetSettings()
-                }
-                Button(String(localized: "Cancel"), role: .cancel) {}
-            } message: {
-                Text(
-                    String(
-                        localized: """
-                            Are you sure you want to reset all settings?
-                            This action cannot be undone.
-                            """
-                    )
-                )
+extension View {
+    fileprivate func resetAlert(isPresented: Binding<Bool>) -> some View {
+        self.alert(
+            String(localized: "Confirm Reset"), isPresented: isPresented
+        ) {
+            Button(String(localized: "Reset"), role: .destructive) {
+                UserDefaults.standard.resetSettings()
             }
+            Button(String(localized: "Cancel"), role: .cancel) {}
+        } message: {
+            Text(
+                String(
+                    localized: """
+                        Are you sure you want to reset all settings?
+                        This action cannot be undone.
+                        """
+                )
+            )
         }
     }
 }
@@ -106,11 +117,47 @@ private struct LocalizationSettings: View {
         ) {
             Label(
                 self.locale.firstDayOfWeek.abbreviated, systemImage: ""
-            ).labelStyle(.titleOnly)
+            ).labelsHidden()
+        }
+    }
+}
+
+private struct BudgetSettings: View {
+    @Query.Singleton var budgets: Budgets
+    init(_ id: UUID) {
+        self._budgets = .init(id)
+    }
+
+    var body: some View {
+        Section(header: Text(String(localized: "Daily Budgets"))) {
+            CaloriesRow(calorie: $budgets.energyBudget)
+            MacrosProteinRow(calorie: $budgets.energyBudget)
+            MacrosCarbsRow(calorie: $budgets.energyBudget)
+            MacrosFatRow(calorie: $budgets.energyBudget)
+        }
+    }
+}
+
+private struct GoalSettings: View {
+    @Query.Singleton var goals: Goals
+    init(_ id: UUID) {
+        self._goals = .init(id)
+    }
+
+    var body: some View {
+        Section(header: Text(String(localized: "Daily Goals"))) {
+            WeightRow(weight: $goals.weightGoal)
+            BurnedCaloriesRow(calorie: $goals.energyGoal)
+            ActivityRow(calorie: $goals.energyGoal)
         }
     }
 }
 
 #Preview {
-    SettingsView().modelContainer(for: CalorieBudget.self)
+    SettingsView().modelContainer(
+        for: [
+            Budgets.self, Goals.self,
+        ],
+        inMemory: true
+    )
 }

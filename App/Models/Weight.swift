@@ -9,9 +9,11 @@ import SwiftData
     /// The weight value.
     public var weight: Double
 
-    public init(date: Date, weight: Double, source: DataSource = .local) {
+    public init(
+        _ value: Double, date: Date = Date(), source: DataSource = .local,
+    ) {
+        self.weight = value
         self.date = date
-        self.weight = weight
         self.source = source
     }
 }

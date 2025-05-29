@@ -28,9 +28,13 @@ extension Settings {
 
 // Calorie Budget
 extension Settings {
-    /// The active user daily calorie budget.
-    static var dailyCalorieBudget: Settings<CalorieBudget.ID> {
-        .init("DailyCalorieBudget", default: UUID())
+    /// The active user daily budgets.
+    static var dailyBudgets: Settings<UUID> {
+        .init("DailyBudgets", default: .init())
+    }
+    /// The active user daily goals.
+    static var dailyGoals: Settings<UUID> {
+        .init("DailyGoals", default: .init())
     }
 }
 
@@ -47,15 +51,25 @@ typealias MeasurementSystem = Locale.MeasurementSystem
 /// The app's first day of the week.
 typealias Weekday = Locale.Weekday
 
-/// A daily budget of calories and macro-nutrients.
-@Model final class CalorieBudget: Singleton {
-    typealias ID = UUID
-    var id: UUID = UUID()
-    init() {}
-
+/// The user's daily budgets.
+@Model final class Budgets: Singleton {
     var date: Date = Date()
-    var calories: Double = 2000
-    var macros: CalorieMacros? = CalorieMacros(
-        p: 120, f: 60, c: 245
+    var calories: Double? = 2000  // kcal
+    var macros: CalorieMacros = CalorieMacros(
+        p: 120, f: 60, c: 245  // grams
     )
+
+    var singletonID: String = UUID().uuidString
+    init() {}
+}
+
+/// The user's daily goals.
+@Model final class Goals: Singleton {
+    var date: Date = Date()
+    var weight: Double? = nil
+    var activity: TimeInterval? = nil  // minutes
+    var calories: Double? = nil  // burned
+
+    var singletonID: String = UUID().uuidString
+    init() {}
 }

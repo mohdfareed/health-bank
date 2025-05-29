@@ -34,11 +34,11 @@ public struct CalorieMacros: Codable, Hashable {
     public var source: DataSource
 
     // Optional macro-nutrient breakdown
-    public var macros: CalorieMacros?
+    public var macros: CalorieMacros
 
     public init(
-        _ value: Double, date: Date, source: DataSource,
-        macros: CalorieMacros? = nil
+        _ value: Double, date: Date = Date(), source: DataSource = .local,
+        macros: CalorieMacros = .init()
     ) {
         self.calories = value
         self.date = date
@@ -67,7 +67,7 @@ public enum WorkoutType: String, Codable, CaseIterable {
     public var workout: WorkoutType?
 
     public init(
-        _ value: Double, date: Date, source: DataSource = .local,
+        _ value: Double, date: Date = Date(), source: DataSource = .local,
         duration: TimeInterval? = nil, workoutType: WorkoutType? = nil,
     ) {
         self.calories = value
@@ -84,7 +84,9 @@ public enum WorkoutType: String, Codable, CaseIterable {
     public var date: Date
     public var source: DataSource
 
-    public init(_ value: Double, date: Date, source: DataSource) {
+    public init(
+        _ value: Double, date: Date = Date(), source: DataSource = .local
+    ) {
         self.calories = value
         self.date = date
         self.source = source

@@ -52,7 +52,7 @@
 - **Principle**: UI changes should be animated by default using SwiftUI's native capabilities (e.g., `.animation()`, `withAnimation {}`).
 - **Goal**: Achieve a polished, native feel adhering to Apple's HIG. Animations should be explicitly disabled only when necessary.
 - **`DataRow.swift`**: Refactored for HIG alignment (text handling, layout, default animations).
-- **`MeasurementField.swift`**: Plan to enhance for validation, computed value display, and editability control.
+- **`MeasurementField.swift`**: Plan to enhance for validation, computed value display, and edit-ability control.
 - **`SettingsView.swift`**: Refactored to `NavigationStack`; plan for dedicated "Manage Calorie Budgets" screen.
 
 ## 9. New View: `RecordView` (Re-architected 2025-05-26)
@@ -76,5 +76,204 @@
 - **Error Handling**: Use expanded `AppError` with nested types; clear propagation to UI.
 - **Logging**: Continue `OSLog` via `AppLogger`.
 - **Testing**: Focus on models, service logic, view models, and critical UI flows. Employ DI and mocking.
----
-*This document is a concise summary. Detailed notes from specific reviews, workshops, and older plans are archived separately.*
+
+## 11. Views Architecture Review Session (2025-05-28)
+
+### Session Objectives & Scope
+- **Primary Concern**: Current Views/Core architecture doesn't follow Apple's SwiftUI best practices
+- **Problem Areas**: Over-engineered, inconsistent, not reusable, will diverge as app grows
+- **Focus**: Views/Core files and their usage in Views/Calories
+- **Goal**: Redesign to follow Apple standards and create consistent, reusable patterns
+
+### User Requirements Summary
+1. **View Patterns Needed**:
+   - Individual model record views supporting editing
+   - Partial/custom views (e.g., calorie budget vs dietary calorie similarity)
+   - Heterogeneous lists displaying different model types
+   - Statistics/progress views that look similar to model displays
+2. **Data Binding**: Prefers SwiftUI-native bindings with clone-and-replace pattern
+3. **Editing Context**: Mixed approach - sometimes inline, sometimes modal/navigation
+4. **Design Philosophy**: Follow Apple/SwiftUI intended patterns over custom abstractions
+5. **Editability Constraint**: Only `.local` source records are editable (not HealthKit data)
+6. **Additional Models**: `CalorieBudget` needs views but doesn't implement `DataRecord`
+
+### Confirmed UX Pattern
+**Two-Tier View System:**
+1. **List Row Views**: Compact, read-only single row per model (all records)
+2. **Detail Card Views**: Full display + editing capability (only for `.local` source records and `CalorieBudget`)
+
+**Navigation Flow**: List Row → Tap → Detail Card (editable if `.local`, read-only if HealthKit)
+
+### Current Architecture Analysis
+**Key Models Identified:**
+- Health Records: `Weight`, `DietaryEnergy`, `ActiveEnergy`, `RestingEnergy` (all implement `DataRecord`)
+- Budget Model: `CalorieBudget` (singleton pattern)
+- Services: `CaloriesService` provides business logic (macro calculations)
+
+**Issues Identified:**
+1. **Complex ViewModels**: `DataRowVM` and `MeasurementFieldVM` classes add unnecessary complexity
+2. **State Management Problems**: Manual state synchronization in RecordView implementations
+3. **Inconsistent Patterns**: Different views handle editing state differently
+4. **Over-Engineering**: Too many abstractions for simple display components
+5. **Tight Coupling**: Components are not easily reusable across different contexts
+6. **Anti-SwiftUI Patterns**: Manual `.onChange` synchronization instead of reactive bindings
+
+**Current Components:**
+- `DataRow`: Generic row component with ViewModel pattern
+- `MeasurementField`: Complex field with editing, units, computed values
+- `RecordView`: Card-like display with edit functionality
+- Calorie views: Repetitive implementations with manual state management
+
+### Apple SwiftUI Best Practices Research
+**The Apple Way (@Bindable + Direct Model Editing):**
+1. **@Bindable**: For SwiftData/Observable objects, use `@Bindable var model: Model`
+2. **Direct Binding**: `TextField("Name", text: $model.property)` - no intermediate state
+3. **Automatic Persistence**: SwiftData automatically saves changes (no manual save logic)
+4. **Simple Components**: Avoid ViewModels for display logic, use direct bindings
+
+**Apple's Pattern Example:**
+```swift
+struct EditUserView: View {
+    @Bindable var user: User  // SwiftData model
+    var body: some View {
+        Form {
+            TextField("Name", text: $user.name)
+            TextField("City", text: $user.city)
+            DatePicker("Join Date", selection: $user.joinDate)
+        }
+    }
+}
+```
+
+**Key Insights for Our Design:**
+1. **No Clone-Replace Pattern Needed**: @Bindable with SwiftData provides automatic persistence
+2. **Component Granularity**: Apple favors composable field-level components over complex containers
+3. **Always-Editable**: Forms are always editable by default, no "edit mode" complexity
+
+## 12. SwiftUI List Integration Requirements
+- **Built-in List Editing**: Leverage SwiftUI's native `EditButton()`, `.onDelete()`, `.onMove()` patterns
+- **Environment Integration**: Foundation components respect `@Environment(\.editMode)` automatically
+- **No Custom Edit Logic**: Use SwiftUI's standard list editing instead of custom implementations
+
+## 13. Component Interface Design (In Progress)
+
+### Foundation Components (Building Blocks)
+1. **MeasurementField<UnitType>**: Generic measurement input/display with automatic unit conversion from AppStorage
+2. **CalorieField**: Specialized calorie display with optional macro breakdown support
+3. **DateField**: Date selection with configurable precision (day/hour/minute)
+4. **DataSourceIndicator**: Visual indicator for HealthKit vs Local data source
+
+### Row Components (List Display)
+- Compact single-line display for each model type
+- Consistent tap gesture handling for navigation
+- Built-in data source indicators
+- Follows SwiftUI list editing patterns
+
+### Card Components (Detail/Edit Views)
+- Full field display using foundation components
+- Direct @Bindable model binding (no ViewModels)
+- Automatic SwiftData persistence
+- Edit capability based on record.source == .local
+
+### Usage Pattern Example
+```swift
+// Mixed list with different model types
+List {
+    CalorieBudgetRowView(budget: budget)
+    ForEach(weightRecords) { WeightRowView(record: $0) }
+    ForEach(calorieRecords) { DietaryEnergyRowView(record: $0) }
+}
+
+// Detail editing with direct binding
+WeightCardView(record: $selectedWeight) // @Bindable auto-saves
+```
+
+### Next Steps
+1. Define complete foundation component interfaces
+2. Create visual architecture diagrams
+3. Implement one complete example (Weight components)
+4. Plan migration strategy from current Views/Core
+
+## 13. Model Components Implementation Complete (2025-05-28)
+
+### Successfully Implemented Components
+
+**1. Weight Components (`WeightComponents.swift`)**
+- `WeightRowView`: Compact list row using DataRow pattern
+- `WeightCardView`: Expanded card with editing capabilities
+- `WeightFormView`: Form for creating/editing weight records
+- Proper LocalizedMeasurement integration with Weight.unit definition
+- CardStyle modifier for consistent visual appearance
+
+**2. Dietary Energy Components (`DietaryEnergyComponents.swift`)**
+- `DietaryEnergyRowView`: List row with macro calculation display
+- `DietaryEnergyCardView`: Card with macros breakdown support
+- `DietaryEnergyFormView`: Form with optional macros entry
+- `CalorieMacrosFormView`: Dedicated macros input form
+- Integration with CaloriesService for macro calculations
+- Dynamic macro validation and calculated calorie display
+
+**3. Active Energy Components (`ActiveEnergyComponents.swift`)**
+- `ActiveEnergyRowView`: List row with workout type and duration
+- `ActiveEnergyCardView`: Card with workout details display
+- `ActiveEnergyFormView`: Form with optional workout details
+- `WorkoutDetailsFormView`: Dedicated workout type and duration form
+- Duration formatting using Swift's Duration API
+- WorkoutType localization support
+
+**4. Calorie Budget Components (`CalorieBudgetComponents.swift`)**
+- `CalorieBudgetRowView`: Compact budget display
+- `CalorieBudgetFormView`: Budget form with macro calculations
+- `CalorieBudgetCardView`: Card wrapper for budget forms
+- Integration with macro calculation discrepancy detection
+- Date picker for budget period selection
+
+**5. Foundation Components (`FoundationComponents.swift`)**
+- `DataSourceIndicator`: Visual indicator for HealthKit vs Local data
+- Simplified to remove redundant custom components
+- Proper integration with existing Assets.swift patterns
+
+**6. Comprehensive Demo Views (`ModelComponentsDemoView.swift`)**
+- `ModelComponentsDemoView`: List-based row component demonstration
+- `ModelComponentsCardDemoView`: Card component showcase
+- `ModelComponentsFormDemoView`: Form component examples
+- Complete integration testing of all component types
+
+### Technical Implementation Details
+
+**Pattern Adherence:**
+- All components follow existing DataRow + MeasurementField architecture
+- Proper use of LocalizedMeasurement property wrapper
+- CardStyle modifier for consistent visual appearance
+- String(localized:) for all user-facing text
+- Existing image and color system from Assets.swift
+
+**Integration Points:**
+- CaloriesService extension methods for macro calculations
+- UnitDefinition usage for proper measurement handling
+- DataSource enum for HealthKit vs Local distinction
+- WorkoutType localization through Localization.swift patterns
+
+**Error Resolution:**
+- Fixed LocalizedMeasurement usage patterns
+- Corrected DataRow content parameter requirements
+- Resolved measurement formatting with proper unit conversions
+- Fixed Binding vs Bool parameter type issues in MeasurementField
+
+### Next Phase Opportunities
+
+1. **Complete Migration Strategy** - Replace remaining Views/Core components systematically
+2. **Integration Testing** - Validate components in actual app workflows
+3. **Performance Optimization** - Review SwiftUI best practices implementation
+4. **Visual Polish** - Enhance animations and micro-interactions
+5. **Accessibility** - Add proper VoiceOver and accessibility support
+
+### Architecture Benefits Achieved
+
+- **Consistency**: All components follow identical patterns and conventions
+- **Maintainability**: Leverages existing infrastructure instead of custom solutions
+- **Scalability**: Easy to extend with additional model types
+- **Integration**: Seamless interaction with existing services and data providers
+- **User Experience**: Consistent visual language and interaction patterns
+
+The component system now provides a complete foundation for health data visualization and editing, properly integrated with the existing codebase architecture.

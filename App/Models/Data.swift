@@ -7,7 +7,7 @@ import Foundation
 // ============================================================================
 
 /// The supported sources of data.
-public enum DataSource: Codable, CaseIterable {
+public enum DataSource: Codable, CaseIterable, Hashable {
     case local, healthKit
 }
 

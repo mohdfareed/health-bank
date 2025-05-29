@@ -1,29 +1,55 @@
 import Foundation
+import SwiftData
+import SwiftUI
 
 extension Weight {
-    /// The unit for a weight record.
-    static var unit: UnitDefinition<UnitMass> {
-        .init(.kilograms, alts: [.pounds], usage: .personWeight)
+    @MainActor var measurement: LocalizedMeasurement<UnitMass> {
+        .init(
+            .keyPath(self, \.weight),
+            definition: .init(
+                .kilograms, alts: [.pounds], usage: .personWeight
+            )
+        )
+    }
+}
+
+extension Calorie where Self: AnyObject {
+    @MainActor var measurement: LocalizedMeasurement<UnitEnergy> {
+        .init(
+            .keyPath(self, \.calories),
+            definition: .init(.kilocalories, usage: .food)
+        )
     }
 }
 
 extension DietaryEnergy {
-    /// The unit for calorie values.
-    static var unit: UnitDefinition<UnitEnergy> {
-        .init(.kilocalories, usage: .food)
+    @MainActor var carbsMeasurement: LocalizedMeasurement<UnitMass> {
+        .init(
+            .keyPath(self, \.macros.carbs).defaulted(to: 0),
+            definition: .init(.grams, usage: .asProvided)
+        )
     }
-}
-
-extension CalorieMacros {
-    /// The unit for a calorie macros breakdown.
-    static var unit: UnitDefinition<UnitMass> {
-        .init(.grams, usage: .asProvided)
+    @MainActor var proteinMeasurement: LocalizedMeasurement<UnitMass> {
+        .init(
+            .keyPath(self, \.macros.protein).defaulted(to: 0),
+            definition: .init(.grams, usage: .asProvided)
+        )
+    }
+    @MainActor var fatMeasurement: LocalizedMeasurement<UnitMass> {
+        .init(
+            .keyPath(self, \.macros.fat).defaulted(to: 0),
+            definition: .init(.grams, usage: .asProvided)
+        )
     }
 }
 
 extension ActiveEnergy {
-    /// The unit for a workout duration.
-    static var unit: UnitDefinition<UnitDuration> {
-        .init(.minutes, alts: [.seconds, .hours], usage: .general)
+    @MainActor var durationMeasurement: LocalizedMeasurement<UnitDuration> {
+        .init(
+            .keyPath(self, \.duration).defaulted(to: 0),
+            definition: .init(
+                .minutes, alts: [.seconds, .hours], usage: .asProvided
+            )
+        )
     }
 }

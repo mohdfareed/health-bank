@@ -35,7 +35,7 @@ struct DemoView: View {
                     .imageScale(.large)
                     .font(.system(size: 60))
 
-                Text("Health Bank")
+                Text(AppName)
                     .font(.largeTitle)
                     .fontWeight(.bold)
 
@@ -53,7 +53,7 @@ struct DemoView: View {
                     .foregroundStyle(.secondary)
             }
             .padding()
-            .navigationTitle("Health Bank")
+            .navigationTitle(AppName)
         }
     }
 }

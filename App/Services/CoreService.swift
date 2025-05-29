@@ -43,8 +43,7 @@ extension Weekday: @retroactive CaseIterable {
     }
 }
 
-@MainActor
-extension Binding {
+@MainActor extension Binding {
     /// A binding that defaults to a value if the wrapped value is nil.
     func defaulted<T>(to defaultValue: T) -> Binding<T> where Value == T? {
         .init(
@@ -52,11 +51,38 @@ extension Binding {
             set: { self.wrappedValue = $0 }
         )
     }
+
     /// A binding that defaults to a value if the wrapped value is nil.
     func optional(_ defaultValue: Value) -> Binding<Value?> {
         .init(
             get: { self.wrappedValue },
             set: { self.wrappedValue = $0 ?? defaultValue }
+        )
+    }
+
+    /// Create a two-way Binding into any class instance's property.
+    static func keyPath<Root: AnyObject>(
+        _ root: Root, _ keyPath: WritableKeyPath<Root, Value>
+    ) -> Binding<Value> {
+        .init(
+            get: { root[keyPath: keyPath] },
+            set: { newValue in
+                var mutableRoot = root
+                mutableRoot[keyPath: keyPath] = newValue
+            }
+        )
+    }
+
+    /// Create a two-way Binding into any class instance's property.
+    static func keyPath<Root: AnyObject>(
+        _ root: Root, _ keyPath: WritableKeyPath<Root, Value?>
+    ) -> Binding<Value?> {
+        .init(
+            get: { root[keyPath: keyPath] },
+            set: { newValue in
+                var mutableRoot = root
+                mutableRoot[keyPath: keyPath] = newValue
+            }
         )
     }
 }

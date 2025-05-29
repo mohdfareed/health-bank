@@ -28,10 +28,10 @@ extension Image {
     static var logoAlt: Image { Image("LogoAlt") }
 
     // Records
-    static var burnedCalorie: Image { Image(systemName: "flame") }
+    static var calories: Image { Image(systemName: "flame") }
     static var dietaryCalorie: Image { Image(systemName: "fork.knife") }
+    static var activeCalorie: Image { Image(systemName: "figure.run") }
     static var restingCalorie: Image { Image(systemName: "zzz") }
-    static var workout: Image { Image(systemName: "figure.run") }
     static var duration: Image { Image(systemName: "timer") }
     static var weight: Image { Image(systemName: "figure") }
 
@@ -76,7 +76,7 @@ var HealthKitLogo: some View {
         .foregroundStyle(.pink)
 }
 
-// MARK: App Logo
+// MARK: Data Sources
 // ============================================================================
 
 extension DataSource {

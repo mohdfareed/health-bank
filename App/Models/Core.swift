@@ -37,10 +37,10 @@ enum StorageError: Error {
 /// The ID can be attributed with `.unique` with `UUID.zero` as the default
 /// to guarantee a single instance of the model in the database. The singleton
 /// must provide a default value through the `init()` method.
-protocol Singleton: PersistentModel where ID == UUID {
+protocol Singleton: PersistentModel {
     /// The ID of the model. The first instance of a model with this ID,
     /// according to a sort order, is considered the singleton.
-    var id: ID { get set }
+    var singletonID: String { get set }
     init()
 }
 

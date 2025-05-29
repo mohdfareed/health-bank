@@ -4,6 +4,17 @@ import SwiftUI
 // MARK: Settings
 // ============================================================================
 
+let AppName = String(localized: "health bank").localizedCapitalized
+
+extension DataSource {
+    var localized: String {
+        switch self {
+        case .local: return AppName
+        case .healthKit: return String(localized: "apple health").localizedCapitalized
+        }
+    }
+}
+
 extension AppTheme {
     var localized: String {
         switch self {

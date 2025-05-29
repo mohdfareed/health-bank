@@ -11,13 +11,14 @@ let appID: String = Bundle.main.bundleIdentifier ?? "Debug.App"
     init() {
         self.localContainer = try! ModelContainer(
             for: Schema([
-                CalorieBudget.self,
+                Budgets.self,
+                Goals.self,
                 DietaryEnergy.self,
                 ActiveEnergy.self,
                 RestingEnergy.self,
                 Weight.self,
             ]),
-            configurations: ModelConfiguration()
+            configurations: ModelConfiguration(isStoredInMemoryOnly: true),
         )
     }
 
