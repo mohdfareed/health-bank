@@ -11,8 +11,8 @@ extension Singleton {
     }
 }
 
-extension Goals {
-    static func predicate(id: UUID) -> Predicate<Goals> {
+extension UserGoals {
+    static func predicate(id: UUID) -> Predicate<UserGoals> {
         let singletonID = id
         return #Predicate { $0.singletonID == singletonID }
     }

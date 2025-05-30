@@ -3,7 +3,7 @@ import Foundation
 // MARK: Budgets and Goals
 // ============================================================================
 
-extension Goals {
+extension UserGoals {
     /// The calories daily budget.
     var weightGoal: Weight {
         get {

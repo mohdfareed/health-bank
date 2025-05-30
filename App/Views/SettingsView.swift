@@ -2,7 +2,7 @@ import SwiftData
 import SwiftUI
 
 struct SettingsView: View {
-    @AppStorage(.dailyGoals) var goalsID: UUID
+    @AppStorage(.userGoals) var goalsID: UUID
     @State private var reset = false
 
     var body: some View {
@@ -124,7 +124,7 @@ private struct LocalizationSettings: View {
 }
 
 private struct GoalSettings: View {
-    @Query.Singleton var goals: Goals
+    @Query.Singleton var goals: UserGoals
     init(_ id: UUID) {
         self._goals = .init(id)
     }
@@ -148,6 +148,6 @@ private struct GoalSettings: View {
 
 #Preview {
     SettingsView().modelContainer(
-        for: [Goals.self], inMemory: true
+        for: [UserGoals.self], inMemory: true
     )
 }

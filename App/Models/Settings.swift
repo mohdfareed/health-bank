@@ -42,7 +42,33 @@ extension Settings {
 // Trackers
 extension Settings {
     /// The active user daily goals.
-    static var dailyGoals: Settings<UUID> {
+    static var userGoals: Settings<UUID> {
         .init("Goals", default: .init())
     }
+}
+
+// MARK: Trackers
+// ============================================================================
+
+/// The user's daily goals.
+@Model final class UserGoals: Singleton {
+    var date: Date = Date()
+
+    // calories
+    var calories: Double? = 2000  // consumed
+    var macros: CalorieMacros = CalorieMacros(
+        p: 120, f: 60, c: 245  // grams
+    )
+
+    // activity
+    var burnedCalories: Double? = 350  // burned
+    var activity: TimeInterval? = 30  // minutes
+
+    // weight
+    var weight: Double? = 70  // kg
+
+    // singleton
+    @Attribute(.unique)
+    var singletonID = UUID()
+    required init() {}
 }

@@ -5,7 +5,7 @@ import SwiftUI
 // MARK: Budgets and Goals
 // ============================================================================
 
-extension Goals {
+extension UserGoals {
     /// The calories daily goal.
     var calorieGoal: DietaryCalorie {
         get {
