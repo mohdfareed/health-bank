@@ -37,7 +37,7 @@ extension Calorie {
 // MARK: Macros
 // ============================================================================
 
-extension DietaryEnergy {
+extension DietaryCalorie {
     @MainActor var carbsMeasurement: LocalizedMeasurement<UnitMass> {
         LocalizedMeasurement(
             Binding(

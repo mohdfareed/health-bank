@@ -1,13 +1,37 @@
 import SwiftData
 import SwiftUI
 
-// MARK: Singleton
+// MARK: Singleton Models
+// ============================================================================
+
+extension Singleton {
+    init(id: UUID = UUID.zero) {
+        self.init()
+        self.singletonID = id
+    }
+}
+
+extension Budgets {
+    static func predicate(id: UUID) -> Predicate<Budgets> {
+        let singletonID = id
+        return #Predicate { $0.singletonID == singletonID }
+    }
+}
+
+extension Goals {
+    static func predicate(id: UUID) -> Predicate<Goals> {
+        let singletonID = id
+        return #Predicate { $0.singletonID == singletonID }
+    }
+}
+
+// MARK: Singleton Query
 // ============================================================================
 
 /// A property wrapper to fetch a singleton model. If multiple models are
 /// found, the first instance is used.
 @MainActor @propertyWrapper
-struct SingletonQuery<Model: Singleton & PersistentModel>: DynamicProperty {
+struct SingletonQuery<Model: Singleton>: DynamicProperty {
     @Environment(\.modelContext) private var context: ModelContext
     @Query private var models: [Model]
     private let factory: () -> Model
@@ -21,13 +45,6 @@ struct SingletonQuery<Model: Singleton & PersistentModel>: DynamicProperty {
     var projectedValue: Bindable<Model> { .init(self.wrappedValue) }
 }
 extension Query { typealias Singleton = SingletonQuery }
-
-extension Singleton {
-    init(id: UUID = UUID.zero) {
-        self.init()
-        self.id = id
-    }
-}
 
 // MARK: Queries
 // ============================================================================
@@ -48,13 +65,12 @@ extension SingletonQuery {
 
     init(
         _ id: UUID,
-        sortBy: [SortDescriptor<Model>] = [SortDescriptor(\.persistentModelID)],
+        sortBy: [SortDescriptor<Model>] = [.init(\.persistentModelID)],
         animation: Animation = .default,
-    ) {
-        // FIXME: `singletonID` resolves a computed property
+    ) where Model: Singleton {
         let singletonID = id
-        var descriptor = FetchDescriptor(
-            predicate: #Predicate { $0.id == singletonID },
+        var descriptor = FetchDescriptor<Model>(
+            predicate: Model.predicate(id: singletonID),
             sortBy: sortBy,
         )
         descriptor.fetchLimit = 1  // singleton

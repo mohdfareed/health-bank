@@ -1,0 +1,117 @@
+import Foundation
+import SwiftData
+import SwiftUI
+
+// MARK: Budgets and Goals
+// ============================================================================
+
+extension Budgets {
+    /// The calories daily budget.
+    var calorieBudget: DietaryCalorie {
+        get {
+            .init(self.calories ?? 0, date: self.date, macros: self.macros)
+        }
+        set {
+            self.date = newValue.date
+            self.calories = newValue.calories
+            self.macros = newValue.macros
+        }
+    }
+}
+
+extension Goals {
+    /// The calories daily goal.
+    var calorieGoal: DietaryCalorie {
+        get {
+            .init(self.calories ?? 0, date: self.date, macros: self.macros)
+        }
+        set {
+            self.date = newValue.date
+            self.calories = newValue.calories
+            self.macros = newValue.macros
+        }
+    }
+
+    /// The activity daily goal.
+    var activityGoal: ActiveEnergy {
+        get {
+            .init(calories ?? 0, date: date, duration: activity)
+        }
+        set {
+            self.date = newValue.date
+            self.calories = newValue.calories
+            self.activity = newValue.duration
+        }
+    }
+}
+
+// MARK: Macro Calculations
+// ============================================================================
+
+extension DietaryCalorie {
+    /// The amount of calories calculated from the macros.
+    func calculatedCalories() -> Double? {
+        guard
+            let p = self.macros.protein,
+            let f = self.macros.fat,
+            let c = self.macros.carbs
+        else { return nil }
+        let calc = ((p + c) * 4) + (f * 9)
+
+        if calc < 0 {
+            return nil
+        }
+        return calc
+    }
+
+    /// The amount of protein calculated from the calories, carbs, and fat.
+    func calculatedProtein() -> Double? {
+        guard
+            let fat = self.macros.fat,
+            let carbs = self.macros.carbs
+        else { return nil }
+
+        let fatCalories = fat * 9
+        let carbsCalories = carbs * 4
+        let calc = Double(self.calories - fatCalories - carbsCalories) / 4
+
+        if calc < 0 {
+            return nil
+        }
+        return calc
+    }
+
+    /// The amount of carbs calculated from the calories, protein, and fat.
+    func calculatedCarbs() -> Double? {
+        guard
+            let protein = self.macros.protein,
+            let fat = self.macros.fat
+        else { return nil }
+
+        let proteinCalories = protein * 4
+        let fatCalories = fat * 9
+        let calc = Double(self.calories - proteinCalories - fatCalories) / 4
+
+        if calc < 0 {
+            return nil
+        }
+        return calc
+    }
+
+    /// The amount of fat calculated from the calories, protein, and carbs.
+    func calculatedFat() -> Double? {
+        guard
+            let protein = self.macros.protein,
+            let carbs = self.macros.carbs
+        else { return nil }
+
+        let proteinCalories = protein * 4
+        let carbsCalories = carbs * 4
+        let calc = Double(self.calories - proteinCalories - carbsCalories) / 9
+
+        if calc < 0 {
+            return nil
+        }
+        return calc
+    }
+}

@@ -9,7 +9,6 @@
     "editor.detectIndentation": false,
     "editor.indentSize": 4,
   },
-  "sweetpad.build.xcodeWorkspacePath": "HealthBank.xcodeproj/project.xcworkspace",
   // json
   "[json]": {
     "editor.detectIndentation": false,
@@ -23,9 +22,11 @@
   "commentAnchors.workspace.excludeFiles": "**/.build/**/*",
   // spelling
   "cSpell.ignorePaths": [
+    ".build",
     ".github",
     ".vscode",
     ".gitignore",
+    "build",
     "Package.resolved",
     "Project.yml",
   ],
@@ -33,6 +34,7 @@
     "checkmark",
     "faceid",
     "Macronutrients",
+    "refreshable",
     "subheadline",
     "xcodeproj",
     "xmark"

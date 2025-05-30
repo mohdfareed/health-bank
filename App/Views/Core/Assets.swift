@@ -6,8 +6,11 @@ import SwiftUI
 extension Color {
     static var logoPrimary: Color { Color("LogoPrimary") }
     static var logoSecondary: Color { Color("LogoSecondary") }
+
     static var accent: Color { Color("Accent") }
     static var healthKit: Color { Color.pink }
+    static var local: Color { Color.primary }
+    static var cloud: Color { Color.blue }
 }
 
 extension ShapeStyle where Self == Color {
@@ -42,7 +45,9 @@ extension Image {
     static var carbs: Image { Image(systemName: "carrot") }
 
     // Data Sources
-    static var sourceLocal: Image { Image.logo }
+    // static var sourceLocal: Image { Image(systemName: "iphone") }
+    static var sourceLocal: Image? { nil }
+    static var sourceCloud: Image { Image(systemName: "icloud.fill") }
     static var sourceHealthKit: Image { Image(systemName: "heart.circle.fill") }
 
     // Actions
@@ -74,7 +79,7 @@ var HealthKitLogo: some View {
     Image.sourceHealthKit
         .resizable()
         .aspectRatio(contentMode: .fit)
-        .foregroundStyle(.pink)
+        .foregroundStyle(Color.healthKit)
 }
 
 // MARK: Data Sources
@@ -90,7 +95,7 @@ extension DataSource {
         }
     }
 
-    var icon: Image {
+    var icon: Image? {
         switch self {
         case .local:
             return .sourceLocal
@@ -102,7 +107,7 @@ extension DataSource {
     var color: Color {
         switch self {
         case .local:
-            return .logoPrimary
+            return .local
         case .healthKit:
             return .healthKit
         }

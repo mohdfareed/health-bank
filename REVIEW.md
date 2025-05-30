@@ -277,3 +277,75 @@ WeightCardView(record: $selectedWeight) // @Bindable auto-saves
 - **User Experience**: Consistent visual language and interaction patterns
 
 The component system now provides a complete foundation for health data visualization and editing, properly integrated with the existing codebase architecture.
+
+## 14. Generic DataViews Solution (2025-05-29)
+
+### Problem Addressed
+The original `DataViews.swift` file had views tightly coupled to specific types (`DietaryEnergy`, `ActiveEnergy`, etc.), making it impossible to reuse calorie and macro views for other types like the `Budgets` class which also has calorie properties.
+
+### Solution Implemented
+**Generic Calorie and Macro Views**: Refactored the views to work with generic `Double?` values instead of specific model types, while maintaining backward compatibility.
+
+#### Key Changes Made:
+
+**1. Generic CaloriesRow**
+```swift
+// Works with any Double calorie value
+CaloriesRow(
+    calories: $budgets.calories,
+    title: "Daily Calorie Budget",
+    image: Image.dietaryCalorie,
+    tint: .orange
+)
+
+// Still works with Calorie protocol types via convenience initializer
+CaloriesRow(calorie: $dietaryEnergyRecord)
+```
+
+**2. Generic Macro Views**
+```swift
+// Direct usage with any Double? macro values
+MacrosProteinRow(protein: $budgets.macros.protein)
+MacrosCarbsRow(carbs: $budgets.macros.carbs)
+MacrosFatRow(fat: $budgets.macros.fat)
+
+// Convenience initializers for DietaryEnergy types
+MacrosProteinRow(calorie: $dietaryEnergyRecord)
+```
+
+#### Usage Examples:
+
+**With Budgets Class:**
+```swift
+Section(header: Text("Daily Budgets")) {
+    CaloriesRow(calories: $budgets.calories, title: "Daily Calorie Budget")
+    MacrosProteinRow(protein: $budgets.macros.protein)
+    MacrosCarbsRow(carbs: $budgets.macros.carbs)
+    MacrosFatRow(fat: $budgets.macros.fat)
+}
+```
+
+**With DietaryEnergy (backward compatible):**
+```swift
+Section(header: Text("Food Entry")) {
+    CaloriesRow(calorie: $dietaryEntry)
+    MacrosProteinRow(calorie: $dietaryEntry)
+    MacrosCarbsRow(calorie: $dietaryEntry)
+    MacrosFatRow(calorie: $dietaryEntry)
+}
+```
+
+### Technical Implementation
+- **Primary Initializers**: Accept `Binding<Double?>` for maximum flexibility
+- **Convenience Initializers**: Provide backward compatibility with existing model types
+- **MeasurementRow Integration**: Maintains existing `LocalizedMeasurement` and unit conversion functionality
+- **Computed Values**: Support for displaying calculated values (e.g., calories from macros)
+
+### Benefits Achieved
+1. **Reusability**: Views can now be used with any type that has calorie/macro properties
+2. **Backward Compatibility**: Existing code continues to work unchanged
+3. **Type Safety**: Maintains SwiftUI binding patterns and type safety
+4. **Consistency**: Uses same visual styling and behavior across all contexts
+5. **Maintainability**: Single source of truth for calorie/macro view implementations
+
+This solution addresses the FIXME comment in the original code and enables flexible usage across different model types while preserving the existing component architecture.

@@ -37,9 +37,13 @@ enum StorageError: Error {
 /// The ID can be attributed with `.unique` with `UUID.zero` as the default
 /// to guarantee a single instance of the model in the database. The singleton
 /// must provide a default value through the `init()` method.
-protocol Singleton: PersistentModel where ID == UUID {
-    var id: UUID { get set }
+protocol Singleton: PersistentModel {
+    /// The unique ID of the singleton model.
+    var singletonID: UUID { get set }
     init()
+
+    /// The predicate generator. This is required to use stored properties.
+    static func predicate(id: UUID) -> Predicate<Self>
 }
 
 // MARK: Units System

@@ -13,7 +13,7 @@ let appID: String = Bundle.main.bundleIdentifier ?? "Debug.App"
             for: Schema([
                 Budgets.self,
                 Goals.self,
-                DietaryEnergy.self,
+                DietaryCalorie.self,
                 ActiveEnergy.self,
                 RestingEnergy.self,
                 Weight.self,

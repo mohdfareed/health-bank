@@ -14,11 +14,7 @@ struct SettingsView: View {
                     LocalizationSettings()
                 }
 
-                // TODO: convert budgets and goals to accept a list types
-                // User chooses the types then provides a budget for each
                 BudgetSettings(budgetsID)
-                // TODO: convert goals to accept a list types
-                // User chooses the types then provides a goal for each
                 GoalSettings(goalsID)
 
                 Button(
@@ -28,6 +24,9 @@ struct SettingsView: View {
             }
             .navigationTitle(String(localized: "Settings"))
             .resetAlert(isPresented: $reset)
+        }
+        .refreshable {
+            self.reset = false
         }
     }
 }
@@ -127,36 +126,36 @@ private struct LocalizationSettings: View {
 }
 
 private struct BudgetSettings: View {
-    // @Query.Singleton var budgets: Budgets
-    @State var budgets: Budgets
+    @Query.Singleton var budgets: Budgets
     init(_ id: UUID) {
-        // self._budgets = .init(id)
-        self._budgets = .init(initialValue: .init())
+        self._budgets = .init(id)
     }
 
     var body: some View {
         Section(header: Text(String(localized: "Daily Budgets"))) {
-            // CaloriesRow(calorie: $budgets.energyBudget)
-            // MacrosProteinRow(calorie: $budgets.energyBudget)
-            // MacrosCarbsRow(calorie: $budgets.energyBudget)
-            // MacrosFatRow(calorie: $budgets.energyBudget)
+            CaloriesRow(calorie: $budgets.calorieBudget.casted(), showDate: false)
+            MacrosProteinRow(calorie: $budgets.calorieBudget.casted(), showDate: false)
+            MacrosCarbsRow(calorie: $budgets.calorieBudget.casted(), showDate: false)
+            MacrosFatRow(calorie: $budgets.calorieBudget.casted(), showDate: false)
         }
     }
 }
 
 private struct GoalSettings: View {
-    // @Query.Singleton var goals: Goals
-    @State var goals: Goals
+    @Query.Singleton var goals: Goals
     init(_ id: UUID) {
-        // self._goals = .init(id)
-        self._goals = .init(initialValue: .init())
+        self._goals = .init(id)
     }
 
     var body: some View {
         Section(header: Text(String(localized: "Daily Goals"))) {
-            // WeightRow(weight: $goals.weightGoal)
-            // BurnedCaloriesRow(calorie: $goals.energyGoal)
-            // ActivityRow(calorie: $goals.energyGoal)
+            BurnedCaloriesRow(calorie: $goals.activityGoal.casted(), showDate: false)
+            CaloriesRow(calorie: $goals.calorieGoal.casted(), showDate: false)
+            MacrosProteinRow(calorie: $goals.calorieGoal.casted(), showDate: false)
+            MacrosCarbsRow(calorie: $goals.calorieGoal.casted(), showDate: false)
+            MacrosFatRow(calorie: $goals.calorieGoal.casted(), showDate: false)
+            ActivityRow(calorie: $goals.activityGoal.casted(), showDate: false)
+            WeightRow(weight: $goals.weightGoal.casted(), showDate: false)
         }
     }
 }

@@ -62,6 +62,14 @@ extension UUID {
             set: { self.wrappedValue = $0 ?? defaultValue }
         )
     }
+
+    /// A binding that casts the value to a `T` type.
+    func casted<T>() -> Binding<T> {
+        Binding<T>(
+            get: { self.wrappedValue as! T },
+            set: { self.wrappedValue = $0 as! Value }
+        )
+    }
 }
 
 // MARK: Serialization

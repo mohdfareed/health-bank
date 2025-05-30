@@ -1,6 +1,8 @@
 import SwiftData
 import SwiftUI
 
+// TODO: Add animations.
+
 struct DetailedRow<Content: View>: View {
     let title: Text
     let subtitle: Text?
@@ -17,7 +19,7 @@ struct DetailedRow<Content: View>: View {
                     HStack {
                         title
                         if let subtitle = subtitle {
-                            Text("•  \(subtitle)").textScale(.secondary)
+                            subtitle.textScale(.secondary)
                                 .foregroundStyle(.secondary)
                         }
                     }
@@ -41,9 +43,14 @@ struct DetailedRow<Content: View>: View {
     }
 }
 
+// TODO: Add value validation.
+// TODO: Support null to allow clearing nullable values.
+
 struct MeasurementField<Unit: Dimension>: View {
+    @Environment(\.modelContext) private var context: ModelContext
     @LocalizedMeasurement var measurement: Measurement<Unit>
     let format: FloatingPointFormatStyle<Double>
+    let editable: Bool
 
     var measFormat: Measurement<Unit>.FormatStyle {
         .measurement(
@@ -54,13 +61,25 @@ struct MeasurementField<Unit: Dimension>: View {
 
     var body: some View {
         HStack(alignment: .center) {
-            TextField("", value: $measurement.value, format: format)
-                .multilineTextAlignment(.trailing)
+            if editable {
+                TextField("", value: $measurement.value, format: format)
+                    .multilineTextAlignment(.trailing)
+                    .onChange(of: measurement.value) {
+                        if (try? context.save()) == nil {
+                            AppLogger.new(for: MeasurementField.self)
+                                .error("Failed to save measurement.")
+                        }
+                    }
+            } else {
+                Text(
+                    $measurement.value.wrappedValue?.formatted(format) ?? ""
+                ).multilineTextAlignment(.trailing)
+            }
 
             if $measurement.availableUnits().count > 1 {
                 picker.frame(minWidth: 8, maxWidth: 8).fixedSize()
             } else {
-                Spacer(minLength: 16).fixedSize()
+                Spacer().frame(minWidth: 8, maxWidth: 8).fixedSize()
             }
         }
     }
@@ -82,28 +101,61 @@ struct MeasurementField<Unit: Dimension>: View {
     }
 }
 
+// FIXME: Computed field is not reactive
+// TODO: Add computed field validation.
+
 struct MeasurementRow<Unit: Dimension>: View {
     @LocalizedMeasurement var measurement: Measurement<Unit>
     let title: String.LocalizationValue
     let image: Image?
     let tint: Color?
 
-    let computed: Double?
+    var computed: Double?
+    let date: Date?
+    let source: DataSource?
     let format: FloatingPointFormatStyle<Double>
 
     var body: some View {
         DetailedRow(
             title: Text(String(localized: title)),
-            subtitle: Text(measurement.unit.symbol).textScale(.secondary),
-            details: $measurement.computedText(
-                computed, format: format
-            ),
+            subtitle: subtitlePrefix?.textScale(.secondary),
+            details: detailsText?.textScale(.secondary),
             image: image, tint: tint
         ) {
             MeasurementField(
                 measurement: $measurement,
-                format: format
+                format: format, editable: source == .local
             )
+        }
+    }
+
+    var subtitlePrefix: Text? {
+        let unit = measurement.unit.symbol
+        let computed =
+            $measurement.computedText(
+                computed, format: format
+            ) ?? Text("")
+
+        if let source = source, let icon = source.icon {
+            let icon = Text(icon).font(.caption2)
+                .foregroundColor(source.color)
+            return Text("\(icon)  \(computed)\(unit)")
+        } else {
+            return Text("•  \(computed)\(unit)")
+        }
+    }
+
+    var detailsText: Text? {
+        if let date = date {
+            let formatter = RelativeDateTimeFormatter()
+            formatter.unitsStyle = .abbreviated
+            formatter.dateTimeStyle = .numeric
+            let relativeDate = formatter.localizedString(
+                for: date, relativeTo: Date.now
+            )
+            return Text(relativeDate)
+        } else {
+            return nil
         }
     }
 }
@@ -125,8 +177,10 @@ extension LocalizedMeasurement {
         ).converted(to: self.unit.wrappedValue)
 
         let text = measurement.value.formatted(format)
-        let icon = Text(Image(systemName: "function")).font(.footnote.bold())
-        return Text("\(icon): \(text)").textScale(.secondary)
+        let icon = Text(Image(systemName: "function"))
+            .foregroundStyle(.indigo.secondary)
+            .font(.footnote.bold())
+        return Text("\(icon): \(text)")
     }
 }
 
@@ -145,13 +199,15 @@ struct MeasurementRow_Previews: View {
                 definition: .init(.kilocalories, usage: .food)
             ),
             title: "Calories", image: Image.calories, tint: .orange,
-            computed: 2000, format: .number.precision(.fractionLength(0)),
+            computed: 2000, date: budgets.date, source: nil,
+            format: .number.precision(.fractionLength(0)),
         )
 
         MeasurementRow(
             measurement: weight.measurement,
             title: "Weight", image: Image.weight, tint: .purple,
-            computed: nil, format: .number.precision(.fractionLength(2)),
+            computed: nil, date: budgets.date, source: nil,
+            format: .number.precision(.fractionLength(2)),
         )
 
         DetailedRow(
@@ -169,7 +225,7 @@ struct MeasurementRow_Previews: View {
     List {
         MeasurementRow_Previews()
             .modelContainer(
-                for: [DietaryEnergy.self, Weight.self],
+                for: [DietaryCalorie.self, Weight.self],
                 inMemory: true
             )
     }
