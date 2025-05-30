@@ -1,6 +1,9 @@
 import SwiftData
 import SwiftUI
 
+// TODO: Add entries tab that shows all entries, filterable by type and source
+// TODO: Add dashboard view to track goals and progress
+
 struct AppView: View {
     @AppStorage(.theme)
     internal var theme: AppTheme

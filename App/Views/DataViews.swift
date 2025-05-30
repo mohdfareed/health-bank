@@ -14,7 +14,7 @@ struct CaloriesRow: View {
         MeasurementRow(
             measurement: calorie.measurement,
             title: title ?? "Calories", image: Image.calories, tint: .orange,
-            computed: (calorie as? DietaryCalorie)?.calculatedCalories(),
+            computed: (calorie as? DietaryCalorie)?.calculatedCalories,
             date: showDate ? calorie.date : nil, source: calorie.source,
             format: .number.precision(.fractionLength(0)), showPicker: false
         )
@@ -31,7 +31,7 @@ struct DietaryCaloriesRow: View {
             measurement: calorie.measurement,
             title: title ?? "Calories",
             image: Image.dietaryCalorie, tint: .blue,
-            computed: (calorie as? DietaryCalorie)?.calculatedCalories(),
+            computed: (calorie as? DietaryCalorie)?.calculatedCalories,
             date: showDate ? calorie.date : nil, source: calorie.source,
             format: .number.precision(.fractionLength(0)), showPicker: false
         )
@@ -65,7 +65,7 @@ struct MacrosProteinRow: View {
         MeasurementRow(
             measurement: calorie.proteinMeasurement,
             title: "Protein", image: Image.protein, tint: .purple,
-            computed: calorie.calculatedProtein(),
+            computed: calorie.calculatedProtein,
             date: showDate ? calorie.date : nil, source: calorie.source,
             format: .number.precision(.fractionLength(0)), showPicker: false
         )
@@ -80,7 +80,7 @@ struct MacrosCarbsRow: View {
         MeasurementRow(
             measurement: calorie.carbsMeasurement,
             title: "Carbohydrates", image: Image.carbs, tint: .green,
-            computed: calorie.calculatedCarbs(),
+            computed: calorie.calculatedCarbs,
             date: showDate ? calorie.date : nil, source: calorie.source,
             format: .number.precision(.fractionLength(0)), showPicker: false
         )
@@ -95,7 +95,7 @@ struct MacrosFatRow: View {
         MeasurementRow(
             measurement: calorie.fatMeasurement,
             title: "Fat", image: Image.fat, tint: .yellow,
-            computed: calorie.calculatedFat(),
+            computed: calorie.calculatedFat,
             date: showDate ? calorie.date : nil, source: calorie.source,
             format: .number.precision(.fractionLength(0)), showPicker: false
         )

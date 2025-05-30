@@ -130,19 +130,22 @@ private struct GoalSettings: View {
     }
 
     var body: some View {
+        // Create a shared binding to ensure all rows track the same object
+        let calorieBinding: Binding<DietaryCalorie> = $goals.calorieGoal.casted()
+
         Section(header: Text(String(localized: "Daily Calorie Budget"))) {
             DietaryCaloriesRow(
-                calorie: $goals.calorieGoal.casted(),
+                calorie: calorieBinding.casted(),
                 title: "Calories", showDate: false
             )
             MacrosProteinRow(
-                calorie: $goals.calorieGoal.casted(), showDate: false
+                calorie: calorieBinding, showDate: false
             )
             MacrosCarbsRow(
-                calorie: $goals.calorieGoal.casted(), showDate: false
+                calorie: calorieBinding, showDate: false
             )
             MacrosFatRow(
-                calorie: $goals.calorieGoal.casted(), showDate: false
+                calorie: calorieBinding, showDate: false
             )
         }
         Section(header: Text(String(localized: "Daily Activity Goals"))) {

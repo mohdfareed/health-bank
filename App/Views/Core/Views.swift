@@ -63,23 +63,24 @@ struct MeasurementField<Unit: Dimension>: View {
 
     var body: some View {
         HStack(alignment: .center) {
-            if showPicker && $measurement.availableUnits().count > 1 {
-                picker.frame(minWidth: 8, maxWidth: 8).fixedSize()
-            }
-
             if editable {
                 TextField("", value: $measurement.value, format: format)
                     .multilineTextAlignment(.trailing)
                     .onChange(of: measurement.value) {
                         if (try? context.save()) == nil {
-                            AppLogger.new(for: MeasurementField.self)
+                            let def = type(of: $measurement.definition).self
+                            AppLogger.new(for: def)
                                 .error("Failed to save measurement.")
                         }
                     }
             } else {
                 Text(
                     $measurement.value.wrappedValue?.formatted(format) ?? ""
-                ).multilineTextAlignment(.trailing)
+                ).multilineTextAlignment(.trailing).foregroundStyle(.secondary)
+            }
+
+            if showPicker && $measurement.availableUnits().count > 1 {
+                picker.frame(minWidth: 8, maxWidth: 8).fixedSize()
             }
         }
     }
@@ -101,8 +102,8 @@ struct MeasurementField<Unit: Dimension>: View {
     }
 }
 
-// FIXME: Computed field is not reactive
 // TODO: Add computed field validation
+// TODO: Add method to set value to computed value
 
 struct MeasurementRow<Unit: Dimension>: View {
     @LocalizedMeasurement var measurement: Measurement<Unit>
@@ -110,7 +111,7 @@ struct MeasurementRow<Unit: Dimension>: View {
     let image: Image?
     let tint: Color?
 
-    var computed: Double?
+    let computed: (() -> Double?)?
     let date: Date?
     let source: DataSource?
     let format: FloatingPointFormatStyle<Double>
@@ -133,9 +134,10 @@ struct MeasurementRow<Unit: Dimension>: View {
 
     var subtitlePrefix: Text? {
         let unit = measurement.unit.symbol
+        let computedValue = computed?()
         let computed =
             $measurement.computedText(
-                computed, format: format
+                computedValue, format: format
             ) ?? Text("")
 
         if let source = source, let icon = source.icon {
@@ -201,7 +203,7 @@ struct MeasurementRow_Previews: View {
                 definition: .init(.kilocalories, usage: .food)
             ),
             title: "Calories", image: Image.calories, tint: .orange,
-            computed: 2000, date: budgets.date, source: nil,
+            computed: { 2000 }, date: budgets.date, source: nil,
             format: .number.precision(.fractionLength(0)), showPicker: false
         )
 

@@ -42,7 +42,7 @@ extension Image {
     static var macros: Image { Image(systemName: "chart.pie") }
     static var protein: Image { Image(systemName: "dumbbell") }
     static var fat: Image { Image(systemName: "drop.circle") }
-    static var carbs: Image { Image(systemName: "carrot") }
+    static var carbs: Image { Image(systemName: "carrot.fill") }
 
     // Data Sources
     // static var sourceLocal: Image { Image(systemName: "iphone") }

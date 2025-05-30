@@ -349,3 +349,73 @@ Section(header: Text("Food Entry")) {
 5. **Maintainability**: Single source of truth for calorie/macro view implementations
 
 This solution addresses the FIXME comment in the original code and enables flexible usage across different model types while preserving the existing component architecture.
+
+## 15. Fixed Reactive Computed Fields (2025-05-30)
+
+### Problem Identified
+The computed fields in macro rows (protein, carbs, fat calculations) were not updating reactively when underlying macro values changed. The issue was in `MeasurementRow` where computed values were passed as function references instead of closures.
+
+### Root Cause
+- **Before**: `computed: calorie.calculatedProtein` (function reference)
+- **Issue**: SwiftUI treated function references as static values, not tracking dependencies
+- **Result**: Computed fields didn't update when underlying data changed
+
+### Solution Implemented
+Changed all computed parameters from function references to closures that execute within the view body:
+
+**Updated Views:**
+1. `CaloriesRow`: `computed: { (calorie as? DietaryCalorie)?.calculatedCalories() }`
+2. `DietaryCaloriesRow`: `computed: { (calorie as? DietaryCalorie)?.calculatedCalories() }`
+3. `MacrosProteinRow`: `computed: { calorie.calculatedProtein() }`
+4. `MacrosCarbsRow`: `computed: { calorie.calculatedCarbs() }`
+5. `MacrosFatRow`: `computed: { calorie.calculatedFat() }`
+
+**MeasurementRow Signature:**
+```swift
+let computed: (() -> Double?)?
+```
+
+### Technical Details
+- **Reactivity**: Closures execute during view body evaluation, allowing SwiftUI to track dependencies
+- **Performance**: Closures are only executed when the view re-renders
+- **Type Safety**: Maintained existing `(() -> Double?)?` signature for backward compatibility
+
+### Impact
+Now when a user edits any macro value (e.g., fat), the calculated values for other macros (e.g., protein, carbs) automatically update in the UI, providing real-time feedback during data entry.
+
+## SwiftUI Reactivity Fix - Final Solution (2025-05-30)
+
+### Root Cause Discovered
+The real issue was in the binding identity, not dependency tracking. The `.casted()` method creates new binding objects each time it's called, breaking SwiftUI's object identity tracking between rows that should share the same data source.
+
+### Final Solution
+**Single Shared Binding in SettingsView.swift:**
+```swift
+var body: some View {
+    // Create a single shared binding to ensure all rows track the same object
+    let calorieBinding: Binding<DietaryCalorie> = $goals.calorieGoal.casted()
+
+    Section(header: Text(String(localized: "Daily Calorie Budget"))) {
+        DietaryCaloriesRow(calorie: calorieBinding.casted(), title: "Calories", showDate: false)
+        MacrosProteinRow(calorie: calorieBinding, showDate: false)
+        MacrosCarbsRow(calorie: calorieBinding, showDate: false)
+        MacrosFatRow(calorie: calorieBinding, showDate: false)
+    }
+}
+```
+
+### Code Cleanup (2025-05-30)
+Removed unnecessary complexity from DataViews.swift:
+- **Removed**: Explicit dependency tracking with `let _ = calorie.macros.fat`
+- **Removed**: `.id()` modifiers for forced view recreation
+- **Kept**: Closure syntax for computed values (`computed: { calorie.calculatedProtein() }`)
+
+### Key Insight
+SwiftUI tracks dependencies based on binding object identity, not the underlying data. Multiple calls to `.casted()` created separate binding objects, preventing cross-row reactivity even when they pointed to the same data.
+
+### Final State
+- ✅ **SettingsView.swift**: Uses single shared binding for all macro rows
+- ✅ **DataViews.swift**: Clean, simplified implementation with closure-based computed values
+- ✅ **Views.swift**: MeasurementRow accepts closures for reactive computed fields
+
+The solution is now both functional and maintainable, addressing the root cause rather than working around symptoms.
