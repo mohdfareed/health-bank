@@ -1,6 +1,6 @@
 import SwiftUI
 
-// REVIEW: Simplify and use
+// REVIEW: Simplify and reuse icon+color
 
 // MARK: Calories
 // ============================================================================
@@ -64,7 +64,7 @@ struct MacrosProteinRow: View {
     var body: some View {
         MeasurementRow(
             measurement: calorie.proteinMeasurement,
-            title: "Protein", image: Image.protein, tint: .green,
+            title: "Protein", image: Image.protein, tint: .purple,
             computed: calorie.calculatedProtein(),
             date: showDate ? calorie.date : nil, source: calorie.source,
             format: .number.precision(.fractionLength(0)), showPicker: false
@@ -79,7 +79,7 @@ struct MacrosCarbsRow: View {
     var body: some View {
         MeasurementRow(
             measurement: calorie.carbsMeasurement,
-            title: "Carbohydrates", image: Image.carbs, tint: .purple,
+            title: "Carbohydrates", image: Image.carbs, tint: .green,
             computed: calorie.calculatedCarbs(),
             date: showDate ? calorie.date : nil, source: calorie.source,
             format: .number.precision(.fractionLength(0)), showPicker: false

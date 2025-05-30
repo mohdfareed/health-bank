@@ -131,7 +131,7 @@ private struct GoalSettings: View {
 
     var body: some View {
         Section(header: Text(String(localized: "Daily Calorie Budget"))) {
-            CaloriesRow(
+            DietaryCaloriesRow(
                 calorie: $goals.calorieGoal.casted(),
                 title: "Calories", showDate: false
             )
