@@ -130,15 +130,30 @@ private struct GoalSettings: View {
     }
 
     var body: some View {
-        Section(header: Text(String(localized: "Calorie Budget"))) {
-            CaloriesRow(calorie: $goals.calorieGoal.casted(), showDate: false)
-            MacrosProteinRow(calorie: $goals.calorieGoal.casted(), showDate: false)
-            MacrosCarbsRow(calorie: $goals.calorieGoal.casted(), showDate: false)
-            MacrosFatRow(calorie: $goals.calorieGoal.casted(), showDate: false)
+        Section(header: Text(String(localized: "Daily Calorie Budget"))) {
+            CaloriesRow(
+                calorie: $goals.calorieGoal.casted(),
+                title: "Calories", showDate: false
+            )
+            MacrosProteinRow(
+                calorie: $goals.calorieGoal.casted(), showDate: false
+            )
+            MacrosCarbsRow(
+                calorie: $goals.calorieGoal.casted(), showDate: false
+            )
+            MacrosFatRow(
+                calorie: $goals.calorieGoal.casted(), showDate: false
+            )
         }
-        Section(header: Text(String(localized: "Activity Goals"))) {
-            BurnedCaloriesRow(calorie: $goals.activityGoal.casted(), showDate: false)
-            ActivityRow(calorie: $goals.activityGoal.casted(), showDate: false)
+        Section(header: Text(String(localized: "Daily Activity Goals"))) {
+            CaloriesRow(
+                calorie: $goals.activityGoal.casted(),
+                title: "Burned Calories", showDate: false
+            )
+            ActivityRow(
+                calorie: $goals.activityGoal.casted(),
+                showDate: false, showPicker: false
+            )
         }
         Section(header: Text(String(localized: "Target Measurements"))) {
             WeightRow(weight: $goals.weightGoal.casted(), showDate: false)

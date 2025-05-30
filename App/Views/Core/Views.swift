@@ -1,7 +1,8 @@
 import SwiftData
 import SwiftUI
 
-// TODO: Add animations.
+// REVIEW: Simplify and reuse
+// TODO: Add animations
 
 struct DetailedRow<Content: View>: View {
     let title: Text
@@ -43,14 +44,15 @@ struct DetailedRow<Content: View>: View {
     }
 }
 
-// TODO: Add value validation.
-// TODO: Support null to allow clearing nullable values.
+// TODO: Add value validation
+// TODO: Support null to allow clearing nullable values
 
 struct MeasurementField<Unit: Dimension>: View {
     @Environment(\.modelContext) private var context: ModelContext
     @LocalizedMeasurement var measurement: Measurement<Unit>
     let format: FloatingPointFormatStyle<Double>
     let editable: Bool
+    let showPicker: Bool
 
     var measFormat: Measurement<Unit>.FormatStyle {
         .measurement(
@@ -61,6 +63,10 @@ struct MeasurementField<Unit: Dimension>: View {
 
     var body: some View {
         HStack(alignment: .center) {
+            if showPicker && $measurement.availableUnits().count > 1 {
+                picker.frame(minWidth: 8, maxWidth: 8).fixedSize()
+            }
+
             if editable {
                 TextField("", value: $measurement.value, format: format)
                     .multilineTextAlignment(.trailing)
@@ -74,12 +80,6 @@ struct MeasurementField<Unit: Dimension>: View {
                 Text(
                     $measurement.value.wrappedValue?.formatted(format) ?? ""
                 ).multilineTextAlignment(.trailing)
-            }
-
-            if $measurement.availableUnits().count > 1 {
-                picker.frame(minWidth: 8, maxWidth: 8).fixedSize()
-            } else {
-                Spacer().frame(minWidth: 8, maxWidth: 8).fixedSize()
             }
         }
     }
@@ -102,7 +102,7 @@ struct MeasurementField<Unit: Dimension>: View {
 }
 
 // FIXME: Computed field is not reactive
-// TODO: Add computed field validation.
+// TODO: Add computed field validation
 
 struct MeasurementRow<Unit: Dimension>: View {
     @LocalizedMeasurement var measurement: Measurement<Unit>
@@ -114,6 +114,7 @@ struct MeasurementRow<Unit: Dimension>: View {
     let date: Date?
     let source: DataSource?
     let format: FloatingPointFormatStyle<Double>
+    let showPicker: Bool
 
     var body: some View {
         DetailedRow(
@@ -124,7 +125,8 @@ struct MeasurementRow<Unit: Dimension>: View {
         ) {
             MeasurementField(
                 measurement: $measurement,
-                format: format, editable: source == .local
+                format: format, editable: source == .local,
+                showPicker: showPicker,
             )
         }
     }
@@ -200,14 +202,14 @@ struct MeasurementRow_Previews: View {
             ),
             title: "Calories", image: Image.calories, tint: .orange,
             computed: 2000, date: budgets.date, source: nil,
-            format: .number.precision(.fractionLength(0)),
+            format: .number.precision(.fractionLength(0)), showPicker: false
         )
 
         MeasurementRow(
             measurement: weight.measurement,
             title: "Weight", image: Image.weight, tint: .purple,
             computed: nil, date: budgets.date, source: nil,
-            format: .number.precision(.fractionLength(2)),
+            format: .number.precision(.fractionLength(2)), showPicker: true
         )
 
         DetailedRow(

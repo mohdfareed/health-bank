@@ -1,6 +1,6 @@
 import SwiftUI
 
-// FIXME: not working, env locale used outside of view
+// FIXME: Not working, env locale used outside of view
 
 // MARK: Locale
 // ============================================================================

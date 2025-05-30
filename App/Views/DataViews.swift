@@ -1,35 +1,39 @@
 import SwiftUI
 
+// REVIEW: Simplify and use
+
 // MARK: Calories
 // ============================================================================
 
 struct CaloriesRow: View {
     @Binding var calorie: Calorie
+    let title: String.LocalizationValue?
     let showDate: Bool
 
     var body: some View {
         MeasurementRow(
             measurement: calorie.measurement,
-            title: "Calorie", image: Image.dietaryCalorie, tint: .orange,
+            title: title ?? "Calories", image: Image.calories, tint: .orange,
             computed: (calorie as? DietaryCalorie)?.calculatedCalories(),
             date: showDate ? calorie.date : nil, source: calorie.source,
-            format: .number.precision(.fractionLength(0)),
+            format: .number.precision(.fractionLength(0)), showPicker: false
         )
     }
 }
 
-struct BurnedCaloriesRow: View {
+struct DietaryCaloriesRow: View {
     @Binding var calorie: Calorie
+    let title: String.LocalizationValue?
     let showDate: Bool
 
     var body: some View {
         MeasurementRow(
             measurement: calorie.measurement,
-            title: "Burned Calories",
-            image: Image.calories, tint: .orange,
-            computed: nil, date: showDate ? calorie.date : nil,
-            source: calorie.source,
-            format: .number.precision(.fractionLength(0)),
+            title: title ?? "Calories",
+            image: Image.dietaryCalorie, tint: .blue,
+            computed: (calorie as? DietaryCalorie)?.calculatedCalories(),
+            date: showDate ? calorie.date : nil, source: calorie.source,
+            format: .number.precision(.fractionLength(0)), showPicker: false
         )
     }
 }
@@ -45,7 +49,7 @@ struct RestingCaloriesRow: View {
             image: Image.restingCalorie, tint: .indigo,
             computed: nil, date: showDate ? calorie.date : nil,
             source: calorie.source,
-            format: .number.precision(.fractionLength(0)),
+            format: .number.precision(.fractionLength(0)), showPicker: false
         )
     }
 }
@@ -60,10 +64,10 @@ struct MacrosProteinRow: View {
     var body: some View {
         MeasurementRow(
             measurement: calorie.proteinMeasurement,
-            title: "Protein", image: Image.protein, tint: .purple,
+            title: "Protein", image: Image.protein, tint: .green,
             computed: calorie.calculatedProtein(),
             date: showDate ? calorie.date : nil, source: calorie.source,
-            format: .number.precision(.fractionLength(0)),
+            format: .number.precision(.fractionLength(0)), showPicker: false
         )
     }
 }
@@ -75,10 +79,10 @@ struct MacrosCarbsRow: View {
     var body: some View {
         MeasurementRow(
             measurement: calorie.carbsMeasurement,
-            title: "Carbohydrates", image: Image.carbs, tint: .green,
+            title: "Carbohydrates", image: Image.carbs, tint: .purple,
             computed: calorie.calculatedCarbs(),
             date: showDate ? calorie.date : nil, source: calorie.source,
-            format: .number.precision(.fractionLength(0)),
+            format: .number.precision(.fractionLength(0)), showPicker: false
         )
     }
 }
@@ -93,7 +97,7 @@ struct MacrosFatRow: View {
             title: "Fat", image: Image.fat, tint: .yellow,
             computed: calorie.calculatedFat(),
             date: showDate ? calorie.date : nil, source: calorie.source,
-            format: .number.precision(.fractionLength(0)),
+            format: .number.precision(.fractionLength(0)), showPicker: false
         )
     }
 }
@@ -104,6 +108,7 @@ struct MacrosFatRow: View {
 struct ActivityRow: View {
     @Binding var calorie: ActiveEnergy
     let showDate: Bool
+    let showPicker: Bool
 
     var body: some View {
         MeasurementRow(
@@ -113,6 +118,7 @@ struct ActivityRow: View {
             computed: nil, date: showDate ? calorie.date : nil,
             source: calorie.source,
             format: .number.precision(.fractionLength(0)),
+            showPicker: showPicker
         )
     }
 }
@@ -131,7 +137,7 @@ struct WeightRow: View {
             image: Image.weight, tint: .indigo,
             computed: nil, date: showDate ? weight.date : nil,
             source: weight.source,
-            format: .number.precision(.fractionLength(2)),
+            format: .number.precision(.fractionLength(2)), showPicker: true
         )
     }
 }
