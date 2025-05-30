@@ -2,7 +2,6 @@ import SwiftData
 import SwiftUI
 
 struct SettingsView: View {
-    @AppStorage(.dailyBudgets) var budgetsID: UUID
     @AppStorage(.dailyGoals) var goalsID: UUID
     @State private var reset = false
 
@@ -14,7 +13,6 @@ struct SettingsView: View {
                     LocalizationSettings()
                 }
 
-                BudgetSettings(budgetsID)
                 GoalSettings(goalsID)
 
                 Button(
@@ -125,22 +123,6 @@ private struct LocalizationSettings: View {
     }
 }
 
-private struct BudgetSettings: View {
-    @Query.Singleton var budgets: Budgets
-    init(_ id: UUID) {
-        self._budgets = .init(id)
-    }
-
-    var body: some View {
-        Section(header: Text(String(localized: "Daily Budgets"))) {
-            CaloriesRow(calorie: $budgets.calorieBudget.casted(), showDate: false)
-            MacrosProteinRow(calorie: $budgets.calorieBudget.casted(), showDate: false)
-            MacrosCarbsRow(calorie: $budgets.calorieBudget.casted(), showDate: false)
-            MacrosFatRow(calorie: $budgets.calorieBudget.casted(), showDate: false)
-        }
-    }
-}
-
 private struct GoalSettings: View {
     @Query.Singleton var goals: Goals
     init(_ id: UUID) {
@@ -148,13 +130,17 @@ private struct GoalSettings: View {
     }
 
     var body: some View {
-        Section(header: Text(String(localized: "Daily Goals"))) {
-            BurnedCaloriesRow(calorie: $goals.activityGoal.casted(), showDate: false)
+        Section(header: Text(String(localized: "Calorie Budget"))) {
             CaloriesRow(calorie: $goals.calorieGoal.casted(), showDate: false)
             MacrosProteinRow(calorie: $goals.calorieGoal.casted(), showDate: false)
             MacrosCarbsRow(calorie: $goals.calorieGoal.casted(), showDate: false)
             MacrosFatRow(calorie: $goals.calorieGoal.casted(), showDate: false)
+        }
+        Section(header: Text(String(localized: "Activity Goals"))) {
+            BurnedCaloriesRow(calorie: $goals.activityGoal.casted(), showDate: false)
             ActivityRow(calorie: $goals.activityGoal.casted(), showDate: false)
+        }
+        Section(header: Text(String(localized: "Target Measurements"))) {
             WeightRow(weight: $goals.weightGoal.casted(), showDate: false)
         }
     }
@@ -162,9 +148,6 @@ private struct GoalSettings: View {
 
 #Preview {
     SettingsView().modelContainer(
-        for: [
-            Budgets.self, Goals.self,
-        ],
-        inMemory: true
+        for: [Goals.self], inMemory: true
     )
 }

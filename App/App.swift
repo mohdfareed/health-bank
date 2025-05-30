@@ -11,7 +11,6 @@ let appID: String = Bundle.main.bundleIdentifier ?? "Debug.App"
     init() {
         self.localContainer = try! ModelContainer(
             for: Schema([
-                Budgets.self,
                 Goals.self,
                 DietaryCalorie.self,
                 ActiveEnergy.self,

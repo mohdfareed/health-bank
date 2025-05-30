@@ -188,7 +188,7 @@ extension LocalizedMeasurement {
 // ============================================================================
 
 struct MeasurementRow_Previews: View {
-    @Query.Singleton() private var budgets: Budgets
+    @Query.Singleton() private var budgets: Goals
     @State private var weight = Weight(70.0)
     @State private var toggle = false
 

@@ -41,12 +41,8 @@ extension Settings {
 
 // Trackers
 extension Settings {
-    /// The active user daily budgets.
-    static var dailyBudgets: Settings<UUID> {
-        .init("DailyBudgets", default: .init())
-    }
     /// The active user daily goals.
     static var dailyGoals: Settings<UUID> {
-        .init("DailyGoals", default: .init())
+        .init("Goals", default: .init())
     }
 }

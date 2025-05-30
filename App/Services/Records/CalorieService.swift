@@ -5,20 +5,6 @@ import SwiftUI
 // MARK: Budgets and Goals
 // ============================================================================
 
-extension Budgets {
-    /// The calories daily budget.
-    var calorieBudget: DietaryCalorie {
-        get {
-            .init(self.calories ?? 0, date: self.date, macros: self.macros)
-        }
-        set {
-            self.date = newValue.date
-            self.calories = newValue.calories
-            self.macros = newValue.macros
-        }
-    }
-}
-
 extension Goals {
     /// The calories daily goal.
     var calorieGoal: DietaryCalorie {
@@ -35,11 +21,11 @@ extension Goals {
     /// The activity daily goal.
     var activityGoal: ActiveEnergy {
         get {
-            .init(calories ?? 0, date: date, duration: activity)
+            .init(burnedCalories ?? 0, date: date, duration: activity)
         }
         set {
             self.date = newValue.date
-            self.calories = newValue.calories
+            self.burnedCalories = newValue.calories
             self.activity = newValue.duration
         }
     }
