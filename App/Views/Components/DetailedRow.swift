@@ -3,17 +3,14 @@ import SwiftUI
 // REVIEW: animations
 
 struct DetailedRow<
-    Content: View,
-    TitleContent: View,
-    SubtitleContent: View,
-    DetailsContent: View
+    Content: View, Title: View, Subtitle: View, Details: View
 >: View {
     let image: Image?
     let tint: Color?
 
-    @ViewBuilder var title: () -> TitleContent
-    @ViewBuilder var subtitle: () -> SubtitleContent?
-    @ViewBuilder var details: () -> DetailsContent?
+    @ViewBuilder var title: () -> Title
+    @ViewBuilder var subtitle: () -> Subtitle?
+    @ViewBuilder var details: () -> Details?
     @ViewBuilder var content: () -> Content
 
     var body: some View {
@@ -64,7 +61,7 @@ struct DetailedRow<
 
 // Convenience initializer
 extension DetailedRow
-where TitleContent == Text, SubtitleContent == Text, DetailsContent == Text {
+where Title == Text, Subtitle == Text, Details == Text {
     init(
         title: Text, subtitle: Text? = nil, details: Text? = nil,
         image: Image? = nil, tint: Color? = nil,

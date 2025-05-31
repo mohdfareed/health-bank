@@ -11,23 +11,27 @@ struct GoalSettings: View {
     var body: some View {
         let macros = $goals.macros.defaulted(to: .init())
         Section(header: Text(String(localized: "Daily Calorie Budget"))) {
-            MeasurementRow.dietaryCalorie(
-                measurement: .calorie($goals.calories),
-                title: "Calories", source: .local,
+            RecordField(
+                FieldRegistry.dietaryCalorie,
+                value: $goals.calories,
+                source: .local,
                 computed: goals.calorieGoal.calculatedCalories
             )
-            MeasurementRow.protein(
-                measurement: .macro(macros.protein),
+            RecordField(
+                FieldRegistry.protein,
+                value: macros.protein,
                 source: .local,
                 computed: goals.calorieGoal.calculatedProtein
             )
-            MeasurementRow.carbs(
-                measurement: .macro(macros.carbs),
+            RecordField(
+                FieldRegistry.carbs,
+                value: macros.carbs,
                 source: .local,
                 computed: goals.calorieGoal.calculatedCarbs
             )
-            MeasurementRow.fat(
-                measurement: .macro(macros.fat),
+            RecordField(
+                FieldRegistry.fat,
+                value: macros.fat,
                 source: .local,
                 computed: goals.calorieGoal.calculatedFat
             )
@@ -35,21 +39,25 @@ struct GoalSettings: View {
         .onChange(of: goals) { save() }
 
         Section(header: Text(String(localized: "Daily Activity Goals"))) {
-            MeasurementRow.calorie(
-                measurement: .calorie($goals.burnedCalories),
-                source: .local,
+            RecordField(
+                FieldRegistry.calorie,
+                value: $goals.burnedCalories,
+                source: .local
             )
-            MeasurementRow.activity(
-                measurement: .activity($goals.activity),
+            RecordField(
+                FieldRegistry.activity,
+                value: $goals.activity,
                 source: .local
             )
         }
         .onChange(of: goals) { save() }
 
         Section(header: Text(String(localized: "Target Measurements"))) {
-            MeasurementRow.weight(
-                measurement: .weight($goals.weight),
-                source: .local, showPicker: true
+            RecordField(
+                FieldRegistry.weight,
+                value: $goals.weight,
+                source: .local,
+                showPicker: true
             )
         }
         .onChange(of: goals) { save() }

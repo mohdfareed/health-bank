@@ -28,11 +28,28 @@ struct HealthDataView: View {
     var body: some View {
         NavigationStack {
             List(allRecords, id: \.id) { record in
-                // NavigationLink(
-                //     destination: RecordDetailView(record: record)
-                // ) {
-                //     DetailedRow
-                // }
+                Group {
+                    switch record {
+                    case let weight as Weight:
+                        UniversalRecordRow(record: weight) {
+                            Text("Weight Detail View - TODO")
+                        }
+                    case let calorie as DietaryCalorie:
+                        UniversalRecordRow(record: calorie) {
+                            Text("Calorie Detail View - TODO")
+                        }
+                    case let active as ActiveEnergy:
+                        UniversalRecordRow(record: active) {
+                            Text("Active Energy Detail View - TODO")
+                        }
+                    case let resting as RestingEnergy:
+                        UniversalRecordRow(record: resting) {
+                            Text("Resting Energy Detail View - TODO")
+                        }
+                    default:
+                        Text("Unknown Record Type")
+                    }
+                }
             }
         }
         .refreshable {

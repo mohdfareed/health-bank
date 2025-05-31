@@ -2,6 +2,17 @@ import SwiftUI
 
 // REVIEW: animations
 
+struct ValueView<Unit: Dimension>: View {
+    @LocalizedMeasurement var measurement: Measurement<Unit>
+    let format: FloatingPointFormatStyle<Double>
+
+    var body: some View {
+        Text(
+            $measurement.formatted(width: .abbreviated, format: format)
+        )
+    }
+}
+
 struct DateView: View {
     let date: Date?
     var body: some View {
@@ -46,5 +57,19 @@ extension LocalizedMeasurement {
             .font(.footnote.bold())
 
         return Text("\(icon): \(text)")
+    }
+}
+
+extension LocalizedMeasurement {
+    func formatted(
+        width: Measurement<D>.FormatStyle.UnitWidth,
+        format: FloatingPointFormatStyle<Double>
+    ) -> String {
+        wrappedValue.formatted(
+            .measurement(
+                width: width, usage: definition.usage,
+                numberFormatStyle: format
+            )
+        )
     }
 }

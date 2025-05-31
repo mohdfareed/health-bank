@@ -70,7 +70,6 @@ extension MeasurementSystem {
     }
 }
 
-// case cardio, weightlifting, cycling, walking, running, other
 extension WorkoutType {
     var localized: String {
         switch self {
@@ -84,24 +83,3 @@ extension WorkoutType {
         }
     }
 }
-
-// // MARK: Measurements
-// // ============================================================================
-
-// extension Measurement.FormatStyle where UnitType: Dimension {
-//     func localized(
-//         _ definition: UnitDefinition<UnitType>
-//     ) -> Measurement<UnitType>.FormatStyle {
-//         var style = self
-//         style.usage = self.usage ?? definition.usage
-//         return style
-//     }
-
-//     func localized(
-//         as unit: UnitType
-//     ) -> Measurement<UnitType>.FormatStyle {
-//         var style = self
-//         style.usage = .asProvided
-//         return style
-//     }
-// }

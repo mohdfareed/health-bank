@@ -36,40 +36,6 @@ struct MeasurementRow<Unit: Dimension, DetailContent: View>: View {
 
     var subtitle: some View {
         HStack {
-            sourcePrefix(source)
-            if let computed = computed?(),
-                computed != $measurement.value.wrappedValue,
-                validator?(computed) ?? true
-            {
-                Button {
-                    withAnimation(.spring) {
-                        $measurement.value.wrappedValue = computed
-                    }
-                } label: {
-                    $measurement.computedText(computed, format: format)
-                }.contentTransition(.numericText())
-            }
-            Text(measurement.unit.symbol)
-        }
-    }
-
-    private func sourcePrefix(_ source: DataSource) -> some View {
-        if let icon = source.icon {
-            Text(icon).font(.caption2).foregroundStyle(source.color)
-        } else {
-            Text("•")
-        }
-    }
-}
-
-struct UnitView<Unit: Dimension>: View {
-    @LocalizedMeasurement var measurement: Measurement<Unit>
-    let format: FloatingPointFormatStyle<Double>
-    let computed: (() -> Double?)?
-    let validator: ((Double) -> Bool)?
-
-    var body: some View {
-        HStack {
             if let computed = computed?(),
                 computed != $measurement.value.wrappedValue,
                 validator?(computed) ?? true
