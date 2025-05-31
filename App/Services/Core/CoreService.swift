@@ -35,22 +35,6 @@ extension Weekday: @retroactive CaseIterable {
     }
 }
 
-extension ClosedRange<Double> {
-    init(from start: Bound?, to end: Bound?) {
-        let start = start ?? -.greatestFiniteMagnitude
-        let end = end ?? .greatestFiniteMagnitude
-        self = start...end
-    }
-}
-
-extension ClosedRange<Date> {
-    init(from start: Bound?, to end: Bound?) {
-        let start = start ?? .distantPast
-        let end = end ?? .distantFuture
-        self = start...end
-    }
-}
-
 // MARK: Helpers
 // ============================================================================
 

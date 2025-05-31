@@ -22,9 +22,6 @@ struct SettingsView: View {
             .navigationTitle(String(localized: "Settings"))
             .resetAlert(isPresented: $reset)
         }
-        .refreshable {
-            self.reset = false
-        }
     }
 }
 

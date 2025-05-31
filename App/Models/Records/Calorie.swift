@@ -6,7 +6,7 @@ import SwiftData
 
 /// Protocol defining the basic properties for any calorie entry.
 /// All calorie values are stored in kilocalories (kcal).
-public protocol Calorie: DataRecord {
+public protocol Calorie: HealthRecord {
     /// Energy value in kilocalories.
     var calories: Double { get nonmutating set }
 }

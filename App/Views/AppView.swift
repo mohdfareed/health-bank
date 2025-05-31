@@ -1,7 +1,6 @@
 import SwiftData
 import SwiftUI
 
-// TODO: Add entries tab that shows all entries, filterable by type and source
 // TODO: Add dashboard view to track goals and progress
 
 struct AppView: View {
@@ -12,12 +11,11 @@ struct AppView: View {
     var body: some View {
         TabView {
             Tab(
-                String(localized: "Dashboard"),
-                systemImage: "square.grid.2x2"
-            ) { DemoView(title: "Dashboard") }
+                String(localized: "Dashboard"), systemImage: "square.grid.2x2"
+            ) { DemoView() }
             Tab(
-                String(localized: "Data"), systemImage: "list.clipboard"
-            ) { DemoView(title: "Data") }
+                String(localized: "Records"), systemImage: "list.clipboard"
+            ) { HealthDataView() }
             Tab(
                 String(localized: "Settings"), systemImage: "gear"
             ) { SettingsView() }
@@ -28,7 +26,6 @@ struct AppView: View {
 }
 
 struct DemoView: View {
-    var title: String
     var body: some View {
         NavigationStack {
             VStack(spacing: 20) {
@@ -40,15 +37,6 @@ struct DemoView: View {
                 Text(AppName)
                     .font(.largeTitle)
                     .fontWeight(.bold)
-
-                Text(title)
-                    .font(.title2)
-
-                Divider()
-                    .padding(.vertical)
-
-                Text("Work in Progress")
-                    .font(.headline)
             }
             .padding()
             .navigationTitle(AppName)

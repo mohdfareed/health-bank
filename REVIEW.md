@@ -300,6 +300,40 @@ struct WeightListView: View {
 - **App Launch**: ✅ Ready for live testing
 - **Sample Data**: ✅ Preview includes test Weight entries
 
+## HealthKit Implementation Session
+
+### Objectives
+- Implement real HealthKit integration for unified query system
+- Create comprehensive query implementations for all models
+- Structure queries in Services/Queries/ with model-group files
+- Address code duplication concerns while maintaining model-specific needs
+
+### Scope
+**Models to implement:**
+- Dietary Calories (with correlation queries for macros)
+- Active Energy
+- Resting Energy
+- Weight
+- Workouts (duration, type)
+
+### Key Concerns
+- **Code Duplication**: Fear of repeated patterns across query implementations
+- **Model Uniqueness**: Each model has distinct HealthKit integration strategies
+- **Architecture Validation**: Testing how the design scales in practice
+
+### Design Decisions
+- **✅ File Organization**: Services/Queries/ with model-group files (CalorieQueries.swift, WeightQueries.swift, WorkoutQueries.swift)
+- **✅ HealthKit Centralization**: HealthKitService manages all HealthKit interactions, queries have minimal logic
+- **✅ No Premature Abstraction**: Keep boilerplate minimal, avoid protocol hierarchies until actual duplication emerges
+- **✅ YAGNI Principle**: Don't abstract until we see repeated patterns in practice
+
+### Performance & Filtering Strategy
+- **✅ Date Ranges**: Always explicit ranges, "to" defaults to now
+- **🤔 Additional Filters**: TBD - Should HealthKit handle complex predicates or just date ranges?
+- **🤔 Macro Queries**: TBD - Always fetch all macros vs selective querying
+- **🤔 In-Memory vs Server-side**: TBD - Performance implications for yearly views
+- **✅ Authorization**: Follow Apple's patterns, no-op when disabled, minimal modification for new data types
+
 ### 🎯 Final Implementation Summary
 
 **Complete UnifiedQuery System:**

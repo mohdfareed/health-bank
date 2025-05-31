@@ -32,6 +32,30 @@ enum StorageError: Error {
     case modelNotFound(String)  // E.g., "Model X with ID Y not found"
 }
 
+// MARK: Data
+// ============================================================================
+
+/// The supported sources of data.
+public enum DataSource: Codable, CaseIterable, Hashable {
+    case local, healthKit
+}
+
+/// Base protocol for all health data records.
+public protocol HealthRecord {
+    /// When the data was recorded.
+    var date: Date { get nonmutating set }
+    /// Where the data originated from.
+    var source: DataSource { get }
+}
+
+/// Base protocol for data queries.
+public protocol HealthQuery<Record> {
+    /// The type of data record this query returns.
+    associatedtype Record: HealthRecord
+    /// Fetch the records from HealthKit.
+    func fetch(from: Date, to: Date, store: HealthKitService) -> [Record]
+}
+
 // MARK: Singleton
 // ============================================================================
 
