@@ -54,11 +54,10 @@ where T: HealthQuery, T.Record: HealthRecord & PersistentModel {
     }
 
     private func localQuery() -> Query<T.Record, [T.Record]> {
-        let (from, to) = (dateRange.lowerBound, dateRange.upperBound)
         return .init(
-            filter: #Predicate {
-                from <= $0.date && $0.date <= to
-            }
+            filter: query.predicate(
+                from: dateRange.lowerBound, to: dateRange.upperBound
+            )
         )
     }
 }

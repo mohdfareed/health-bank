@@ -4,13 +4,10 @@ import SwiftUI
 struct HealthDataView: View {
     @UnifiedQuery(DietaryQuery())
     var dietaryCalories: [DietaryCalorie]
-
     @UnifiedQuery(RestingQuery())
     var restingCalories: [RestingEnergy]
-
     @UnifiedQuery(ActivityQuery())
     var activities: [ActiveEnergy]
-
     @UnifiedQuery(WeightQuery())
     var weights: [Weight]
 
@@ -28,27 +25,25 @@ struct HealthDataView: View {
     var body: some View {
         NavigationStack {
             List(allRecords, id: \.id) { record in
-                Group {
-                    switch record {
-                    case let weight as Weight:
-                        UniversalRecordRow(record: weight) {
-                            Text("Weight Detail View - TODO")
-                        }
-                    case let calorie as DietaryCalorie:
-                        UniversalRecordRow(record: calorie) {
-                            Text("Calorie Detail View - TODO")
-                        }
-                    case let active as ActiveEnergy:
-                        UniversalRecordRow(record: active) {
-                            Text("Active Energy Detail View - TODO")
-                        }
-                    case let resting as RestingEnergy:
-                        UniversalRecordRow(record: resting) {
-                            Text("Resting Energy Detail View - TODO")
-                        }
-                    default:
-                        Text("Unknown Record Type")
+                switch record {
+                case let weight as Weight:
+                    UniversalRecordRow(record: weight) {
+                        Text("Weight Detail View - TODO")
                     }
+                case let calorie as DietaryCalorie:
+                    UniversalRecordRow(record: calorie) {
+                        Text("Calorie Detail View - TODO")
+                    }
+                case let active as ActiveEnergy:
+                    UniversalRecordRow(record: active) {
+                        Text("Active Energy Detail View - TODO")
+                    }
+                case let resting as RestingEnergy:
+                    UniversalRecordRow(record: resting) {
+                        Text("Resting Energy Detail View - TODO")
+                    }
+                default:
+                    EmptyView()
                 }
             }
         }

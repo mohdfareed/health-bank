@@ -54,6 +54,8 @@ public protocol HealthQuery<Record> {
     associatedtype Record: HealthRecord
     /// Fetch the records from HealthKit.
     func fetch(from: Date, to: Date, store: HealthKitService) -> [Record]
+    /// The local data predicate generator.
+    func predicate(from: Date, to: Date) -> Predicate<Record>
 }
 
 // MARK: Singleton
