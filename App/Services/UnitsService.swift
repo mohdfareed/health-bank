@@ -1,5 +1,8 @@
 import SwiftUI
 
+// MARK: Localization
+// ============================================================================
+
 extension UnitDefinition {
     /// The localized unit for a specific locale.
     func unit(for locale: Locale) -> D {
@@ -17,6 +20,9 @@ extension UnitDefinition {
         return self.baseUnit
     }
 }
+
+// MARK: Supported Units
+// ============================================================================
 
 private func nativeUnit<D: Dimension>(
     for locale: Locale, usage: MeasurementFormatUnitUsage<D>
@@ -101,15 +107,10 @@ struct LocalizedMeasurement<D: Dimension>: DynamicProperty {
     }
 }
 
-extension LocalizedMeasurement {
-    init(_ value: Binding<Double>, definition: UnitDefinition<D>) {
-        self.definition = definition
-        self._baseValue = value.optional(0)
-        self._displayUnit = State(
-            initialValue: definition.unit(for: Locale.current)
-        )
-    }
+// MARK: Initializers
+// ============================================================================
 
+extension LocalizedMeasurement {
     init(_ value: Binding<Double?>, definition: UnitDefinition<D>) {
         self.definition = definition
         self._baseValue = value
@@ -118,7 +119,14 @@ extension LocalizedMeasurement {
         )
     }
 
+    init(
+        _ value: Binding<Double>, definition: UnitDefinition<D>,
+        defaultValue: Double? = nil
+    ) { self.init(value.optional(defaultValue ?? 0), definition: definition) }
 }
+
+// MARK: Extensions
+// ============================================================================
 
 extension Measurement<UnitDuration> {
     /// The measurement converted to a duration.

@@ -45,12 +45,12 @@ extension Image {
     static var carbs: Image { Image(systemName: "carrot.fill") }
 
     // Data Sources
-    // static var sourceLocal: Image { Image(systemName: "iphone") }
     static var sourceLocal: Image? { nil }
     static var sourceCloud: Image { Image(systemName: "icloud.fill") }
     static var sourceHealthKit: Image { Image(systemName: "heart.circle.fill") }
 
     // Actions
+    static var computedIcon: Image { Image(systemName: "function") }
     static var editIcon: Image { Image(systemName: "pencil") }
     static var saveIcon: Image { Image(systemName: "checkmark.circle.fill") }
     static var cancelIcon: Image { Image(systemName: "xmark.circle.fill") }

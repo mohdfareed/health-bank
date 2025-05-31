@@ -48,6 +48,44 @@
     6.  Enhance `README.md` for new developers.
     7.  Establish and follow a concise testing strategy (XCTest, Swift Testing).
 
+## Recent Feature Updates
+
+### Null Value Support in MeasurementField (Completed)
+**Issue**: Text fields that were cleared by users were automatically resetting to zero instead of allowing null values.
+
+**Solution**:
+- Implemented custom text binding in `MeasurementField` that properly handles nil values
+- When user clears the text field completely, the underlying value is set to `nil` instead of `0.0`
+- Added automatic SwiftData context saving when values change
+- Provides better user experience by allowing users to truly "clear" a field
+
+**Implementation Details**:
+- Custom `textBinding` computed property converts between String and Double?
+- Empty strings map to nil values
+- Invalid input gracefully handled without crashing
+- Maintains existing formatting and validation behavior
+
+### Clickable Computed Values (Completed)
+**Issue**: When computed values (like BMI suggestions) were displayed, users had to manually enter the computed value rather than just clicking on it.
+
+**Solution**:
+- Made computed values clickable when they differ from current value and field is editable
+- Visual indication: clickable computed values appear in blue color
+- Smooth animation when applying computed value to actual field
+- Tap gesture on entire row detects intent to use computed value
+
+**Implementation Details**:
+- Added `isComputedValueClickable` computed property to determine when computed values should be interactive
+- Animated value updates using spring animation for smooth UX
+- Proper unit conversion when applying computed values
+- Only works for locally editable fields, respects data source restrictions
+
+### Technical Notes
+- Both features maintain backward compatibility with existing code
+- No breaking changes to existing APIs or data models
+- Builds successfully and follows project's SwiftUI + SwiftData patterns
+- Properly integrated with the existing `LocalizedMeasurement` and measurement formatting system
+
 ## 8. Animation & UI Polish
 - **Principle**: UI changes should be animated by default using SwiftUI's native capabilities (e.g., `.animation()`, `withAnimation {}`).
 - **Goal**: Achieve a polished, native feel adhering to Apple's HIG. Animations should be explicitly disabled only when necessary.
@@ -419,3 +457,23 @@ SwiftUI tracks dependencies based on binding object identity, not the underlying
 - ✅ **Views.swift**: MeasurementRow accepts closures for reactive computed fields
 
 The solution is now both functional and maintainable, addressing the root cause rather than working around symptoms.
+
+## 14. Recent Feature Updates (As of 2025-05-30)
+
+### MeasurementField Enhancements
+- **Null Value Support**: Users can now clear measurement values by erasing all text in the field. This sets the underlying value to `nil`, supporting optional measurements.
+- **Text-based Input**: Replaced direct value binding with a custom text binding that handles parsing and validation, providing better user experience for numeric input.
+
+### MeasurementRow Computed Value Integration
+- **Set to Computed Value**: Added an animated button (function icon) that appears when:
+  - The row is editable (`source == .local`)
+  - A computed value exists and differs from the current value
+  - Allows users to quickly adopt calculated/suggested values
+- **Smooth Animations**: All UI changes are animated using spring animations for a polished feel
+- **Visual Feedback**: The function button has a subtle indigo background and proper accessibility labels
+
+### Technical Implementation Notes
+- Uses `LocalizedMeasurement.value` binding (returns `Binding<Double?>`) for proper nil handling
+- Custom text binding converts between string representation and numeric values
+- Computed value comparison uses a small tolerance (0.001) to handle floating-point precision
+- All changes trigger proper SwiftData context saves with error logging
