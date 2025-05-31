@@ -5,139 +5,142 @@ import SwiftUI
 // MARK: Calories
 // ============================================================================
 
-struct CaloriesRow: View {
-    @Binding var calorie: Calorie
-    let title: String.LocalizationValue?
-    let showDate: Bool
-
-    var body: some View {
-        MeasurementRow(
-            measurement: calorie.measurement,
-            title: title ?? "Calories", image: Image.calories, tint: .orange,
-            computed: (calorie as? DietaryCalorie)?.calculatedCalories,
-            date: showDate ? calorie.date : nil, source: calorie.source,
-            format: .number.precision(.fractionLength(0)), showPicker: false
-        )
+extension MeasurementRow {
+    static func calorie(
+        measurement: LocalizedMeasurement<Unit>,
+        title: String.LocalizationValue? = nil,
+        source: DataSource,
+        computed: (() -> Double?)? = nil,
+        @ViewBuilder details: @escaping () -> DetailContent = { EmptyView() },
+    ) -> Self {
+        .init(
+            measurement: measurement,
+            title: title ?? "Calories", image: .calories, tint: .calories,
+            source: source, format: .number.precision(.fractionLength(0)),
+            showPicker: false, computed: computed, validator: { $0 >= 0 },
+        ) { details() }
     }
-}
 
-struct DietaryCaloriesRow: View {
-    @Binding var calorie: Calorie
-    let title: String.LocalizationValue?
-    let showDate: Bool
-
-    var body: some View {
-        MeasurementRow(
-            measurement: calorie.measurement,
+    static func dietaryCalorie(
+        measurement: LocalizedMeasurement<Unit>,
+        title: String.LocalizationValue? = nil,
+        source: DataSource,
+        computed: (() -> Double?)? = nil,
+        @ViewBuilder details: @escaping () -> DetailContent = { EmptyView() },
+    ) -> Self {
+        .init(
+            measurement: measurement,
             title: title ?? "Calories",
-            image: Image.dietaryCalorie, tint: .blue,
-            computed: (calorie as? DietaryCalorie)?.calculatedCalories,
-            date: showDate ? calorie.date : nil, source: calorie.source,
-            format: .number.precision(.fractionLength(0)), showPicker: false
-        )
+            image: .dietaryCalorie, tint: .dietaryCalorie,
+            source: source, format: .number.precision(.fractionLength(0)),
+            showPicker: false, computed: computed, validator: { $0 >= 0 },
+        ) { details() }
     }
+
+    static func restingCalorie(
+        measurement: LocalizedMeasurement<Unit>,
+        title: String.LocalizationValue? = nil,
+        source: DataSource,
+        @ViewBuilder details: @escaping () -> DetailContent = { EmptyView() },
+    ) -> Self {
+        .init(
+            measurement: measurement,
+            title: title ?? "Energy",
+            image: .restingCalorie, tint: .restingCalorie,
+            source: source, format: .number.precision(.fractionLength(0)),
+            showPicker: false, computed: nil, validator: { $0 >= 0 },
+        ) { details() }
+    }
+
 }
 
-struct RestingCaloriesRow: View {
-    @Binding var calorie: Calorie
-    let showDate: Bool
-
-    var body: some View {
-        MeasurementRow(
-            measurement: calorie.measurement,
-            title: "Resting Energy",
-            image: Image.restingCalorie, tint: .indigo,
-            computed: nil, date: showDate ? calorie.date : nil,
-            source: calorie.source,
-            format: .number.precision(.fractionLength(0)), showPicker: false
-        )
-    }
-}
-
-// MARK: Calorie Macros
+// MARK: Macros
 // ============================================================================
 
-struct MacrosProteinRow: View {
-    @Binding var calorie: DietaryCalorie
-    let showDate: Bool
-
-    var body: some View {
-        MeasurementRow(
-            measurement: calorie.proteinMeasurement,
-            title: "Protein", image: Image.protein, tint: .purple,
-            computed: calorie.calculatedProtein,
-            date: showDate ? calorie.date : nil, source: calorie.source,
-            format: .number.precision(.fractionLength(0)), showPicker: false
-        )
+extension MeasurementRow {
+    static func protein(
+        measurement: LocalizedMeasurement<Unit>,
+        title: String.LocalizationValue? = nil,
+        source: DataSource,
+        computed: (() -> Double?)? = nil,
+        @ViewBuilder details: @escaping () -> DetailContent = { EmptyView() },
+    ) -> Self {
+        .init(
+            measurement: measurement,
+            title: title ?? "Protein", image: .protein, tint: .protein,
+            source: source, format: .number.precision(.fractionLength(0)),
+            showPicker: false, computed: computed, validator: { $0 >= 0 }
+        ) { details() }
     }
-}
 
-struct MacrosCarbsRow: View {
-    @Binding var calorie: DietaryCalorie
-    let showDate: Bool
-
-    var body: some View {
-        MeasurementRow(
-            measurement: calorie.carbsMeasurement,
-            title: "Carbohydrates", image: Image.carbs, tint: .green,
-            computed: calorie.calculatedCarbs,
-            date: showDate ? calorie.date : nil, source: calorie.source,
-            format: .number.precision(.fractionLength(0)), showPicker: false
-        )
+    static func carbs(
+        measurement: LocalizedMeasurement<Unit>,
+        title: String.LocalizationValue? = nil,
+        source: DataSource,
+        computed: (() -> Double?)? = nil,
+        @ViewBuilder details: @escaping () -> DetailContent = { EmptyView() },
+    ) -> Self {
+        .init(
+            measurement: measurement,
+            title: title ?? "Carbohydrates", image: .carbs, tint: .carbs,
+            source: source, format: .number.precision(.fractionLength(0)),
+            showPicker: false, computed: computed, validator: { $0 >= 0 }
+        ) { details() }
     }
-}
 
-struct MacrosFatRow: View {
-    @Binding var calorie: DietaryCalorie
-    let showDate: Bool
-
-    var body: some View {
-        MeasurementRow(
-            measurement: calorie.fatMeasurement,
-            title: "Fat", image: Image.fat, tint: .yellow,
-            computed: calorie.calculatedFat,
-            date: showDate ? calorie.date : nil, source: calorie.source,
-            format: .number.precision(.fractionLength(0)), showPicker: false
-        )
+    static func fat(
+        measurement: LocalizedMeasurement<Unit>,
+        title: String.LocalizationValue? = nil,
+        source: DataSource,
+        computed: (() -> Double?)? = nil,
+        @ViewBuilder details: @escaping () -> DetailContent = { EmptyView() },
+    ) -> Self {
+        .init(
+            measurement: measurement,
+            title: title ?? "Fat", image: .fat, tint: .fat,
+            source: source, format: .number.precision(.fractionLength(0)),
+            showPicker: false, computed: computed, validator: { $0 >= 0 }
+        ) { details() }
     }
 }
 
 // MARK: Active Calories
 // ============================================================================
 
-struct ActivityRow: View {
-    @Binding var calorie: ActiveEnergy
-    let showDate: Bool
-    let showPicker: Bool
-
-    var body: some View {
-        MeasurementRow(
-            measurement: calorie.durationMeasurement,
-            title: "Activity",
-            image: Image.activeCalorie, tint: .green,
-            computed: nil, date: showDate ? calorie.date : nil,
-            source: calorie.source,
-            format: .number.precision(.fractionLength(0)),
-            showPicker: showPicker
-        )
+extension MeasurementRow {
+    static func activity(
+        measurement: LocalizedMeasurement<Unit>,
+        title: String.LocalizationValue? = nil,
+        source: DataSource,
+        showPicker: Bool = false,
+        @ViewBuilder details: @escaping () -> DetailContent = { EmptyView() },
+    ) -> Self {
+        .init(
+            measurement: measurement,
+            title: title ?? "Active Energy",
+            image: .activeCalorie, tint: .activeCalorie,
+            source: source, format: .number.precision(.fractionLength(0)),
+            showPicker: showPicker, computed: nil, validator: { $0 >= 0 }
+        ) { details() }
     }
 }
 
 // MARK: Weight
 // ============================================================================
 
-struct WeightRow: View {
-    @Binding var weight: Weight
-    let showDate: Bool
-
-    var body: some View {
-        MeasurementRow(
-            measurement: weight.measurement,
-            title: "Weight",
-            image: Image.weight, tint: .indigo,
-            computed: nil, date: showDate ? weight.date : nil,
-            source: weight.source,
-            format: .number.precision(.fractionLength(2)), showPicker: true
-        )
+extension MeasurementRow {
+    static func weight(
+        measurement: LocalizedMeasurement<Unit>,
+        title: String.LocalizationValue? = nil,
+        source: DataSource,
+        showPicker: Bool = false,
+        @ViewBuilder details: @escaping () -> DetailContent = { EmptyView() },
+    ) -> Self {
+        .init(
+            measurement: measurement,
+            title: title ?? "Weight", image: .weight, tint: .weight,
+            source: source, format: .number.precision(.fractionLength(2)),
+            showPicker: showPicker, computed: nil, validator: { $0 >= 0 }
+        ) { details() }
     }
 }

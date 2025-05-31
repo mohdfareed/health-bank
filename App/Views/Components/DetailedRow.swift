@@ -1,8 +1,7 @@
 import SwiftData
 import SwiftUI
 
-// REVIEW: Simplify and reuse
-// TODO: Add animations
+// REVIEW: animations
 
 struct DetailedRow<
     Content: View,
@@ -21,31 +20,46 @@ struct DetailedRow<
     var body: some View {
         Label {
             HStack(spacing: 8) {
-                VStack(alignment: .leading) {
-                    HStack {
-                        title()
+                VStack(alignment: .leading, spacing: 4) {
+                    HStack(spacing: 6) {
+                        title().contentTransition(.numericText())
+
                         if let subtitle = subtitle() {
-                            subtitle.textScale(.secondary)
+                            subtitle
+                                .textScale(.secondary)
                                 .foregroundStyle(.secondary)
+                                .contentTransition(.opacity)
+                                .transition(.opacity)
                         }
                     }
 
                     if let details = details() {
-                        details.textScale(.secondary)
+                        details
+                            .textScale(.secondary)
                             .foregroundStyle(.secondary)
+                            .contentTransition(.opacity)
+                            .transition(.opacity)
                     }
                 }
                 .truncationMode(.tail)
                 .lineLimit(1)
+                .layoutPriority(1)
 
                 Spacer()
-                content().fixedSize()
+                content().contentTransition(.numericText())
             }
         } icon: {
             if let image = image {
-                image.foregroundStyle(tint ?? .primary)
+                image
+                    .foregroundStyle(tint ?? .primary)
+                    .contentTransition(.symbolEffect(.replace))
             }
         }
+        .animation(.spring, value: content() as? AnyHashable)
+        .animation(.default, value: subtitle() != nil)
+        .animation(.default, value: details() != nil)
+        .animation(.default, value: tint != nil)
+        .animation(.spring, value: image != nil)
     }
 }
 

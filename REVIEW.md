@@ -28,3 +28,6 @@
 ## Component Patterns
 - **Foundation**: `MeasurementField<UnitType>`, `CalorieField`, `DateField`, `DataSourceIndicator`
 - **Rows**: Compact list display using DataRow pattern
+
+## Animation Guidelines
+- **Pattern**: All UI changes animated by default using modern SwiftUI transition APIs

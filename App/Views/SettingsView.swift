@@ -130,36 +130,45 @@ private struct GoalSettings: View {
     }
 
     var body: some View {
-        // Create a shared binding to ensure all rows track the same object
-        let calorieBinding: Binding<DietaryCalorie> = $goals.calorieGoal.casted()
-
         Section(header: Text(String(localized: "Daily Calorie Budget"))) {
-            DietaryCaloriesRow(
-                calorie: calorieBinding.casted(),
-                title: "Calories", showDate: false
+            MeasurementRow.dietaryCalorie(
+                measurement: .calorie($goals.calories),
+                title: "Calories", source: .local,
+                computed: goals.calorieGoal.calculatedCalories
             )
-            MacrosProteinRow(
-                calorie: calorieBinding, showDate: false
+            MeasurementRow.protein(
+                measurement: .macro($goals.macros.protein),
+                source: .local,
+                computed: goals.calorieGoal.calculatedProtein
             )
-            MacrosCarbsRow(
-                calorie: calorieBinding, showDate: false
+            MeasurementRow.carbs(
+                measurement: .macro($goals.macros.carbs),
+                source: .local,
+                computed: goals.calorieGoal.calculatedCarbs
             )
-            MacrosFatRow(
-                calorie: calorieBinding, showDate: false
+            MeasurementRow.fat(
+                measurement: .macro($goals.macros.fat),
+                source: .local,
+                computed: goals.calorieGoal.calculatedFat
             )
         }
+
         Section(header: Text(String(localized: "Daily Activity Goals"))) {
-            CaloriesRow(
-                calorie: $goals.activityGoal.casted(),
-                title: "Burned Calories", showDate: false
+            MeasurementRow.calorie(
+                measurement: .calorie($goals.burnedCalories),
+                source: .local,
             )
-            ActivityRow(
-                calorie: $goals.activityGoal.casted(),
-                showDate: false, showPicker: false
+            MeasurementRow.activity(
+                measurement: .activity($goals.activity),
+                source: .local
             )
         }
+
         Section(header: Text(String(localized: "Target Measurements"))) {
-            WeightRow(weight: $goals.weightGoal.casted(), showDate: false)
+            MeasurementRow.weight(
+                measurement: .weight($goals.weight),
+                source: .local, showPicker: true
+            )
         }
     }
 }

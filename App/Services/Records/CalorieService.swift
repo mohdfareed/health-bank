@@ -17,18 +17,6 @@ extension UserGoals {
             self.macros = newValue.macros
         }
     }
-
-    /// The activity daily goal.
-    var activityGoal: ActiveEnergy {
-        get {
-            .init(burnedCalories ?? 0, date: date, duration: activity)
-        }
-        set {
-            self.date = newValue.date
-            self.burnedCalories = newValue.calories
-            self.activity = newValue.duration
-        }
-    }
 }
 
 // MARK: Macro Calculations
