@@ -40,6 +40,13 @@ struct MeasurementField<Unit: Dimension>: View {
                     ).localizedCapitalized
                 ).tag($0)
             }
+
+            Divider()
+            Label {
+                Text("Default")
+            } icon: {
+                Image.resetIcon
+            }.tag(nil as Unit?)
         }.labelsHidden()
     }
 }

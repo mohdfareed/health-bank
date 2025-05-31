@@ -24,6 +24,7 @@ Health Bank is an iOS application built with SwiftUI and SwiftData, integrated w
 - **ALWAYS** use the latest Swift features and APIs, updating any legacy code to modern standards.
 - **ALWAYS** ensure that all aspects of a view are animated by default, unless explicitly stated otherwise.
 - **ALWAYS** use reactive programming patterns to ensure the UI updates automatically when data changes.
+- You can't run the project directly. You can only build it with `swift build`. **DON'T** use any VSCode tasks.
 
 ## Core Assistant Guidelines
 
@@ -35,9 +36,10 @@ Health Bank is an iOS application built with SwiftUI and SwiftData, integrated w
 
 5. **Persistent Notes**
    Use `REVIEW.md` as your knowledge base of the project.
-   Track decisions, style rules, requirements, rationales, etc. in this file.
-   This is your permanent record of the project. It is your own notebook, not just a temporary scratchpad.
-   It is not used by the user and for your use only.
+   Track any information that will help you better work on the project.
+   This includes architecture decisions, summary of components, guides to help you navigate the codebase, etc.
+   The file is to be read and updated with every interaction.
+   It will be provided with every new session, keep it concise.
 
 6. **Self-Verification**
    When appropriate, include quick self-checks (e.g., sample inputs/outputs, minimal tests) to validate your proposals.
