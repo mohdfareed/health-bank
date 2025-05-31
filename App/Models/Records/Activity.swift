@@ -28,18 +28,3 @@ public enum WorkoutType: String, Codable, CaseIterable {
         self.source = source
     }
 }
-
-/// Represents resting energy expenditure (basal metabolic rate).
-@Model public final class RestingEnergy: Calorie {
-    public var calories: Double
-    public var date: Date
-    public var source: DataSource
-
-    public init(
-        _ value: Double, date: Date = Date(), source: DataSource = .local
-    ) {
-        self.calories = value
-        self.date = date
-        self.source = source
-    }
-}

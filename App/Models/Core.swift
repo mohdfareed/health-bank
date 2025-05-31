@@ -1,5 +1,8 @@
 import Foundation
 
+// MARK: Errors
+// ============================================================================
+
 /// An application error.
 enum AppError: Error {
     /// An error related to HealthKit operations.

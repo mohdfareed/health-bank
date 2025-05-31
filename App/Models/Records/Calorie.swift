@@ -1,6 +1,9 @@
 import Foundation
 import SwiftData
 
+// MARK: - Calories
+// ============================================================================
+
 /// Protocol defining the basic properties for any calorie entry.
 /// All calorie values are stored in kilocalories (kcal).
 public protocol Calorie: DataRecord {
@@ -44,5 +47,23 @@ public struct CalorieMacros: Codable, Hashable {
         self.date = date
         self.source = source
         self.macros = macros
+    }
+}
+
+// MARK: - Resting Energy
+// ============================================================================
+
+/// Represents resting energy expenditure (basal metabolic rate).
+@Model public final class RestingEnergy: Calorie {
+    public var calories: Double
+    public var date: Date
+    public var source: DataSource
+
+    public init(
+        _ value: Double, date: Date = Date(), source: DataSource = .local
+    ) {
+        self.calories = value
+        self.date = date
+        self.source = source
     }
 }
