@@ -1,8 +1,5 @@
 import Foundation
 
-// MARK: - Data Models
-// ============================================================================
-
 /// The supported sources of data.
 public enum DataSource: Codable, CaseIterable, Hashable {
     case local, healthKit
@@ -14,4 +11,14 @@ public protocol DataRecord {
     var date: Date { get nonmutating set }
     /// Where the data originated from.
     var source: DataSource { get }
+}
+
+/// Base protocol for data queries.
+public protocol DataQuery<Record> {
+    /// The type of data record this query returns.
+    associatedtype Record: DataRecord
+    /// The local data query predicate.
+    func predicate() -> Predicate<Record>
+    /// The remote data query runner.
+    func remote(store: HealthKitService) -> [Record]
 }

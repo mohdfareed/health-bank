@@ -6,30 +6,37 @@ let appID: String = Bundle.main.bundleIdentifier ?? "Debug.App"
 
 @main struct MainApp: App {
     internal let logger = AppLogger.new(for: Self.self)
-    let localContainer: ModelContainer
+    let container: ModelContainer
+
+    let schema = Schema([
+        UserGoals.self,
+        DietaryCalorie.self,
+        ActiveEnergy.self,
+        RestingEnergy.self,
+        Weight.self,
+    ])
 
     init() {
-        self.localContainer = try! ModelContainer(
-            for: Schema([
-                UserGoals.self,
-                DietaryCalorie.self,
-                ActiveEnergy.self,
-                RestingEnergy.self,
-                Weight.self,
-            ]),
-            configurations: ModelConfiguration(isStoredInMemoryOnly: true),
+        self.container = try! .init(
+            for: schema, configurations: .init(),
         )
     }
 
     var body: some Scene {
         WindowGroup {
             AppView()
-                .modelContainer(self.localContainer)
+                .modelContainer(self.container)
+                .healthKit(.init())
                 .appLocale()
         }
     }
 }
 
 #Preview {
-    AppView().modelContainer(MainApp().localContainer)
+    AppView().modelContainer(
+        try! .init(
+            for: MainApp().schema,
+            configurations: .init(isStoredInMemoryOnly: true)
+        )
+    )
 }

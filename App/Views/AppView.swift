@@ -47,12 +47,8 @@ struct DemoView: View {
                 Divider()
                     .padding(.vertical)
 
-                Text("Architecture Planning in Progress")
+                Text("Work in Progress")
                     .font(.headline)
-
-                Text("Ready for collaborative planning")
-                    .font(.subheadline)
-                    .foregroundStyle(.secondary)
             }
             .padding()
             .navigationTitle(AppName)
