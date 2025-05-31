@@ -3,11 +3,11 @@ import SwiftUI
 
 // REVIEW: animations
 
-// TODO: Add value validation
 struct MeasurementField<Unit: Dimension>: View {
     @Environment(\.modelContext) private var context: ModelContext
     @LocalizedMeasurement var measurement: Measurement<Unit>
 
+    let validator: ((Double) -> Bool)?
     let format: FloatingPointFormatStyle<Double>
     let editable: Bool
     let showPicker: Bool
@@ -18,6 +18,18 @@ struct MeasurementField<Unit: Dimension>: View {
                 TextField("Value", value: $measurement.value, format: format)
                     .multilineTextAlignment(.trailing)
                     .contentTransition(.numericText())
+                    .onChange(of: $measurement.baseValue) {
+                        if !isValid {
+                            $measurement.baseValue = nil
+                        }
+
+                        do {
+                            try context.save()
+                        } catch {
+                            AppLogger.new(for: MeasurementField.self)
+                                .error("Failed to save measurement: \(error)")
+                        }
+                    }
             } else {
                 Text($measurement.value.wrappedValue?.formatted(format) ?? "—")
                     .multilineTextAlignment(.trailing)
@@ -32,9 +44,10 @@ struct MeasurementField<Unit: Dimension>: View {
         .animation(.default, value: measurement)
         .animation(.default, value: editable)
         .animation(.default, value: showPicker)
+        .animation(.default, value: isValid)
     }
 
-    var picker: some View {
+    private var picker: some View {
         Picker("", selection: $measurement.unit) {
             ForEach($measurement.availableUnits(), id: \.self) {
                 Text(
@@ -54,5 +67,12 @@ struct MeasurementField<Unit: Dimension>: View {
                 Image.resetIcon
             }.tag(nil as Unit?)
         }.labelsHidden()
+    }
+
+    private var isValid: Bool {
+        guard let value = $measurement.baseValue,
+            let validator = validator
+        else { return true }
+        return validator(value)
     }
 }

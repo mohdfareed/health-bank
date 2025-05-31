@@ -61,10 +61,14 @@ struct LocalizedMeasurement<D: Dimension>: DynamicProperty {
 
     var value: Binding<Double?> {
         Binding(
-            get: { wrappedValue.value },
+            get: { baseValue != nil ? wrappedValue.value : nil },
             set: {
+                guard let value = $0 else {
+                    baseValue = nil
+                    return
+                }
                 wrappedValue = Measurement(
-                    value: $0 ?? 0, unit: unit.wrappedValue
+                    value: value, unit: unit.wrappedValue
                 )
             }
         )

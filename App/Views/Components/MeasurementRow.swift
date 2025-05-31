@@ -25,7 +25,7 @@ struct MeasurementRow<Unit: Dimension, DetailContent: View>: View {
             details().textScale(.secondary)
         } content: {
             MeasurementField(
-                measurement: $measurement,
+                measurement: $measurement, validator: validator,
                 format: format, editable: source == .local,
                 showPicker: showPicker
             )

@@ -34,11 +34,11 @@ public struct CalorieMacros: Codable, Hashable {
     public var source: DataSource
 
     // Optional macro-nutrient breakdown
-    public var macros: CalorieMacros
+    public var macros: CalorieMacros?
 
     public init(
         _ value: Double, date: Date = Date(), source: DataSource = .local,
-        macros: CalorieMacros = .init()
+        macros: CalorieMacros? = nil
     ) {
         self.calories = value
         self.date = date

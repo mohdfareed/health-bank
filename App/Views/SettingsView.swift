@@ -65,11 +65,7 @@ private struct GeneralSettings: View {
                     Text(theme.localized).tag(theme)
                 }
             }
-        ) {
-            Label(
-                self.theme.localized, systemImage: ""
-            ).labelStyle(.titleOnly)
-        }
+        ) { Text(self.theme.localized) }
         .pickerStyle(.automatic)
 
         Toggle(isOn: self.$notifications.defaulted(to: false)) {
@@ -102,9 +98,7 @@ private struct LocalizationSettings: View {
                 }
             },
         ) {
-            Label(
-                self.locale.measurementSystem.localized, systemImage: ""
-            ).labelStyle(.titleOnly)
+            Text(self.locale.measurementSystem.localized)
         }
 
         Picker(
@@ -116,9 +110,7 @@ private struct LocalizationSettings: View {
                 }
             }
         ) {
-            Label(
-                self.locale.firstDayOfWeek.abbreviated, systemImage: ""
-            ).labelsHidden()
+            Text(self.locale.firstDayOfWeek.abbreviated)
         }
     }
 }
@@ -130,6 +122,7 @@ private struct GoalSettings: View {
     }
 
     var body: some View {
+        let macros = $goals.macros.defaulted(to: .init())
         Section(header: Text(String(localized: "Daily Calorie Budget"))) {
             MeasurementRow.dietaryCalorie(
                 measurement: .calorie($goals.calories),
@@ -137,17 +130,17 @@ private struct GoalSettings: View {
                 computed: goals.calorieGoal.calculatedCalories
             )
             MeasurementRow.protein(
-                measurement: .macro($goals.macros.protein),
+                measurement: .macro(macros.protein),
                 source: .local,
                 computed: goals.calorieGoal.calculatedProtein
             )
             MeasurementRow.carbs(
-                measurement: .macro($goals.macros.carbs),
+                measurement: .macro(macros.carbs),
                 source: .local,
                 computed: goals.calorieGoal.calculatedCarbs
             )
             MeasurementRow.fat(
-                measurement: .macro($goals.macros.fat),
+                measurement: .macro(macros.fat),
                 source: .local,
                 computed: goals.calorieGoal.calculatedFat
             )

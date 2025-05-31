@@ -1,7 +1,5 @@
 import SwiftUI
 
-// REVIEW: Simplify and reuse icon+color
-
 // MARK: Calories
 // ============================================================================
 
