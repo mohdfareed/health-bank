@@ -1,5 +1,4 @@
 import Foundation
-import SwiftData
 
 /// An application error.
 enum AppError: Error {
@@ -37,7 +36,7 @@ enum StorageError: Error {
 /// The ID can be attributed with `.unique` with `UUID.zero` as the default
 /// to guarantee a single instance of the model in the database. The singleton
 /// must provide a default value through the `init()` method.
-protocol Singleton: PersistentModel {
+protocol Singleton {
     /// The unique ID of the singleton model.
     var singletonID: UUID { get set }
     init()

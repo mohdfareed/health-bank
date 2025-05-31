@@ -1,10 +1,9 @@
-import SwiftData
+// import SwiftData
 import SwiftUI
 
 // REVIEW: animations
 
 struct MeasurementField<Unit: Dimension>: View {
-    @Environment(\.modelContext) private var context: ModelContext
     @LocalizedMeasurement var measurement: Measurement<Unit>
 
     let validator: ((Double) -> Bool)?
@@ -21,13 +20,6 @@ struct MeasurementField<Unit: Dimension>: View {
                     .onChange(of: $measurement.baseValue) {
                         if !isValid {
                             $measurement.baseValue = nil
-                        }
-
-                        do {
-                            try context.save()
-                        } catch {
-                            AppLogger.new(for: MeasurementField.self)
-                                .error("Failed to save measurement: \(error)")
                         }
                     }
             } else {

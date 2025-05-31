@@ -24,7 +24,7 @@ extension UserGoals {
 /// A property wrapper to fetch a singleton model. If multiple models are
 /// found, the first instance is used.
 @MainActor @propertyWrapper
-struct SingletonQuery<Model: Singleton>: DynamicProperty {
+struct SingletonQuery<Model: Singleton & PersistentModel>: DynamicProperty {
     @Environment(\.modelContext) private var context: ModelContext
     @Query private var models: [Model]
     private let factory: () -> Model
