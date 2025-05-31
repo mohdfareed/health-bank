@@ -23,7 +23,13 @@ struct UnifiedQuery<T: DataRecord & PersistentModel>: DynamicProperty {
         return
             combined
             .filter {
-                try! filter?.evaluate($0) ?? true
+                do {
+                    return try filter?.evaluate($0) ?? true
+                } catch {
+                    AppLogger.new(for: UnifiedQuery.self)
+                        .error("Failed to evaluate filter: \(error)")
+                    return true  // Include all if filter fails
+                }
             }
             .sorted(using: sort)
     }

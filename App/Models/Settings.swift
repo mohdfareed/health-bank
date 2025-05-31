@@ -24,6 +24,7 @@ extension Settings {
     static var biometrics: Settings<Bool?> { .init("Biometrics") }
     /// Whether to enable notifications for the app. // TODO: Implement
     static var notifications: Settings<Bool?> { .init("Notifications") }
+    // TODO: Add HealthKit integration settings (read, sync)
 }
 
 // Localization

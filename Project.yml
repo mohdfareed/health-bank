@@ -29,6 +29,8 @@ fileGroups:
   # folders
   - .github
   - .vscode
+  - App
+  - Assets
   - Scripts
   # files
   - .gitignore
