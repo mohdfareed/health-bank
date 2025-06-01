@@ -8,18 +8,18 @@ struct SettingsView: View {
     var body: some View {
         NavigationStack {
             Form {
-                Section(header: Text(String(localized: "General Settings"))) {
+                Section(header: Text("General Settings")) {
                     GeneralSettings()
                 }
 
                 GoalView(goalsID)
 
                 Button(
-                    String(localized: "Reset All Settings"),
+                    "Reset Settings",
                     role: .destructive
                 ) { reset = true }
             }
-            .navigationTitle(String(localized: "Settings"))
+            .navigationTitle("Settings")
             .resetAlert(isPresented: $reset)
         }
     }
@@ -28,21 +28,14 @@ struct SettingsView: View {
 extension View {
     fileprivate func resetAlert(isPresented: Binding<Bool>) -> some View {
         self.alert(
-            String(localized: "Confirm Reset"), isPresented: isPresented
+            "Reset All Settings", isPresented: isPresented
         ) {
-            Button(String(localized: "Reset"), role: .destructive) {
+            Button("Cancel", role: .cancel) {}
+            Button("Reset", role: .destructive) {
                 UserDefaults.standard.resetSettings()
             }
-            Button(String(localized: "Cancel"), role: .cancel) {}
         } message: {
-            Text(
-                String(
-                    localized: """
-                        Are you sure you want to reset all settings?
-                        This action cannot be undone.
-                        """
-                )
-            )
+            Text("This action cannot be undone.")
         }
     }
 }
@@ -54,7 +47,7 @@ struct GeneralSettings: View {
 
     var body: some View {
         Picker(
-            String(localized: "Theme"), systemImage: "paintbrush",
+            "Theme", systemImage: "paintbrush",
             selection: self.$theme,
             content: {
                 ForEach(AppTheme.allCases, id: \.self) { theme in
@@ -66,14 +59,14 @@ struct GeneralSettings: View {
 
         Toggle(isOn: self.$notifications.defaulted(to: false)) {
             Label(
-                String(localized: "Enable notifications"),
+                "Enable notifications",
                 systemImage: "bell"
             ).labelStyle(.automatic)
         }
 
         Toggle(isOn: self.$biometrics.defaulted(to: false)) {
             Label(
-                String(localized: "Enable biometrics"),
+                "Enable biometrics",
                 systemImage: "faceid"
             ).labelStyle(.automatic)
         }
@@ -87,7 +80,7 @@ private struct LocalizationSettings: View {
 
     var body: some View {
         Picker(
-            String(localized: "Measurements"), systemImage: "ruler",
+            "Measurements", systemImage: "ruler",
             selection: self.$locale.units,
             content: {
                 let systems = MeasurementSystem.measurementSystems
@@ -100,7 +93,7 @@ private struct LocalizationSettings: View {
         }
 
         Picker(
-            String(localized: "First Weekday"), systemImage: "calendar",
+            "First Weekday", systemImage: "calendar",
             selection: self.$locale.firstWeekDay,
             content: {
                 ForEach(Weekday.allCases, id: \.self) { weekday in

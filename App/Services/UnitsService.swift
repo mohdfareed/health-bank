@@ -68,13 +68,14 @@ struct LocalizedMeasurement<D: Dimension>: DynamicProperty {
                     return
                 }
                 wrappedValue = Measurement(
-                    value: value, unit: unit.wrappedValue
+                    value: value,
+                    unit: unit.wrappedValue ?? definition.baseUnit
                 )
             }
         )
     }
 
-    var unit: Binding<D> {
+    var unit: Binding<D?> {
         Binding(
             // get: { displayUnit ?? definition.unit(for: locale) },
             get: { displayUnit ?? definition.unit(for: Locale.current) },
@@ -87,7 +88,7 @@ struct LocalizedMeasurement<D: Dimension>: DynamicProperty {
             return Measurement(
                 value: baseValue ?? 0, unit: definition.baseUnit
             )
-            .converted(to: unit.wrappedValue)
+            .converted(to: unit.wrappedValue ?? definition.baseUnit)
         }
         nonmutating set {
             baseValue = newValue.converted(to: definition.baseUnit).value

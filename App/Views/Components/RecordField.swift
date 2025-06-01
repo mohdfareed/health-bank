@@ -5,9 +5,11 @@ import SwiftUI
 struct RecordField<Unit: Dimension, DetailContent: View>: View {
     let definition: RecordFieldDefinition<Unit>
     @LocalizedMeasurement var measurement: Measurement<Unit>
+
     let source: DataSource
     let showPicker: Bool
     let computed: (() -> Double?)?
+
     @ViewBuilder let details: () -> DetailContent
 
     init(
@@ -36,10 +38,10 @@ struct RecordField<Unit: Dimension, DetailContent: View>: View {
         } content: {
             MeasurementField(
                 measurement: $measurement, validator: definition.validator,
-                format: definition.formatter, editable: source == .local,
-                showPicker: showPicker
+                format: definition.formatter, showPicker: showPicker
             )
         }
+        .disabled(source != .local)
         .animation(.default, value: measurement)
         .animation(.default, value: showPicker)
     }

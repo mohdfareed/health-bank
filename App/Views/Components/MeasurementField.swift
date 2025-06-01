@@ -8,33 +8,23 @@ struct MeasurementField<Unit: Dimension>: View {
 
     let validator: ((Double) -> Bool)?
     let format: FloatingPointFormatStyle<Double>
-    let editable: Bool
     let showPicker: Bool
 
     var body: some View {
         HStack(alignment: .center) {
-            if editable {
-                TextField("Value", value: $measurement.value, format: format)
-                    .multilineTextAlignment(.trailing)
-                    .contentTransition(.numericText())
-                    .onChange(of: $measurement.baseValue) {
-                        if !isValid {
-                            $measurement.baseValue = nil
-                        }
+            TextField("Value", value: $measurement.value, format: format)
+                .multilineTextAlignment(.trailing)
+                .contentTransition(.numericText())
+                .onChange(of: $measurement.baseValue) {
+                    if !isValid {
+                        $measurement.baseValue = nil
                     }
-            } else {
-                Text($measurement.value.wrappedValue?.formatted(format) ?? "—")
-                    .multilineTextAlignment(.trailing)
-                    .foregroundStyle(.secondary)
-                    .contentTransition(.numericText())
-            }
-
+                }
             if showPicker && $measurement.availableUnits().count > 1 {
                 picker.frame(minWidth: 8, maxWidth: 8).fixedSize()
             }
         }
         .animation(.default, value: measurement)
-        .animation(.default, value: editable)
         .animation(.default, value: showPicker)
         .animation(.default, value: isValid)
     }

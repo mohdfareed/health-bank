@@ -10,7 +10,7 @@ struct GoalView: View {
 
     var body: some View {
         let macros = $goals.macros.defaulted(to: .init())
-        Section(header: Text(String(localized: "Daily Calorie Budget"))) {
+        Section(header: Text("Daily Calorie Budget")) {
             RecordField(
                 FieldDefinition.dietaryCalorie,
                 value: $goals.calories,
@@ -38,7 +38,7 @@ struct GoalView: View {
         }
         .onChange(of: goals) { save() }
 
-        Section(header: Text(String(localized: "Daily Activity Goals"))) {
+        Section(header: Text("Daily Activity Goals")) {
             RecordField(
                 FieldDefinition.calorie,
                 value: $goals.burnedCalories,
@@ -52,7 +52,7 @@ struct GoalView: View {
         }
         .onChange(of: goals) { save() }
 
-        Section(header: Text(String(localized: "Target Measurements"))) {
+        Section(header: Text("Measurement Goals")) {
             RecordField(
                 FieldDefinition.weight,
                 value: $goals.weight,

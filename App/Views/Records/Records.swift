@@ -29,7 +29,12 @@ enum RecordDefinition {
         property: { $0.weight },
         subtitle: { _ in AnyView(EmptyView()) },
         destination: { weight in
-            AnyView(WeightForm(weight: weight))
+            @State var isValid = true
+            AnyView(
+                RecordForm("Weight", record: weight, isValid: $isValid) {
+                    FormDefinition.weight.content(weight)
+                }
+            )
         }
     )
 
@@ -54,21 +59,24 @@ enum RecordDefinition {
                 HStack(alignment: .bottom, spacing: 0) {
                     if calorie.macros?.protein != nil {
                         ValueView(
-                            measurement: protein, icon: .protein,
+                            measurement: protein,
+                            icon: .protein, tint: .protein,
                             format: FieldDefinition.protein.formatter
                         )
                         Spacer().frame(maxWidth: 8)
                     }
                     if calorie.macros?.carbs != nil {
                         ValueView(
-                            measurement: carbs, icon: .carbs,
+                            measurement: carbs,
+                            icon: .carbs, tint: .carbs,
                             format: FieldDefinition.carbs.formatter
                         )
                         Spacer().frame(maxWidth: 8)
                     }
                     if calorie.macros?.fat != nil {
                         ValueView(
-                            measurement: fat, icon: .fat,
+                            measurement: fat,
+                            icon: .fat, tint: .fat,
                             format: FieldDefinition.fat.formatter
                         )
                         Spacer().frame(maxWidth: 8)
@@ -77,7 +85,12 @@ enum RecordDefinition {
             )
         },
         destination: { calorie in
-            AnyView(DietaryCalorieForm(calorie: calorie))
+            @State var isValid = true
+            AnyView(
+                RecordForm("Calories", record: calorie, isValid: $isValid) {
+                    FormDefinition.dietaryCalorie.content(calorie)
+                }
+            )
         }
     )
 
@@ -94,7 +107,8 @@ enum RecordDefinition {
                 Group {
                     if calorie.duration != nil {
                         ValueView(
-                            measurement: duration, icon: .duration,
+                            measurement: duration,
+                            icon: .duration, tint: .duration,
                             format: FieldDefinition.activity.formatter
                         )
                     }
@@ -102,7 +116,12 @@ enum RecordDefinition {
             )
         },
         destination: { active in
-            AnyView(ActiveEnergyForm(activeEnergy: active))
+            @State var isValid = true
+            AnyView(
+                RecordForm("Activity", record: active, isValid: $isValid) {
+                    FormDefinition.activeEnergy.content(active)
+                }
+            )
         }
     )
 
@@ -111,7 +130,14 @@ enum RecordDefinition {
         property: { $0.calories },
         subtitle: { _ in AnyView(EmptyView()) },
         destination: { resting in
-            AnyView(RestingEnergyForm(restingEnergy: resting))
+            @State var isValid = true
+            AnyView(
+                RecordForm(
+                    "Resting Energy", record: resting, isValid: $isValid
+                ) {
+                    FormDefinition.restingEnergy.content(resting)
+                }
+            )
         }
     )
 }

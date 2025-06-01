@@ -5,13 +5,14 @@ import SwiftUI
 struct ValueView<Unit: Dimension>: View {
     @LocalizedMeasurement var measurement: Measurement<Unit>
     let icon: Image?
+    let tint: Color?
     let format: FloatingPointFormatStyle<Double>
 
     var body: some View {
         HStack(alignment: .bottom, spacing: 0) {
-            icon?.asText
+            icon?.asText.foregroundStyle(tint ?? .primary)
             Text(
-                $measurement.formatted(width: .abbreviated, format: format)
+                $measurement.formatted(width: .narrow, format: format)
             )
         }
     }
@@ -53,7 +54,7 @@ extension LocalizedMeasurement {
 
         let measurement = Measurement(
             value: computed, unit: self.definition.baseUnit
-        ).converted(to: self.unit.wrappedValue)
+        ).converted(to: self.unit.wrappedValue ?? self.definition.baseUnit)
 
         let text = measurement.value.formatted(format)
         let icon = Image(systemName: "function").asText

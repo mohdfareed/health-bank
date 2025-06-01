@@ -10,33 +10,33 @@
 - Models implement `DataRecord` protocol
 - Always use latest Swift features and animate UI changes by default
 
-## ✅ COMPLETED: Universal UI Component Architecture
+## ✅ COMPLETED: Universal Forms Architecture
 
-### Core Components
-- **Field Definition Registry**: Centralized field properties in `Fields.swift` (FieldDefinition enum)
-- **Universal Components**: `RecordField.swift` and `UniversalRecordRow.swift` for consistent UI
-- **Record Mapping System**: `Records.swift` provides two key mappings:
-  1. **Record → Field Definition**: `HealthRecord.fieldDefinition` extension maps record types to their field definitions
-  2. **Record → RecordRow**: `recordRow(for:)` function maps record types to their edit forms
+### Forms Architecture Pattern
+- **RecordFormDefinition**: Generic struct in `Forms.swift` that holds form properties (title, etc.)
+- **FormDefinition**: Enum in `Forms.swift` with static properties for each form type
+- **RecordForm**: Universal component in `Components/RecordForm.swift` that takes a definition and builds the form
+
+### Refactored Individual Forms
+All forms now use the new `RecordForm` component with:
+- **2-section structure**: "Data" section for form fields, "Data Source" section showing source icon and name
+- **Automatic date handling**: `RecordForm` handles date picker in "Details" section
+- **Consistent validation**: Each form provides validation logic through `isValid` binding
+- **Data source display**: Shows HealthKit icon + "HealthKit" or local + "Health Bank" text
+- **Unified save/delete**: `RecordForm` handles common form actions and navigation
+
+### Updated Forms
+- **WeightForm**: Basic weight entry with source display
+- **DietaryCalorieForm**: Calorie entry with macro fields (protein, carbs, fat) grouped in Data section
+- **ActiveEnergyForm**: Active calories with duration and workout type fields
+- **RestingEnergyForm**: Simple resting energy entry
 
 ### Architecture Benefits
-- **Single Source of Truth**: All field definitions centralized in FieldDefinition enum
-- **Type Safety**: Proper generic constraints and Swift static property handling
-- **Visual Consistency**: Maintains exact visual appearance across all contexts
-- **Easy Extension**: Adding new record types requires minimal changes
-
-### Current Implementation
-```swift
-// Records.swift provides two mappings:
-extension HealthRecord {
-    var fieldDefinition: Any? { /* maps to FieldDefinition.* */ }
-}
-
-@MainActor @ViewBuilder
-func recordRow<Record: HealthRecord>(for record: Record) -> some View {
-    /* maps to RecordRow + appropriate Form */
-}
-```
+- **Consistent UI**: All forms follow identical structure and behavior
+- **Centralized Logic**: Common form functionality in `RecordForm` component
+- **Data Source Awareness**: Clear indication of where data originates
+- **Validation**: Each form can define custom validation logic
+- **Easy Maintenance**: Changes to form structure only need to be made in `RecordForm`
 
 ## ✅ COMPLETED: UnifiedQuery System
 
@@ -71,7 +71,10 @@ func recordRow<Record: HealthRecord>(for record: Record) -> some View {
 - ✅ Universal component architecture implemented
 - ✅ UnifiedQuery system working with mock data
 - ✅ Record definition system mapping records to UI components
-- ✅ Complete form system for all record types
+- ✅ Universal forms architecture with RecordForm component
+- ✅ All individual forms refactored to use new pattern
+- ✅ Data source display (icon + name) implemented in all forms
+- ✅ 2-section form structure (Data + Data Source) implemented
 - 🔄 Ready for HealthKit integration and live testing
 
 ## Next Steps
