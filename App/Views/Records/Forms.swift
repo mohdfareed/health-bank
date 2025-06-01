@@ -65,7 +65,7 @@ enum FormDefinition {
         content: {
             @Bindable var calorie = $0
             AnyView(
-                Group {
+                List {
                     RecordField(
                         FieldDefinition.calorie,
                         value: $calorie.calories.optional(0),
@@ -76,6 +76,13 @@ enum FormDefinition {
                         value: $calorie.duration,
                         source: calorie.source, showPicker: true,
                     )
+                    Picker(selection: $calorie.workout) {
+                        ForEach(WorkoutType.allCases, id: \.self) {
+                            Text($0.localized).tag($0)
+                        }
+                    } label: {
+                        Text("Activity")
+                    }
                 }
             )
         }

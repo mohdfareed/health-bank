@@ -1,9 +1,27 @@
 import Foundation
+import HealthKit
 import SwiftData
 
 /// The workout types.
 public typealias WorkoutType = HealthKitService.WorkoutType
-extension WorkoutType: Codable, @retroactive Hashable {}
+extension WorkoutType: @retroactive CaseIterable, @retroactive Hashable {
+    public static var allCases: [Self] {
+        return [
+            // cardio
+            .walking, .running, .hiking, .stairClimbing, .elliptical,
+            .mixedCardio, .mixedMetabolicCardioTraining,
+            .highIntensityIntervalTraining,
+            // weight lifting
+            .functionalStrengthTraining, .traditionalStrengthTraining,
+            // cycling
+            .cycling,
+            // dance
+            .dance, .danceInspiredTraining, .cardioDance, .socialDance,
+            // martial arts
+            .boxing, .martialArts,
+        ]
+    }
+}
 
 /// Represents active energy expenditure from physical activity.
 @Model public final class ActiveEnergy: Calorie {

@@ -3,7 +3,8 @@ import SwiftUI
 
 struct HealthDataView: View {
     @Environment(\.modelContext) private var context: ModelContext
-    @RecordsQuery private var records
+    @RecordsQuery(from: .distantPast, to: .now, count: 100)
+    private var records
 
     @State private var selectedTypes: [HealthRecordCategory] = []
     @State private var selectedNewType: HealthRecordCategory = .dietary
