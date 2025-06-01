@@ -6,13 +6,16 @@ import HealthKit
 
 struct DietaryQuery: HealthQuery {
     @MainActor
-    func fetch(from: Date, to: Date, store: HealthKitService) async -> [DietaryCalorie] {
+    func fetch(
+        from: Date, to: Date, limit: Int? = nil,
+        store: HealthKitService
+    ) async -> [DietaryCalorie] {
         let correlations = await store.fetchCorrelationSamples(
             for: HKCorrelationType.correlationType(forIdentifier: .food)!,
             from: from, to: to
         )
 
-        return correlations.compactMap { correlation in
+        let calories = correlations.compactMap { correlation in
             let calories = correlation.objects(
                 for: HKQuantityType(.dietaryEnergyConsumed)
             )
@@ -45,9 +48,16 @@ struct DietaryQuery: HealthQuery {
             }
             return calorie
         }
+
+        if let limit = limit {
+            return Array(calories.prefix(limit))
+        }
+        return calories
     }
 
-    func predicate(from: Date, to: Date) -> Predicate<DietaryCalorie> {
+    func predicate(
+        from: Date, to: Date, limit: Int? = nil
+    ) -> Predicate<DietaryCalorie> {
         return #Predicate {
             from <= $0.date && $0.date <= to
         }
@@ -60,11 +70,12 @@ struct DietaryQuery: HealthQuery {
 struct RestingQuery: HealthQuery {
     @MainActor
     func fetch(
-        from: Date, to: Date, store: HealthKitService
+        from: Date, to: Date, limit: Int? = nil,
+        store: HealthKitService
     ) async -> [RestingEnergy] {
         let samples = await store.fetchQuantitySamples(
             for: HKQuantityType(.basalEnergyBurned),
-            from: from, to: to
+            from: from, to: to, limit: limit
         )
 
         return samples.map { sample in
@@ -80,7 +91,9 @@ struct RestingQuery: HealthQuery {
         }
     }
 
-    func predicate(from: Date, to: Date) -> Predicate<RestingEnergy> {
+    func predicate(
+        from: Date, to: Date, limit: Int? = nil
+    ) -> Predicate<RestingEnergy> {
         return #Predicate {
             from <= $0.date && $0.date <= to
         }

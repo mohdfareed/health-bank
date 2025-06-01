@@ -4,40 +4,43 @@ import SwiftUI
 
 /// A property wrapper that combines SwiftData and HealthKit data queries.
 /// Provides a SwiftData @Query-like interface for unified data access.
-@MainActor @propertyWrapper struct UnifiedQuery<T>: DynamicProperty
-where T: HealthQuery, T.Record: HealthRecord & PersistentModel {
+@MainActor @propertyWrapper struct DataQuery<T>: DynamicProperty
+where T: HealthRecord & PersistentModel {
     @Environment(\.healthKit) private var healthKitService
-    @Query private var localData: [T.Record]
-    @State private var healthKitData: [T.Record] = []
+    @Query private var localData: [T]
+    @State private var healthKitData: [T] = []
 
-    private let query: T
+    private let query: any HealthQuery<T>
     private let dateRange: ClosedRange<Date>
 
-    private let filter: Predicate<T.Record>?
-    private let sort: [SortDescriptor<T.Record>]
+    private let filter: Predicate<T>?
+    private let sort: [SortDescriptor<T>]
+    private let limit: Int?
 
     @State var isLoading = false
 
-    var wrappedValue: [T.Record] {
+    var wrappedValue: [T] {
         try! (localData + healthKitData)
             .filter(filter ?? #Predicate { _ in true })
             .sorted(using: sort)
     }
     var projectedValue: Self { self }
 
-    init(
-        _ query: T, from start: Date? = nil, to end: Date? = nil,
-        filter: Predicate<T.Record>? = nil,
-        sort: [SortDescriptor<T.Record>]? = nil
-    ) {
+    init<Q>(
+        _ query: Q, from start: Date? = nil, to end: Date? = nil,
+        filter: Predicate<T>? = nil, sort: [SortDescriptor<T>]? = nil,
+        limit: Int? = nil
+    ) where Q: HealthQuery<T> {
         self.query = query
         self.filter = filter
         self.dateRange = .init(from: start, to: end)
         self.sort = sort ?? [.init(\.date, order: .reverse)]
+        self.limit = limit
 
         _localData = .init(
             filter: query.predicate(
-                from: dateRange.lowerBound, to: dateRange.upperBound
+                from: dateRange.lowerBound, to: dateRange.upperBound,
+                limit: limit
             )
         )
     }
@@ -48,7 +51,7 @@ where T: HealthQuery, T.Record: HealthRecord & PersistentModel {
         defer { isLoading = false }
 
         healthKitData = await query.fetch(
-            from: dateRange.lowerBound, to: dateRange.upperBound,
+            from: dateRange.lowerBound, to: dateRange.upperBound, limit: limit,
             store: healthKitService
         ).filter { $0.source != .local }
     }

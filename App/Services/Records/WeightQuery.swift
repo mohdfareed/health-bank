@@ -4,11 +4,12 @@ import HealthKit
 struct WeightQuery: HealthQuery {
     @MainActor
     func fetch(
-        from: Date, to: Date, store: HealthKitService
+        from: Date, to: Date, limit: Int? = nil,
+        store: HealthKitService
     ) async -> [Weight] {
         let samples = await store.fetchQuantitySamples(
             for: HKQuantityType(.bodyMass),
-            from: from, to: to
+            from: from, to: to, limit: limit
         )
 
         return samples.map { sample in
@@ -24,7 +25,9 @@ struct WeightQuery: HealthQuery {
         }
     }
 
-    func predicate(from: Date, to: Date) -> Predicate<Weight> {
+    func predicate(
+        from: Date, to: Date, limit: Int? = nil
+    ) -> Predicate<Weight> {
         return #Predicate {
             from <= $0.date && $0.date <= to
         }

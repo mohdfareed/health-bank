@@ -4,9 +4,10 @@ import HealthKit
 struct ActivityQuery: HealthQuery {
     @MainActor
     func fetch(
-        from: Date, to: Date, store: HealthKitService
+        from: Date, to: Date, limit: Int? = nil,
+        store: HealthKitService
     ) async -> [ActiveEnergy] {
-        let workouts = await store.fetchWorkouts(from: from, to: to)
+        let workouts = await store.fetchWorkouts(from: from, to: to, limit: limit)
         return workouts.map { workout in
             let sample = workout.statistics(
                 for: HKQuantityType(.activeEnergyBurned)
@@ -26,7 +27,9 @@ struct ActivityQuery: HealthQuery {
         }
     }
 
-    func predicate(from: Date, to: Date) -> Predicate<ActiveEnergy> {
+    func predicate(
+        from: Date, to: Date, limit: Int? = nil
+    ) -> Predicate<ActiveEnergy> {
         return #Predicate<ActiveEnergy> {
             from <= $0.date && $0.date <= to
         }

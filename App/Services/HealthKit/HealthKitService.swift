@@ -65,7 +65,7 @@ extension HealthKitService {
     /// Execute a quantity sample query for the given date range.
     func fetchQuantitySamples(
         for type: HKQuantityType,
-        from startDate: Date, to endDate: Date
+        from startDate: Date, to endDate: Date, limit: Int?
     ) async -> [HKQuantitySample] {
         guard isActive else {
             logger.debug("HealthKit inactive, returning empty results")
@@ -80,8 +80,7 @@ extension HealthKitService {
 
             let query = HKSampleQuery(
                 sampleType: type,
-                predicate: predicate,
-                limit: HKObjectQueryNoLimit,
+                predicate: predicate, limit: limit ?? HKObjectQueryNoLimit,
                 sortDescriptors: []
             ) { _, samples, error in
                 if let error = error {
@@ -106,7 +105,7 @@ extension HealthKitService {
     /// Execute a correlation sample query for the given date range.
     func fetchCorrelationSamples(
         for type: HKCorrelationType,
-        from startDate: Date, to endDate: Date
+        from startDate: Date, to endDate: Date,
     ) async -> [HKCorrelation] {
         guard isActive else {
             logger.debug("HealthKit inactive, returning empty results")
@@ -120,9 +119,7 @@ extension HealthKitService {
             )
 
             let query = HKCorrelationQuery(
-                type: type,
-                predicate: predicate,
-                samplePredicates: nil
+                type: type, predicate: predicate, samplePredicates: nil
             ) { _, correlations, error in
                 if let error = error {
                     self.logger.error(
@@ -144,7 +141,7 @@ extension HealthKitService {
 extension HealthKitService {
     /// Execute a workout query for the given date range.
     func fetchWorkouts(
-        from startDate: Date, to endDate: Date
+        from startDate: Date, to endDate: Date, limit: Int?
     ) async -> [HKWorkout] {
         guard isActive else {
             logger.debug("HealthKit inactive, returning empty results")
@@ -159,8 +156,7 @@ extension HealthKitService {
 
             let query = HKSampleQuery(
                 sampleType: HKObjectType.workoutType(),
-                predicate: predicate,
-                limit: HKObjectQueryNoLimit,
+                predicate: predicate, limit: limit ?? HKObjectQueryNoLimit,
                 sortDescriptors: []
             ) { _, samples, error in
                 if let error = error {

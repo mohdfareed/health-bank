@@ -1,56 +1,6 @@
 import SwiftData
 import SwiftUI
 
-// MARK: Categories Data
-// ============================================================================
-
-@MainActor @propertyWrapper struct RecordsQuery: DynamicProperty {
-    @Environment(\.modelContext) private var context
-
-    @UnifiedQuery(DietaryQuery())
-    var dietaryCalories: [DietaryCalorie]
-    @UnifiedQuery(RestingQuery())
-    var restingCalories: [RestingEnergy]
-    @UnifiedQuery(ActivityQuery())
-    var activities: [ActiveEnergy]
-    @UnifiedQuery(WeightQuery())
-    var weights: [Weight]
-
-    var wrappedValue: [any HealthRecord & PersistentModel] {
-        var records = [any HealthRecord & PersistentModel]()
-        records.append(contentsOf: dietaryCalories)
-        records.append(contentsOf: restingCalories)
-        records.append(contentsOf: activities)
-        records.append(contentsOf: weights)
-        return records.sorted { $0.date > $1.date }
-    }
-    var projectedValue: Self { self }
-
-    func refresh() async {
-        await $dietaryCalories.refresh()
-        await $restingCalories.refresh()
-        await $activities.refresh()
-        await $weights.refresh()
-    }
-
-    @ViewBuilder func recordRow(_ record: any HealthRecord) -> some View {
-        switch record {
-        case let weight as Weight:
-            RecordDefinition.weight.recordRow(weight)
-        case let calorie as DietaryCalorie:
-            RecordDefinition.dietary.recordRow(calorie)
-        case let calorie as ActiveEnergy:
-            RecordDefinition.active.recordRow(calorie)
-        case let calorie as RestingEnergy:
-            RecordDefinition.resting.recordRow(calorie)
-        default:
-            let _ = AppLogger.new(for: record)
-                .error("Unknown record type: \(type(of: record))")
-            EmptyView()
-        }
-    }
-}
-
 // MARK: Categories
 // ============================================================================
 
@@ -75,6 +25,29 @@ enum HealthRecordCategory: String.LocalizationValue, CaseIterable {
         case .resting: return .restingCalorie
         case .active: return .activeCalorie
         case .weight: return .weight
+        }
+    }
+}
+
+// MARK: Rows
+// ============================================================================
+
+extension HealthRecordCategory {
+    @ViewBuilder @MainActor
+    static func recordRow(_ record: any HealthRecord) -> some View {
+        switch record {
+        case let weight as Weight:
+            RecordDefinition.weight.recordRow(weight)
+        case let calorie as DietaryCalorie:
+            RecordDefinition.dietary.recordRow(calorie)
+        case let calorie as ActiveEnergy:
+            RecordDefinition.active.recordRow(calorie)
+        case let calorie as RestingEnergy:
+            RecordDefinition.resting.recordRow(calorie)
+        default:
+            let _ = AppLogger.new(for: record)
+                .error("Unknown record type: \(type(of: record))")
+            EmptyView()
         }
     }
 }
@@ -112,7 +85,7 @@ extension HealthRecordCategory {
     }
 }
 
-// MARK: Menus
+// MARK: Add Menu
 // ============================================================================
 
 extension HealthRecordCategory {
@@ -134,7 +107,12 @@ extension HealthRecordCategory {
             Label("Add", systemImage: "plus.circle")
         }
     }
+}
 
+// MARK: Filter Menu
+// ============================================================================
+
+extension HealthRecordCategory {
     @ViewBuilder @MainActor
     static func filterMenu(_ selected: Binding<[Self]>) -> some View {
         Menu {

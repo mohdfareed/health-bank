@@ -24,7 +24,7 @@ struct HealthDataView: View {
         NavigationStack {
             List {
                 ForEach(filteredRecords, id: \.id) { record in
-                    $records.recordRow(record)
+                    HealthRecordCategory.recordRow(record)
                 }
             }
             .navigationTitle("Health Records")

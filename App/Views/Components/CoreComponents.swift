@@ -58,8 +58,7 @@ extension LocalizedMeasurement {
 
         let text = measurement.value.formatted(format)
         let icon = Image(systemName: "function").asText
-            .foregroundStyle(.indigo.secondary)
-        return Text("\(icon): \(text)")
+        return Text("\(icon): \(text)").foregroundStyle(.indigo.secondary)
     }
 }
 
