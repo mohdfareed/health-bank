@@ -6,18 +6,17 @@ import SwiftData
     var date: Date = Date()
 
     // calories
-    var calories: Double? = 2000  // consumed
+    var calories: Double? = 2000
     var macros: CalorieMacros? = nil
 
     // activity
-    var burnedCalories: Double? = nil  // burned
-    var activity: TimeInterval? = nil  // minutes
+    var burnedCalories: Double? = 500
+    var activity: TimeInterval? = 30
 
     // weight
-    var weight: Double? = 70  // kg
+    var weight: Double? = 70
 
     // singleton
-    @Attribute(.unique)
-    var singletonID = UUID()
-    required init() {}
+    var id: UUID
+    required init(id: ID = .init()) { self.id = id }
 }

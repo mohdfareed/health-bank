@@ -13,7 +13,7 @@ struct ActivityQuery: HealthQuery {
             )?.sumQuantity()
 
             let caloriesInKcal = sample?.doubleValue(for: .kilocalorie()) ?? 0
-            let calories = UnitDefinition.calorie.convert(
+            let calories = UnitDefinition.calorie.asBase(
                 caloriesInKcal, from: .kilocalories
             )
             let duration = workout.duration

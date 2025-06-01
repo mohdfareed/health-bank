@@ -134,7 +134,7 @@ extension HealthRecordCategory {
                 }
             }
         } label: {
-            Text("Log")
+            Label("Add Record", systemImage: "plus")
         }
     }
 

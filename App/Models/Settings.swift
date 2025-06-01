@@ -46,6 +46,6 @@ extension Settings {
 extension Settings {
     /// The active user daily goals.
     static var userGoals: Settings<UUID> {
-        .init("Goals", default: .init())
+        .init("Goals", default: .zero)
     }
 }

@@ -1,11 +1,13 @@
 import SwiftUI
 
+// REVIEW: Overcomplicated
+
 // MARK: Localization
 // ============================================================================
 
 extension UnitDefinition {
     /// Convert the value from the given unit to the base unit.
-    func convert(_ value: Double, from unit: D) -> Double {
+    func asBase(_ value: Double, from unit: D) -> Double {
         Measurement(value: value, unit: unit)
             .converted(to: self.baseUnit).value
     }
@@ -21,7 +23,7 @@ extension UnitDefinition {
         }
 
         AppLogger.new(for: Self.self).warning(
-            "Unit localization not implemented for: \(D.self)"
+            "Unit not localized: \(D.self)"
         )  // use base unit if not localized
         return self.baseUnit
     }
@@ -46,8 +48,6 @@ private func nativeUnit<D: Dimension>(
         return UnitVolume(forLocale: locale, usage: usage) as? D
     case let usage as MeasurementFormatUnitUsage<UnitSpeed>:
         return UnitSpeed(forLocale: locale, usage: usage) as? D
-    case is MeasurementFormatUnitUsage<UnitConcentrationMass>:
-        return UnitConcentrationMass(forLocale: locale) as? D
     default: return nil
     }
 }
@@ -134,14 +134,4 @@ extension LocalizedMeasurement {
         _ value: Binding<Double>, definition: UnitDefinition<D>,
         defaultValue: Double? = nil
     ) { self.init(value.optional(defaultValue ?? 0), definition: definition) }
-}
-
-// MARK: Extensions
-// ============================================================================
-
-extension Measurement<UnitDuration> {
-    /// The measurement converted to a duration.
-    var duration: Duration {
-        .seconds(self.converted(to: .seconds).value)
-    }
 }

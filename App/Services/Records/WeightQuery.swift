@@ -15,7 +15,7 @@ struct WeightQuery: HealthQuery {
             let weightInKg = sample.quantity.doubleValue(
                 for: .gramUnit(with: .kilo)
             )
-            let weight = UnitDefinition.weight.convert(
+            let weight = UnitDefinition.weight.asBase(
                 weightInKg, from: .kilograms
             )
             return Weight(  // TODO: Set source properly (requires syncing)

@@ -1,4 +1,5 @@
 import Foundation
+import SwiftData
 
 // MARK: Errors
 // ============================================================================
@@ -65,12 +66,10 @@ public protocol HealthRecord {
 /// The ID can be attributed with `.unique` with `UUID.zero` as the default
 /// to guarantee a single instance of the model in the database. The singleton
 /// must provide a default value through the `init()` method.
-protocol Singleton {
-    /// The unique ID of the singleton model.
-    var singletonID: UUID { get set }
-    init()
-
-    /// The predicate generator. This is required to use stored properties.
+protocol Singleton: PersistentModel where Self.ID == UUID {
+    init(id: UUID)
+    /// The predicate generator.
+    /// This is required to use stored properties on a protocol.
     static func predicate(id: UUID) -> Predicate<Self>
 }
 

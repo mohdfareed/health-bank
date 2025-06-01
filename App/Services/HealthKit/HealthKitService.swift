@@ -2,6 +2,8 @@ import Foundation
 import HealthKit
 import SwiftUI
 
+// TODO: Add background sync
+
 // MARK: Service
 // ============================================================================
 
@@ -193,13 +195,13 @@ extension View {
 // ============================================================================
 
 extension Set<HKSample> {
-    var sum: Double? {
+    func sum(as unit: HKUnit) -> Double? {
         guard !isEmpty else { return nil }
         return reduce(0) {
             guard let sample = $1 as? HKQuantitySample else {
                 return $0
             }
-            return $0 + sample.quantity.doubleValue(for: .kilocalorie())
+            return $0 + sample.quantity.doubleValue(for: unit)
         }
     }
 }

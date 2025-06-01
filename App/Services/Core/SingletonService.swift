@@ -4,17 +4,10 @@ import SwiftUI
 // MARK: Singleton Models
 // ============================================================================
 
-extension Singleton {
-    init(id: UUID = UUID.zero) {
-        self.init()
-        self.singletonID = id
-    }
-}
-
 extension UserGoals {
     static func predicate(id: UUID) -> Predicate<UserGoals> {
         let singletonID = id
-        return #Predicate { $0.singletonID == singletonID }
+        return #Predicate { $0.id == singletonID }
     }
 }
 
@@ -24,7 +17,7 @@ extension UserGoals {
 /// A property wrapper to fetch a singleton model. If multiple models are
 /// found, the first instance is used.
 @MainActor @propertyWrapper
-struct SingletonQuery<Model: Singleton & PersistentModel>: DynamicProperty {
+struct SingletonQuery<Model: Singleton>: DynamicProperty {
     @Environment(\.modelContext) private var context: ModelContext
     @Query private var models: [Model]
     private let factory: () -> Model
@@ -33,44 +26,33 @@ struct SingletonQuery<Model: Singleton & PersistentModel>: DynamicProperty {
         if let model = self.models.first { return model }
         let model = self.factory()
         self.context.insert(model)
+
+        do {
+            try self.context.save()
+        } catch {
+            AppLogger.new(for: Model.self).error(
+                "Failed to save singleton model: \(error)"
+            )
+        }
         return model
     }
     var projectedValue: Bindable<Model> { .init(self.wrappedValue) }
 }
 extension Query { typealias Singleton = SingletonQuery }
 
-// MARK: Queries
+// MARK: Initializers
 // ============================================================================
 
 extension SingletonQuery {
-    init(_ query: Query<Model, [Model]>, factory: @escaping () -> Model) {
-        self._models = query
-        self.factory = factory
-    }
-
-    init(
-        _ descriptor: FetchDescriptor<Model>, factory: @escaping () -> Model,
-        animation: Animation = .default,
-    ) {
-        self._models = Query(descriptor, animation: animation)
-        self.factory = factory
-    }
-
-    init(
-        _ id: UUID,
-        sortBy: [SortDescriptor<Model>] = [.init(\.persistentModelID)],
-        animation: Animation = .default,
-    ) where Model: Singleton {
-        let singletonID = id
+    init(_ id: UUID = .zero, animation: Animation = .default)
+    where Model: Singleton {
         var descriptor = FetchDescriptor<Model>(
-            predicate: Model.predicate(id: singletonID),
-            sortBy: sortBy,
+            predicate: Model.predicate(id: id),
+            sortBy: [.init(\.persistentModelID)],
         )
         descriptor.fetchLimit = 1  // singleton
-        self.init(descriptor, factory: { Model(id: id) }, animation: animation)
-    }
 
-    init(animation: Animation = .default) where Model: Singleton {
-        self.init(UUID.zero, animation: animation)
+        self._models = Query(descriptor, animation: animation)
+        self.factory = { Model(id: id) }
     }
 }

@@ -26,16 +26,21 @@ struct DietaryQuery: HealthQuery {
                 for: HKQuantityType(.dietaryCarbohydrates)
             )
 
+            let totalCalories = calories.sum(as: .kilocalorie())
+            let totalProtein = protein.sum(as: .gram())
+            let totalFat = fat.sum(as: .gram())
+            let totalCarbs = carbs.sum(as: .gram())
+
             let calorie = DietaryCalorie(
-                calories.sum ?? 0,
+                totalCalories ?? 0,
                 date: correlation.startDate, source: .healthKit,
-                macros: .init(p: protein.sum, f: fat.sum, c: carbs.sum)
+                macros: .init(p: totalProtein, f: totalFat, c: totalCarbs)
             )
 
-            if calories.sum == nil {
+            if totalCalories == nil {
                 calorie.calories = calorie.calculatedCalories() ?? 0
             }
-            if protein.sum == nil && fat.sum == nil && carbs.sum == nil {
+            if totalProtein == nil && totalFat == nil && totalCarbs == nil {
                 calorie.macros = nil  // No macros available
             }
             return calorie
@@ -66,7 +71,7 @@ struct RestingQuery: HealthQuery {
             let caloriesInKcal = sample.quantity.doubleValue(
                 for: .kilocalorie()
             )
-            let calories = UnitDefinition.calorie.convert(
+            let calories = UnitDefinition.calorie.asBase(
                 caloriesInKcal, from: .kilocalories
             )
             return RestingEnergy(  // TODO: Set source properly (requires syncing)

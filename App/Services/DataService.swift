@@ -34,12 +34,15 @@ where T: HealthQuery, T.Record: HealthRecord & PersistentModel {
         self.filter = filter
         self.dateRange = .init(from: start, to: end)
         self.sort = sort ?? [.init(\.date, order: .reverse)]
-        _localData = localQuery()
+
+        _localData = .init(
+            filter: query.predicate(
+                from: dateRange.lowerBound, to: dateRange.upperBound
+            )
+        )
     }
 
-    func refresh() async { await loadDate() }
-
-    private func loadDate() async {
+    func refresh() async {
         guard HealthKitService.isAvailable else { return }
         isLoading = true
         defer { isLoading = false }
@@ -48,14 +51,6 @@ where T: HealthQuery, T.Record: HealthRecord & PersistentModel {
             from: dateRange.lowerBound, to: dateRange.upperBound,
             store: healthKitService
         ).filter { $0.source != .local }
-    }
-
-    private func localQuery() -> Query<T.Record, [T.Record]> {
-        return .init(
-            filter: query.predicate(
-                from: dateRange.lowerBound, to: dateRange.upperBound
-            )
-        )
     }
 }
 

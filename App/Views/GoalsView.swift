@@ -37,6 +37,7 @@ struct GoalView: View {
             )
         }
         .onChange(of: goals) { save() }
+        .onChange(of: goals.macros) { save() }
 
         Section(header: Text("Daily Activity Goals")) {
             RecordField(

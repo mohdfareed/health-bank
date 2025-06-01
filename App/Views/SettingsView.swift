@@ -27,6 +27,7 @@ struct SettingsView: View {
             }
             .navigationTitle("Settings")
             .resetAlert(isPresented: $reset)
+            .scrollDismissesKeyboard(.interactively)
         }
     }
 }
@@ -61,7 +62,7 @@ struct GeneralSettings: View {
                 }
             }
         ) { Text(self.theme.localized) }
-        .pickerStyle(.automatic)
+        .frame(maxHeight: 8)
 
         // TODO: Implement notifications and biometrics settings
         // Toggle(isOn: self.$notifications.defaulted(to: false)) {
@@ -93,9 +94,8 @@ private struct LocalizationSettings: View {
                     Text(system.localized).tag(system)
                 }
             },
-        ) {
-            Text(self.locale.measurementSystem.localized)
-        }
+        ) { Text(self.locale.measurementSystem.localized) }
+        .frame(maxHeight: 8)
 
         Picker(
             "First Weekday", systemImage: "calendar",
@@ -105,9 +105,8 @@ private struct LocalizationSettings: View {
                     Text(weekday.localized).tag(weekday)
                 }
             }
-        ) {
-            Text(self.locale.firstDayOfWeek.abbreviated)
-        }
+        ) { Text(self.locale.firstDayOfWeek.abbreviated) }
+        .frame(maxHeight: 8)
     }
 }
 

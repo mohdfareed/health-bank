@@ -13,7 +13,10 @@ struct MeasurementField<Unit: Dimension>: View {
 
     var body: some View {
         HStack(alignment: .center) {
-            TextField("Value", value: $measurement.value, format: format)
+            TextField("Not Set", value: $measurement.value, format: format)
+                #if os(iOS)
+                    .keyboardType(.decimalPad)
+                #endif
                 .multilineTextAlignment(.trailing)
                 .contentTransition(.numericText())
                 .onChange(of: $measurement.baseValue) {
@@ -22,7 +25,7 @@ struct MeasurementField<Unit: Dimension>: View {
                     }
                 }
             if showPicker && $measurement.availableUnits().count > 1 {
-                picker.frame(minWidth: 8, maxWidth: 8).fixedSize()
+                picker.frame(maxWidth: 8, maxHeight: 8).fixedSize()
             }
         }
         .animation(.default, value: measurement)
