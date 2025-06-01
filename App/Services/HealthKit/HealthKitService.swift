@@ -9,6 +9,8 @@ import SwiftUI
 
 /// Service for querying HealthKit data with model-specific query methods.
 public final class HealthKitService: Sendable {
+    public typealias WorkoutType = HKWorkoutActivityType
+
     private let logger = AppLogger.new(for: HealthKitService.self)
     private let store = HKHealthStore()
 

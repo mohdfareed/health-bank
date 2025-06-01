@@ -17,10 +17,11 @@ struct ActivityQuery: HealthQuery {
                 caloriesInKcal, from: .kilocalories
             )
             let duration = workout.duration
+            let activity = workout.workoutActivityType
 
             return ActiveEnergy(
                 calories, date: workout.startDate,
-                source: .healthKit, duration: duration,
+                source: .healthKit, duration: duration, workout: activity
             )
         }
     }

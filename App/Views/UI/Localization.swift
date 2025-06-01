@@ -4,7 +4,7 @@ import SwiftUI
 // MARK: Settings
 // ============================================================================
 
-let AppName = String(localized: "health bank").localizedCapitalized
+let AppName = String(localized: "HealthBank").localizedCapitalized
 
 extension DataSource {
     var localized: String {
@@ -77,11 +77,10 @@ extension WorkoutType {
         switch self {
         case .cardio: return String(localized: "cardio").localizedCapitalized
         case .weightlifting:
-            return String(localized: "weightlifting").localizedCapitalized
+            return String(localized: "weight lifting").localizedCapitalized
         case .cycling: return String(localized: "cycling").localizedCapitalized
-        case .walking: return String(localized: "walking").localizedCapitalized
-        case .running: return String(localized: "running").localizedCapitalized
-        case .other: return String(localized: "other").localizedCapitalized
+        case .dancing: return String(localized: "dancing").localizedCapitalized
+        case .boxing: return String(localized: "boxing").localizedCapitalized
         }
     }
 }

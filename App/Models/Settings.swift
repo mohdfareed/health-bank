@@ -26,7 +26,7 @@ extension Settings {
     static var notifications: Settings<Bool?> { .init("Notifications") }
     /// Whether to enable HealthKit integration.
     static var enableHealthKit: Settings<Bool> {
-        .init("EnableHealthKit", default: true)
+        .init("EnableHealthKit", default: false)
     }
 }
 

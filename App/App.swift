@@ -17,11 +17,38 @@ let appID: String = Bundle.main.bundleIdentifier ?? "Debug.App"
     ])
 
     init() {
-        self.container = try! .init(
-            for: schema, configurations: .init(),
-        )
+        // MARK: Model Container Initialization
+        // ====================================================================
+        do {
+            self.logger.debug("Initializing model container for \(appID)")
+            self.container = try .init(for: schema)
+        } catch {
+            #if !DEBUG  // Production migration logic
+                fatalError("Failed to initialize model container: \(error)")
+            #endif  // Debug migration logic
+            self.logger.error("Failed to initialize model container: \(error)")
+
+            do {  // Attempt to replace existing container
+                self.logger.warning("Replacing existing model container...")
+                try ModelContainer().erase()
+                self.container = try .init(for: schema)
+            } catch {
+                self.logger.error(
+                    "Failed to initialize replacement container: \(error)"
+                )
+
+                // Fallback to in-memory container
+                logger.warning("Falling back to in-memory container.")
+                self.container = try! .init(
+                    for: schema,
+                    configurations: .init(isStoredInMemoryOnly: true)
+                )
+            }
+        }
     }
 
+    // MARK: App Setup
+    // ========================================================================
     var body: some Scene {
         WindowGroup {
             AppView()
@@ -31,6 +58,9 @@ let appID: String = Bundle.main.bundleIdentifier ?? "Debug.App"
         }
     }
 }
+
+// MARK: Preview
+// ============================================================================
 
 #Preview {
     let container = try! ModelContainer(
@@ -66,11 +96,11 @@ let appID: String = Bundle.main.bundleIdentifier ?? "Debug.App"
     // Active Energy entries
     let activeLocal = ActiveEnergy(
         280, date: Calendar.current.date(byAdding: .hour, value: -1, to: Date())!,
-        source: .local, duration: 88, workoutType: .running
+        source: .local, duration: 88, workout: .functionalStrengthTraining
     )  // 40 min run
     let activeHealthKit = ActiveEnergy(
         180, date: Calendar.current.date(byAdding: .hour, value: -4, to: Date())!,
-        source: .healthKit, duration: 35, workoutType: .walking
+        source: .healthKit, duration: 35, workout: .cycling
     )  // 30 min walk
     context.insert(activeLocal)
     context.insert(activeHealthKit)

@@ -102,13 +102,18 @@ enum RecordDefinition {
             )
 
             AnyView(
-                Group {
+                HStack(alignment: .bottom, spacing: 0) {
                     if calorie.duration != nil {
                         ValueView(
                             measurement: duration,
                             icon: .duration, tint: .duration,
                             format: FieldDefinition.activity.formatter
                         )
+                        Spacer().frame(maxWidth: 8)
+                    }
+                    if calorie.workout != nil {
+                        calorie.workout?.icon.tint(.activeCalorie)
+                        Spacer().frame(maxWidth: 8)
                     }
                 }
             )

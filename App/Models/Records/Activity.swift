@@ -2,9 +2,7 @@ import Foundation
 import SwiftData
 
 /// The workout types.
-public enum WorkoutType: String, Codable, CaseIterable, Sendable {
-    case cardio, weightlifting, cycling, walking, running, other
-}
+public typealias WorkoutType = HealthKitService.WorkoutType
 
 /// Represents active energy expenditure from physical activity.
 @Model public final class ActiveEnergy: Calorie {
@@ -19,12 +17,12 @@ public enum WorkoutType: String, Codable, CaseIterable, Sendable {
 
     public init(
         _ value: Double, date: Date = Date(), source: DataSource = .local,
-        duration: TimeInterval? = nil, workoutType: WorkoutType? = nil,
+        duration: TimeInterval? = nil, workout: WorkoutType? = nil,
     ) {
         self.calories = value
         self.date = date
         self.duration = duration
-        self.workout = workoutType
+        self.workout = workout
         self.source = source
     }
 }

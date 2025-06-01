@@ -8,6 +8,11 @@ extension Color {
     static var logoPrimary: Color { .init("LogoPrimary") }
     static var logoSecondary: Color { .init("LogoSecondary") }
 
+    // Data Sources
+    static var local: Color { .primary }
+    static var healthKit: Color { .pink }
+    static var cloud: Color { .blue }
+
     // Records
     static var calories: Color { .init("Calorie") }
     static var dietaryCalorie: Color { .blue }
@@ -21,11 +26,6 @@ extension Color {
     static var protein: Color { .purple }
     static var carbs: Color { .green }
     static var fat: Color { .yellow }
-
-    // Data Sources
-    static var local: Color { .primary }
-    static var healthKit: Color { .pink }
-    static var cloud: Color { .blue }
 }
 
 // MARK: Iconography
@@ -34,6 +34,11 @@ extension Color {
 extension Image {
     static var logo: Image { .init("Logo") }
     static var logoAlt: Image { .init("LogoAlt") }
+
+    // Data Sources
+    static var local: Image? { nil }
+    static var cloud: Image { .init(systemName: "icloud.fill") }
+    static var healthKit: Image { .init(systemName: "heart.fill") }
 
     // Records
     static var calories: Image { .init(systemName: "flame.fill") }
@@ -49,10 +54,14 @@ extension Image {
     static var fat: Image { .init(systemName: "drop.circle") }
     static var carbs: Image { .init(systemName: "carrot.fill") }
 
-    // Data Sources
-    static var local: Image? { nil }
-    static var cloud: Image { .init(systemName: "icloud.fill") }
-    static var healthKit: Image { .init(systemName: "heart.fill") }
+    // Workouts
+    static var cardio: Image { .init(systemName: "figure.walk.treadmill") }
+    static var weightlifting: Image {
+        .init(systemName: "figure.strengthtraining.traditional")
+    }
+    static var cycling: Image { .init(systemName: "figure.outdoor.cycle") }
+    static var dancing: Image { .init(systemName: "figure.dance") }
+    static var boxing: Image { .init(systemName: "figure.boxing") }
 }
 
 // MARK: Miscellaneous
@@ -81,6 +90,27 @@ extension DataSource {
             return .local
         case .healthKit:
             return .healthKit
+        }
+    }
+}
+
+extension WorkoutType {
+    var icon: Image {
+        switch self {
+        case .walking, .running, .hiking, .stairClimbing, .elliptical,
+            .mixedCardio, .mixedMetabolicCardioTraining,
+            .highIntensityIntervalTraining:
+            return .cardio
+        case .functionalStrengthTraining, .traditionalStrengthTraining:
+            return .weightlifting
+        case .cycling:
+            return .cycling
+        case .dance, .danceInspiredTraining, .cardioDance, .socialDance:
+            return .dancing
+        case .boxing, .martialArts:
+            return .boxing
+        default:
+            return .activeCalorie  // Fallback icon
         }
     }
 }
