@@ -49,11 +49,11 @@ public protocol HealthRecord {
 }
 
 /// Base protocol for data queries.
-public protocol HealthQuery<Record> {
+@MainActor public protocol HealthQuery<Record> {
     /// The type of data record this query returns.
     associatedtype Record: HealthRecord
     /// Fetch the records from HealthKit.
-    func fetch(from: Date, to: Date, store: HealthKitService) -> [Record]
+    func fetch(from: Date, to: Date, store: HealthKitService) async -> [Record]
     /// The local data predicate generator.
     func predicate(from: Date, to: Date) -> Predicate<Record>
 }

@@ -40,6 +40,7 @@ Health Bank is an iOS application built with SwiftUI and SwiftData, integrated w
    This includes architecture decisions, summary of components, guides to help you navigate the codebase, etc.
    The file is to be read and updated with every interaction.
    It will be provided with every new session, keep it concise.
+   With each new task, cleanup the file before proceeding.
 
 6. **Self-Verification**
    When appropriate, include quick self-checks (e.g., sample inputs/outputs, minimal tests) to validate your proposals.

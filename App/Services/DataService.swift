@@ -47,7 +47,7 @@ where T: HealthQuery, T.Record: HealthRecord & PersistentModel {
         isLoading = true
         defer { isLoading = false }
 
-        healthKitData = query.fetch(
+        healthKitData = await query.fetch(
             from: dateRange.lowerBound, to: dateRange.upperBound,
             store: healthKitService
         ).filter { $0.source != .local }

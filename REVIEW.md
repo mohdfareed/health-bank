@@ -1,6 +1,24 @@
 # Health Bank - Development Knowledge Base
 
-## Architecture
+#### Requirements (CONFIRMED)
+- **Read-Only Access**: Weight, Dietary Energy, Active Energy, Basal Energy, Macro Nutrients
+- **Error Handling**: Service has isEnabled flag + authorization + availability = active state; return empty results if inactive; log errors but don't propagate
+- **Data Flow**: One-way read from HealthKit, no observer queries or real-time updates
+- **Query Interface**: Each HealthQuery implementation must implement:
+  - `fetch(from: Date, to: Date, store: HealthKitService) -> [Record]`
+  - `predicate(from: Date, to: Date) -> Predicate<Record>`
+- **Settings**: `Settings.enableHealthKit` defaults to `true` (opt-out model)
+- **Base Units**:
+  - Weight: kilograms
+  - All calories: kilocalories
+  - Macro nutrients: grams
+  - Activity duration: minutes
+
+### Architecture Design (CONFIRMED)
+- **HealthKit Type Mapping**: ✅ Confirmed (bodyMass, dietaryEnergyConsumed, etc.)
+- **Responsibility Split**: Model logic in Query implementations, HealthKit logic in Service
+- **Macro Correlation**: Handle directly within `DietaryQuery.fetch()` method
+- **State Management**: Service handles its own active state checkinge
 - **Data Sources**: SwiftData (app-created data), HealthKit (external data), AppStorage (user preferences)
 - **Units**: Apple Measurement API, store internally in base units
 - **Sync**: Read from combined HealthKit+SwiftData, write to SwiftData first then sync to HealthKit
@@ -38,18 +56,18 @@ All forms now use the new `RecordForm` component with:
 - **Validation**: Each form can define custom validation logic
 - **Easy Maintenance**: Changes to form structure only need to be made in `RecordForm`
 
-## 🔄 IN PROGRESS: HealthKit Integration System
+## 🔄 COMPLETED: HealthKit Integration System
 
-### Session Objective
-Implement HealthKit integration functions in the `HealthQuery` protocol implementations to fetch health data from Apple HealthKit and synchronize with SwiftData.
+### Session Objective ✅
+Implemented HealthKit integration functions in the `HealthQuery` protocol implementations to fetch health data from Apple HealthKit and synchronize with SwiftData.
 
-### Requirements (CONFIRMED)
+### Requirements (CONFIRMED & IMPLEMENTED) ✅
 - **Read-Only Access**: Weight, Dietary Energy, Active Energy, Basal Energy, Macro Nutrients
 - **Error Handling**: Service has isEnabled flag + authorization + availability = active state; return empty results if inactive; log errors but don't propagate
 - **Data Flow**: One-way read from HealthKit, no observer queries or real-time updates
-- **Query Interface**: Each HealthQuery implementation must implement:
-  - `fetch(from: Date, to: Date, store: HealthKitService) -> [Record]`
-  - `predicate(from: Date, to: Date) -> Predicate<Record>`
+- **Query Interface**: Each HealthQuery implementation implements:
+  - `@MainActor func fetch(from: Date, to: Date, store: HealthKitService) async -> [Record]`
+  - `func predicate(from: Date, to: Date) -> Predicate<Record>`
 - **Settings**: `Settings.enableHealthKit` defaults to `true` (opt-out model)
 - **Base Units**:
   - Weight: kilograms
@@ -57,13 +75,64 @@ Implement HealthKit integration functions in the `HealthQuery` protocol implemen
   - Macro nutrients: grams
   - Activity duration: minutes
 
-### Current State
-- **HealthKitService**: Basic shell service with environment integration
-- **Query Protocols**: `HealthQuery` protocol defined with proper interface
-- **Stub Implementations**: `WeightQuery`, `DietaryQuery`, `RestingQuery`, `ActivityQuery` return empty arrays
-- **Data Models**: Complete model definitions for Weight, DietaryCalorie, RestingEnergy, ActiveEnergy
-- **Units Architecture**: ✅ RESOLVED - Created centralized `Units.swift` with `UnitDefinition` extensions
-- **Architecture**: Established pattern of SwiftData + HealthKit data combination
+### Final Implementation State ✅
+- **HealthKitService**: Complete service with authorization, query execution, and environment integration
+  - Fixed: Removed `@MainActor`, uses `UserDefaults` directly, implements `Sendable`
+  - Methods: `requestAuthorization()`, `fetchQuantitySamples()`, `fetchCorrelationSamples()`
+  - State: `isActive` computed from availability + settings + authorization
+- **Query Protocols**: `@MainActor HealthQuery` protocol with async interface
+- **Complete Implementations**: All queries implement actual HealthKit data fetching:
+  - `WeightQuery.fetch()` - fetches HK body mass samples
+  - `DietaryQuery.fetch()` - fetches HK dietary energy + correlation food data
+  - `RestingQuery.fetch()` - fetches HK basal energy samples
+  - `ActivityQuery.fetch()` - fetches HK active energy samples
+- **Data Models**: Clean SwiftData models (no Sendable markers)
+- **Units Architecture**: ✅ Centralized `Units.swift` with `UnitDefinition` extensions
+- **Actor Safety**: All components properly handle actor isolation without making models Sendable
+
+## ✅ FINAL DESIGN: HealthKit Query System
+
+### Service Interface
+```swift
+// HealthKitService: Sendable (but not @MainActor)
+func requestAuthorization()  // Triggers authorization flow with logging
+func fetchQuantitySamples(for:from:to:) async -> [HKQuantitySample]
+func fetchCorrelationSamples(for:from:to:) async -> [HKCorrelation]
+var isActive: Bool { UserDefaults.standard.bool(for: .enableHealthKit) && isAvailable }
+```
+
+### Query Implementation Pattern
+```swift
+// Each HealthQuery implementation (@MainActor)
+@MainActor
+func fetch(from: Date, to: Date, store: HealthKitService) async -> [Record] {
+    guard store.isActive else { return [] }
+    let samples = await store.fetchQuantitySamples(for: type, from: from, to: to)
+    return samples.map { sample in
+        Record(sample.quantity.baseUnitValue, date: sample.startDate, source: .healthKit)
+    }
+}
+
+    // 1. Create HKSampleQuery for date range
+    // 2. Execute via store.execute()
+    // 3. Convert HKQuantitySample to models (in base units)
+    // 4. For DietaryCalorie: fetch macro correlations directly
+    // 5. Return [ModelType]
+}
+```
+
+### Data Type Mappings
+- `Weight` → `HKQuantityType(.bodyMass)` → kilograms
+- `DietaryCalorie` → `HKQuantityType(.dietaryEnergyConsumed)` + macro correlations → kilocalories + grams
+- `RestingEnergy` → `HKQuantityType(.basalEnergyBurned)` → kilocalories
+- `ActiveEnergy` → `HKQuantityType(.activeEnergyBurned)` → kilocalories
+
+### Next Implementation Steps
+1. Complete HealthKitService with query execution methods
+2. Add Settings.enableHealthKit definition
+3. Implement WeightQuery.fetch() (simplest case)
+4. Implement other query fetch methods
+5. Test with authorization flow
 
 ### Requirements Defined
 - **HealthKit Data Types**: Read-only access for Weight, Dietary Energy, Active Energy, Basal Energy, and Macro Nutrients

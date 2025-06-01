@@ -52,7 +52,7 @@ extension Image {
     // Data Sources
     static var local: Image? { nil }
     static var cloud: Image { .init(systemName: "icloud.fill") }
-    static var healthKit: Image { .init(systemName: "heart.circle.fill") }
+    static var healthKit: Image { .init(systemName: "heart.fill") }
 }
 
 // MARK: Miscellaneous

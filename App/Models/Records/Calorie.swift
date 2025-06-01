@@ -12,7 +12,7 @@ public protocol Calorie: HealthRecord {
 }
 
 /// Represents macro-nutrient breakdown of calories.
-public struct CalorieMacros: Codable, Hashable {
+public struct CalorieMacros: Codable, Hashable, Sendable {
     /// Protein contents in grams.
     public var protein: Double?
     /// Fat contents in grams.

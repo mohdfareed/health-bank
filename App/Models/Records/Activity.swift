@@ -2,7 +2,7 @@ import Foundation
 import SwiftData
 
 /// The workout types.
-public enum WorkoutType: String, Codable, CaseIterable {
+public enum WorkoutType: String, Codable, CaseIterable, Sendable {
     case cardio, weightlifting, cycling, walking, running, other
 }
 

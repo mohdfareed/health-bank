@@ -10,6 +10,8 @@ struct SettingsView: View {
             Form {
                 Section(header: Text("General Settings")) {
                     GeneralSettings()
+                    LocalizationSettings()
+                    HealthKitSettings()
                 }
 
                 GoalView(goalsID)
@@ -57,21 +59,20 @@ struct GeneralSettings: View {
         ) { Text(self.theme.localized) }
         .pickerStyle(.automatic)
 
-        Toggle(isOn: self.$notifications.defaulted(to: false)) {
-            Label(
-                "Enable notifications",
-                systemImage: "bell"
-            ).labelStyle(.automatic)
-        }
+        // TODO: Implement notifications and biometrics settings
+        // Toggle(isOn: self.$notifications.defaulted(to: false)) {
+        //     Label(
+        //         "Enable notifications",
+        //         systemImage: "bell"
+        //     ).labelStyle(.automatic)
+        // }
 
-        Toggle(isOn: self.$biometrics.defaulted(to: false)) {
-            Label(
-                "Enable biometrics",
-                systemImage: "faceid"
-            ).labelStyle(.automatic)
-        }
-
-        LocalizationSettings()
+        // Toggle(isOn: self.$biometrics.defaulted(to: false)) {
+        //     Label(
+        //         "Enable biometrics",
+        //         systemImage: "faceid"
+        //     ).labelStyle(.automatic)
+        // }
     }
 }
 
@@ -102,6 +103,29 @@ private struct LocalizationSettings: View {
             }
         ) {
             Text(self.locale.firstDayOfWeek.abbreviated)
+        }
+    }
+}
+
+private struct HealthKitSettings: View {
+    @Environment(\.healthKit)
+    private var healthKitService
+
+    @AppStorage(.enableHealthKit)
+    private var enableHealthKit: Bool
+
+    var body: some View {
+        Toggle(isOn: self.$enableHealthKit) {
+            Label {
+                Text("Enable HealthKit")
+            } icon: {
+                Image.healthKit
+            }
+        }
+        .onChange(of: self.enableHealthKit) { _, newValue in
+            if newValue {
+                healthKitService.requestAuthorization()
+            }
         }
     }
 }

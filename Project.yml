@@ -95,7 +95,7 @@ targets:
         NSHealthShareUsageDescription: |
           Show your Apple Health data in the app.
         NSHealthUpdateUsageDescription: |
-          Backup your app data to Apple Health.
+          Backup your local data to Apple Health.
         UISupportedInterfaceOrientations:
           - UIInterfaceOrientationPortrait
           - UIInterfaceOrientationPortraitUpsideDown
