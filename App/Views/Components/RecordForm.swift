@@ -9,7 +9,6 @@ struct RecordForm<R: HealthRecord & PersistentModel, Content: View>: View {
     let title: String.LocalizationValue
     let record: R
     @State private var date: Date
-    @Binding private var isValid: Bool
     @ViewBuilder let content: () -> Content
 
     init(
@@ -18,8 +17,6 @@ struct RecordForm<R: HealthRecord & PersistentModel, Content: View>: View {
         @ViewBuilder content: @escaping () -> Content
     ) {
         self._date = State(initialValue: record.date)
-        self._isValid = isValid
-
         self.title = title
         self.record = record
         self.content = content
@@ -40,6 +37,9 @@ struct RecordForm<R: HealthRecord & PersistentModel, Content: View>: View {
                             Image(systemName: "calendar")
                                 .foregroundStyle(.gray)
                         }
+                    }
+                    .onChange(of: date) {
+                        saveRecord()
                     }
                 }
 
@@ -67,14 +67,6 @@ struct RecordForm<R: HealthRecord & PersistentModel, Content: View>: View {
             }
             .disabled(record.source != .local)
             .navigationTitle(String(localized: title))
-            .toolbar {
-                ToolbarItem(placement: .confirmationAction) {
-                    if record.source == .local {
-                        Button("Save") { saveRecord() }
-                            .disabled(!isValid)
-                    }
-                }
-            }
             .confirmationDialog(
                 "Delete \(String(localized: title)) Record",
                 isPresented: $showConfirmation,

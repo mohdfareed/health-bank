@@ -48,7 +48,7 @@ struct MeasurementField<Unit: Dimension>: View {
             } icon: {
                 Image(systemName: "arrow.clockwise")
             }.tag(nil as Unit?)
-        }.labelsHidden()
+        }.labelsHidden().environment(\.isEnabled, true)
     }
 
     private var isValid: Bool {

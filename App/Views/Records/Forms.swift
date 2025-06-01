@@ -19,7 +19,7 @@ enum FormDefinition {
                 RecordField(
                     FieldDefinition.dietaryCalorie,
                     value: $weight.weight.optional(0),
-                    source: weight.source, computed: nil
+                    source: weight.source,
                 )
             )
         }
@@ -69,12 +69,12 @@ enum FormDefinition {
                     RecordField(
                         FieldDefinition.calorie,
                         value: $calorie.calories.optional(0),
-                        source: calorie.source, computed: nil
+                        source: calorie.source,
                     )
                     RecordField(
                         FieldDefinition.activity,
                         value: $calorie.duration,
-                        source: calorie.source, computed: nil
+                        source: calorie.source, showPicker: true,
                     )
                 }
             )
@@ -88,7 +88,7 @@ enum FormDefinition {
                 RecordField(
                     FieldDefinition.calorie,
                     value: $calorie.calories.optional(0),
-                    source: calorie.source, computed: nil
+                    source: calorie.source,
                 )
             )
         }

@@ -18,7 +18,3 @@ struct AppView: View {
         .preferredColorScheme(self.theme.colorScheme)
     }
 }
-
-#Preview {
-    AppView()
-}

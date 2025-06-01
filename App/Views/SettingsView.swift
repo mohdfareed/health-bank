@@ -105,9 +105,3 @@ private struct LocalizationSettings: View {
         }
     }
 }
-
-#Preview {
-    SettingsView().modelContainer(
-        for: [UserGoals.self], inMemory: true
-    )
-}
