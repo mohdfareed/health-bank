@@ -9,7 +9,7 @@ import SwiftUI
 
 /// Service for querying HealthKit data with model-specific query methods.
 public final class HealthKitService: Sendable {
-    public typealias WorkoutType = HKWorkoutActivityType
+    public static let AppSource = AppName
 
     private let logger = AppLogger.new(for: HealthKitService.self)
     private let store = HKHealthStore()
@@ -191,6 +191,13 @@ extension View {
 
 // MARK: Extensions
 // ============================================================================
+
+extension HKSource {
+    /// Returns the data source of the HealthKit source.
+    var dataSource: DataSource {
+        return self.name == AppName ? .local : .healthKit
+    }
+}
 
 extension Set<HKSample> {
     func sum(as unit: HKUnit) -> Double? {

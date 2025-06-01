@@ -72,27 +72,26 @@ extension MeasurementSystem {
     }
 }
 
-extension WorkoutType {
+extension WorkoutActivity {
     var localized: String {
-        let name =
-            switch self {
-            case .walking, .running, .hiking, .stairClimbing, .elliptical,
-                .mixedCardio, .mixedMetabolicCardioTraining,
-                .highIntensityIntervalTraining:
-                "cardio"
-            case .functionalStrengthTraining, .traditionalStrengthTraining:
-                "weight lifting"
-            case .cycling:
-                "cycling"
-            case .dance, .danceInspiredTraining, .cardioDance, .socialDance:
-                "dancing"
-            case .boxing:
-                "boxing"
-            case .martialArts:
-                "martial arts"
-            default:
-                "Workout"
-            }
-        return String(name).localizedCapitalized
+        switch self {
+        case .cardio:
+            return String(localized: "cardio").localizedCapitalized
+        case .cycling:
+            return String(localized: "cycling").localizedCapitalized
+        case .swimming:
+            return String(localized: "swimming").localizedCapitalized
+        case .weightlifting:
+            return String(localized: "weightlifting").localizedCapitalized
+        case .dancing:
+            return String(localized: "dancing").localizedCapitalized
+        case .boxing:
+            return String(localized: "boxing").localizedCapitalized
+        case .martialArts:
+            return String(localized: "martial arts").localizedCapitalized
+        case .other:
+            return String(localized: "other").localizedCapitalized
+        }
+
     }
 }

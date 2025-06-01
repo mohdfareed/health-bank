@@ -60,8 +60,10 @@ extension Image {
         .init(systemName: "figure.strengthtraining.traditional")
     }
     static var cycling: Image { .init(systemName: "figure.outdoor.cycle") }
+    static var swimming: Image { .init(systemName: "figure.swim") }
     static var dancing: Image { .init(systemName: "figure.dance") }
     static var boxing: Image { .init(systemName: "figure.boxing") }
+    static var martialArts: Image { .init(systemName: "figure.kickboxing") }
 }
 
 // MARK: Miscellaneous
@@ -94,23 +96,25 @@ extension DataSource {
     }
 }
 
-extension WorkoutType {
+extension WorkoutActivity {
     var icon: Image {
         switch self {
-        case .walking, .running, .hiking, .stairClimbing, .elliptical,
-            .mixedCardio, .mixedMetabolicCardioTraining,
-            .highIntensityIntervalTraining:
+        case .cardio:
             return .cardio
-        case .functionalStrengthTraining, .traditionalStrengthTraining:
-            return .weightlifting
         case .cycling:
             return .cycling
-        case .dance, .danceInspiredTraining, .cardioDance, .socialDance:
+        case .swimming:
+            return .swimming
+        case .weightlifting:
+            return .weightlifting
+        case .dancing:
             return .dancing
-        case .boxing, .martialArts:
+        case .boxing:
             return .boxing
-        default:
-            return .activeCalorie  // Fallback icon
+        case .martialArts:
+            return .boxing
+        case .other:
+            return .activeCalorie
         }
     }
 }

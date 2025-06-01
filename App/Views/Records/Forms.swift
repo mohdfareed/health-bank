@@ -77,7 +77,7 @@ enum FormDefinition {
                         source: calorie.source, showPicker: true,
                     )
                     Picker(selection: $calorie.workout) {
-                        ForEach(WorkoutType.allCases, id: \.self) {
+                        ForEach(WorkoutActivity.allCases, id: \.self) {
                             Text($0.localized).tag($0)
                         }
                     } label: {

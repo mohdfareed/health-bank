@@ -3,24 +3,9 @@ import HealthKit
 import SwiftData
 
 /// The workout types.
-public typealias WorkoutType = HealthKitService.WorkoutType
-extension WorkoutType: @retroactive CaseIterable, @retroactive Hashable {
-    public static var allCases: [Self] {
-        return [
-            // cardio
-            .walking, .running, .hiking, .stairClimbing, .elliptical,
-            .mixedCardio, .mixedMetabolicCardioTraining,
-            .highIntensityIntervalTraining,
-            // weight lifting
-            .functionalStrengthTraining, .traditionalStrengthTraining,
-            // cycling
-            .cycling,
-            // dance
-            .dance, .danceInspiredTraining, .cardioDance, .socialDance,
-            // martial arts
-            .boxing, .martialArts,
-        ]
-    }
+public enum WorkoutActivity: Codable, CaseIterable, Hashable {
+    case cardio, cycling, swimming, weightlifting
+    case dancing, boxing, martialArts, other
 }
 
 /// Represents active energy expenditure from physical activity.
@@ -33,20 +18,16 @@ extension WorkoutType: @retroactive CaseIterable, @retroactive Hashable {
     public var duration: TimeInterval?
 
     /// The workout type.
-    public var workout: WorkoutType? {
-        get { workoutType.flatMap(WorkoutType.init(rawValue:)) }
-        set { workoutType = newValue?.rawValue }
-    }
-    private var workoutType: UInt?
+    public var workout: WorkoutActivity?
 
     public init(
         _ value: Double, date: Date = Date(), source: DataSource = .local,
-        duration: TimeInterval? = nil, workout: WorkoutType? = nil,
+        duration: TimeInterval? = nil, workout: WorkoutActivity? = nil,
     ) {
         self.calories = value
         self.date = date
         self.duration = duration
-        self.workoutType = workout?.rawValue
+        self.workout = workout
         self.source = source
     }
 }

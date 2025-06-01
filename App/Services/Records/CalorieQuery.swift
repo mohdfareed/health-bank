@@ -36,7 +36,8 @@ struct DietaryQuery: HealthQuery {
 
             let calorie = DietaryCalorie(
                 totalCalories ?? 0,
-                date: correlation.startDate, source: .healthKit,
+                date: correlation.startDate,
+                source: correlation.source.dataSource,
                 macros: .init(p: totalProtein, f: totalFat, c: totalCarbs)
             )
 
@@ -85,8 +86,9 @@ struct RestingQuery: HealthQuery {
             let calories = UnitDefinition.calorie.asBase(
                 caloriesInKcal, from: .kilocalories
             )
-            return RestingEnergy(  // TODO: Set source properly (requires syncing)
-                calories, date: sample.startDate, source: .healthKit
+            return RestingEnergy(
+                calories, date: sample.startDate,
+                source: sample.source.dataSource
             )
         }
     }

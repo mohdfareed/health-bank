@@ -1,4 +1,4 @@
-# Health Bank - Development Knowledge Base
+# HealthBank - Development Knowledge Base
 
 #### Requirements (CONFIRMED)
 - **Read-Only Access**: Weight, Dietary Energy, Active Energy, Basal Energy, Macro Nutrients
@@ -40,7 +40,7 @@ All forms now use the new `RecordForm` component with:
 - **2-section structure**: "Data" section for form fields, "Data Source" section showing source icon and name
 - **Automatic date handling**: `RecordForm` handles date picker in "Details" section
 - **Consistent validation**: Each form provides validation logic through `isValid` binding
-- **Data source display**: Shows HealthKit icon + "HealthKit" or local + "Health Bank" text
+- **Data source display**: Shows HealthKit icon + "HealthKit" or local + "HealthBank" text
 - **Unified save/delete**: `RecordForm` handles common form actions and navigation
 
 ### Updated Forms

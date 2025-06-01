@@ -22,7 +22,8 @@ struct ActivityQuery: HealthQuery {
 
             return ActiveEnergy(
                 calories, date: workout.startDate,
-                source: .healthKit, duration: duration, workout: activity
+                source: workout.source.dataSource, duration: duration,
+                workout: .init(from: activity)
             )
         }
     }
@@ -32,6 +33,40 @@ struct ActivityQuery: HealthQuery {
     ) -> Predicate<ActiveEnergy> {
         return #Predicate<ActiveEnergy> {
             from <= $0.date && $0.date <= to
+        }
+    }
+}
+
+extension WorkoutActivity {
+    fileprivate var hkActivity: HKWorkoutActivityType {
+        switch self {
+        case .cardio: return .traditionalStrengthTraining
+        case .cycling: return .cycling
+        case .swimming: return .swimming
+        case .weightlifting: return .traditionalStrengthTraining
+        case .dancing: return .dance
+        case .martialArts: return .martialArts
+        case .boxing: return .boxing
+        case .other: return .other
+        }
+    }
+
+    fileprivate init(from hkActivity: HKWorkoutActivityType) {
+        switch hkActivity {
+        case .traditionalStrengthTraining, .functionalStrengthTraining:
+            self = .weightlifting
+        case .cycling:
+            self = .cycling
+        case .swimming:
+            self = .swimming
+        case .dance, .danceInspiredTraining, .cardioDance, .socialDance:
+            self = .dancing
+        case .martialArts:
+            self = .martialArts
+        case .boxing:
+            self = .boxing
+        default:
+            self = .other
         }
     }
 }
