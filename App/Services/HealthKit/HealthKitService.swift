@@ -36,6 +36,7 @@ extension HealthKitService {
             HKQuantityType(.dietaryProtein),
             HKQuantityType(.dietaryCarbohydrates),
             HKQuantityType(.dietaryFatTotal),
+            HKWorkoutType.workoutType(),
         ]
 
         store.requestAuthorization(
@@ -185,5 +186,20 @@ extension View {
     /// Sets the HealthKit service for the view's environment.
     func healthKit(_ service: HealthKitService) -> some View {
         environment(\.healthKit, service)
+    }
+}
+
+// MARK: Extensions
+// ============================================================================
+
+extension Set<HKSample> {
+    var sum: Double? {
+        guard !isEmpty else { return nil }
+        return reduce(0) {
+            guard let sample = $1 as? HKQuantitySample else {
+                return $0
+            }
+            return $0 + sample.quantity.doubleValue(for: .kilocalorie())
+        }
     }
 }

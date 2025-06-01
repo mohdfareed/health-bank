@@ -3,23 +3,24 @@ import HealthKit
 
 struct ActivityQuery: HealthQuery {
     @MainActor
-    func fetch(from: Date, to: Date, store: HealthKitService) async -> [ActiveEnergy] {
-        let samples = await store.fetchQuantitySamples(
-            for: HKQuantityType(.activeEnergyBurned),
-            from: from, to: to
-        )
+    func fetch(
+        from: Date, to: Date, store: HealthKitService
+    ) async -> [ActiveEnergy] {
+        let workouts = await store.fetchWorkouts(from: from, to: to)
+        return workouts.map { workout in
+            let sample = workout.statistics(
+                for: HKQuantityType(.activeEnergyBurned)
+            )?.sumQuantity()
 
-        return samples.map { sample in
-            let caloriesInKcal = sample.quantity.doubleValue(
-                for: .kilocalorie()
-            )
+            let caloriesInKcal = sample?.doubleValue(for: .kilocalorie()) ?? 0
             let calories = UnitDefinition.calorie.convert(
                 caloriesInKcal, from: .kilocalories
             )
-            return ActiveEnergy(  // TODO: set source properly (requires syncing)
-                calories,
-                date: sample.startDate,
-                source: .healthKit
+            let duration = workout.duration
+
+            return ActiveEnergy(
+                calories, date: workout.startDate,
+                source: .healthKit, duration: duration,
             )
         }
     }

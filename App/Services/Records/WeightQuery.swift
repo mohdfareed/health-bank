@@ -3,7 +3,9 @@ import HealthKit
 
 struct WeightQuery: HealthQuery {
     @MainActor
-    func fetch(from: Date, to: Date, store: HealthKitService) async -> [Weight] {
+    func fetch(
+        from: Date, to: Date, store: HealthKitService
+    ) async -> [Weight] {
         let samples = await store.fetchQuantitySamples(
             for: HKQuantityType(.bodyMass),
             from: from, to: to

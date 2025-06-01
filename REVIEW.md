@@ -78,8 +78,9 @@ Implemented HealthKit integration functions in the `HealthQuery` protocol implem
 ### Final Implementation State ✅
 - **HealthKitService**: Complete service with authorization, query execution, and environment integration
   - Fixed: Removed `@MainActor`, uses `UserDefaults` directly, implements `Sendable`
-  - Methods: `requestAuthorization()`, `fetchQuantitySamples()`, `fetchCorrelationSamples()`
+  - Methods: `requestAuthorization()`, `fetchQuantitySamples()`, `fetchCorrelationSamples()`, `fetchWorkouts()`
   - State: `isActive` computed from availability + settings + authorization
+  - Location: `Services/HealthKit/HealthKitService.swift` (duplicate removed from `Services/`)
 - **Query Protocols**: `@MainActor HealthQuery` protocol with async interface
 - **Complete Implementations**: All queries implement actual HealthKit data fetching:
   - `WeightQuery.fetch()` - fetches HK body mass samples
@@ -98,6 +99,7 @@ Implemented HealthKit integration functions in the `HealthQuery` protocol implem
 func requestAuthorization()  // Triggers authorization flow with logging
 func fetchQuantitySamples(for:from:to:) async -> [HKQuantitySample]
 func fetchCorrelationSamples(for:from:to:) async -> [HKCorrelation]
+func fetchWorkouts(from:to:) async -> [HKWorkout]  // Added for workout duration
 var isActive: Bool { UserDefaults.standard.bool(for: .enableHealthKit) && isAvailable }
 ```
 
@@ -238,3 +240,92 @@ Each `HealthQuery` implementation:
 1. Test current record mapping system in DataView
 2. Replace mock HealthKit service with real implementation
 3. Add real-time updates and observer patterns
+
+## 🔍 APPLE'S HEALTHKIT PATTERNS (RESEARCH FINDINGS)
+
+### Food Correlations (HKCorrelationType.food)
+**Apple's Documentation**: "Food correlations can contain a wide range of dietary information about the food, including information about the fat, protein, carbohydrates, energy, and vitamins consumed."
+
+**Key Insights**:
+- Food correlations use `HKCorrelation.objects` property to access contained nutritional samples
+- Each correlation can contain multiple `HKQuantitySample` objects for different nutrients
+- Correlations are queried using `HKCorrelationQuery` or `fetchCorrelationSamples`
+- Individual samples within correlation accessed via `correlation.objects` property
+
+### Workout Data (HKWorkout)
+**Apple's Documentation**: "A workout is a container for these types of information, taken as a collection of samples."
+
+**Key Insights**:
+- HKWorkout has `duration` property (calculated from start/end times)
+- HKWorkout can include `totalEnergyBurned` as `HKQuantity`
+- Workouts are queried using standard `HKSampleQuery` with `HKObjectType.workoutType()`
+- Active energy samples are separate from workout objects but can be correlated by time
+
+### Recommended Patterns
+1. **Food Data**: Query correlations, then extract individual nutrient samples from `objects` property
+2. **Workout Data**: Query workouts separately, match with active energy by time overlap
+3. **Missing Data**: Return entries with available data, use nil/optional for missing values
+
+### ✅ CONFIRMED DESIGN APPROACH
+
+Based on Apple's HealthKit documentation patterns:
+
+#### **1. Food Correlations (DietaryQuery)**
+- Query `HKCorrelationType.food` correlations using existing `fetchCorrelationSamples()`
+- Extract nutritional data from `correlation.objects` property
+- Set macro fields to nil when not present in correlation
+- No manual timestamp matching required (HealthKit handles correlation internally)
+
+#### **2. Workout Data (ActivityQuery)**
+- Query `HKWorkout` objects using existing `fetchWorkouts()`
+- HealthKit associates energy with workouts internally
+- Set duration to nil when no workout data available
+- No manual matching between energy and workouts required
+
+#### **3. Authorization Pattern**
+- Add individual nutrient quantity types to authorization:
+  - `HKQuantityType(.dietaryProtein)`
+  - `HKQuantityType(.dietaryCarbohydrates)`
+  - `HKQuantityType(.dietaryFatTotal)`
+- Add `HKWorkoutType` for workout queries
+- Do NOT request `HKCorrelationType.food` directly (per Apple docs)
+
+## 🚀 IMPLEMENTATION TASKS
+
+### ✅ Priority 1: Authorization Updates
+- [x] Add macro nutrient quantity types to HealthKitService authorization
+- [x] Add HKWorkoutType to authorization request
+
+### ✅ Priority 2: DietaryQuery Enhancement
+- [x] Update fetch() to query food correlations
+- [x] Extract macro nutrients from correlation.objects
+- [x] Populate DietaryCalorie with macro data (nil when missing)
+
+### ✅ Priority 3: ActivityQuery Enhancement
+- [x] Update fetch() to query workout data
+- [x] Extract duration from HKWorkout objects
+- [x] Populate ActiveEnergy with duration data (nil when missing)
+
+## ✅ IMPLEMENTATION COMPLETE
+
+### What Was Updated
+
+#### **1. HealthKitService Authorization**
+- Added `HKWorkoutType.workoutType()` to read authorization types
+- Macro nutrient types were already present (dietaryProtein, dietaryCarbohydrates, dietaryFatTotal)
+
+#### **2. DietaryQuery Implementation**
+- Switched from `fetchQuantitySamples` to `fetchCorrelationSamples` for food data
+- Extracts macro nutrients from `correlation.objects` property
+- Populates `CalorieMacros` with protein, fat, carbs (nil when missing)
+- Returns `DietaryCalorie` objects with complete nutritional data
+
+#### **3. ActivityQuery Implementation**
+- Added workout data fetching using `fetchWorkouts()`
+- Matches energy samples with overlapping workouts by time
+- Extracts duration and workout type from HKWorkout objects
+- Added `HKWorkoutActivityType.toWorkoutType()` extension for type mapping
+- Returns `ActiveEnergy` objects with duration and workout type (nil when missing)
+
+### Build Status: ✅ SUCCESS
+All changes compile successfully and follow Apple's documented HealthKit patterns.
