@@ -109,4 +109,14 @@ enum FieldDefinition {
         validator: { $0 >= 0 },
         formatter: .number.precision(.fractionLength(0))
     )
+
+    // Alt Activity Duration
+    static let duration = RecordFieldDefinition<UnitDuration>(
+        title: "Duration",
+        image: .duration,
+        tint: .duration,
+        unitDefinition: .activity,
+        validator: { $0 >= 0 },
+        formatter: .number.precision(.fractionLength(0))
+    )
 }

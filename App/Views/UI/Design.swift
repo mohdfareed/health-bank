@@ -60,7 +60,7 @@ extension Image {
         .init(systemName: "figure.strengthtraining.traditional")
     }
     static var cycling: Image { .init(systemName: "figure.outdoor.cycle") }
-    static var swimming: Image { .init(systemName: "figure.swim") }
+    static var swimming: Image { .init(systemName: "figure.pool.swim") }
     static var dancing: Image { .init(systemName: "figure.dance") }
     static var boxing: Image { .init(systemName: "figure.boxing") }
     static var martialArts: Image { .init(systemName: "figure.kickboxing") }

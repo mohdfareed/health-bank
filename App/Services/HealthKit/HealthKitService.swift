@@ -195,7 +195,7 @@ extension View {
 extension HKSource {
     /// Returns the data source of the HealthKit source.
     var dataSource: DataSource {
-        return self.name == AppName ? .local : .healthKit
+        return self.bundleIdentifier == appID ? .local : .healthKit
     }
 }
 

@@ -37,7 +37,7 @@ struct DietaryQuery: HealthQuery {
             let calorie = DietaryCalorie(
                 totalCalories ?? 0,
                 date: correlation.startDate,
-                source: correlation.source.dataSource,
+                source: correlation.sourceRevision.source.dataSource,
                 macros: .init(p: totalProtein, f: totalFat, c: totalCarbs)
             )
 
@@ -88,7 +88,7 @@ struct RestingQuery: HealthQuery {
             )
             return RestingEnergy(
                 calories, date: sample.startDate,
-                source: sample.source.dataSource
+                source: sample.sourceRevision.source.dataSource
             )
         }
     }

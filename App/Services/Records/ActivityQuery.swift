@@ -22,8 +22,8 @@ struct ActivityQuery: HealthQuery {
 
             return ActiveEnergy(
                 calories, date: workout.startDate,
-                source: workout.source.dataSource, duration: duration,
-                workout: .init(from: activity)
+                source: workout.sourceRevision.source.dataSource,
+                duration: duration, workout: .init(from: activity)
             )
         }
     }
@@ -44,7 +44,7 @@ extension WorkoutActivity {
         case .cycling: return .cycling
         case .swimming: return .swimming
         case .weightlifting: return .traditionalStrengthTraining
-        case .dancing: return .dance
+        case .dancing: return .cardioDance
         case .martialArts: return .martialArts
         case .boxing: return .boxing
         case .other: return .other

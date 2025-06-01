@@ -15,7 +15,8 @@ struct DetailedRow<
 
     var body: some View {
         LabeledContent {
-            content().contentTransition(.numericText()).fixedSize()
+            content().contentTransition(.numericText())
+                .frame(maxHeight: 8).fixedSize()
         } label: {
             Label {
                 HStack(spacing: 6) {

@@ -21,7 +21,7 @@ struct WeightQuery: HealthQuery {
             )
             return Weight(
                 weight, date: sample.startDate,
-                source: sample.source.dataSource
+                source: sample.sourceRevision.source.dataSource
             )
         }
     }

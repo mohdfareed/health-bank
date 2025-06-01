@@ -25,7 +25,7 @@ struct MeasurementField<Unit: Dimension>: View {
                     }
                 }
             if showPicker && $measurement.availableUnits().count > 1 {
-                picker.frame(maxWidth: 8, maxHeight: 8).fixedSize()
+                picker.frame(maxWidth: 12, maxHeight: 8).fixedSize()
             }
         }
         .animation(.default, value: measurement)

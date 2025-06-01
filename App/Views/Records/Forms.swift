@@ -72,17 +72,33 @@ enum FormDefinition {
                         source: calorie.source,
                     )
                     RecordField(
-                        FieldDefinition.activity,
+                        FieldDefinition.duration,
                         value: $calorie.duration,
                         source: calorie.source, showPicker: true,
                     )
+
                     Picker(selection: $calorie.workout) {
-                        ForEach(WorkoutActivity.allCases, id: \.self) {
-                            Text($0.localized).tag($0)
+                        ForEach(
+                            WorkoutActivity.allCases, id: \.self
+                        ) { activity in
+                            Label {
+                                Text(activity.localized)
+                            } icon: {
+                                activity.icon
+                            }.tag(activity)
                         }
                     } label: {
-                        Text("Activity")
+                        Label {
+                            Text("Activity")
+                        } icon: {
+                            Image.activeCalorie
+                                .foregroundStyle(Color.activeCalorie)
+                        }
                     }
+                    .contentTransition(
+                        .symbolEffect(.replace)
+                    )
+                    .frame(maxHeight: 8)
                 }
             )
         }
