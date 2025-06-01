@@ -28,7 +28,7 @@ where R: HealthRecord, U: Dimension, S: View, Destination: View {
         NavigationLink(destination: destination()) {
             DetailedRow(image: field.image, tint: field.tint) {
                 let unit = Text(measurement.unit.symbol).textScale(.secondary)
-                Text("\(measurement.value.formatted(field.formatter))\(unit)")
+                Text("\(measurement.value.formatted(field.formatter)) \(unit)")
             } subtitle: {
                 DateView(date: record.date)
             } details: {

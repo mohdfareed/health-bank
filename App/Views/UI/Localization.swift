@@ -74,13 +74,25 @@ extension MeasurementSystem {
 
 extension WorkoutType {
     var localized: String {
-        switch self {
-        case .cardio: return String(localized: "cardio").localizedCapitalized
-        case .weightlifting:
-            return String(localized: "weight lifting").localizedCapitalized
-        case .cycling: return String(localized: "cycling").localizedCapitalized
-        case .dancing: return String(localized: "dancing").localizedCapitalized
-        case .boxing: return String(localized: "boxing").localizedCapitalized
-        }
+        let name =
+            switch self {
+            case .walking, .running, .hiking, .stairClimbing, .elliptical,
+                .mixedCardio, .mixedMetabolicCardioTraining,
+                .highIntensityIntervalTraining:
+                "cardio"
+            case .functionalStrengthTraining, .traditionalStrengthTraining:
+                "weight lifting"
+            case .cycling:
+                "cycling"
+            case .dance, .danceInspiredTraining, .cardioDance, .socialDance:
+                "dancing"
+            case .boxing:
+                "boxing"
+            case .martialArts:
+                "martial arts"
+            default:
+                "Workout"
+            }
+        return String(name).localizedCapitalized
     }
 }

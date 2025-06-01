@@ -66,7 +66,7 @@ struct RecordForm<R: HealthRecord & PersistentModel, Content: View>: View {
                     }
                 }
             }
-            .scrollDismissesKeyboard(.automatic)
+            .scrollDismissesKeyboard(.immediately)
             .disabled(record.source != .local)
             .navigationTitle(String(localized: title))
             .confirmationDialog(

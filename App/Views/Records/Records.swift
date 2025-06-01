@@ -43,7 +43,6 @@ enum RecordDefinition {
         subtitle: {
             @Bindable var calorie = $0
             let macros = $calorie.macros.defaulted(to: .init())
-
             let protein = FieldDefinition.protein.measurement(
                 macros.protein
             )
@@ -112,7 +111,8 @@ enum RecordDefinition {
                         Spacer().frame(maxWidth: 8)
                     }
                     if calorie.workout != nil {
-                        calorie.workout?.icon.tint(.activeCalorie)
+                        calorie.workout?.icon.asText
+                            .foregroundStyle(Color.activeCalorie)
                         Spacer().frame(maxWidth: 8)
                     }
                 }

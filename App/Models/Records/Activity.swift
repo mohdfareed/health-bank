@@ -3,6 +3,7 @@ import SwiftData
 
 /// The workout types.
 public typealias WorkoutType = HealthKitService.WorkoutType
+extension WorkoutType: Codable, @retroactive Hashable {}
 
 /// Represents active energy expenditure from physical activity.
 @Model public final class ActiveEnergy: Calorie {
@@ -12,8 +13,13 @@ public typealias WorkoutType = HealthKitService.WorkoutType
 
     /// The workout duration.
     public var duration: TimeInterval?
+
     /// The workout type.
-    public var workout: WorkoutType?
+    public var workout: WorkoutType? {
+        get { workoutType.flatMap(WorkoutType.init(rawValue:)) }
+        set { workoutType = newValue?.rawValue }
+    }
+    private var workoutType: UInt?
 
     public init(
         _ value: Double, date: Date = Date(), source: DataSource = .local,
@@ -22,7 +28,7 @@ public typealias WorkoutType = HealthKitService.WorkoutType
         self.calories = value
         self.date = date
         self.duration = duration
-        self.workout = workout
+        self.workoutType = workout?.rawValue
         self.source = source
     }
 }

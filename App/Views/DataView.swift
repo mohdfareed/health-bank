@@ -2,6 +2,7 @@ import SwiftData
 import SwiftUI
 
 struct HealthDataView: View {
+    @Environment(\.modelContext) private var context: ModelContext
     @RecordsQuery private var records
 
     @State private var selectedTypes: [HealthRecordCategory] = []
@@ -14,7 +15,7 @@ struct HealthDataView: View {
                 return true  // No filter applied, show all records
             }
             return selectedTypes.contains(where: {
-                $0.record == type(of: record)
+                type(of: $0.record) == type(of: record)
             })
         }
     }
@@ -28,6 +29,10 @@ struct HealthDataView: View {
             }
             .navigationTitle("Health Records")
             .animation(.default, value: selectedTypes)
+
+            .refreshable {
+                await $records.refresh()
+            }
 
             .toolbar {
                 ToolbarItem(placement: .navigation) {
@@ -43,13 +48,33 @@ struct HealthDataView: View {
         }
 
         .sheet(isPresented: $isPresentingForm) {
+            let newRecord = selectedNewType.record
             NavigationStack {
-                selectedNewType.recordSheet
+                HealthRecordCategory.recordSheet(newRecord)
+                    .toolbar {
+                        ToolbarItem(placement: .cancellationAction) {
+                            Button("Cancel") {
+                                isPresentingForm = false
+                            }
+                        }
+                        ToolbarItem(placement: .confirmationAction) {
+                            Button("Save") {
+                                isPresentingForm = false
+                                context.insert(newRecord)
+                                save()
+                            }
+                        }
+                    }
             }
         }
+    }
 
-        .refreshable {
-            await $records.refresh()
+    private func save() {
+        do {
+            try context.save()
+        } catch {
+            AppLogger.new(for: HealthDataView.self)
+                .error("Failed to save model: \(error)")
         }
     }
 }

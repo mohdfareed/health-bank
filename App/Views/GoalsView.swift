@@ -13,26 +13,22 @@ struct GoalView: View {
         Section(header: Text("Daily Calorie Budget")) {
             RecordField(
                 FieldDefinition.dietaryCalorie,
-                value: $goals.calories,
-                source: .local,
+                value: $goals.calories, source: .local,
                 computed: goals.calorieGoal.calculatedCalories
             )
             RecordField(
                 FieldDefinition.protein,
-                value: macros.protein,
-                source: .local,
+                value: macros.protein, source: .local,
                 computed: goals.calorieGoal.calculatedProtein
             )
             RecordField(
                 FieldDefinition.carbs,
-                value: macros.carbs,
-                source: .local,
+                value: macros.carbs, source: .local,
                 computed: goals.calorieGoal.calculatedCarbs
             )
             RecordField(
                 FieldDefinition.fat,
-                value: macros.fat,
-                source: .local,
+                value: macros.fat, source: .local,
                 computed: goals.calorieGoal.calculatedFat
             )
         }
@@ -42,13 +38,11 @@ struct GoalView: View {
         Section(header: Text("Daily Activity Goals")) {
             RecordField(
                 FieldDefinition.calorie,
-                value: $goals.burnedCalories,
-                source: .local
+                value: $goals.burnedCalories, source: .local
             )
             RecordField(
                 FieldDefinition.activity,
-                value: $goals.activity,
-                source: .local
+                value: $goals.activity, source: .local
             )
         }
         .onChange(of: goals) { save() }
@@ -57,8 +51,7 @@ struct GoalView: View {
             RecordField(
                 FieldDefinition.weight,
                 value: $goals.weight,
-                source: .local,
-                showPicker: true
+                source: .local, showPicker: true
             )
         }
         .onChange(of: goals) { save() }

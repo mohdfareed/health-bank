@@ -44,9 +44,8 @@ import SwiftUI
         case let calorie as RestingEnergy:
             RecordDefinition.resting.recordRow(calorie)
         default:
-            let type = type(of: record)
-            let _ = AppLogger.new(for: type.self)
-                .error("Unknown record type: \(type)")
+            let _ = AppLogger.new(for: record)
+                .error("Unknown record type: \(type(of: record))")
             EmptyView()
         }
     }
@@ -61,12 +60,12 @@ enum HealthRecordCategory: String.LocalizationValue, CaseIterable {
     case resting = "Resting Energy"
     case weight = "Weight"
 
-    var record: HealthRecord.Type {
+    var record: any HealthRecord & PersistentModel {
         switch self {
-        case .dietary: return DietaryCalorie.self
-        case .resting: return RestingEnergy.self
-        case .active: return ActiveEnergy.self
-        case .weight: return Weight.self
+        case .dietary: return DietaryCalorie(0)
+        case .resting: return RestingEnergy(0)
+        case .active: return ActiveEnergy(0)
+        case .weight: return Weight(0)
         }
     }
 
@@ -85,31 +84,29 @@ enum HealthRecordCategory: String.LocalizationValue, CaseIterable {
 
 extension HealthRecordCategory {
     @ViewBuilder @MainActor
-    var recordSheet: some View {
-        switch self.record {
-        case is Weight.Type:
-            let weight = Weight(0)
-            RecordForm("Log Weight", record: weight) {
-                FormDefinition.weight.content(weight)
+    static func recordSheet(
+        _ record: any HealthRecord & PersistentModel
+    ) -> some View {
+        switch record {
+        case let record as Weight:
+            RecordForm("Log Weight", record: record) {
+                FormDefinition.weight.content(record)
             }
-        case is DietaryCalorie.Type:
-            let calorie = DietaryCalorie(0)
-            RecordForm("Log Food", record: calorie) {
-                FormDefinition.dietaryCalorie.content(calorie)
+        case let record as DietaryCalorie:
+            RecordForm("Log Food", record: record) {
+                FormDefinition.dietaryCalorie.content(record)
             }
-        case is ActiveEnergy.Type:
-            let calorie = ActiveEnergy(0)
-            RecordForm("Log Activity", record: calorie) {
-                FormDefinition.activeEnergy.content(calorie)
+        case let record as ActiveEnergy:
+            RecordForm("Log Activity", record: record) {
+                FormDefinition.activeEnergy.content(record)
             }
-        case is RestingEnergy.Type:
-            let calorie = RestingEnergy(0)
-            RecordForm("Log Resting Energy", record: calorie) {
-                FormDefinition.restingEnergy.content(calorie)
+        case let record as RestingEnergy:
+            RecordForm("Log Resting Energy", record: record) {
+                FormDefinition.restingEnergy.content(record)
             }
         default:
-            let _ = AppLogger.new(for: self.record.self)
-                .error("Unknown record type: \(self.record)")
+            let _ = AppLogger.new(for: record)
+                .error("Unknown record type: \(type(of: record))")
             EmptyView()
         }
     }
@@ -134,7 +131,7 @@ extension HealthRecordCategory {
                 }
             }
         } label: {
-            Label("Add Record", systemImage: "plus")
+            Label("Add", systemImage: "plus.circle")
         }
     }
 
