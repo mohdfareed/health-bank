@@ -66,11 +66,11 @@ let appID: String = Bundle.main.bundleIdentifier ?? "Debug.App"
     // Active Energy entries
     let activeLocal = ActiveEnergy(
         280, date: Calendar.current.date(byAdding: .hour, value: -1, to: Date())!,
-        source: .local, duration: 2400, workoutType: .running
+        source: .local, duration: 88, workoutType: .running
     )  // 40 min run
     let activeHealthKit = ActiveEnergy(
         180, date: Calendar.current.date(byAdding: .hour, value: -4, to: Date())!,
-        source: .healthKit, duration: 1800, workoutType: .walking
+        source: .healthKit, duration: 35, workoutType: .walking
     )  // 30 min walk
     context.insert(activeLocal)
     context.insert(activeHealthKit)

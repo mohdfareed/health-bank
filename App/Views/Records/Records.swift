@@ -126,7 +126,7 @@ enum RecordDefinition {
     )
 
     static let resting = RecordRowDefinition<RestingEnergy, UnitEnergy>(
-        field: FieldDefinition.restingCalorie,
+        field: FieldDefinition.calorie,
         property: { $0.calories },
         subtitle: { _ in AnyView(EmptyView()) },
         destination: { resting in

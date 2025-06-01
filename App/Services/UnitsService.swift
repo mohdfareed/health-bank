@@ -4,6 +4,12 @@ import SwiftUI
 // ============================================================================
 
 extension UnitDefinition {
+    /// Convert the value from the given unit to the base unit.
+    func convert(_ value: Double, from unit: D) -> Double {
+        Measurement(value: value, unit: unit)
+            .converted(to: self.baseUnit).value
+    }
+
     /// The localized unit for a specific locale.
     func unit(for locale: Locale) -> D {
         if self.usage == .asProvided {

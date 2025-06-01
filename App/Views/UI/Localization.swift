@@ -10,7 +10,9 @@ extension DataSource {
     var localized: String {
         switch self {
         case .local: return AppName
-        case .healthKit: return String(localized: "apple health").localizedCapitalized
+        case .healthKit:
+            return String(localized: "apple health")
+                .localizedCapitalized
         }
     }
 }

@@ -1,6 +1,8 @@
 import SwiftData
 import SwiftUI
 
+// TODO: Add licenses subpage with Apple Health licenses
+
 struct SettingsView: View {
     @AppStorage(.userGoals) var goalsID: UUID
     @State private var reset = false
@@ -117,7 +119,7 @@ private struct HealthKitSettings: View {
     var body: some View {
         Toggle(isOn: self.$enableHealthKit) {
             Label {
-                Text("Enable HealthKit")
+                Text("Apple Health Integration")
             } icon: {
                 Image.healthKit
             }

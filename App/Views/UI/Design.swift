@@ -9,12 +9,12 @@ extension Color {
     static var logoSecondary: Color { .init("LogoSecondary") }
 
     // Records
-    static var calories: Color { .orange }
+    static var calories: Color { .init("Calorie") }
     static var dietaryCalorie: Color { .blue }
     static var activeCalorie: Color { .green }
     static var restingCalorie: Color { .indigo }
-    static var duration: Color { .teal }
-    static var weight: Color { .brown }
+    static var weight: Color { .purple }
+    static var duration: Color { .orange }
 
     // Macros
     static var macros: Color { .indigo }
@@ -36,7 +36,7 @@ extension Image {
     static var logoAlt: Image { .init("LogoAlt") }
 
     // Records
-    static var calories: Image { .init(systemName: "flame") }
+    static var calories: Image { .init(systemName: "flame.fill") }
     static var dietaryCalorie: Image { .init(systemName: "fork.knife") }
     static var activeCalorie: Image { .init(systemName: "figure.run") }
     static var restingCalorie: Image { .init(systemName: "zzz") }
