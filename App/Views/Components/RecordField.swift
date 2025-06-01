@@ -4,7 +4,7 @@ import SwiftUI
 // ============================================================================
 
 struct RecordField<Unit: Dimension, DetailContent: View>: View {
-    let definition: RecordViewDefinition<Unit>
+    let definition: RecordFieldDefinition<Unit>
     @LocalizedMeasurement var measurement: Measurement<Unit>
     let source: DataSource
     let showPicker: Bool
@@ -12,7 +12,7 @@ struct RecordField<Unit: Dimension, DetailContent: View>: View {
     @ViewBuilder let details: () -> DetailContent
 
     init(
-        _ definition: RecordViewDefinition<Unit>,
+        _ definition: RecordFieldDefinition<Unit>,
         value: Binding<Double?>,
         source: DataSource,
         showPicker: Bool = false,
@@ -71,7 +71,7 @@ struct RecordField<Unit: Dimension, DetailContent: View>: View {
 
 extension RecordField where DetailContent == EmptyView {
     init(
-        _ definition: RecordViewDefinition<Unit>,
+        _ definition: RecordFieldDefinition<Unit>,
         value: Binding<Double?>,
         source: DataSource,
         showPicker: Bool = false,

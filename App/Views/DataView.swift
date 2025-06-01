@@ -27,19 +27,19 @@ struct HealthDataView: View {
             List(allRecords, id: \.id) { record in
                 switch record {
                 case let weight as Weight:
-                    UniversalRecordRow(record: weight) {
+                    RecordRow(record: weight) {
                         Text("Weight Detail View - TODO")
                     }
                 case let calorie as DietaryCalorie:
-                    UniversalRecordRow(record: calorie) {
+                    RecordRow(record: calorie) {
                         Text("Calorie Detail View - TODO")
                     }
                 case let active as ActiveEnergy:
-                    UniversalRecordRow(record: active) {
+                    RecordRow(record: active) {
                         Text("Active Energy Detail View - TODO")
                     }
                 case let resting as RestingEnergy:
-                    UniversalRecordRow(record: resting) {
+                    RecordRow(record: resting) {
                         Text("Resting Energy Detail View - TODO")
                     }
                 default:

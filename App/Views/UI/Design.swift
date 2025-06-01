@@ -31,6 +31,7 @@ extension Color {
     static var computedIcon: Color { Color.indigo }
     static var dateIcon: Color { .gray }
     static var resetIcon: Color { .blue }
+    static var unknownIcon: Color { .secondary }
 
     // Actions
     static var editIcon: Color { .blue }
@@ -68,6 +69,7 @@ extension Image {
     static var computedIcon: Image { .init(systemName: "function") }
     static var dateIcon: Image { .init(systemName: "calendar") }
     static var resetIcon: Image { .init(systemName: "arrow.clockwise") }
+    static var unknownIcon: Image { .init(systemName: "questionmark.circle") }
 
     // Actions
     static var editIcon: Image { .init(systemName: "pencil") }

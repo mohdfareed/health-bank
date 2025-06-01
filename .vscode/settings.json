@@ -31,11 +31,14 @@
     "Project.yml",
   ],
   "cSpell.words": [
+    "associatedtype",
     "checkmark",
     "faceid",
     "Macronutrients",
+    "questionmark",
     "refreshable",
     "subheadline",
+    "typealias",
     "xcodegen",
     "xcodeproj",
     "xmark"

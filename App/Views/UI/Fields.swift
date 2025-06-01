@@ -1,10 +1,9 @@
 import SwiftUI
 
-// MARK: Field Definition Registry
+// MARK: Field Definition View
 // ============================================================================
 
-/// Record Field definition that centralizes properties for a health metric.
-struct RecordViewDefinition<Unit: Dimension>: Sendable {
+struct RecordFieldDefinition<Unit: Dimension>: Sendable {
     let title: String.LocalizationValue
     let image: Image
     let tint: Color
@@ -19,12 +18,13 @@ struct RecordViewDefinition<Unit: Dimension>: Sendable {
     }
 }
 
-// MARK: Field Definitions Registry
+// MARK: Field Definitions
 // ============================================================================
 
-enum FieldRegistry {
+/// Record Field definition that centralizes properties for a health metric.
+enum FieldDefinition {
     // Weight
-    static let weight = RecordViewDefinition<UnitMass>(
+    static let weight = RecordFieldDefinition<UnitMass>(
         title: "Weight",
         image: .weight,
         tint: .weight,
@@ -36,7 +36,7 @@ enum FieldRegistry {
     )
 
     // Generic Calories (for goals, etc.)
-    static let calorie = RecordViewDefinition<UnitEnergy>(
+    static let calorie = RecordFieldDefinition<UnitEnergy>(
         title: "Calories",
         image: .calories,
         tint: .calories,
@@ -46,7 +46,7 @@ enum FieldRegistry {
     )
 
     // Dietary Calories
-    static let dietaryCalorie = RecordViewDefinition<UnitEnergy>(
+    static let dietaryCalorie = RecordFieldDefinition<UnitEnergy>(
         title: "Calories",
         image: .dietaryCalorie,
         tint: .dietaryCalorie,
@@ -56,7 +56,7 @@ enum FieldRegistry {
     )
 
     // Active Calories
-    static let activeCalorie = RecordViewDefinition<UnitEnergy>(
+    static let activeCalorie = RecordFieldDefinition<UnitEnergy>(
         title: "Calories",
         image: .activeCalorie,
         tint: .activeCalorie,
@@ -66,7 +66,7 @@ enum FieldRegistry {
     )
 
     // Resting Calories
-    static let restingCalorie = RecordViewDefinition<UnitEnergy>(
+    static let restingCalorie = RecordFieldDefinition<UnitEnergy>(
         title: "Calories",
         image: .restingCalorie,
         tint: .restingCalorie,
@@ -76,7 +76,7 @@ enum FieldRegistry {
     )
 
     // Protein (macros)
-    static let protein = RecordViewDefinition<UnitMass>(
+    static let protein = RecordFieldDefinition<UnitMass>(
         title: "Protein",
         image: .protein,
         tint: .protein,
@@ -86,7 +86,7 @@ enum FieldRegistry {
     )
 
     // Carbs (macros)
-    static let carbs = RecordViewDefinition<UnitMass>(
+    static let carbs = RecordFieldDefinition<UnitMass>(
         title: "Carbohydrates",
         image: .carbs,
         tint: .carbs,
@@ -96,7 +96,7 @@ enum FieldRegistry {
     )
 
     // Fat (macros)
-    static let fat = RecordViewDefinition<UnitMass>(
+    static let fat = RecordFieldDefinition<UnitMass>(
         title: "Fat",
         image: .fat,
         tint: .fat,
@@ -106,7 +106,7 @@ enum FieldRegistry {
     )
 
     // Activity Duration
-    static let activity = RecordViewDefinition<UnitDuration>(
+    static let activity = RecordFieldDefinition<UnitDuration>(
         title: "Duration",
         image: .activeCalorie,
         tint: .activeCalorie,

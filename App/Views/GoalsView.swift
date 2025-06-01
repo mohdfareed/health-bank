@@ -1,7 +1,7 @@
 import SwiftData
 import SwiftUI
 
-struct GoalSettings: View {
+struct GoalView: View {
     @Environment(\.modelContext) private var context: ModelContext
     @Query.Singleton var goals: UserGoals
     init(_ id: UUID) {
@@ -12,25 +12,25 @@ struct GoalSettings: View {
         let macros = $goals.macros.defaulted(to: .init())
         Section(header: Text(String(localized: "Daily Calorie Budget"))) {
             RecordField(
-                FieldRegistry.dietaryCalorie,
+                FieldDefinition.dietaryCalorie,
                 value: $goals.calories,
                 source: .local,
                 computed: goals.calorieGoal.calculatedCalories
             )
             RecordField(
-                FieldRegistry.protein,
+                FieldDefinition.protein,
                 value: macros.protein,
                 source: .local,
                 computed: goals.calorieGoal.calculatedProtein
             )
             RecordField(
-                FieldRegistry.carbs,
+                FieldDefinition.carbs,
                 value: macros.carbs,
                 source: .local,
                 computed: goals.calorieGoal.calculatedCarbs
             )
             RecordField(
-                FieldRegistry.fat,
+                FieldDefinition.fat,
                 value: macros.fat,
                 source: .local,
                 computed: goals.calorieGoal.calculatedFat
@@ -40,12 +40,12 @@ struct GoalSettings: View {
 
         Section(header: Text(String(localized: "Daily Activity Goals"))) {
             RecordField(
-                FieldRegistry.calorie,
+                FieldDefinition.calorie,
                 value: $goals.burnedCalories,
                 source: .local
             )
             RecordField(
-                FieldRegistry.activity,
+                FieldDefinition.activity,
                 value: $goals.activity,
                 source: .local
             )
@@ -54,7 +54,7 @@ struct GoalSettings: View {
 
         Section(header: Text(String(localized: "Target Measurements"))) {
             RecordField(
-                FieldRegistry.weight,
+                FieldDefinition.weight,
                 value: $goals.weight,
                 source: .local,
                 showPicker: true
@@ -67,7 +67,7 @@ struct GoalSettings: View {
         do {
             try context.save()
         } catch {
-            AppLogger.new(for: GoalSettings.self)
+            AppLogger.new(for: GoalView.self)
                 .error("Failed to save model: \(error)")
         }
     }

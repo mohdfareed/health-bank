@@ -23,25 +23,6 @@ extension DataSource {
     }
 }
 
-// MARK: Styles
-// ============================================================================
-
-struct CardStyle: ViewModifier {
-    func body(content: Content) -> some View {
-        content
-            .padding(16)
-            .background(
-                RoundedRectangle(cornerRadius: 12, style: .continuous)
-                    .fill(.thinMaterial)
-            )
-            .overlay(
-                RoundedRectangle(cornerRadius: 12, style: .continuous)
-                    .stroke(Color.gray.opacity(0.2), lineWidth: 1)
-            )
-            .shadow(color: .black.opacity(0.1), radius: 5, x: 0, y: 2)
-    }
-}
-
 // MARK: Logos
 // ============================================================================
 
