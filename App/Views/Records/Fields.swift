@@ -25,9 +25,7 @@ enum FieldDefinition {
         title: "Weight",
         image: .weight,
         tint: .weight,
-        unitDefinition: UnitDefinition(
-            .kilograms, alts: [.pounds], usage: .personWeight
-        ),
+        unitDefinition: .weight,
         validator: { $0 >= 0 },
         formatter: .number.precision(.fractionLength(0))
     )
@@ -37,7 +35,7 @@ enum FieldDefinition {
         title: "Calories",
         image: .calories,
         tint: .calories,
-        unitDefinition: UnitDefinition(.kilocalories, usage: .food),
+        unitDefinition: .calorie,
         validator: { $0 >= 0 },
         formatter: .number.precision(.fractionLength(0))
     )
@@ -47,7 +45,7 @@ enum FieldDefinition {
         title: "Calories",
         image: .dietaryCalorie,
         tint: .dietaryCalorie,
-        unitDefinition: UnitDefinition(.kilocalories, usage: .food),
+        unitDefinition: .calorie,
         validator: { $0 >= 0 },
         formatter: .number.precision(.fractionLength(0))
     )
@@ -57,7 +55,7 @@ enum FieldDefinition {
         title: "Calories",
         image: .activeCalorie,
         tint: .activeCalorie,
-        unitDefinition: UnitDefinition(.kilocalories, usage: .food),
+        unitDefinition: .calorie,
         validator: { $0 >= 0 },
         formatter: .number.precision(.fractionLength(0))
     )
@@ -67,7 +65,7 @@ enum FieldDefinition {
         title: "Calories",
         image: .restingCalorie,
         tint: .restingCalorie,
-        unitDefinition: UnitDefinition(.kilocalories, usage: .food),
+        unitDefinition: .calorie,
         validator: { $0 >= 0 },
         formatter: .number.precision(.fractionLength(0))
     )
@@ -77,7 +75,7 @@ enum FieldDefinition {
         title: "Protein",
         image: .protein,
         tint: .protein,
-        unitDefinition: UnitDefinition(.grams, usage: .asProvided),
+        unitDefinition: .macro,
         validator: { $0 >= 0 },
         formatter: .number.precision(.fractionLength(0))
     )
@@ -87,7 +85,7 @@ enum FieldDefinition {
         title: "Carbohydrates",
         image: .carbs,
         tint: .carbs,
-        unitDefinition: UnitDefinition(.grams, usage: .asProvided),
+        unitDefinition: .macro,
         validator: { $0 >= 0 },
         formatter: .number.precision(.fractionLength(0))
     )
@@ -97,7 +95,7 @@ enum FieldDefinition {
         title: "Fat",
         image: .fat,
         tint: .fat,
-        unitDefinition: UnitDefinition(.grams, usage: .asProvided),
+        unitDefinition: .macro,
         validator: { $0 >= 0 },
         formatter: .number.precision(.fractionLength(0))
     )
@@ -107,9 +105,7 @@ enum FieldDefinition {
         title: "Duration",
         image: .activeCalorie,
         tint: .activeCalorie,
-        unitDefinition: UnitDefinition(
-            .minutes, alts: [.seconds, .hours], usage: .asProvided
-        ),
+        unitDefinition: .activity,
         validator: { $0 >= 0 },
         formatter: .number.precision(.fractionLength(0))
     )

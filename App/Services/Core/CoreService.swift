@@ -6,9 +6,6 @@ import SwiftUI
 
 /// The app's logger factory.
 struct AppLogger {
-    static func new(for category: String) -> Logger {
-        return Logger(subsystem: appID, category: category)
-    }
     static func new<T>(for category: T.Type) -> Logger {
         return Logger(subsystem: appID, category: "\(T.self)")
     }
