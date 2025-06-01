@@ -56,7 +56,7 @@ struct MeasurementField<Unit: Dimension>: View {
             Label {
                 Text("Default")
             } icon: {
-                Image.resetIcon
+                Image(systemName: "arrow.clockwise")
             }.tag(nil as Unit?)
         }.labelsHidden()
     }

@@ -4,12 +4,16 @@ import SwiftUI
 
 struct ValueView<Unit: Dimension>: View {
     @LocalizedMeasurement var measurement: Measurement<Unit>
+    let icon: Image?
     let format: FloatingPointFormatStyle<Double>
 
     var body: some View {
-        Text(
-            $measurement.formatted(width: .abbreviated, format: format)
-        )
+        HStack(alignment: .bottom, spacing: 0) {
+            icon?.asText
+            Text(
+                $measurement.formatted(width: .abbreviated, format: format)
+            )
+        }
     }
 }
 
@@ -17,7 +21,7 @@ struct DateView: View {
     let date: Date?
     var body: some View {
         if let relativeDate = relativeDate {
-            Text("\(Image.dateIcon) \(relativeDate)")
+            Text(relativeDate)
         }
     }
 
@@ -52,10 +56,8 @@ extension LocalizedMeasurement {
         ).converted(to: self.unit.wrappedValue)
 
         let text = measurement.value.formatted(format)
-        let icon = Text(Image.computedIcon)
+        let icon = Image(systemName: "function").asText
             .foregroundStyle(.indigo.secondary)
-            .font(.footnote.bold())
-
         return Text("\(icon): \(text)")
     }
 }

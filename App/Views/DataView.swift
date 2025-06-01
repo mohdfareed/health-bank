@@ -11,8 +11,6 @@ struct HealthDataView: View {
     @UnifiedQuery(WeightQuery())
     var weights: [Weight]
 
-    @State private var reset = false
-
     private var allRecords: [any HealthRecord & PersistentModel] {
         var records = [any HealthRecord & PersistentModel]()
         records.append(contentsOf: dietaryCalories)
@@ -25,34 +23,33 @@ struct HealthDataView: View {
     var body: some View {
         NavigationStack {
             List(allRecords, id: \.id) { record in
-                switch record {
-                case let weight as Weight:
-                    RecordRow(record: weight) {
-                        Text("Weight Detail View - TODO")
-                    }
-                case let calorie as DietaryCalorie:
-                    RecordRow(record: calorie) {
-                        Text("Calorie Detail View - TODO")
-                    }
-                case let active as ActiveEnergy:
-                    RecordRow(record: active) {
-                        Text("Active Energy Detail View - TODO")
-                    }
-                case let resting as RestingEnergy:
-                    RecordRow(record: resting) {
-                        Text("Resting Energy Detail View - TODO")
-                    }
-                default:
-                    EmptyView()
-                }
+                recordRow(record)
             }
+            .navigationTitle("Health Records")
         }
         .refreshable {
-            self.reset = false
             await $dietaryCalories.refresh()
             await $restingCalories.refresh()
             await $activities.refresh()
             await $weights.refresh()
+        }
+    }
+
+    @ViewBuilder func recordRow(_ record: any HealthRecord) -> some View {
+        switch record {
+        case let weight as Weight:
+            RecordDefinition.weight.recordRow(weight)
+        case let calorie as DietaryCalorie:
+            RecordDefinition.dietary.recordRow(calorie)
+        case let calorie as ActiveEnergy:
+            RecordDefinition.active.recordRow(calorie)
+        case let calorie as RestingEnergy:
+            RecordDefinition.resting.recordRow(calorie)
+        default:
+            let type = type(of: record)
+            let _ = AppLogger.new(for: type.self)
+                .error("Unknown record type: \(type)")
+            EmptyView()
         }
     }
 }

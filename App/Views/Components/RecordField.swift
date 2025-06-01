@@ -1,7 +1,6 @@
 import SwiftUI
 
-// MARK: Record Field Component
-// ============================================================================
+// REVIEW: animations
 
 struct RecordField<Unit: Dimension, DetailContent: View>: View {
     let definition: RecordFieldDefinition<Unit>

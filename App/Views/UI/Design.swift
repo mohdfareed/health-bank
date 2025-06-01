@@ -26,17 +26,6 @@ extension Color {
     static var local: Color { .primary }
     static var healthKit: Color { .pink }
     static var cloud: Color { .blue }
-
-    // Symbols
-    static var computedIcon: Color { Color.indigo }
-    static var dateIcon: Color { .gray }
-    static var resetIcon: Color { .blue }
-    static var unknownIcon: Color { .secondary }
-
-    // Actions
-    static var editIcon: Color { .blue }
-    static var saveIcon: Color { .green }
-    static var error: Color { .red }
 }
 
 // MARK: Iconography
@@ -64,15 +53,43 @@ extension Image {
     static var local: Image? { nil }
     static var cloud: Image { .init(systemName: "icloud.fill") }
     static var healthKit: Image { .init(systemName: "heart.circle.fill") }
+}
 
-    // Symbols
-    static var computedIcon: Image { .init(systemName: "function") }
-    static var dateIcon: Image { .init(systemName: "calendar") }
-    static var resetIcon: Image { .init(systemName: "arrow.clockwise") }
-    static var unknownIcon: Image { .init(systemName: "questionmark.circle") }
+// MARK: Miscellaneous
+// ============================================================================
 
-    // Actions
-    static var editIcon: Image { .init(systemName: "pencil") }
-    static var saveIcon: Image { .init(systemName: "checkmark.circle.fill") }
-    static var errorIcon: Image { .init(systemName: "xmark.circle.fill") }
+extension Image {
+    var asText: Text {
+        Text("\(self)")
+            .font(.footnote.bold())
+    }
+}
+
+extension DataSource {
+    var icon: Image? {
+        switch self {
+        case .local:
+            return .local
+        case .healthKit:
+            return .healthKit
+        }
+    }
+
+    var color: Color {
+        switch self {
+        case .local:
+            return .local
+        case .healthKit:
+            return .healthKit
+        }
+    }
+}
+
+extension ShapeStyle where Self == Color {
+    public static var logoGradient: LinearGradient {
+        LinearGradient(
+            colors: [.logoPrimary, .logoSecondary],
+            startPoint: .bottom, endPoint: .top
+        )
+    }
 }

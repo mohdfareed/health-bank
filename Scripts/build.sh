@@ -10,4 +10,3 @@ export HEALTH_BANK_TEAM_ID
 echo "Generating project..."
 swift build
 swift run xcodegen
-xcodebuild

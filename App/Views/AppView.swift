@@ -12,7 +12,7 @@ struct AppView: View {
         TabView {
             Tab(
                 String(localized: "Dashboard"), systemImage: "square.grid.2x2"
-            ) { DemoView() }
+            ) { Group {} }
             Tab(
                 String(localized: "Records"), systemImage: "list.clipboard"
             ) { HealthDataView() }
@@ -22,25 +22,6 @@ struct AppView: View {
         }
         // .environment(\.locale, self.locale)
         .preferredColorScheme(self.theme.colorScheme)
-    }
-}
-
-struct DemoView: View {
-    var body: some View {
-        NavigationStack {
-            VStack(spacing: 20) {
-                Image.logo
-                    .foregroundStyle(.logoGradient)
-                    .imageScale(.large)
-                    .font(.system(size: 60))
-
-                Text(AppName)
-                    .font(.largeTitle)
-                    .fontWeight(.bold)
-            }
-            .padding()
-            .navigationTitle(AppName)
-        }
     }
 }
 

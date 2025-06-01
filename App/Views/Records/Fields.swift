@@ -1,8 +1,5 @@
 import SwiftUI
 
-// MARK: Field Definition View
-// ============================================================================
-
 struct RecordFieldDefinition<Unit: Dimension>: Sendable {
     let title: String.LocalizationValue
     let image: Image
