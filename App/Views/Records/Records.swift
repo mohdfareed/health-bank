@@ -29,9 +29,8 @@ enum RecordDefinition {
         property: { $0.weight },
         subtitle: { _ in AnyView(EmptyView()) },
         destination: { weight in
-            @State var isValid = true
             AnyView(
-                RecordForm("Weight", record: weight, isValid: $isValid) {
+                RecordForm("Weight", record: weight) {
                     FormDefinition.weight.content(weight)
                 }
             )
@@ -85,9 +84,8 @@ enum RecordDefinition {
             )
         },
         destination: { calorie in
-            @State var isValid = true
             AnyView(
-                RecordForm("Calories", record: calorie, isValid: $isValid) {
+                RecordForm("Calories", record: calorie) {
                     FormDefinition.dietaryCalorie.content(calorie)
                 }
             )
@@ -116,9 +114,8 @@ enum RecordDefinition {
             )
         },
         destination: { active in
-            @State var isValid = true
             AnyView(
-                RecordForm("Activity", record: active, isValid: $isValid) {
+                RecordForm("Activity", record: active) {
                     FormDefinition.activeEnergy.content(active)
                 }
             )
@@ -130,10 +127,9 @@ enum RecordDefinition {
         property: { $0.calories },
         subtitle: { _ in AnyView(EmptyView()) },
         destination: { resting in
-            @State var isValid = true
             AnyView(
                 RecordForm(
-                    "Resting Energy", record: resting, isValid: $isValid
+                    "Resting Energy", record: resting
                 ) {
                     FormDefinition.restingEnergy.content(resting)
                 }

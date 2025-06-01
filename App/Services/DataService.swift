@@ -4,10 +4,7 @@ import SwiftUI
 
 /// A property wrapper that combines SwiftData and HealthKit data queries.
 /// Provides a SwiftData @Query-like interface for unified data access.
-@MainActor @propertyWrapper
-// struct UnifiedQuery<T, Q>: DynamicProperty
-// where T: HealthRecord & PersistentModel, Q: HealthQuery<T> {
-struct UnifiedQuery<T>: DynamicProperty
+@MainActor @propertyWrapper struct UnifiedQuery<T>: DynamicProperty
 where T: HealthQuery, T.Record: HealthRecord & PersistentModel {
     @Environment(\.healthKit) private var healthKitService
     @Query private var localData: [T.Record]

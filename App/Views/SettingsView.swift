@@ -13,7 +13,9 @@ struct SettingsView: View {
                 Section(header: Text("General Settings")) {
                     GeneralSettings()
                     LocalizationSettings()
-                    HealthKitSettings()
+                    if HealthKitService.isAvailable {
+                        HealthKitSettings()
+                    }
                 }
 
                 GoalView(goalsID)

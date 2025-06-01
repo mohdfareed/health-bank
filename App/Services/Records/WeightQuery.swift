@@ -18,7 +18,7 @@ struct WeightQuery: HealthQuery {
             let weight = UnitDefinition.weight.convert(
                 weightInKg, from: .kilograms
             )
-            return Weight(  // TODO: set source properly (requires syncing)
+            return Weight(  // TODO: Set source properly (requires syncing)
                 weight, date: sample.startDate, source: .healthKit
             )
         }

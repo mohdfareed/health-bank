@@ -2,6 +2,7 @@
 import SwiftUI
 
 // REVIEW: animations
+// FIXME: Picker not usable when disabled for non-local records
 
 struct MeasurementField<Unit: Dimension>: View {
     @LocalizedMeasurement var measurement: Measurement<Unit>

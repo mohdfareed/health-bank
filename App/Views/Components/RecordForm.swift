@@ -1,6 +1,8 @@
 import SwiftData
 import SwiftUI
 
+// TODO: add explicit save button
+
 struct RecordForm<R: HealthRecord & PersistentModel, Content: View>: View {
     @Environment(\.modelContext) private var context
     @Environment(\.dismiss) private var dismiss
@@ -12,8 +14,7 @@ struct RecordForm<R: HealthRecord & PersistentModel, Content: View>: View {
     @ViewBuilder let content: () -> Content
 
     init(
-        _ title: String.LocalizationValue,
-        record: R, isValid: Binding<Bool>,
+        _ title: String.LocalizationValue, record: R,
         @ViewBuilder content: @escaping () -> Content
     ) {
         self._date = State(initialValue: record.date)

@@ -69,7 +69,7 @@ struct RestingQuery: HealthQuery {
             let calories = UnitDefinition.calorie.convert(
                 caloriesInKcal, from: .kilocalories
             )
-            return RestingEnergy(  // TODO: set source properly (requires syncing)
+            return RestingEnergy(  // TODO: Set source properly (requires syncing)
                 calories, date: sample.startDate, source: .healthKit
             )
         }
