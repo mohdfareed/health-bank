@@ -2,6 +2,10 @@ import Foundation
 import SwiftData
 import SwiftUI
 
+// FIXME: paginate healthKit data by storing last loaded date and querying
+// from that date, removing duplicates
+// FIXME: broken as is
+
 /// Projection for DataQuery providing simple loading states and pagination controls
 @MainActor
 struct DataQueryProjection<T> where T: HealthRecord {
@@ -47,7 +51,7 @@ where T: HealthRecord {
 
     init<Q>(
         _ query: Q, from start: Date? = nil, to end: Date? = nil,
-        pageSize: Int = 50, page: Binding<Int?> = .constant(nil)
+        pageSize: Int = 50, page: Binding<Int?>
     ) where Q: HealthQuery<T> {
         self.query = query
         self.dateRange = .init(from: start, to: end)
@@ -86,8 +90,7 @@ extension DataQuery {
         defer { isLoading = false }
 
         isLoading = true
-        guard let currentPage = page else { return }
-        page = currentPage + 1
+        if let currentPage = page { page = currentPage + 1 }
         remoteData = await loadRemoteData()
     }
 

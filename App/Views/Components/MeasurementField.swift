@@ -14,7 +14,7 @@ struct MeasurementField<Unit: Dimension>: View {
 
     var body: some View {
         HStack(alignment: .center, spacing: 4) {
-            TextField("Not Set", value: $measurement.value, format: format)
+            TextField("—", value: $measurement.value, format: format)
                 #if os(iOS)
                     .keyboardType(.decimalPad)
                 #endif

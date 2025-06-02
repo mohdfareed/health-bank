@@ -17,7 +17,7 @@ enum FormDefinition {
             @Bindable var weight = $0
             AnyView(
                 RecordField(
-                    FieldDefinition.dietaryCalorie,
+                    FieldDefinition.weight,
                     value: $weight.weight.optional(0),
                     source: weight.source,
                 )
@@ -87,6 +87,9 @@ enum FormDefinition {
                                 activity.icon
                             }.tag(activity)
                         }
+
+                        Divider()
+                        Text("No Activity").tag(nil as WorkoutActivity?)
                     } label: {
                         Label {
                             Text("Activity")

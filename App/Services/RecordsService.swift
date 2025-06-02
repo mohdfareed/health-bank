@@ -13,27 +13,35 @@ struct RecordsQueryProjection {
     let load: () async -> Void
 }
 
-@MainActor @propertyWrapper struct RecordsQuery: DynamicProperty {
+@MainActor @propertyWrapper
+struct RecordsQuery: DynamicProperty {
     @DataQuery var dietaryCalories: [DietaryCalorie]
     @DataQuery var restingCalories: [RestingEnergy]
     @DataQuery var activities: [ActiveEnergy]
     @DataQuery var weights: [Weight]
+    @State private var currentPage: Int?
 
     init(
         from start: Date? = nil, to end: Date? = nil,
         pageSize: Int = 50
     ) {
+        _currentPage = .init(initialValue: 0)
+
         _dietaryCalories = .init(
-            DietaryQuery(), from: start, to: end, pageSize: pageSize
+            DietaryQuery(), from: start, to: end, pageSize: pageSize,
+            page: _currentPage.projectedValue
         )
         _restingCalories = .init(
-            RestingQuery(), from: start, to: end, pageSize: pageSize
+            RestingQuery(), from: start, to: end, pageSize: pageSize,
+            page: _currentPage.projectedValue
         )
         _activities = .init(
-            ActivityQuery(), from: start, to: end, pageSize: pageSize
+            ActivityQuery(), from: start, to: end, pageSize: pageSize,
+            page: _currentPage.projectedValue
         )
         _weights = .init(
-            WeightQuery(), from: start, to: end, pageSize: pageSize
+            WeightQuery(), from: start, to: end, pageSize: pageSize,
+            page: _currentPage.projectedValue
         )
     }
 

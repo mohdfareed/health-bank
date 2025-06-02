@@ -9,6 +9,7 @@ struct HealthDataView: View {
     @State private var selectedFilters: [HealthRecordCategory] = []
     @State private var newRecord: any HealthRecord = DietaryCalorie(0)
     @State private var isAddingRecord = false
+    @State private var currentPage = 0
 
     private var filteredRecords: [any HealthRecord] {
         records.filter { record in
