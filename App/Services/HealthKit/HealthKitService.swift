@@ -15,10 +15,15 @@ public final class HealthKitService: Sendable {
     private let logger = AppLogger.new(for: HealthKitService.self)
     private let store = HKHealthStore()
 
-    // Computed State
     static var isAvailable: Bool { HKHealthStore.isHealthDataAvailable() }
     var isActive: Bool {
         UserDefaults.standard.bool(for: .enableHealthKit) && Self.isAvailable
+    }
+
+    private var chronologicalSortDescriptor: NSSortDescriptor {
+        NSSortDescriptor(
+            key: HKSampleSortIdentifierEndDate, ascending: false
+        )
     }
 }
 
@@ -82,7 +87,7 @@ extension HealthKitService {
             let query = HKSampleQuery(
                 sampleType: type,
                 predicate: predicate, limit: limit ?? HKObjectQueryNoLimit,
-                sortDescriptors: []
+                sortDescriptors: [chronologicalSortDescriptor]
             ) { _, samples, error in
                 if let error = error {
                     self.logger.error(
@@ -158,7 +163,7 @@ extension HealthKitService {
             let query = HKSampleQuery(
                 sampleType: HKObjectType.workoutType(),
                 predicate: predicate, limit: limit ?? HKObjectQueryNoLimit,
-                sortDescriptors: []
+                sortDescriptors: [chronologicalSortDescriptor]
             ) { _, samples, error in
                 if let error = error {
                     self.logger.error(

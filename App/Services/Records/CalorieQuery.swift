@@ -56,9 +56,7 @@ struct DietaryQuery: HealthQuery {
         return calories
     }
 
-    func predicate(
-        from: Date, to: Date, limit: Int? = nil
-    ) -> Predicate<DietaryCalorie> {
+    func predicate(from: Date, to: Date) -> Predicate<DietaryCalorie> {
         return #Predicate {
             from <= $0.date && $0.date <= to
         }
@@ -93,9 +91,7 @@ struct RestingQuery: HealthQuery {
         }
     }
 
-    func predicate(
-        from: Date, to: Date, limit: Int? = nil
-    ) -> Predicate<RestingEnergy> {
+    func predicate(from: Date, to: Date) -> Predicate<RestingEnergy> {
         return #Predicate {
             from <= $0.date && $0.date <= to
         }

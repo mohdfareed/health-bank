@@ -28,9 +28,7 @@ struct ActivityQuery: HealthQuery {
         }
     }
 
-    func predicate(
-        from: Date, to: Date, limit: Int? = nil
-    ) -> Predicate<ActiveEnergy> {
+    func predicate(from: Date, to: Date) -> Predicate<ActiveEnergy> {
         return #Predicate<ActiveEnergy> {
             from <= $0.date && $0.date <= to
         }

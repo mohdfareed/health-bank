@@ -26,9 +26,7 @@ struct WeightQuery: HealthQuery {
         }
     }
 
-    func predicate(
-        from: Date, to: Date, limit: Int? = nil
-    ) -> Predicate<Weight> {
+    func predicate(from: Date, to: Date) -> Predicate<Weight> {
         return #Predicate {
             from <= $0.date && $0.date <= to
         }

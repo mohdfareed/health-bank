@@ -3,19 +3,19 @@ import SwiftUI
 
 struct HealthDataView: View {
     @Environment(\.modelContext) private var context: ModelContext
-    @RecordsQuery(from: .distantPast, to: .now, pageSize: 10)
+    @RecordsQuery(from: .now, to: .now, pageSize: 10)
     private var records
 
-    @State private var selectedTypes: [HealthRecordCategory] = []
-    @State private var selectedNewType: HealthRecordCategory = .dietary
-    @State private var isPresentingForm = false
+    @State private var selectedFilters: [HealthRecordCategory] = []
+    @State private var newRecord: any HealthRecord = DietaryCalorie(0)
+    @State private var isAddingRecord = false
 
-    private var filteredRecords: [any HealthRecord & PersistentModel] {
+    private var filteredRecords: [any HealthRecord] {
         records.filter { record in
-            if selectedTypes.isEmpty {
+            if selectedFilters.isEmpty {
                 return true  // No filter applied, show all records
             }
-            return selectedTypes.contains(where: {
+            return selectedFilters.contains(where: {
                 type(of: $0.record) == type(of: record)
             })
         }
@@ -29,7 +29,7 @@ struct HealthDataView: View {
                         .onAppear {
                             if record.id == filteredRecords.last?.id {
                                 Task {
-                                    await $records.loadMore()
+                                    await $records.load()
                                 }
                             }
                         }
@@ -37,64 +37,73 @@ struct HealthDataView: View {
 
                 // Loading indicator for pagination
                 if $records.isLoading {
-                    HStack {
-                        Spacer()
-                        ProgressView()
-                            .scaleEffect(0.8)
-                        Spacer()
-                    }
-                    .listRowSeparator(.hidden)
+                    loadingIndicator()
                 }
             }
             .navigationTitle("Health Records")
-            .animation(.default, value: selectedTypes)
+            .animation(.default, value: selectedFilters)
             .animation(.default, value: $records.isLoading)
+            .animation(.default, value: $records.isRefreshing)
 
             .refreshable {
                 await $records.refresh()
             }
-
             .onAppear {
-                if !$records.isRefreshing && filteredRecords.isEmpty {
-                    Task {
-                        await $records.refresh()
-                    }
+                Task {
+                    await $records.refresh()
                 }
             }
-
             .toolbar {
-                ToolbarItem(placement: .navigation) {
-                    HealthRecordCategory.filterMenu($selectedTypes)
-                }
-                ToolbarItem {
-                    HealthRecordCategory.addMenu {
-                        selectedNewType = $0
-                        isPresentingForm = true
-                    }
-                }
+                toolbar()
+            }
+            .sheet(isPresented: $isAddingRecord) {
+                sheet()
             }
         }
 
-        .sheet(isPresented: $isPresentingForm) {
-            let newRecord = selectedNewType.record
-            NavigationStack {
-                HealthRecordCategory.recordSheet(newRecord)
-                    .toolbar {
-                        ToolbarItem(placement: .cancellationAction) {
-                            Button("Cancel") {
-                                isPresentingForm = false
-                            }
-                        }
-                        ToolbarItem(placement: .confirmationAction) {
-                            Button("Save") {
-                                isPresentingForm = false
-                                context.insert(newRecord)
-                                save()
-                            }
-                        }
-                    }
+    }
+
+    @ToolbarContentBuilder
+    private func toolbar() -> some ToolbarContent {
+        ToolbarItem(placement: .navigation) {
+            HealthRecordCategory.filterMenu($selectedFilters)
+        }
+        ToolbarItem {
+            HealthRecordCategory.addMenu {
+                newRecord = $0
+                isAddingRecord = true
             }
         }
+    }
+
+    private func sheet() -> some View {
+        NavigationStack {
+            HealthRecordCategory.recordSheet(newRecord)
+                .toolbar {
+                    ToolbarItem(placement: .cancellationAction) {
+                        Button("Cancel") {
+                            isAddingRecord = false
+                        }
+                    }
+                    ToolbarItem(placement: .confirmationAction) {
+                        Button("Save") {
+                            isAddingRecord = false
+                            context.insert(newRecord)
+                            save()
+                        }
+                    }
+                }
+        }
+    }
+
+    private func loadingIndicator() -> some View {
+        HStack {
+            Spacer()
+            ProgressView()
+                .scaleEffect(0.8)
+            Spacer()
+        }
+        .listRowSeparator(.hidden)
     }
 
     private func save() {
