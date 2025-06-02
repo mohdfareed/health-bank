@@ -56,6 +56,64 @@ All forms now use the new `RecordForm` component with:
 - **Validation**: Each form can define custom validation logic
 - **Easy Maintenance**: Changes to form structure only need to be made in `RecordForm`
 
+## ✅ COMPLETED: True Pagination & Auto-Loading for DataView
+
+### Session Objective ✅
+Implemented proper memory-efficient pagination with auto-loading for HealthDataView, addressing performance concerns with the previous "fake pagination" approach.
+
+### Issues Addressed ✅
+1. **True Pagination**: ✅ Only loads data that's actually needed (not all data with display limits)
+2. **Memory Efficiency**: ✅ Both SwiftData and HealthKit data are truly paginated
+3. **Simplified States**: ✅ Reduced from 3 loading states to 2 clear states
+4. **Auto-Loading**: ✅ Data loads automatically on first view appearance
+
+### Implementation Details ✅
+
+#### **1. Simplified Loading States**
+- **`isRefreshing`**: Pull-to-refresh or initial data loading
+- **`isLoading`**: Loading more data via pagination
+- **Removed**: `hasMoreData`, `isLoadingMore` (overly complex)
+
+#### **2. True SwiftData Pagination**
+- **FetchDescriptor**: Uses `fetchLimit` and `fetchOffset` for database-level pagination
+- **Memory Efficient**: Only queries the rows needed from SwiftData
+- **Performance**: Leverages database indexing instead of loading all data
+
+#### **3. True HealthKit Pagination**
+- **Date-based Pagination**: Uses last loaded item's date for next page boundary
+- **Memory Efficient**: Only loads the requested page size from HealthKit
+- **Deduplication**: Prevents duplicate records across pagination boundaries
+
+#### **4. Enhanced DataQuery Architecture**
+- **Page Management**: Tracks `currentPage` and `loadedData` in memory
+- **Combined Loading**: Loads both SwiftData and HealthKit data per page
+- **Incremental Data**: Appends new pages to existing loaded data
+- **Reset on Refresh**: Clears loaded data and resets to page 0
+
+#### **5. Updated UI Experience**
+- **Auto-Loading**: Data loads on `onAppear` if list is empty
+- **Endless Scroll**: Triggers `loadMore()` when user reaches last item
+- **Simple Indicators**: Single loading state for clear UX
+- **Smooth Animations**: All state changes are animated
+
+### Performance Benefits ✅
+- **Memory Usage**: Only loads pages as needed (50 items vs potentially thousands)
+- **Database Performance**: SwiftData queries use proper offset/limit
+- **Network Efficiency**: HealthKit queries are date-bounded and limited
+- **UI Responsiveness**: No lag from loading excessive data upfront
+
+### Architecture Benefits ✅
+- **True Pagination**: Follows proper pagination patterns (not fake display limiting)
+- **Simplified Logic**: Two clear states instead of complex state combinations
+- **Database-Level**: Leverages SwiftData's built-in pagination capabilities
+- **Scalable**: Handles large datasets efficiently without memory issues
+
+### Technical Implementation ✅
+- **SwiftData**: `FetchDescriptor` with `fetchLimit`/`fetchOffset` for database pagination
+- **HealthKit**: Date-based boundary queries with configurable page sizes
+- **State Management**: Clean separation of refresh vs. load-more operations
+- **Memory Management**: Incremental loading with proper deduplication
+
 ## 🔄 COMPLETED: HealthKit Integration System
 
 ### Session Objective ✅

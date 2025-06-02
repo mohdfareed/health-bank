@@ -3,7 +3,7 @@ import SwiftUI
 
 // TODO: add explicit save button
 
-struct RecordForm<R: HealthRecord & PersistentModel, Content: View>: View {
+struct RecordForm<R: HealthRecord, Content: View>: View {
     @Environment(\.modelContext) private var context
     @Environment(\.dismiss) private var dismiss
     @State private var showConfirmation = false
@@ -69,6 +69,9 @@ struct RecordForm<R: HealthRecord & PersistentModel, Content: View>: View {
             .scrollDismissesKeyboard(.immediately)
             .disabled(record.source != .local)
             .navigationTitle(String(localized: title))
+            .onChange(of: record) {
+                saveRecord()
+            }
             .confirmationDialog(
                 "Delete \(String(localized: title)) Record",
                 isPresented: $showConfirmation,

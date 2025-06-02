@@ -2,7 +2,8 @@ import Foundation
 import HealthKit
 import SwiftUI
 
-// TODO: Add background sync
+// TODO: Add background sync:
+// https://developer.apple.com/documentation/swiftdata/modelcontext/didsave
 
 // MARK: Service
 // ============================================================================
@@ -75,7 +76,7 @@ extension HealthKitService {
         return await withCheckedContinuation { continuation in
             let predicate = HKQuery.predicateForSamples(
                 withStart: startDate, end: endDate,
-                options: .strictStartDate
+                options: .strictEndDate
             )
 
             let query = HKSampleQuery(
@@ -115,7 +116,7 @@ extension HealthKitService {
         return await withCheckedContinuation { continuation in
             let predicate = HKQuery.predicateForSamples(
                 withStart: startDate, end: endDate,
-                options: .strictStartDate
+                options: .strictEndDate
             )
 
             let query = HKCorrelationQuery(
@@ -151,7 +152,7 @@ extension HealthKitService {
         return await withCheckedContinuation { continuation in
             let predicate = HKQuery.predicateForSamples(
                 withStart: startDate, end: endDate,
-                options: .strictStartDate
+                options: .strictEndDate
             )
 
             let query = HKSampleQuery(
@@ -199,14 +200,12 @@ extension HKSource {
     }
 }
 
-extension Set<HKSample> {
+extension [HKQuantitySample] {
+    /// Sums the quantities in the array using the specified unit.
     func sum(as unit: HKUnit) -> Double? {
         guard !isEmpty else { return nil }
         return reduce(0) {
-            guard let sample = $1 as? HKQuantitySample else {
-                return $0
-            }
-            return $0 + sample.quantity.doubleValue(for: unit)
+            return $0 + $1.quantity.doubleValue(for: unit)
         }
     }
 }

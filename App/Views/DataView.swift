@@ -3,7 +3,7 @@ import SwiftUI
 
 struct HealthDataView: View {
     @Environment(\.modelContext) private var context: ModelContext
-    @RecordsQuery(from: .distantPast, to: .now, count: 100)
+    @RecordsQuery(from: .distantPast, to: .now, pageSize: 10)
     private var records
 
     @State private var selectedTypes: [HealthRecordCategory] = []
@@ -26,13 +26,40 @@ struct HealthDataView: View {
             List {
                 ForEach(filteredRecords, id: \.id) { record in
                     HealthRecordCategory.recordRow(record)
+                        .onAppear {
+                            if record.id == filteredRecords.last?.id {
+                                Task {
+                                    await $records.loadMore()
+                                }
+                            }
+                        }
+                }
+
+                // Loading indicator for pagination
+                if $records.isLoading {
+                    HStack {
+                        Spacer()
+                        ProgressView()
+                            .scaleEffect(0.8)
+                        Spacer()
+                    }
+                    .listRowSeparator(.hidden)
                 }
             }
             .navigationTitle("Health Records")
             .animation(.default, value: selectedTypes)
+            .animation(.default, value: $records.isLoading)
 
             .refreshable {
                 await $records.refresh()
+            }
+
+            .onAppear {
+                if !$records.isRefreshing && filteredRecords.isEmpty {
+                    Task {
+                        await $records.refresh()
+                    }
+                }
             }
 
             .toolbar {

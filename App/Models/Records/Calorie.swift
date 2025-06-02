@@ -8,7 +8,7 @@ import SwiftData
 /// All calorie values are stored in kilocalories (kcal).
 public protocol Calorie: HealthRecord {
     /// Energy value in kilocalories.
-    var calories: Double { get nonmutating set }
+    var calories: Double { get set }
 }
 
 /// Represents macro-nutrient breakdown of calories.

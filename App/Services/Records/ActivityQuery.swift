@@ -17,7 +17,7 @@ struct ActivityQuery: HealthQuery {
             let calories = UnitDefinition.calorie.asBase(
                 caloriesInKcal, from: .kilocalories
             )
-            let duration = workout.duration
+            let duration = workout.duration / 60  // Convert seconds to minutes
             let activity = workout.workoutActivityType
 
             return ActiveEnergy(

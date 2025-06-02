@@ -4,8 +4,12 @@ import SwiftUI
 // TODO: Add licenses subpage with Apple Health licenses
 
 struct SettingsView: View {
+    @Environment(\.modelContext)
+    internal var context: ModelContext
+
     @AppStorage(.userGoals) var goalsID: UUID
     @State private var reset = false
+    @State private var erase = false
 
     var body: some View {
         NavigationStack {
@@ -24,10 +28,16 @@ struct SettingsView: View {
                     "Reset Settings",
                     role: .destructive
                 ) { reset = true }
+
+                Button(
+                    "Erase Data",
+                    role: .destructive
+                ) { erase = true }
             }
             .navigationTitle("Settings")
-            .resetAlert(isPresented: $reset)
             .scrollDismissesKeyboard(.interactively)
+            .resetAlert(isPresented: $reset)
+            .eraseAlert(isPresented: $erase, context: context)
         }
     }
 }
@@ -40,6 +50,22 @@ extension View {
             Button("Cancel", role: .cancel) {}
             Button("Reset", role: .destructive) {
                 UserDefaults.standard.resetSettings()
+            }
+        } message: {
+            Text("This action cannot be undone.")
+        }
+    }
+
+    fileprivate func eraseAlert(
+        isPresented: Binding<Bool>, context: ModelContext
+    ) -> some View {
+        self.alert(
+            "Erase All Data", isPresented: isPresented
+        ) {
+            Button("Cancel", role: .cancel) {}
+            Button("Erase", role: .destructive) {
+                UserDefaults.standard.resetSettings()
+                context.eraseAll()
             }
         } message: {
             Text("This action cannot be undone.")

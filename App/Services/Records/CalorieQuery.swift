@@ -18,16 +18,16 @@ struct DietaryQuery: HealthQuery {
         let calories = correlations.compactMap { correlation in
             let calories = correlation.objects(
                 for: HKQuantityType(.dietaryEnergyConsumed)
-            )
+            ).compactMap { $0 as? HKQuantitySample }
             let protein = correlation.objects(
                 for: HKQuantityType(.dietaryProtein)
-            )
+            ).compactMap { $0 as? HKQuantitySample }
             let fat = correlation.objects(
                 for: HKQuantityType(.dietaryFatTotal)
-            )
+            ).compactMap { $0 as? HKQuantitySample }
             let carbs = correlation.objects(
                 for: HKQuantityType(.dietaryCarbohydrates)
-            )
+            ).compactMap { $0 as? HKQuantitySample }
 
             let totalCalories = calories.sum(as: .kilocalorie())
             let totalProtein = protein.sum(as: .gram())

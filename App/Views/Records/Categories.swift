@@ -5,12 +5,12 @@ import SwiftUI
 // ============================================================================
 
 enum HealthRecordCategory: String.LocalizationValue, CaseIterable {
-    case dietary = "Dietary Calorie"
-    case active = "Active Energy"
+    case dietary = "Food"
+    case active = "Activity"
     case resting = "Resting Energy"
     case weight = "Weight"
 
-    var record: any HealthRecord & PersistentModel {
+    var record: any HealthRecord {
         switch self {
         case .dietary: return DietaryCalorie(0)
         case .resting: return RestingEnergy(0)
@@ -58,7 +58,7 @@ extension HealthRecordCategory {
 extension HealthRecordCategory {
     @ViewBuilder @MainActor
     static func recordSheet(
-        _ record: any HealthRecord & PersistentModel
+        _ record: any HealthRecord
     ) -> some View {
         switch record {
         case let record as Weight:
@@ -91,11 +91,11 @@ extension HealthRecordCategory {
 extension HealthRecordCategory {
     @MainActor
     static func addMenu(
-        action: @escaping @MainActor (Self) -> Void
+        action: @escaping @MainActor (any HealthRecord) -> Void
     ) -> some View {
         Menu {
             ForEach(Self.allCases, id: \.self) { category in
-                Button(action: { action(category) }) {
+                Button(action: { action(category.record) }) {
                     Label {
                         Text(String(localized: category.rawValue))
                     } icon: {
@@ -104,7 +104,7 @@ extension HealthRecordCategory {
                 }
             }
         } label: {
-            Label("Add", systemImage: "plus.circle")
+            Label("Add", systemImage: "plus")
         }
     }
 }
@@ -113,6 +113,7 @@ extension HealthRecordCategory {
 // ============================================================================
 
 extension HealthRecordCategory {
+
     @ViewBuilder @MainActor
     static func filterMenu(_ selected: Binding<[Self]>) -> some View {
         Menu {

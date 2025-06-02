@@ -2,7 +2,7 @@ import SwiftData
 import SwiftUI
 
 struct RecordFormDefinition<
-    R: HealthRecord & PersistentModel, C: View
+    R: HealthRecord, C: View
 >: Sendable {
     @ViewBuilder var content: @MainActor (R) -> C
 }
