@@ -5,6 +5,7 @@ import SwiftUI
 // FIXME: Picker not usable when disabled for non-local records
 
 struct MeasurementField<Unit: Dimension>: View {
+    @Environment(\.isEnabled) var isEnabled: Bool
     @LocalizedMeasurement var measurement: Measurement<Unit>
 
     let validator: ((Double) -> Bool)?
@@ -12,13 +13,13 @@ struct MeasurementField<Unit: Dimension>: View {
     let showPicker: Bool
 
     var body: some View {
-        HStack(alignment: .center) {
+        HStack(alignment: .center, spacing: 4) {
             TextField("Not Set", value: $measurement.value, format: format)
                 #if os(iOS)
                     .keyboardType(.decimalPad)
                 #endif
                 .multilineTextAlignment(.trailing)
-                .contentTransition(.numericText())
+                .foregroundStyle(isEnabled ? .primary : .tertiary)
                 .onChange(of: $measurement.baseValue) {
                     if !isValid {
                         $measurement.baseValue = nil
@@ -28,9 +29,7 @@ struct MeasurementField<Unit: Dimension>: View {
                 picker.frame(maxWidth: 12, maxHeight: 8).fixedSize()
             }
         }
-        .animation(.default, value: measurement)
-        .animation(.default, value: showPicker)
-        .animation(.default, value: isValid)
+        .animation(.default, value: $measurement.value.wrappedValue)
     }
 
     private var picker: some View {
@@ -52,7 +51,7 @@ struct MeasurementField<Unit: Dimension>: View {
             } icon: {
                 Image(systemName: "arrow.clockwise")
             }.tag(nil as Unit?)
-        }.labelsHidden().environment(\.isEnabled, true)
+        }.labelsHidden()
     }
 
     private var isValid: Bool {
