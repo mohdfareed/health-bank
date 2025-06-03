@@ -1,94 +1,130 @@
 import SwiftData
 import SwiftUI
 
-// TODO: Reuse for creating and editing records
-
 struct RecordForm<R: HealthRecord, Content: View>: View {
     @Environment(\.modelContext) private var context
     @Environment(\.dismiss) private var dismiss
     @State private var showConfirmation = false
 
     let title: String.LocalizationValue
-    let record: R  // TODO: Make it nullable to allow creating new records
+    let record: R
+    let isEditing: Bool
     @State private var date: Date
     @ViewBuilder let content: () -> Content
 
-    init(
-        _ title: String.LocalizationValue, record: R,
+    init(  // For create mode (when record is new)
+        _ title: String.LocalizationValue, record: R, isEditing: Bool,
         @ViewBuilder content: @escaping () -> Content
     ) {
         self._date = State(initialValue: record.date)
         self.title = title
         self.record = record
         self.content = content
+        self.isEditing = false
+    }
+
+    init(  // For create mode (when record is new)
+        _ title: String.LocalizationValue, creating record: R,
+        @ViewBuilder content: @escaping () -> Content
+    ) {
+        self.init(
+            title, record: record, isEditing: false,
+            content: content
+        )
+    }
+
+    init(  // For edit mode (when record exists)
+        _ title: String.LocalizationValue, editing record: R,
+        @ViewBuilder content: @escaping () -> Content
+    ) {
+        self.init(
+            title, record: record, isEditing: true,
+            content: content
+        )
     }
 
     var body: some View {
-        NavigationStack {
-            Form {
-                content()
+        Form {
+            content()
 
+            Section {
+                DatePicker(
+                    selection: $date,
+                    displayedComponents: [.date, .hourAndMinute]
+                ) {
+                    Label {
+                    } icon: {
+                        Image(systemName: "calendar")
+                            .foregroundStyle(.gray)
+                    }
+                }
+                .onChange(of: date) {
+                    record.date = date
+                }
+            }
+            .disabled(record.source != .local)
+
+            if isEditing && record.source == .local {
                 Section {
-                    DatePicker(
-                        selection: $date,
-                        displayedComponents: [.date, .hourAndMinute]
-                    ) {
+                    Button(role: .destructive) {
+                        showConfirmation = true
+                    } label: {
+                        Text("Delete Record")
+                    }
+                }
+
+            } else if isEditing {
+                Section {
+                    LabeledContent {
+                        Text(record.source.localized)
+                    } label: {
                         Label {
                         } icon: {
-                            Image(systemName: "calendar")
-                                .foregroundStyle(.gray)
+                            record.source.icon?
+                                .foregroundStyle(record.source.color)
                         }
                     }
-                    .onChange(of: date) {
+                }
+            }
+        }
+        .scrollDismissesKeyboard(.immediately)
+        .navigationTitle(String(localized: title))
+        .toolbar {
+            if !isEditing {
+                ToolbarItem(placement: .cancellationAction) {
+                    Button("Cancel") {
+                        dismiss()
+                    }
+                }
+                ToolbarItem(placement: .confirmationAction) {
+                    Button("Save") {
                         saveRecord()
-                    }
-                }
-                .disabled(record.source != .local)
-
-                if record.source == .local {
-                    Section {
-                        Button(role: .destructive) {
-                            showConfirmation = true
-                        } label: {
-                            Text("Delete Record")
-                        }
-                    }
-                } else {
-                    Section {
-                        LabeledContent {
-                            Text(record.source.localized)
-                        } label: {
-                            Label {
-                            } icon: {
-                                record.source.icon?
-                                    .foregroundStyle(record.source.color)
-                            }
-                        }
+                        dismiss()
                     }
                 }
             }
-            .scrollDismissesKeyboard(.immediately)
-            .navigationTitle(String(localized: title))
-            .onChange(of: record) {
-                saveRecord()
-            }
-            .confirmationDialog(
-                "Delete \(String(localized: title)) Record",
-                isPresented: $showConfirmation,
-                titleVisibility: .visible
-            ) {
-                Button("Cancel", role: .cancel) {}
-                Button("Delete", role: .destructive) { deleteRecord() }
-            } message: {
-                Text("This action cannot be undone.")
-            }
+        }
+        .confirmationDialog(
+            "Delete \(String(localized: title)) Record",
+            isPresented: $showConfirmation,
+            titleVisibility: .visible
+        ) {
+            Button("Cancel", role: .cancel) {}
+            Button("Delete", role: .destructive) { deleteRecord() }
+        } message: {
+            Text("This action cannot be undone.")
         }
     }
 
     private func saveRecord() {
         record.date = date
+
+        if !isEditing {
+            // Insert new record for create mode
+            context.insert(record)
+        }
+
         try? context.save()
-        dismiss()
     }
 
     private func deleteRecord() {

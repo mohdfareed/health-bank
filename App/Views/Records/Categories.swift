@@ -90,24 +90,22 @@ extension HealthRecordCategory {
 
 extension HealthRecordCategory {
     @ViewBuilder @MainActor
-    static func recordSheet(
-        _ record: any HealthRecord
-    ) -> some View {
+    static func recordSheet(_ record: any HealthRecord) -> some View {
         switch record {
         case let record as Weight:
-            RecordForm("Log Weight", record: record) {
+            RecordForm("Log Weight", creating: record) {
                 FormDefinition.weight.content(record)
             }
         case let record as DietaryCalorie:
-            RecordForm("Log Food", record: record) {
+            RecordForm("Log Food", creating: record) {
                 FormDefinition.dietaryCalorie.content(record)
             }
         case let record as ActiveEnergy:
-            RecordForm("Log Activity", record: record) {
+            RecordForm("Log Activity", creating: record) {
                 FormDefinition.activeEnergy.content(record)
             }
         case let record as RestingEnergy:
-            RecordForm("Log Resting Energy", record: record) {
+            RecordForm("Log Resting Energy", creating: record) {
                 FormDefinition.restingEnergy.content(record)
             }
         default:

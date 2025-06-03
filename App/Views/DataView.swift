@@ -34,7 +34,9 @@ struct HealthDataView: View {
                 }
             }
             .sheet(isPresented: $isAddingRecord) {
-                addRecordSheet()
+                HealthRecordCategory.recordSheet(
+                    selectedCategory.createRecord()
+                )
             }
         }
     }
@@ -51,15 +53,6 @@ struct HealthDataView: View {
         case .weight:
             CategoryView<Weight>(category)
         }
-    }
-
-    @ViewBuilder
-    private func addRecordSheet() -> some View {
-        let newRecord = selectedCategory.createRecord()
-        RecordSheetView(
-            record: newRecord,
-            isPresented: $isAddingRecord
-        )
     }
 }
 
@@ -127,7 +120,7 @@ private struct CategoryView<T: HealthRecord>: View {
             toolbar()
         }
         .sheet(isPresented: $isAddingRecord) {
-            sheet()
+            HealthRecordCategory.recordSheet(newRecord)
         }
     }
 
@@ -142,16 +135,6 @@ private struct CategoryView<T: HealthRecord>: View {
                 isAddingRecord = true
             }
         }
-    }
-
-    private func sheet() -> some View {
-        RecordSheetView(
-            record: newRecord,
-            isPresented: $isAddingRecord,
-            onSave: {
-                newRecord = category.state().wrappedValue  // Reset
-            }
-        )
     }
 
     @ViewBuilder
@@ -194,47 +177,6 @@ private struct CategoryView<T: HealthRecord>: View {
             try context.save()
         } catch {
             AppLogger.new(for: T.self)
-                .error("Failed to save model: \(error)")
-        }
-    }
-}
-
-// MARK: Record Sheet View
-// ============================================================================
-
-/// A reusable sheet view for adding/editing health records.
-private struct RecordSheetView: View {
-    @Environment(\.modelContext) private var context: ModelContext
-    let record: any HealthRecord
-    @Binding var isPresented: Bool
-    var onSave: (() -> Void)? = nil
-
-    var body: some View {
-        NavigationStack {
-            HealthRecordCategory.recordSheet(record)
-                .toolbar {
-                    ToolbarItem(placement: .cancellationAction) {
-                        Button("Cancel") {
-                            isPresented = false
-                        }
-                    }
-                    ToolbarItem(placement: .confirmationAction) {
-                        Button("Save") {
-                            isPresented = false
-                            context.insert(record)
-                            save()
-                            onSave?()
-                        }
-                    }
-                }
-        }
-    }
-
-    private func save() {
-        do {
-            try context.save()
-        } catch {
-            AppLogger.new(for: type(of: record))
                 .error("Failed to save model: \(error)")
         }
     }

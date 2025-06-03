@@ -30,7 +30,7 @@ enum RecordDefinition {
         subtitle: { _ in AnyView(EmptyView()) },
         destination: { weight in
             AnyView(
-                RecordForm("Weight", record: weight) {
+                RecordForm("Weight", editing: weight) {
                     FormDefinition.weight.content(weight)
                 }
             )
@@ -84,7 +84,7 @@ enum RecordDefinition {
         },
         destination: { calorie in
             AnyView(
-                RecordForm("Calories", record: calorie) {
+                RecordForm("Calories", editing: calorie) {
                     FormDefinition.dietaryCalorie.content(calorie)
                 }
             )
@@ -113,17 +113,12 @@ enum RecordDefinition {
                             )
                             Spacer().frame(maxWidth: 8)
                         }
-                        if calorie.workout != nil {
-                            calorie.workout?.icon.asText
-                                .foregroundStyle(Color.activeCalorie)
-                            Spacer().frame(maxWidth: 8)
-                        }
                     }
                 )
             },
             destination: { active in
                 AnyView(
-                    RecordForm("Activity", record: active) {
+                    RecordForm("Activity", editing: active) {
                         FormDefinition.activeEnergy.content(active)
                     }
                 )
@@ -138,7 +133,7 @@ enum RecordDefinition {
         destination: { resting in
             AnyView(
                 RecordForm(
-                    "Resting Energy", record: resting
+                    "Resting Energy", editing: resting
                 ) {
                     FormDefinition.restingEnergy.content(resting)
                 }
