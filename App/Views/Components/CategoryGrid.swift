@@ -28,12 +28,10 @@ struct AdaptiveGridContainer<Content: View>: View {
     var body: some View {
         Group {
             if style == .grid {
-                ScrollView {
-                    LazyVGrid(columns: columns, spacing: 16) {
-                        content
-                    }
-                    .padding(.horizontal)
+                LazyVGrid(columns: columns, spacing: 16) {
+                    content
                 }
+                .padding(.horizontal)
             } else {
                 List {
                     content

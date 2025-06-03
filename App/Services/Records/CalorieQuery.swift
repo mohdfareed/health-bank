@@ -6,8 +6,7 @@ import SwiftData
 // ============================================================================
 
 struct DietaryQuery: HealthQuery {
-    @MainActor
-    func fetch(
+    @MainActor func fetch(
         from: Date, to: Date, limit: Int? = nil,
         store: HealthKitService
     ) async -> [DietaryCalorie] {
@@ -72,8 +71,7 @@ struct DietaryQuery: HealthQuery {
 // ============================================================================
 
 struct RestingQuery: HealthQuery {
-    @MainActor
-    func fetch(
+    @MainActor func fetch(
         from: Date, to: Date, limit: Int? = nil,
         store: HealthKitService
     ) async -> [RestingEnergy] {

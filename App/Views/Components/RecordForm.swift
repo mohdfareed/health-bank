@@ -12,7 +12,7 @@ struct RecordForm<R: HealthRecord, Content: View>: View {
     @State private var date: Date
     @ViewBuilder let content: () -> Content
 
-    init(  // For create mode (when record is new)
+    init(
         _ title: String.LocalizationValue, record: R, isEditing: Bool,
         @ViewBuilder content: @escaping () -> Content
     ) {
@@ -20,27 +20,7 @@ struct RecordForm<R: HealthRecord, Content: View>: View {
         self.title = title
         self.record = record
         self.content = content
-        self.isEditing = false
-    }
-
-    init(  // For create mode (when record is new)
-        _ title: String.LocalizationValue, creating record: R,
-        @ViewBuilder content: @escaping () -> Content
-    ) {
-        self.init(
-            title, record: record, isEditing: false,
-            content: content
-        )
-    }
-
-    init(  // For edit mode (when record exists)
-        _ title: String.LocalizationValue, editing record: R,
-        @ViewBuilder content: @escaping () -> Content
-    ) {
-        self.init(
-            title, record: record, isEditing: true,
-            content: content
-        )
+        self.isEditing = isEditing
     }
 
     var body: some View {
@@ -89,6 +69,7 @@ struct RecordForm<R: HealthRecord, Content: View>: View {
         }
         .scrollDismissesKeyboard(.immediately)
         .navigationTitle(String(localized: title))
+        .toolbarTitleDisplayMode(.inline)
         .toolbar {
             if !isEditing {
                 ToolbarItem(placement: .cancellationAction) {
@@ -118,12 +99,9 @@ struct RecordForm<R: HealthRecord, Content: View>: View {
 
     private func saveRecord() {
         record.date = date
-
         if !isEditing {
-            // Insert new record for create mode
             context.insert(record)
         }
-
         try? context.save()
     }
 
@@ -131,5 +109,30 @@ struct RecordForm<R: HealthRecord, Content: View>: View {
         context.delete(record)
         try? context.save()
         dismiss()
+    }
+}
+
+// MARK: Initializers
+// ============================================================================
+
+extension RecordForm {
+    init(  // For create mode (when record is new)
+        _ title: String.LocalizationValue, creating record: R,
+        @ViewBuilder content: @escaping () -> Content
+    ) {
+        self.init(
+            title, record: record, isEditing: false,
+            content: content
+        )
+    }
+
+    init(  // For edit mode (when record exists)
+        _ title: String.LocalizationValue, editing record: R,
+        @ViewBuilder content: @escaping () -> Content
+    ) {
+        self.init(
+            title, record: record, isEditing: true,
+            content: content
+        )
     }
 }

@@ -25,7 +25,9 @@ where R: HealthRecord, U: Dimension, S: View, Destination: View {
     }
 
     var body: some View {
-        NavigationLink(destination: destination()) {
+        NavigationLink {
+            destination()
+        } label: {
             DetailedRow(image: field.image, tint: field.tint) {
                 let unit = Text(measurement.unit.symbol).textScale(.secondary)
                 Text("\(measurement.value.formatted(field.formatter)) \(unit)")

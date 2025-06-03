@@ -4,7 +4,11 @@ import SwiftUI
 // MARK: Categories
 // ============================================================================
 
-enum HealthRecordCategory: String, CaseIterable {
+enum HealthRecordCategory: String, CaseIterable, Identifiable {
+    var id: ObjectIdentifier {
+        ObjectIdentifier(HealthRecordCategory.Type.self)
+    }
+
     case dietary
     case active
     case resting
@@ -28,19 +32,6 @@ enum HealthRecordCategory: String, CaseIterable {
         }
     }
 
-    func state<T: HealthRecord>() -> State<T> {
-        switch self {
-        case .dietary:
-            return State<T>(initialValue: DietaryCalorie(0) as! T)
-        case .resting:
-            return State<T>(initialValue: RestingEnergy(0) as! T)
-        case .active:
-            return State<T>(initialValue: ActiveEnergy(0) as! T)
-        case .weight:
-            return State<T>(initialValue: Weight(0) as! T)
-        }
-    }
-
     func query<T: HealthRecord>() -> any HealthQuery<T> {
         switch self {
         case .dietary: return DietaryQuery() as! any HealthQuery<T>
@@ -50,7 +41,7 @@ enum HealthRecordCategory: String, CaseIterable {
         }
     }
 
-    func createRecord() -> any HealthRecord {
+    func record() -> any HealthRecord {
         switch self {
         case .dietary: return DietaryCalorie(0)
         case .resting: return RestingEnergy(0)
@@ -89,8 +80,8 @@ extension HealthRecordCategory {
 // ============================================================================
 
 extension HealthRecordCategory {
-    @ViewBuilder @MainActor
-    static func recordSheet(_ record: any HealthRecord) -> some View {
+    @ViewBuilder @MainActor var recordSheet: some View {
+        let record = record()
         switch record {
         case let record as Weight:
             RecordForm("Log Weight", creating: record) {

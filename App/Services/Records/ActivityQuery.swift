@@ -3,8 +3,7 @@ import HealthKit
 import SwiftData
 
 struct ActivityQuery: HealthQuery {
-    @MainActor
-    func fetch(
+    @MainActor func fetch(
         from: Date, to: Date, limit: Int? = nil,
         store: HealthKitService
     ) async -> [ActiveEnergy] {
