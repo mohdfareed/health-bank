@@ -1,6 +1,8 @@
 import SwiftData
 import SwiftUI
 
+// TODO: Convert to `Records/Forms.swift` definition.
+
 struct GoalView: View {
     @Environment(\.modelContext) private var context: ModelContext
     @Query.Singleton var goals: UserGoals

@@ -1,5 +1,6 @@
 import Foundation
 import HealthKit
+import SwiftData
 
 struct ActivityQuery: HealthQuery {
     @MainActor
@@ -28,10 +29,14 @@ struct ActivityQuery: HealthQuery {
         }
     }
 
-    func predicate(from: Date, to: Date) -> Predicate<ActiveEnergy> {
-        return #Predicate<ActiveEnergy> {
+    func descriptor(from: Date, to: Date) -> FetchDescriptor<ActiveEnergy> {
+        let predicate = #Predicate<ActiveEnergy> {
             from <= $0.date && $0.date <= to
         }
+        return FetchDescriptor(
+            predicate: predicate,
+            sortBy: [.init(\.date, order: .reverse)]
+        )
     }
 }
 

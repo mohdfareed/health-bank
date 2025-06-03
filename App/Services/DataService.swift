@@ -88,11 +88,8 @@ extension DataQuery {
     }
 
     private func loadLocalData() -> [T] {
-        var descriptor = FetchDescriptor(
-            predicate: query.predicate(
-                from: dateRange.lowerBound, to: dateRange.upperBound
-            ),
-            sortBy: [.init(\.date, order: .reverse)],
+        var descriptor = query.descriptor(
+            from: dateRange.lowerBound, to: dateRange.upperBound
         )
         descriptor.fetchOffset = offset
         descriptor.fetchLimit = pageSize

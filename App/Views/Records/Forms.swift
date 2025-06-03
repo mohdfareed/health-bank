@@ -98,6 +98,7 @@ enum FormDefinition {
                                 .foregroundStyle(Color.activeCalorie)
                         }
                     }
+                    .disabled(calorie.source != .local)
                     .contentTransition(
                         .symbolEffect(.replace)
                     )

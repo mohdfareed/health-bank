@@ -1,7 +1,7 @@
 import SwiftData
 import SwiftUI
 
-// TODO: remove delete button when creating a new record
+// TODO: Reuse for creating and editing records
 
 struct RecordForm<R: HealthRecord, Content: View>: View {
     @Environment(\.modelContext) private var context
@@ -9,7 +9,7 @@ struct RecordForm<R: HealthRecord, Content: View>: View {
     @State private var showConfirmation = false
 
     let title: String.LocalizationValue
-    let record: R  // TODO: make it nullable to allow creating new records
+    let record: R  // TODO: Make it nullable to allow creating new records
     @State private var date: Date
     @ViewBuilder let content: () -> Content
 

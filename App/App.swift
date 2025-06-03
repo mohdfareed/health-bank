@@ -8,20 +8,22 @@ let appID: String = Bundle.main.bundleIdentifier ?? "Debug.App"
     internal let logger = AppLogger.new(for: Self.self)
     let container: ModelContainer
 
-    let schema = Schema([
-        UserGoals.self,
-        DietaryCalorie.self,
-        ActiveEnergy.self,
-        RestingEnergy.self,
-        Weight.self,
-    ])
+    static var schema: Schema {
+        .init([
+            UserGoals.self,
+            DietaryCalorie.self,
+            ActiveEnergy.self,
+            RestingEnergy.self,
+            Weight.self,
+        ])
+    }
 
     init() {
         // MARK: Model Container Initialization
         // ====================================================================
         do {
             self.logger.debug("Initializing model container for \(appID)")
-            self.container = try .init(for: schema)
+            self.container = try .init(for: MainApp.schema)
         } catch {
             #if !DEBUG  // Production migration logic
                 fatalError("Failed to initialize model container: \(error)")
@@ -31,7 +33,7 @@ let appID: String = Bundle.main.bundleIdentifier ?? "Debug.App"
             do {  // Attempt to replace existing container
                 self.logger.warning("Replacing existing model container...")
                 try ModelContainer().erase()
-                self.container = try .init(for: schema)
+                self.container = try .init(for: MainApp.schema)
             } catch {
                 self.logger.error(
                     "Failed to initialize replacement container: \(error)"
@@ -40,7 +42,7 @@ let appID: String = Bundle.main.bundleIdentifier ?? "Debug.App"
                 // Fallback to in-memory container
                 logger.warning("Falling back to in-memory container.")
                 self.container = try! .init(
-                    for: schema,
+                    for: MainApp.schema,
                     configurations: .init(isStoredInMemoryOnly: true)
                 )
             }
@@ -64,7 +66,7 @@ let appID: String = Bundle.main.bundleIdentifier ?? "Debug.App"
 
 #Preview {
     let container = try! ModelContainer(
-        for: MainApp().schema,
+        for: MainApp.schema,
         configurations: .init(isStoredInMemoryOnly: true)
     )
     let context = container.mainContext

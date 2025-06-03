@@ -53,8 +53,8 @@ public protocol HealthRecord: PersistentModel {
 @MainActor public protocol HealthQuery<Record> {
     /// The type of data record this query returns.
     associatedtype Record: HealthRecord
-    /// The local data predicate generator.
-    func predicate(from: Date, to: Date) -> Predicate<Record>
+    /// The local data fetch descriptor generator.
+    func descriptor(from: Date, to: Date) -> FetchDescriptor<Record>
     /// Fetch the records from HealthKit.
     func fetch(
         from: Date, to: Date, limit: Int?,

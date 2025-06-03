@@ -4,20 +4,11 @@ import SwiftUI
 // MARK: Categories
 // ============================================================================
 
-enum HealthRecordCategory: String.LocalizationValue, CaseIterable {
-    case dietary = "Food"
-    case active = "Activity"
-    case resting = "Resting Energy"
-    case weight = "Weight"
-
-    var record: any HealthRecord {
-        switch self {
-        case .dietary: return DietaryCalorie(0)
-        case .resting: return RestingEnergy(0)
-        case .active: return ActiveEnergy(0)
-        case .weight: return Weight(0)
-        }
-    }
+enum HealthRecordCategory: String, CaseIterable {
+    case dietary
+    case active
+    case resting
+    case weight
 
     var icon: Image {
         switch self {
@@ -25,6 +16,46 @@ enum HealthRecordCategory: String.LocalizationValue, CaseIterable {
         case .resting: return .restingCalorie
         case .active: return .activeCalorie
         case .weight: return .weight
+        }
+    }
+
+    var color: Color {
+        switch self {
+        case .dietary: return .dietaryCalorie
+        case .resting: return .restingCalorie
+        case .active: return .activeCalorie
+        case .weight: return .weight
+        }
+    }
+
+    func state<T: HealthRecord>() -> State<T> {
+        switch self {
+        case .dietary:
+            return State<T>(initialValue: DietaryCalorie(0) as! T)
+        case .resting:
+            return State<T>(initialValue: RestingEnergy(0) as! T)
+        case .active:
+            return State<T>(initialValue: ActiveEnergy(0) as! T)
+        case .weight:
+            return State<T>(initialValue: Weight(0) as! T)
+        }
+    }
+
+    func query<T: HealthRecord>() -> any HealthQuery<T> {
+        switch self {
+        case .dietary: return DietaryQuery() as! any HealthQuery<T>
+        case .resting: return RestingQuery() as! any HealthQuery<T>
+        case .active: return ActivityQuery() as! any HealthQuery<T>
+        case .weight: return WeightQuery() as! any HealthQuery<T>
+        }
+    }
+
+    func createRecord() -> any HealthRecord {
+        switch self {
+        case .dietary: return DietaryCalorie(0)
+        case .resting: return RestingEnergy(0)
+        case .active: return ActiveEnergy(0)
+        case .weight: return Weight(0)
         }
     }
 }
@@ -83,68 +114,6 @@ extension HealthRecordCategory {
             let _ = AppLogger.new(for: record)
                 .error("Unknown record type: \(type(of: record))")
             EmptyView()
-        }
-    }
-}
-
-// MARK: Add Menu
-// ============================================================================
-
-extension HealthRecordCategory {
-    @MainActor
-    static func addMenu(
-        action: @escaping @MainActor (any HealthRecord) -> Void
-    ) -> some View {
-        Menu {
-            ForEach(Self.allCases, id: \.self) { category in
-                Button(action: { action(category.record) }) {
-                    Label {
-                        Text(String(localized: category.rawValue))
-                    } icon: {
-                        category.icon
-                    }
-                }
-            }
-        } label: {
-            Label("Add", systemImage: "plus")
-        }
-    }
-}
-
-// MARK: Filter Menu
-// ============================================================================
-
-extension HealthRecordCategory {
-
-    @ViewBuilder @MainActor
-    static func filterMenu(_ selected: Binding<[Self]>) -> some View {
-        Menu {
-            ForEach(Self.allCases, id: \.self) { category in
-                Toggle(
-                    isOn: Binding(
-                        get: { selected.wrappedValue.contains(category) },
-                        set: {
-                            if $0 {
-                                selected.wrappedValue.append(category)
-                            } else {
-                                selected.wrappedValue.removeAll {
-                                    $0 == category
-                                }
-                            }
-                        }
-                    )
-                ) { Text(String(localized: category.rawValue)) }
-            }
-
-            Divider()
-            Toggle(
-                isOn: Binding(
-                    get: { selected.isEmpty },
-                    set: { if $0 { selected.wrappedValue = [] } }
-                )
-            ) { Text("All Records") }
-        } label: {
-            Label("Filter", systemImage: "line.3.horizontal.decrease.circle")
         }
     }
 }

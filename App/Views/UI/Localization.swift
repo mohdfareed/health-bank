@@ -1,6 +1,8 @@
 import Foundation
 import SwiftUI
 
+// TODO: Fix forced capitalization.
+
 // MARK: Settings
 // ============================================================================
 
@@ -93,5 +95,16 @@ extension WorkoutActivity {
             return String(localized: "other").localizedCapitalized
         }
 
+    }
+}
+
+extension HealthRecordCategory {
+    var localized: String {
+        switch self {
+        case .dietary: return String(localized: "food").localizedCapitalized
+        case .active: return String(localized: "activity").localizedCapitalized
+        case .resting: return String(localized: "resting energy").localizedCapitalized
+        case .weight: return String(localized: "weight").localizedCapitalized
+        }
     }
 }

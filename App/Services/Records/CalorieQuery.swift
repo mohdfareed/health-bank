@@ -1,5 +1,6 @@
 import Foundation
 import HealthKit
+import SwiftData
 
 // MARK: Dietary Calories
 // ============================================================================
@@ -56,10 +57,14 @@ struct DietaryQuery: HealthQuery {
         return calories
     }
 
-    func predicate(from: Date, to: Date) -> Predicate<DietaryCalorie> {
-        return #Predicate {
+    func descriptor(from: Date, to: Date) -> FetchDescriptor<DietaryCalorie> {
+        let predicate = #Predicate<DietaryCalorie> {
             from <= $0.date && $0.date <= to
         }
+        return FetchDescriptor(
+            predicate: predicate,
+            sortBy: [.init(\.date, order: .reverse)]
+        )
     }
 }
 
@@ -91,9 +96,13 @@ struct RestingQuery: HealthQuery {
         }
     }
 
-    func predicate(from: Date, to: Date) -> Predicate<RestingEnergy> {
-        return #Predicate {
+    func descriptor(from: Date, to: Date) -> FetchDescriptor<RestingEnergy> {
+        let predicate = #Predicate<RestingEnergy> {
             from <= $0.date && $0.date <= to
         }
+        return FetchDescriptor(
+            predicate: predicate,
+            sortBy: [.init(\.date, order: .reverse)]
+        )
     }
 }

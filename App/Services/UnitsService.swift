@@ -1,7 +1,5 @@
 import SwiftUI
 
-// REVIEW: Overcomplicated
-
 // MARK: Localization
 // ============================================================================
 
