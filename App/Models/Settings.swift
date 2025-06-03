@@ -20,8 +20,6 @@ typealias Weekday = Locale.Weekday
 extension Settings {
     /// The app theme.
     static var theme: Settings<AppTheme> { .init("Theme", default: .system) }
-    /// Whether to enable biometrics for the app.
-    static var biometrics: Settings<Bool?> { .init("Biometrics") }
     /// Whether to enable notifications for the app.
     static var notifications: Settings<Bool?> { .init("Notifications") }
     /// Whether to enable HealthKit integration.

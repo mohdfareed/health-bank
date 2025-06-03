@@ -91,41 +91,45 @@ enum RecordDefinition {
         }
     )
 
-    static let active = RecordRowDefinition<ActiveEnergy, UnitEnergy>(
-        field: FieldDefinition.activeCalorie,
-        property: { $0.calories },
-        subtitle: {
-            @Bindable var calorie = $0
-            let duration = FieldDefinition.activity.measurement(
-                $calorie.duration
-            )
+    static func active(
+        workout: WorkoutActivity?
+    ) -> RecordRowDefinition<ActiveEnergy, UnitEnergy> {
+        .init(
+            field: FieldDefinition.activityCalorie(workout: workout),
+            property: { $0.calories },
+            subtitle: {
+                @Bindable var calorie = $0
+                let duration = FieldDefinition.activity.measurement(
+                    $calorie.duration
+                )
 
-            AnyView(
-                HStack(alignment: .bottom, spacing: 0) {
-                    if calorie.duration != nil {
-                        ValueView(
-                            measurement: duration,
-                            icon: .duration, tint: .duration,
-                            format: FieldDefinition.activity.formatter
-                        )
-                        Spacer().frame(maxWidth: 8)
+                AnyView(
+                    HStack(alignment: .bottom, spacing: 0) {
+                        if calorie.duration != nil {
+                            ValueView(
+                                measurement: duration,
+                                icon: .duration, tint: .duration,
+                                format: FieldDefinition.activity.formatter
+                            )
+                            Spacer().frame(maxWidth: 8)
+                        }
+                        if calorie.workout != nil {
+                            calorie.workout?.icon.asText
+                                .foregroundStyle(Color.activeCalorie)
+                            Spacer().frame(maxWidth: 8)
+                        }
                     }
-                    if calorie.workout != nil {
-                        calorie.workout?.icon.asText
-                            .foregroundStyle(Color.activeCalorie)
-                        Spacer().frame(maxWidth: 8)
+                )
+            },
+            destination: { active in
+                AnyView(
+                    RecordForm("Activity", record: active) {
+                        FormDefinition.activeEnergy.content(active)
                     }
-                }
-            )
-        },
-        destination: { active in
-            AnyView(
-                RecordForm("Activity", record: active) {
-                    FormDefinition.activeEnergy.content(active)
-                }
-            )
-        }
-    )
+                )
+            }
+        )
+    }
 
     static let resting = RecordRowDefinition<RestingEnergy, UnitEnergy>(
         field: FieldDefinition.calorie,

@@ -2,19 +2,6 @@ import Foundation
 import SwiftData
 import SwiftUI
 
-// FIXME: paginate healthKit data by storing last loaded date and querying
-// from that date, removing duplicates
-// FIXME: broken as is
-
-/// Projection for DataQuery providing simple loading states and pagination controls
-@MainActor
-struct DataQueryProjection<T> where T: HealthRecord {
-    let isRefreshing: Bool
-    let isLoading: Bool
-    let refresh: () async -> Void
-    let loadNext: () async -> Void
-}
-
 // MARK: Data Query
 // ============================================================================
 
@@ -23,84 +10,103 @@ struct DataQueryProjection<T> where T: HealthRecord {
 @MainActor @propertyWrapper
 struct DataQuery<T>: DynamicProperty
 where T: HealthRecord {
-    @Environment(\.healthKit) private var healthKitService
-    @Query private var localData: [T]
+    @Environment(\.modelContext)
+    private var modelContext
+    @Environment(\.healthKit)
+    private var healthKitService
 
-    @Binding
-    private var page: Int?
-    private let pageSize: Int
     private let query: any HealthQuery<T>
     private let dateRange: ClosedRange<Date>
+    private let pageSize: Int
 
-    @State private var remoteData: [T] = []
-    @State private var isRefreshing = false
-    @State private var isLoading = false
+    @State var isLoading = false
+    @State var hasMoreData = true
+
+    @State private var data: [T] = []  // Aggregated data
+    @State private var offset: Int = 0  // pagination offset
 
     var wrappedValue: [T] {
-        (localData + remoteData).sorted(by: { $0.date > $1.date })
+        data.sorted(by: { $0.date > $1.date })
     }
-
-    var projectedValue: DataQueryProjection<T> {
-        DataQueryProjection(
-            isRefreshing: isRefreshing,
-            isLoading: isLoading,
-            refresh: refresh,
-            loadNext: loadNext
-        )
-    }
+    var projectedValue: Self { self }
 
     init<Q>(
-        _ query: Q, from start: Date? = nil, to end: Date? = nil,
-        pageSize: Int = 50, page: Binding<Int?>
+        _ query: Q,
+        from start: Date? = nil, to end: Date? = nil, limit: Int = 50
     ) where Q: HealthQuery<T> {
         self.query = query
         self.dateRange = .init(from: start, to: end)
-        self.pageSize = pageSize
-        self._page = page
-
-        var descriptor = FetchDescriptor<T>(
-            predicate: query.predicate(
-                from: dateRange.lowerBound,
-                to: dateRange.upperBound,
-            ),
-        )
-        descriptor.fetchLimit = pageSize
-        descriptor.fetchOffset = 0
-        _localData = Query(descriptor, animation: .default)
+        self.pageSize = limit
     }
-
 }
 
-// MARK: Remote Data
+// MARK: Data Loading
 // ============================================================================
 
 extension DataQuery {
-    func refresh() async {
-        guard !isRefreshing else { return }
-        defer { isRefreshing = false }
+    func reload() async {
+        guard !isLoading else { return }
 
-        isRefreshing = true
-        remoteData = []
-        page = 0
-        remoteData = await loadRemoteData()
+        data = []
+        offset = 0
+        hasMoreData = true
+        await load()
     }
 
-    func loadNext() async {
-        guard !isLoading && !isRefreshing else { return }
+    func load() async {
+        guard !isLoading, hasMoreData else { return }
         defer { isLoading = false }
-
         isLoading = true
-        if let currentPage = page { page = currentPage + 1 }
-        remoteData = await loadRemoteData()
-    }
 
+        let newData = await loadLocalData() + loadRemoteData()
+        data += newData
+        hasMoreData = newData.count >= pageSize
+    }
+}
+
+// MARK: Loading Logic
+// ============================================================================
+
+extension DataQuery {
     private func loadRemoteData() async -> [T] {
         guard HealthKitService.isAvailable else { return [] }
+        let startDate: Date
+
+        // Calculate start date for cursor-based pagination
+        // Use last remote item's date + 1ms to avoid duplicates
+        let remoteData = data.filter({ $0.source != .local })
+        if let lastItem = remoteData.max(by: { $0.date < $1.date }) {
+            startDate = lastItem.date.addingTimeInterval(0.001)
+        } else {
+            startDate = dateRange.lowerBound
+        }
+
         return await query.fetch(
-            from: dateRange.lowerBound, to: dateRange.upperBound,
-            limit: (page ?? 0 * pageSize) + pageSize,
+            from: startDate, to: dateRange.upperBound, limit: pageSize,
             store: healthKitService
         ).filter { $0.source != .local }
+    }
+
+    private func loadLocalData() -> [T] {
+        var descriptor = FetchDescriptor(
+            predicate: query.predicate(
+                from: dateRange.lowerBound, to: dateRange.upperBound
+            ),
+            sortBy: [.init(\.date, order: .reverse)],
+        )
+        descriptor.fetchOffset = offset
+        descriptor.fetchLimit = pageSize
+
+        do {
+            let localData = try modelContext.fetch(descriptor)
+            offset += localData.count
+            return localData
+        } catch {
+            AppLogger.new(for: T.Type.self).error(
+                "Failed to fetch local data: \(error)"
+            )
+            return []
+        }
     }
 }
 

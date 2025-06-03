@@ -5,12 +5,12 @@ import SwiftUI
 // FIXME: Picker not usable when disabled for non-local records
 
 struct MeasurementField<Unit: Dimension>: View {
-    @Environment(\.isEnabled) var isEnabled: Bool
     @LocalizedMeasurement var measurement: Measurement<Unit>
 
     let validator: ((Double) -> Bool)?
     let format: FloatingPointFormatStyle<Double>
     let showPicker: Bool
+    let disabled: Bool
 
     var body: some View {
         HStack(alignment: .center, spacing: 4) {
@@ -19,7 +19,8 @@ struct MeasurementField<Unit: Dimension>: View {
                     .keyboardType(.decimalPad)
                 #endif
                 .multilineTextAlignment(.trailing)
-                .foregroundStyle(isEnabled ? .primary : .tertiary)
+                .foregroundStyle(disabled ? .primary : .tertiary)
+                .disabled(disabled)
                 .onChange(of: $measurement.baseValue) {
                     if !isValid {
                         $measurement.baseValue = nil

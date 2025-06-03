@@ -38,9 +38,9 @@ struct RecordField<Unit: Dimension, DetailContent: View>: View {
         } content: {
             MeasurementField(
                 measurement: $measurement, validator: definition.validator,
-                format: definition.formatter, showPicker: showPicker
+                format: definition.formatter, showPicker: showPicker,
+                disabled: source != .local
             )
-            .disabled(source != .local)
         }
         .animation(.default, value: measurement)
         .animation(.default, value: showPicker)

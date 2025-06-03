@@ -1,389 +1,85 @@
 # HealthBank - Development Knowledge Base
 
-#### Requirements (CONFIRMED)
-- **Read-Only Access**: Weight, Dietary Energy, Active Energy, Basal Energy, Macro Nutrients
-- **Error Handling**: Service has isEnabled flag + authorization + availability = active state; return empty results if inactive; log errors but don't propagate
-- **Data Flow**: One-way read from HealthKit, no observer queries or real-time updates
-- **Query Interface**: Each HealthQuery implementation must implement:
-  - `fetch(from: Date, to: Date, store: HealthKitService) -> [Record]`
-  - `predicate(from: Date, to: Date) -> Predicate<Record>`
-- **Settings**: `Settings.enableHealthKit` defaults to `true` (opt-out model)
-- **Base Units**:
-  - Weight: kilograms
-  - All calories: kilocalories
-  - Macro nutrients: grams
-  - Activity duration: minutes
-
-### Architecture Design (CONFIRMED)
-- **HealthKit Type Mapping**: ✅ Confirmed (bodyMass, dietaryEnergyConsumed, etc.)
-- **Responsibility Split**: Model logic in Query implementations, HealthKit logic in Service
-- **Macro Correlation**: Handle directly within `DietaryQuery.fetch()` method
-- **State Management**: Service handles its own active state checkinge
-- **Data Sources**: SwiftData (app-created data), HealthKit (external data), AppStorage (user preferences)
-- **Units**: Apple Measurement API, store internally in base units
-- **Sync**: Read from combined HealthKit+SwiftData, write to SwiftData first then sync to HealthKit
-
-## Key Constraints
-- Only `.local` source records are editable (not HealthKit data)
-- Models implement `DataRecord` protocol
-- Always use latest Swift features and animate UI changes by default
-
-## ✅ COMPLETED: Universal Forms Architecture
-
-### Forms Architecture Pattern
-- **RecordFormDefinition**: Generic struct in `Forms.swift` that holds form properties (title, etc.)
-- **FormDefinition**: Enum in `Forms.swift` with static properties for each form type
-- **RecordForm**: Universal component in `Components/RecordForm.swift` that takes a definition and builds the form
-
-### Refactored Individual Forms
-All forms now use the new `RecordForm` component with:
-- **2-section structure**: "Data" section for form fields, "Data Source" section showing source icon and name
-- **Automatic date handling**: `RecordForm` handles date picker in "Details" section
-- **Consistent validation**: Each form provides validation logic through `isValid` binding
-- **Data source display**: Shows HealthKit icon + "HealthKit" or local + "HealthBank" text
-- **Unified save/delete**: `RecordForm` handles common form actions and navigation
-
-### Updated Forms
-- **WeightForm**: Basic weight entry with source display
-- **DietaryCalorieForm**: Calorie entry with macro fields (protein, carbs, fat) grouped in Data section
-- **ActiveEnergyForm**: Active calories with duration and workout type fields
-- **RestingEnergyForm**: Simple resting energy entry
-
-### Architecture Benefits
-- **Consistent UI**: All forms follow identical structure and behavior
-- **Centralized Logic**: Common form functionality in `RecordForm` component
-- **Data Source Awareness**: Clear indication of where data originates
-- **Validation**: Each form can define custom validation logic
-- **Easy Maintenance**: Changes to form structure only need to be made in `RecordForm`
-
-## ✅ COMPLETED: True Pagination & Auto-Loading for DataView
-
-### Session Objective ✅
-Implemented proper memory-efficient pagination with auto-loading for HealthDataView, addressing performance concerns with the previous "fake pagination" approach.
-
-### Issues Addressed ✅
-1. **True Pagination**: ✅ Only loads data that's actually needed (not all data with display limits)
-2. **Memory Efficiency**: ✅ Both SwiftData and HealthKit data are truly paginated
-3. **Simplified States**: ✅ Reduced from 3 loading states to 2 clear states
-4. **Auto-Loading**: ✅ Data loads automatically on first view appearance
-
-### Implementation Details ✅
-
-#### **1. Simplified Loading States**
-- **`isRefreshing`**: Pull-to-refresh or initial data loading
-- **`isLoading`**: Loading more data via pagination
-- **Removed**: `hasMoreData`, `isLoadingMore` (overly complex)
-
-#### **2. True SwiftData Pagination**
-- **FetchDescriptor**: Uses `fetchLimit` and `fetchOffset` for database-level pagination
-- **Memory Efficient**: Only queries the rows needed from SwiftData
-- **Performance**: Leverages database indexing instead of loading all data
-
-#### **3. True HealthKit Pagination**
-- **Date-based Pagination**: Uses last loaded item's date for next page boundary
-- **Memory Efficient**: Only loads the requested page size from HealthKit
-- **Deduplication**: Prevents duplicate records across pagination boundaries
-
-#### **4. Enhanced DataQuery Architecture**
-- **Page Management**: Tracks `currentPage` and `loadedData` in memory
-- **Combined Loading**: Loads both SwiftData and HealthKit data per page
-- **Incremental Data**: Appends new pages to existing loaded data
-- **Reset on Refresh**: Clears loaded data and resets to page 0
-
-#### **5. Updated UI Experience**
-- **Auto-Loading**: Data loads on `onAppear` if list is empty
-- **Endless Scroll**: Triggers `loadMore()` when user reaches last item
-- **Simple Indicators**: Single loading state for clear UX
-- **Smooth Animations**: All state changes are animated
-
-### Performance Benefits ✅
-- **Memory Usage**: Only loads pages as needed (50 items vs potentially thousands)
-- **Database Performance**: SwiftData queries use proper offset/limit
-- **Network Efficiency**: HealthKit queries are date-bounded and limited
-- **UI Responsiveness**: No lag from loading excessive data upfront
-
-### Architecture Benefits ✅
-- **True Pagination**: Follows proper pagination patterns (not fake display limiting)
-- **Simplified Logic**: Two clear states instead of complex state combinations
-- **Database-Level**: Leverages SwiftData's built-in pagination capabilities
-- **Scalable**: Handles large datasets efficiently without memory issues
-
-### Technical Implementation ✅
-- **SwiftData**: `FetchDescriptor` with `fetchLimit`/`fetchOffset` for database pagination
-- **HealthKit**: Date-based boundary queries with configurable page sizes
-- **State Management**: Clean separation of refresh vs. load-more operations
-- **Memory Management**: Incremental loading with proper deduplication
-
-## 🔄 COMPLETED: HealthKit Integration System
-
-### Session Objective ✅
-Implemented HealthKit integration functions in the `HealthQuery` protocol implementations to fetch health data from Apple HealthKit and synchronize with SwiftData.
-
-### Requirements (CONFIRMED & IMPLEMENTED) ✅
-- **Read-Only Access**: Weight, Dietary Energy, Active Energy, Basal Energy, Macro Nutrients
-- **Error Handling**: Service has isEnabled flag + authorization + availability = active state; return empty results if inactive; log errors but don't propagate
-- **Data Flow**: One-way read from HealthKit, no observer queries or real-time updates
-- **Query Interface**: Each HealthQuery implementation implements:
-  - `@MainActor func fetch(from: Date, to: Date, store: HealthKitService) async -> [Record]`
-  - `func predicate(from: Date, to: Date) -> Predicate<Record>`
-- **Settings**: `Settings.enableHealthKit` defaults to `true` (opt-out model)
-- **Base Units**:
-  - Weight: kilograms
-  - All calories: kilocalories
-  - Macro nutrients: grams
-  - Activity duration: minutes
-
-### Final Implementation State ✅
-- **HealthKitService**: Complete service with authorization, query execution, and environment integration
-  - Fixed: Removed `@MainActor`, uses `UserDefaults` directly, implements `Sendable`
-  - Methods: `requestAuthorization()`, `fetchQuantitySamples()`, `fetchCorrelationSamples()`, `fetchWorkouts()`
-  - State: `isActive` computed from availability + settings + authorization
-  - Location: `Services/HealthKit/HealthKitService.swift` (duplicate removed from `Services/`)
-- **Query Protocols**: `@MainActor HealthQuery` protocol with async interface
-- **Complete Implementations**: All queries implement actual HealthKit data fetching:
-  - `WeightQuery.fetch()` - fetches HK body mass samples
-  - `DietaryQuery.fetch()` - fetches HK dietary energy + correlation food data
-  - `RestingQuery.fetch()` - fetches HK basal energy samples
-  - `ActivityQuery.fetch()` - fetches HK active energy samples
-- **Data Models**: Clean SwiftData models (no Sendable markers)
-- **Units Architecture**: ✅ Centralized `Units.swift` with `UnitDefinition` extensions
-- **Actor Safety**: All components properly handle actor isolation without making models Sendable
-
-## ✅ FINAL DESIGN: HealthKit Query System
-
-### Service Interface
-```swift
-// HealthKitService: Sendable (but not @MainActor)
-func requestAuthorization()  // Triggers authorization flow with logging
-func fetchQuantitySamples(for:from:to:) async -> [HKQuantitySample]
-func fetchCorrelationSamples(for:from:to:) async -> [HKCorrelation]
-func fetchWorkouts(from:to:) async -> [HKWorkout]  // Added for workout duration
-var isActive: Bool { UserDefaults.standard.bool(for: .enableHealthKit) && isAvailable }
-```
-
-### Query Implementation Pattern
-```swift
-// Each HealthQuery implementation (@MainActor)
-@MainActor
-func fetch(from: Date, to: Date, store: HealthKitService) async -> [Record] {
-    guard store.isActive else { return [] }
-    let samples = await store.fetchQuantitySamples(for: type, from: from, to: to)
-    return samples.map { sample in
-        Record(sample.quantity.baseUnitValue, date: sample.startDate, source: .healthKit)
-    }
-}
-
-    // 1. Create HKSampleQuery for date range
-    // 2. Execute via store.execute()
-    // 3. Convert HKQuantitySample to models (in base units)
-    // 4. For DietaryCalorie: fetch macro correlations directly
-    // 5. Return [ModelType]
-}
-```
-
-### Data Type Mappings
-- `Weight` → `HKQuantityType(.bodyMass)` → kilograms
-- `DietaryCalorie` → `HKQuantityType(.dietaryEnergyConsumed)` + macro correlations → kilocalories + grams
-- `RestingEnergy` → `HKQuantityType(.basalEnergyBurned)` → kilocalories
-- `ActiveEnergy` → `HKQuantityType(.activeEnergyBurned)` → kilocalories
-
-### Next Implementation Steps
-1. Complete HealthKitService with query execution methods
-2. Add Settings.enableHealthKit definition
-3. Implement WeightQuery.fetch() (simplest case)
-4. Implement other query fetch methods
-5. Test with authorization flow
-
-### Requirements Defined
-- **HealthKit Data Types**: Read-only access for Weight, Dietary Energy, Active Energy, Basal Energy, and Macro Nutrients
-- **Correlation Queries**: Dietary calories need correlation with macro nutrients; other models may need similar complex queries
-- **Data Flow**: One-way read from HealthKit, no observer queries or real-time updates
-- **Error Handling**: Service has `isEnabled` flag + authorization + availability = active state. If inactive, return empty results. Log errors but don't propagate
-- **Performance**: Basic implementation first, optimize later if needed
-- **Query Ranges**: Primary focus on daily/weekly data, monthly/yearly for occasional reflection
-
-### Refined Design Architecture
-
-#### Service Interface
-```swift
-@MainActor
-public final class HealthKitService {
-    private let logger = AppLogger.new(for: HealthKitService.self)
-    private let store = HKHealthStore()
-
-    // Settings Integration
-    @AppStorage(.enableHealthKit) private var isEnabled: Bool
-
-    // Computed State
-    static var isAvailable: Bool { HKHealthStore.isHealthDataAvailable() }
-    var isActive: Bool { isEnabled && Self.isAvailable }
-
-    // Core Methods
-    func requestAuthorization(for types: Set<HKObjectType>) async throws
-    func checkAuthorization(for type: HKObjectType) -> HKAuthorizationStatus
-    func fetchQuantitySamples(for type: HKQuantityType, from: Date, to: Date) async -> [HKQuantitySample]
-    func fetchCorrelationSamples(for type: HKCorrelationType, from: Date, to: Date) async -> [HKCorrelation]
-    func fetchWorkouts(from: Date, to: Date) async -> [HKWorkout]
-}
-```
-
-#### Settings Integration
-- **New Setting**: `Settings.enableHealthKit: Settings<Bool>` with default `true`
-- **Authorization**: Check per-type using `store.authorizationStatus(for:)` before queries
-- **Permission Request**: Use `.healthDataAccessRequest()` modifier, not custom dialogs
-
-#### ✅ RESOLVED: Unit Definition Layer
-**Solution**: Create `Models/Core/Units.swift` with centralized unit definitions
-**Required Units**:
-- Weight: `.kilograms`
-- Calories: `.kilocalories`
-- Macros: `.grams`
-- Duration: `.minutes`
-
-**Implementation**: Move unit definitions from UI layer to Models layer for service access
-
-#### Query-Model Mapping Strategy
-Each `HealthQuery` implementation:
-1. Checks `store.isActive` - returns `[]` if inactive
-2. Checks authorization for required types - returns `[]` if denied
-3. Fetches HealthKit data using appropriate method
-4. Maps HealthKit objects to app models with `.healthKit` source
-5. Logs errors but never throws/propagates them
-
-#### Macro Handling
-- Dietary calories: Fetch correlations when available
-- Individual macros (protein, fat, carbs) marked nullable in `CalorieMacros`
-- Only include macros when HealthKit correlation data exists
-
-## ✅ COMPLETED: UnifiedQuery System
-
-### Core Implementation
-- **Property Wrapper**: Combines `@Query` (SwiftData) + `@State` (HealthKit)
-- **Data Combining**: Automatic deduplication by source filtering
-- **Loading States**: Exposed via projected value (`$query.isLoading`)
-- **Manual Refresh**: Pull-to-refresh and programmatic refresh
-- **Environment Integration**: HealthKitService with mock implementation
-
-### Usage Pattern
-```swift
-@UnifiedQuery(WeightQuery()) var weights: [Weight]
-@UnifiedQuery(DietaryQuery()) var calories: [DietaryCalorie]
-```
-
-## ✅ COMPLETED: Form System
-
-### Record Forms
-- **WeightForm**: Edit weight entries with validation
-- **DietaryCalorieForm**: Edit calories with macro tracking (protein, carbs, fat)
-- **ActiveEnergyForm**: Edit active calories with workout details (duration, type)
-- **RestingEnergyForm**: Edit resting energy expenditure
-- All forms support local record editing and deletion
-
-### Integration
-- Forms automatically linked through `recordRow(for:)` function in `Records.swift`
-- Consistent navigation and validation across all record types
-- Source-aware editing (only `.local` records are editable)
-
-## Current Status
-- ✅ Universal component architecture implemented
-- ✅ UnifiedQuery system working with mock data
-- ✅ Record definition system mapping records to UI components
-- ✅ Universal forms architecture with RecordForm component
-- ✅ All individual forms refactored to use new pattern
-- ✅ Data source display (icon + name) implemented in all forms
-- ✅ 2-section form structure (Data + Data Source) implemented
-- 🔄 Ready for HealthKit integration and live testing
-
-## Next Steps
-1. Test current record mapping system in DataView
-2. Replace mock HealthKit service with real implementation
-3. Add real-time updates and observer patterns
-
-## 🔍 APPLE'S HEALTHKIT PATTERNS (RESEARCH FINDINGS)
-
-### Food Correlations (HKCorrelationType.food)
-**Apple's Documentation**: "Food correlations can contain a wide range of dietary information about the food, including information about the fat, protein, carbohydrates, energy, and vitamins consumed."
-
-**Key Insights**:
-- Food correlations use `HKCorrelation.objects` property to access contained nutritional samples
-- Each correlation can contain multiple `HKQuantitySample` objects for different nutrients
-- Correlations are queried using `HKCorrelationQuery` or `fetchCorrelationSamples`
-- Individual samples within correlation accessed via `correlation.objects` property
-
-### Workout Data (HKWorkout)
-**Apple's Documentation**: "A workout is a container for these types of information, taken as a collection of samples."
-
-**Key Insights**:
-- HKWorkout has `duration` property (calculated from start/end times)
-- HKWorkout can include `totalEnergyBurned` as `HKQuantity`
-- Workouts are queried using standard `HKSampleQuery` with `HKObjectType.workoutType()`
-- Active energy samples are separate from workout objects but can be correlated by time
-
-### Recommended Patterns
-1. **Food Data**: Query correlations, then extract individual nutrient samples from `objects` property
-2. **Workout Data**: Query workouts separately, match with active energy by time overlap
-3. **Missing Data**: Return entries with available data, use nil/optional for missing values
-
-### ✅ CONFIRMED DESIGN APPROACH
-
-Based on Apple's HealthKit documentation patterns:
-
-#### **1. Food Correlations (DietaryQuery)**
-- Query `HKCorrelationType.food` correlations using existing `fetchCorrelationSamples()`
-- Extract nutritional data from `correlation.objects` property
-- Set macro fields to nil when not present in correlation
-- No manual timestamp matching required (HealthKit handles correlation internally)
-
-#### **2. Workout Data (ActivityQuery)**
-- Query `HKWorkout` objects using existing `fetchWorkouts()`
-- HealthKit associates energy with workouts internally
-- Set duration to nil when no workout data available
-- No manual matching between energy and workouts required
-
-#### **3. Authorization Pattern**
-- Add individual nutrient quantity types to authorization:
-  - `HKQuantityType(.dietaryProtein)`
-  - `HKQuantityType(.dietaryCarbohydrates)`
-  - `HKQuantityType(.dietaryFatTotal)`
-- Add `HKWorkoutType` for workout queries
-- Do NOT request `HKCorrelationType.food` directly (per Apple docs)
-
-## 🚀 IMPLEMENTATION TASKS
-
-### ✅ Priority 1: Authorization Updates
-- [x] Add macro nutrient quantity types to HealthKitService authorization
-- [x] Add HKWorkoutType to authorization request
-
-### ✅ Priority 2: DietaryQuery Enhancement
-- [x] Update fetch() to query food correlations
-- [x] Extract macro nutrients from correlation.objects
-- [x] Populate DietaryCalorie with macro data (nil when missing)
-
-### ✅ Priority 3: ActivityQuery Enhancement
-- [x] Update fetch() to query workout data
-- [x] Extract duration from HKWorkout objects
-- [x] Populate ActiveEnergy with duration data (nil when missing)
-
-## ✅ IMPLEMENTATION COMPLETE
-
-### What Was Updated
-
-#### **1. HealthKitService Authorization**
-- Added `HKWorkoutType.workoutType()` to read authorization types
-- Macro nutrient types were already present (dietaryProtein, dietaryCarbohydrates, dietaryFatTotal)
-
-#### **2. DietaryQuery Implementation**
-- Switched from `fetchQuantitySamples` to `fetchCorrelationSamples` for food data
-- Extracts macro nutrients from `correlation.objects` property
-- Populates `CalorieMacros` with protein, fat, carbs (nil when missing)
-- Returns `DietaryCalorie` objects with complete nutritional data
-
-#### **3. ActivityQuery Implementation**
-- Added workout data fetching using `fetchWorkouts()`
-- Matches energy samples with overlapping workouts by time
-- Extracts duration and workout type from HKWorkout objects
-- Added `HKWorkoutActivityType.toWorkoutType()` extension for type mapping
-- Returns `ActiveEnergy` objects with duration and workout type (nil when missing)
-
-### Build Status: ✅ SUCCESS
-All changes compile successfully and follow Apple's documented HealthKit patterns.
+## Architecture Overview
+- **HealthKit**: Source-of-truth for externally generated metrics
+- **SwiftData**: Local store for app-created entries
+- **Data synchronization**: Combined from both sources when read
+- **AppStorage**: User settings (units, themes)
+- **Measurement API**: Unit conversions at view layer
+
+## Pagination Implementation ✅ FIXED
+
+### Critical Fix Completed:
+**Fixed broken HealthKit pagination** that was causing exponentially expensive queries.
+
+### Problem Identified:
+The original implementation was using pseudo-offset pagination with HealthKit by:
+1. Fetching `healthKitOffset + healthKitLimit` items from HealthKit (exponentially more data each page)
+2. Dropping most data in memory with `dropFirst(healthKitOffset).prefix(healthKitLimit)`
+3. This made page 1 fetch 50 items, page 2 fetch 100 items, page 3 fetch 150 items, etc.
+
+### Solution Implemented:
+**Cursor-based pagination for HealthKit** + **offset-based pagination for SwiftData**:
+
+1. **DataService.swift**: Complete rewrite of pagination logic
+   - **HealthKit**: Uses cursor-based pagination (calculates cursor from existing data)
+   - **SwiftData**: Uses proper offset-based pagination with `localOffset`
+   - Eliminated the expensive "fetch-all-then-drop" pattern
+   - Each HealthKit query now only fetches exactly `pageSize` new items
+
+2. **Key Changes**:
+   - Removed `page` variable and `healthKitCursor` state - cursor calculated on-demand
+   - Split loading into `loadLocalData()` and `loadRemoteData()` methods for clarity
+   - **HealthKit cursor**: `data.filter({ $0.source != .local }).max(by: { $0.date < $1.date })`
+   - **SwiftData offset**: `localOffset` tracks how many local items fetched
+   - First HealthKit page: Query from `startDate` to `endDate` with `limit: pageSize`
+   - Subsequent HealthKit pages: Query from `lastItemDate + 1ms` to `endDate` with `limit: pageSize`
+
+3. **`hasMoreData` Logic Explained**:
+   - `hasMoreData = newData.count >= pageSize`
+   - **Why this works**: If a query returns fewer items than requested, it means we've reached the end
+   - **Example**: If `pageSize = 50` but only 23 items returned, no more data exists
+   - **Prevents unnecessary API calls**: Stops pagination automatically when data is exhausted
+   - **Covers both sources**: Works for SwiftData (database exhausted) and HealthKit (no more samples)
+
+3. **Performance Impact**:
+   - Before: Page 3 would fetch 150 HealthKit items and drop 100 of them
+   - After: Page 3 fetches exactly 50 new HealthKit items
+   - Eliminates exponential memory and network usage growth
+
+### Previously Completed:
+1. **RecordsService.swift**: Added aggregated pagination state
+2. **DataView.swift**: Explicit "Load More" button instead of automatic loading
+3. **SettingsService.swift**: Fixed compilation error by removing `.biometrics` reference
+
+### Architecture Notes:
+- **HealthKit limitation**: No native offset support, only limit + date-based filtering
+- **Cursor pattern**: More efficient for time-series data than offset-based pagination
+- **Hybrid approach**: SwiftData (offset) + HealthKit (cursor) combined seamlessly
+
+### Testing Status:
+✅ Project builds successfully
+✅ Critical pagination flaw identified and fixed
+✅ HealthKit now uses proper cursor-based pagination
+✅ Memory efficient - no more exponential data fetching
+✅ **Initial data loading fixed** - Improved `reload()` for immediate UI feedback
+⏳ Runtime testing needed to validate behavior
+
+### Latest Fix: Cleaner Initial Data Loading
+**Problem**: Data wasn't loading when first opening the page
+**Root Cause**: Complex async state management in `reload()` method
+**Better Solution**:
+- **Synchronous data clearing**: `reload()` immediately empties data (instant UI feedback)
+- **Asynchronous data loading**: Data loads in background after clearing
+- **Simpler state management**: No extra flags or `autoLoad()` methods needed
+- **Better async handling**: `.task()` instead of `.onAppear` for initial load
+
+**Files Changed**:
+- `DataService.swift`: Simplified `reload()` - immediate clear, async load
+- `DataView.swift`: Changed from `.onAppear` to `.task()` for better async handling
+
+### Next: Tab-Based Architecture
+**Agreed Plan**: Switch from combined RecordsQuery to individual category tabs
+- **Option C**: Separate `CategoryView<T>` for each record type
+- **Benefits**: No pagination coordination needed, simpler logic, focused UX
+- **Implementation**: After current fixes are validated

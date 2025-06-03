@@ -4,44 +4,28 @@ import SwiftUI
 // MARK: Categories Data
 // ============================================================================
 
-/// Projection for RecordsQuery providing aggregated loading states and pagination controls
-@MainActor
-struct RecordsQueryProjection {
-    let isRefreshing: Bool
-    let isLoading: Bool
-    let refresh: () async -> Void
-    let load: () async -> Void
-}
-
 @MainActor @propertyWrapper
 struct RecordsQuery: DynamicProperty {
     @DataQuery var dietaryCalories: [DietaryCalorie]
     @DataQuery var restingCalories: [RestingEnergy]
     @DataQuery var activities: [ActiveEnergy]
     @DataQuery var weights: [Weight]
-    @State private var currentPage: Int?
 
     init(
         from start: Date? = nil, to end: Date? = nil,
         pageSize: Int = 50
     ) {
-        _currentPage = .init(initialValue: 0)
-
         _dietaryCalories = .init(
-            DietaryQuery(), from: start, to: end, pageSize: pageSize,
-            page: _currentPage.projectedValue
+            DietaryQuery(), from: start, to: end, limit: pageSize,
         )
         _restingCalories = .init(
-            RestingQuery(), from: start, to: end, pageSize: pageSize,
-            page: _currentPage.projectedValue
+            RestingQuery(), from: start, to: end, limit: pageSize,
         )
         _activities = .init(
-            ActivityQuery(), from: start, to: end, pageSize: pageSize,
-            page: _currentPage.projectedValue
+            ActivityQuery(), from: start, to: end, limit: pageSize,
         )
         _weights = .init(
-            WeightQuery(), from: start, to: end, pageSize: pageSize,
-            page: _currentPage.projectedValue
+            WeightQuery(), from: start, to: end, limit: pageSize,
         )
     }
 
@@ -53,34 +37,34 @@ struct RecordsQuery: DynamicProperty {
         records.append(contentsOf: weights)
         return records.sorted { $0.date > $1.date }
     }
+    var projectedValue: Self { self }
 
-    var projectedValue: RecordsQueryProjection {
-        .init(
-            isRefreshing: $dietaryCalories.isRefreshing
-                || $restingCalories.isRefreshing
-                || $activities.isRefreshing
-                || $weights.isRefreshing,
-            isLoading: $dietaryCalories.isLoading
-                || $restingCalories.isLoading
-                || $activities.isLoading
-                || $weights.isLoading,
-            refresh: refresh,
-            load: loadNextPage
-        )
+    var isLoading: Bool {
+        $dietaryCalories.isLoading
+            || $restingCalories.isLoading
+            || $activities.isLoading
+            || $weights.isLoading
     }
 
-    func refresh() async {
-        await $dietaryCalories.refresh()
-        await $restingCalories.refresh()
-        await $activities.refresh()
-        await $weights.refresh()
+    var hasMoreData: Bool {
+        $dietaryCalories.hasMoreData
+            || $restingCalories.hasMoreData
+            || $activities.hasMoreData
+            || $weights.hasMoreData
     }
 
-    func loadNextPage() async {
-        await $dietaryCalories.loadNext()
-        await $restingCalories.loadNext()
-        await $activities.loadNext()
-        await $weights.loadNext()
+    func reload() async {
+        await $dietaryCalories.reload()
+        await $restingCalories.reload()
+        await $activities.reload()
+        await $weights.reload()
+    }
+
+    func load() async {
+        await $dietaryCalories.load()
+        await $restingCalories.load()
+        await $activities.load()
+        await $weights.load()
     }
 }
 

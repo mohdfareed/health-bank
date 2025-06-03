@@ -41,7 +41,9 @@ extension HealthRecordCategory {
         case let calorie as DietaryCalorie:
             RecordDefinition.dietary.recordRow(calorie)
         case let calorie as ActiveEnergy:
-            RecordDefinition.active.recordRow(calorie)
+            RecordDefinition.active(
+                workout: calorie.workout
+            ).recordRow(calorie)
         case let calorie as RestingEnergy:
             RecordDefinition.resting.recordRow(calorie)
         default:

@@ -60,6 +60,20 @@ enum FieldDefinition {
         formatter: .number.precision(.fractionLength(0))
     )
 
+    // Alt Activity Calories
+    static func activityCalorie(
+        workout: WorkoutActivity?
+    ) -> RecordFieldDefinition<UnitEnergy> {
+        .init(
+            title: "Activity",
+            image: workout?.icon ?? .activeCalorie,
+            tint: .activeCalorie,
+            unitDefinition: .calorie,
+            validator: { $0 >= 0 },
+            formatter: .number.precision(.fractionLength(0))
+        )
+    }
+
     // Resting Calories
     static let restingCalorie = RecordFieldDefinition<UnitEnergy>(
         title: "Calories",

@@ -3,13 +3,12 @@ import SwiftUI
 
 struct HealthDataView: View {
     @Environment(\.modelContext) private var context: ModelContext
-    @RecordsQuery(from: .now, to: .now, pageSize: 10)
+    @RecordsQuery(from: .distantPast, to: .distantFuture, pageSize: 10)
     private var records
 
     @State private var selectedFilters: [HealthRecordCategory] = []
     @State private var newRecord: any HealthRecord = DietaryCalorie(0)
     @State private var isAddingRecord = false
-    @State private var currentPage = 0
 
     private var filteredRecords: [any HealthRecord] {
         records.filter { record in
@@ -27,13 +26,21 @@ struct HealthDataView: View {
             List {
                 ForEach(filteredRecords, id: \.id) { record in
                     HealthRecordCategory.recordRow(record)
-                        .onAppear {
-                            if record.id == filteredRecords.last?.id {
-                                Task {
-                                    await $records.load()
+                        .swipeActions {
+                            if record.source == .local {
+                                Button(role: .destructive) {
+                                    context.delete(record)
+                                    save()
+                                } label: {
+                                    Label("Delete", systemImage: "trash")
                                 }
                             }
                         }
+                }
+
+                // Load more button
+                if $records.hasMoreData && !$records.isLoading {
+                    loadButton()
                 }
 
                 // Loading indicator for pagination
@@ -44,15 +51,13 @@ struct HealthDataView: View {
             .navigationTitle("Health Records")
             .animation(.default, value: selectedFilters)
             .animation(.default, value: $records.isLoading)
-            .animation(.default, value: $records.isRefreshing)
+            .animation(.default, value: $records.hasMoreData)
 
             .refreshable {
-                await $records.refresh()
+                await $records.reload()
             }
-            .onAppear {
-                Task {
-                    await $records.refresh()
-                }
+            .task {
+                await $records.reload()
             }
             .toolbar {
                 toolbar()
@@ -61,7 +66,6 @@ struct HealthDataView: View {
                 sheet()
             }
         }
-
     }
 
     @ToolbarContentBuilder
@@ -95,6 +99,16 @@ struct HealthDataView: View {
                     }
                 }
         }
+    }
+
+    private func loadButton() -> some View {
+        Button("Load More") {
+            Task {
+                await $records.load()
+            }
+        }
+        .frame(maxWidth: .infinity)
+        .listRowSeparator(.hidden)
     }
 
     private func loadingIndicator() -> some View {

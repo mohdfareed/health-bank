@@ -30,7 +30,7 @@ struct SettingsView: View {
                 ) { reset = true }
 
                 Button(
-                    "Erase Data",
+                    "Erase All Data",
                     role: .destructive
                 ) { erase = true }
             }
@@ -44,31 +44,37 @@ struct SettingsView: View {
 
 extension View {
     fileprivate func resetAlert(isPresented: Binding<Bool>) -> some View {
-        self.alert(
-            "Reset All Settings", isPresented: isPresented
-        ) {
+        self.alert("Reset All Settings", isPresented: isPresented) {
             Button("Cancel", role: .cancel) {}
             Button("Reset", role: .destructive) {
                 UserDefaults.standard.resetSettings()
             }
         } message: {
-            Text("This action cannot be undone.")
+            Text(
+                """
+                Reset all settings to their default values.
+                This action cannot be undone.
+                """
+            )
         }
     }
 
     fileprivate func eraseAlert(
         isPresented: Binding<Bool>, context: ModelContext
     ) -> some View {
-        self.alert(
-            "Erase All Data", isPresented: isPresented
-        ) {
+        self.alert("Erase All App Data", isPresented: isPresented) {
             Button("Cancel", role: .cancel) {}
             Button("Erase", role: .destructive) {
                 UserDefaults.standard.resetSettings()
                 context.eraseAll()
             }
         } message: {
-            Text("This action cannot be undone.")
+            Text(
+                """
+                Erase all health records, settings, and app data.
+                This action cannot be undone.
+                """
+            )
         }
     }
 }
@@ -76,7 +82,6 @@ extension View {
 struct GeneralSettings: View {
     @AppStorage(.theme) var theme: AppTheme
     @AppStorage(.notifications) var notifications: Bool?
-    @AppStorage(.biometrics) var biometrics: Bool?
 
     var body: some View {
         Picker(
@@ -90,18 +95,11 @@ struct GeneralSettings: View {
         ) { Text(self.theme.localized) }
         .frame(maxHeight: 8)
 
-        // TODO: Implement notifications and biometrics settings
+        // TODO: Implement notifications
         // Toggle(isOn: self.$notifications.defaulted(to: false)) {
         //     Label(
         //         "Enable notifications",
         //         systemImage: "bell"
-        //     ).labelStyle(.automatic)
-        // }
-
-        // Toggle(isOn: self.$biometrics.defaulted(to: false)) {
-        //     Label(
-        //         "Enable biometrics",
-        //         systemImage: "faceid"
         //     ).labelStyle(.automatic)
         // }
     }

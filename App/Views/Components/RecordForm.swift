@@ -43,6 +43,7 @@ struct RecordForm<R: HealthRecord, Content: View>: View {
                         saveRecord()
                     }
                 }
+                .disabled(record.source != .local)
 
                 if record.source == .local {
                     Section {
@@ -67,7 +68,6 @@ struct RecordForm<R: HealthRecord, Content: View>: View {
                 }
             }
             .scrollDismissesKeyboard(.immediately)
-            .disabled(record.source != .local)
             .navigationTitle(String(localized: title))
             .onChange(of: record) {
                 saveRecord()
