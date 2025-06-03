@@ -58,7 +58,7 @@ private func nativeUnit<D: Dimension>(
 /// user overrides for the display unit.
 @MainActor @propertyWrapper
 struct LocalizedMeasurement<D: Dimension>: DynamicProperty {
-    // @AppLocale private var locale
+    @AppLocale private var locale
     @Binding var baseValue: Double?
     @State var displayUnit: D?
     let definition: UnitDefinition<D>
@@ -81,8 +81,7 @@ struct LocalizedMeasurement<D: Dimension>: DynamicProperty {
 
     var unit: Binding<D?> {
         Binding(
-            // get: { displayUnit ?? definition.unit(for: locale) },
-            get: { displayUnit ?? definition.unit(for: Locale.current) },
+            get: { displayUnit ?? definition.unit(for: locale) },
             set: { displayUnit = $0 }
         )
     }
@@ -102,8 +101,7 @@ struct LocalizedMeasurement<D: Dimension>: DynamicProperty {
 
     /// Provides a list of units suitable for user selection in a picker.
     func availableUnits() -> [D] {
-        // let displayUnit = definition.unit(for: locale)
-        let displayUnit = definition.unit(for: Locale.current)
+        let displayUnit = definition.unit(for: locale)
         var units: [String: D] = [:]
 
         units[definition.baseUnit.symbol] = definition.baseUnit
@@ -123,9 +121,6 @@ extension LocalizedMeasurement {
     init(_ value: Binding<Double?>, definition: UnitDefinition<D>) {
         self.definition = definition
         self._baseValue = value
-        self._displayUnit = State(
-            initialValue: definition.unit(for: Locale.current)
-        )
     }
 
     init(

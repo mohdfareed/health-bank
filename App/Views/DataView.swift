@@ -86,6 +86,8 @@ struct HealthDataView: View {
 // MARK: Category View
 // ============================================================================
 
+// TODO: Remove icons from record row for category views.
+
 /// A view that displays records of a specific type with source filtering.
 private struct CategoryView<T: HealthRecord>: View {
     @Environment(\.modelContext) private var context: ModelContext
@@ -228,7 +230,11 @@ private struct CategoryView<T: HealthRecord>: View {
                             }
                         )
                     ) {
-                        Text(source.localized)
+                        Label {
+                            Text(source.localized)
+                        } icon: {
+                            source.icon ?? Image.logo
+                        }
                     }
                 }
 

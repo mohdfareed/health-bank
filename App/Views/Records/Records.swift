@@ -14,6 +14,7 @@ struct RecordRowDefinition<R, U>: Sendable where R: HealthRecord, U: Dimension {
             measurement: field.measurement(.constant(property(record))),
             subtitle: { subtitle(record) }
         ) {
+            // FIXME: called in endless loop
             destination(record)
         }
     }

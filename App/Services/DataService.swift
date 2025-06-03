@@ -117,3 +117,17 @@ extension ClosedRange<Date> {
         self = start...end
     }
 }
+
+extension ModelContext {
+    /// Erase all data in the context.
+    func eraseAll() {
+        do {
+            try self.delete(model: DietaryCalorie.self)
+            try self.delete(model: RestingEnergy.self)
+            try self.delete(model: ActiveEnergy.self)
+            try self.delete(model: Weight.self)
+        } catch {
+            print("Failed to erase all data: \(error)")
+        }
+    }
+}

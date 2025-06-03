@@ -56,7 +56,6 @@ let appID: String = Bundle.main.bundleIdentifier ?? "Debug.App"
             AppView()
                 .modelContainer(self.container)
                 .healthKit(.init())
-                .appLocale()
         }
     }
 }

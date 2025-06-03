@@ -6,7 +6,7 @@ import SwiftUI
 // MARK: Settings
 // ============================================================================
 
-let AppName = String(localized: "HealthBank").localizedCapitalized
+let AppName = String(localized: "HealthBank")
 
 extension DataSource {
     var localized: String {

@@ -180,7 +180,7 @@ extension HealthKitService {
     }
 }
 
-// MARK: SwiftUI Integration
+// MARK: Environment Integration
 // ============================================================================
 
 extension EnvironmentValues {

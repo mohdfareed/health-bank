@@ -8,7 +8,7 @@ import SwiftUI
 struct AppView: View {
     @AppStorage(.theme)
     internal var theme: AppTheme
-    // @AppLocale private var locale
+    @AppLocale private var locale
 
     var body: some View {
         TabView {
@@ -16,7 +16,7 @@ struct AppView: View {
             Tab("Records", systemImage: "list.clipboard") { HealthDataView() }
             Tab("Settings", systemImage: "gear") { SettingsView() }
         }
-        // .environment(\.locale, self.locale)
+        .environment(\.locale, self.locale)
         .preferredColorScheme(self.theme.colorScheme)
     }
 }

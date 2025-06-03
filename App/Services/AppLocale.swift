@@ -39,28 +39,3 @@ struct AppLocale: DynamicProperty {
         )
     }
 }
-
-/// A view modifier to apply the app's locale, based on user settings.
-struct AppLocaleModifier: ViewModifier {
-    @AppStorage(.unitSystem) private var unitSystem: MeasurementSystem?
-    @AppStorage(.firstDayOfWeek) private var firstDayOfWeek: Weekday?
-    @Environment(\.locale) private var systemLocale: Locale
-
-    private var locale: Locale {
-        var components = Locale.Components(locale: systemLocale)
-        components.firstDayOfWeek = firstDayOfWeek ?? components.firstDayOfWeek
-        components.measurementSystem = unitSystem ?? components.measurementSystem
-        return Locale(components: components)
-    }
-
-    func body(content: Content) -> some View {
-        content.environment(\.locale, locale)
-    }
-}
-
-extension View {
-    /// Applies the app's locale settings to this view hierarchy.
-    func appLocale() -> some View {
-        self.modifier(AppLocaleModifier())
-    }
-}
