@@ -1,1 +1,0 @@
-# HealthBank - Development Knowledge Base

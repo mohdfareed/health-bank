@@ -4,5 +4,6 @@
 build/
 
 .env
-Package.resolved
 **/*.generated.*
+Package.resolved
+REVIEW.md
