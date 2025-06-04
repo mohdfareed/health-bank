@@ -11,7 +11,7 @@ struct AdaptiveGridContainer<Content: View>: View {
 
     let style: Style
     let columns: [GridItem]
-    let content: Content
+    @ViewBuilder let content: () -> Content
 
     init(
         style: Style = .grid,
@@ -22,19 +22,19 @@ struct AdaptiveGridContainer<Content: View>: View {
     ) {
         self.style = style
         self.columns = columns
-        self.content = content()
+        self.content = content
     }
 
     var body: some View {
         Group {
             if style == .grid {
                 LazyVGrid(columns: columns, spacing: 16) {
-                    content
+                    content()
                 }
                 .padding(.horizontal)
             } else {
                 List {
-                    content
+                    content()
                 }
                 .listStyle(PlainListStyle())
             }

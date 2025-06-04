@@ -40,8 +40,7 @@ struct HealthDataView: View {
         }
     }
 
-    @ViewBuilder
-    private func categoryView(
+    @ViewBuilder private func categoryView(
         for category: HealthRecordCategory
     ) -> some View {
         switch category {
@@ -169,8 +168,7 @@ private struct CategoryView<T: HealthRecord>: View {
         }
     }
 
-    @ViewBuilder
-    private func loadMoreButton() -> some View {
+    @ViewBuilder private func loadMoreButton() -> some View {
         if $records.hasMoreData && !$records.isLoading {
             Button("Load More") {
                 Task { await $records.load() }
@@ -189,8 +187,7 @@ private struct CategoryView<T: HealthRecord>: View {
         }
     }
 
-    @ViewBuilder
-    private func swipeActions(for record: T) -> some View {
+    @ViewBuilder private func swipeActions(for record: T) -> some View {
         if record.source == .local {
             Button(role: .destructive) {
                 context.delete(record)

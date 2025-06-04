@@ -15,7 +15,7 @@ extension UnitDefinition where D == UnitMass {
 
     /// Weight unit definition (kilograms as base).
     static let weight = UnitDefinition<UnitMass>(
-        .kilograms, alts: [.pounds], usage: .personWeight
+        .kilograms, alts: [.pounds, .stones], usage: .personWeight
     )
 }
 extension UnitDefinition where D == UnitDuration {
