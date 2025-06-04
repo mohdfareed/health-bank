@@ -2,6 +2,8 @@ import Foundation
 import SwiftData
 import SwiftUI
 
+// FIXME: Use @Query instead of @State for better performance
+
 // MARK: Data Query
 // ============================================================================
 

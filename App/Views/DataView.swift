@@ -10,17 +10,19 @@ struct HealthDataView: View {
 
     var body: some View {
         NavigationStack {
-            ScrollView {
-                AdaptiveGridContainer {
-                    ForEach(
-                        HealthRecordCategory.allCases, id: \.self
-                    ) { category in
-                        HealthGridItem(
-                            title: category.localized,
-                            icon: category.icon,
-                            tint: category.color
-                        ) {
-                            categoryView(for: category)
+            List {
+                ForEach(
+                    HealthRecordCategory.allCases, id: \.self
+                ) { category in
+                    NavigationLink(
+                        destination: categoryView(for: category)
+                    ) {
+                        Label {
+                            Text(category.localized)
+                                .font(.headline)
+                        } icon: {
+                            category.icon
+                                .foregroundStyle(category.color)
                         }
                     }
                 }

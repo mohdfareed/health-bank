@@ -1,7 +1,5 @@
 import SwiftUI
 
-// FIXME: Not working, env locale used outside of view
-
 // MARK: Locale
 // ============================================================================
 
