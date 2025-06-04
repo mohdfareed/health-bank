@@ -15,45 +15,40 @@ struct DetailedRow<
 
     var body: some View {
         LabeledContent {
-            content().contentTransition(.numericText())
-                .frame(maxHeight: 8).fixedSize()
+            content().frame(maxHeight: 0)
+                .layoutPriority(-1)
+
         } label: {
             Label {
                 HStack(spacing: 6) {
-                    title().contentTransition(.numericText())
+                    title()
 
                     if let subtitle = subtitle() {
-                        subtitle
-                            .textScale(.secondary)
+                        subtitle.textScale(.secondary)
                             .foregroundStyle(.secondary)
-                            .contentTransition(.opacity)
-                            .transition(.opacity)
                     }
                 }
 
                 if let details = details() {
-                    details
-                        .textScale(.secondary)
+                    details.textScale(.secondary)
                         .foregroundStyle(.secondary)
-                        .contentTransition(.opacity)
-                        .transition(.opacity)
                 }
+
             } icon: {
                 if let image = image {
-                    image
-                        .foregroundStyle(tint ?? .primary)
+                    image.foregroundStyle(tint ?? .primary)
                         .contentTransition(.symbolEffect(.replace))
                 }
             }
             .truncationMode(.tail)
             .lineLimit(1)
-            .layoutPriority(1)
         }
-        .animation(.spring, value: content() as? AnyHashable)
-        .animation(.default, value: subtitle() != nil)
-        .animation(.default, value: details() != nil)
-        .animation(.default, value: tint != nil)
-        .animation(.spring, value: image != nil)
+
+        .animation(.default, value: tint)
+        .animation(.default, value: image)
+        .animation(.default, value: content() as? AnyHashable)
+        .animation(.default, value: subtitle() as? AnyHashable)
+        .animation(.default, value: details() as? AnyHashable)
     }
 }
 

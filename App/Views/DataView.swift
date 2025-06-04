@@ -27,12 +27,16 @@ struct HealthDataView: View {
             }
             .navigationTitle("Health Records")
 
-            CategoryAddMenu { category in
-                activeCategory = category
+            .toolbar {
+                ToolbarItem(placement: .primaryAction) {
+                    CategoryAddMenu { category in
+                        activeCategory = category
+                    }
+                    .labelStyle(.titleAndIcon)
+                }
             }
-            .buttonStyle(.borderedProminent)
-            .padding()
         }
+
         .sheet(item: $activeCategory) { category in
             NavigationStack {
                 category.recordSheet
@@ -75,8 +79,7 @@ struct HealthDataView: View {
                     }
                 }
             } label: {
-                Label("Add", systemImage: "plus")
-                    .frame(maxWidth: .infinity, minHeight: 44)
+                Label("Log Record", systemImage: "plus.circle")
             }
         }
     }

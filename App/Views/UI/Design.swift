@@ -9,7 +9,7 @@ extension Color {
     static var logoSecondary: Color { .init("LogoSecondary") }
 
     // Data Sources
-    static var local: Color { .primary }
+    static var local: Color { .accent }
     static var healthKit: Color { .pink }
     static var cloud: Color { .blue }
 
@@ -36,7 +36,7 @@ extension Image {
     static var logoAlt: Image { .init("LogoAlt") }
 
     // Data Sources
-    static var local: Image? { nil }
+    static var local: Image? { logo }
     static var cloud: Image { .init(systemName: "icloud.fill") }
     static var healthKit: Image { .init(systemName: "heart.fill") }
 

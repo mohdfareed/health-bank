@@ -41,3 +41,48 @@ where R: HealthRecord, U: Dimension, S: View, Destination: View {
         }
     }
 }
+
+struct DateView: View {
+    let date: Date?
+    var body: some View {
+        if let relativeDate = relativeDate {
+            Text(relativeDate)
+        }
+    }
+
+    var relativeDate: String? {
+        guard let date = date else {
+            return nil
+        }
+
+        let formatter = RelativeDateTimeFormatter()
+        formatter.unitsStyle = .abbreviated
+        formatter.dateTimeStyle = .numeric
+
+        return formatter.localizedString(
+            for: date, relativeTo: Date.now
+        )
+    }
+}
+
+struct ValueView<Unit: Dimension>: View {
+    @LocalizedMeasurement var measurement: Measurement<Unit>
+    let icon: Image?
+    let tint: Color?
+    let format: FloatingPointFormatStyle<Double>
+
+    var body: some View {
+        HStack(alignment: .bottom, spacing: 0) {
+            icon?.asText.foregroundStyle(tint ?? .primary)
+            Text(
+                measurement.formatted(
+                    .measurement(
+                        width: .narrow, usage: $measurement.definition.usage,
+                        numberFormatStyle: format
+                    )
+                )
+            )
+        }
+        .contentTransition(.numericText())
+    }
+}

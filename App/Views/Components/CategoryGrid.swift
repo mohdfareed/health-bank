@@ -70,24 +70,3 @@ struct HealthGridItem<Destination: View>: View {
         .buttonStyle(PlainButtonStyle())
     }
 }
-
-// MARK: HealthRowItem
-// A SwiftUI-native list row item with icon, title, and disclosure indicator.
-
-struct HealthRowItem<Destination: View>: View {
-    let title: String
-    let icon: Image
-    let tint: Color
-    let destination: () -> Destination
-
-    var body: some View {
-        NavigationLink(destination: destination) {
-            Label {
-                Text(title)
-            } icon: {
-                icon.foregroundColor(tint)
-            }
-        }
-        .buttonStyle(PlainButtonStyle())
-    }
-}

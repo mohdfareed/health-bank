@@ -1,4 +1,3 @@
-// import SwiftData
 import SwiftUI
 
 // REVIEW: animations
@@ -14,22 +13,28 @@ struct MeasurementField<Unit: Dimension>: View {
     var body: some View {
         HStack(alignment: .center, spacing: 4) {
             TextField("—", value: $measurement.value, format: format)
+                .multilineTextAlignment(.trailing)
                 #if os(iOS)
                     .keyboardType(.decimalPad)
                 #endif
-                .multilineTextAlignment(.trailing)
-                .foregroundStyle(!disabled ? .primary : .tertiary)
+
                 .disabled(disabled)
+                .foregroundStyle(!disabled ? .primary : .tertiary)
                 .onChange(of: $measurement.baseValue) {
                     if !isValid {
-                        $measurement.baseValue = nil
+                        withAnimation(.default) {
+                            $measurement.baseValue = nil
+                        }
                     }
                 }
+
             if showPicker && $measurement.availableUnits().count > 1 {
                 picker.frame(maxWidth: 12, maxHeight: 8).fixedSize()
             }
         }
+
         .animation(.default, value: $measurement.value.wrappedValue)
+        .animation(.default, value: $measurement.unit.wrappedValue)
     }
 
     private var picker: some View {
@@ -52,6 +57,7 @@ struct MeasurementField<Unit: Dimension>: View {
                 Image(systemName: "arrow.clockwise")
             }.tag(nil as Unit?)
         }.labelsHidden()
+            .animation(.default, value: $measurement.unit.wrappedValue)
     }
 
     private var isValid: Bool {
@@ -59,5 +65,27 @@ struct MeasurementField<Unit: Dimension>: View {
             let validator = validator
         else { return true }
         return validator(value)
+    }
+}
+
+extension LocalizedMeasurement {
+    func computedText(
+        _ computed: Double?, format: FloatingPointFormatStyle<Double>
+    ) -> Text? {
+        guard let computed = computed else {
+            return nil
+        }
+
+        guard computed != self.baseValue else {
+            return nil
+        }
+
+        let measurement = Measurement(
+            value: computed, unit: self.definition.baseUnit
+        ).converted(to: self.unit.wrappedValue ?? self.definition.baseUnit)
+
+        let text = measurement.value.formatted(format)
+        let icon = Image(systemName: "function").asText
+        return Text("\(icon): \(text)").foregroundStyle(.indigo.secondary)
     }
 }

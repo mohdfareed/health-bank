@@ -38,22 +38,10 @@ struct RecordForm<R: HealthRecord, Content: View>: View {
                             .foregroundStyle(.gray)
                     }
                 }
-                .onChange(of: date) {
-                    record.date = date
-                }
             }
             .disabled(record.source != .local)
 
-            if isEditing && record.source == .local {
-                Section {
-                    Button(role: .destructive) {
-                        showConfirmation = true
-                    } label: {
-                        Text("Delete Record")
-                    }
-                }
-
-            } else if isEditing {
+            if record.source != .local {
                 Section {
                     LabeledContent {
                         Text(record.source.localized)
@@ -66,32 +54,55 @@ struct RecordForm<R: HealthRecord, Content: View>: View {
                     }
                 }
             }
+
+            if isEditing && record.source == .local {
+                Section {
+                    Button(role: .destructive) {
+                        showConfirmation = true
+                    } label: {
+                        Text("Delete Record")
+                    }
+                }
+
+            }
         }
         .scrollDismissesKeyboard(.immediately)
         .navigationTitle(String(localized: title))
-        .toolbarTitleDisplayMode(.inline)
+
         .toolbar {
-            if !isEditing {
+            if isEditing {
+                ToolbarItem(placement: .confirmationAction) {
+                    Button("Done") {
+                        saveRecord()
+                        dismiss()
+                    }
+                }
+
+            } else {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Cancel") {
                         dismiss()
                     }
                 }
                 ToolbarItem(placement: .confirmationAction) {
-                    Button("Save") {
+                    Button("Add") {
                         saveRecord()
                         dismiss()
                     }
                 }
             }
-        }
+        }.toolbarTitleDisplayMode(.inline)
+
         .confirmationDialog(
             "Delete \(String(localized: title)) Record",
             isPresented: $showConfirmation,
             titleVisibility: .visible
         ) {
             Button("Cancel", role: .cancel) {}
-            Button("Delete", role: .destructive) { deleteRecord() }
+            Button("Delete", role: .destructive) {
+                deleteRecord()
+                dismiss()
+            }
         } message: {
             Text("This action cannot be undone.")
         }
@@ -108,7 +119,6 @@ struct RecordForm<R: HealthRecord, Content: View>: View {
     private func deleteRecord() {
         context.delete(record)
         try? context.save()
-        dismiss()
     }
 }
 

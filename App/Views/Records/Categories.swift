@@ -84,19 +84,19 @@ extension HealthRecordCategory {
         let record = record()
         switch record {
         case let record as Weight:
-            RecordForm("Log Weight", creating: record) {
+            RecordForm("Weight", creating: record) {
                 FormDefinition.weight.content(record)
             }
         case let record as DietaryCalorie:
-            RecordForm("Log Food", creating: record) {
+            RecordForm("Food", creating: record) {
                 FormDefinition.dietaryCalorie.content(record)
             }
         case let record as ActiveEnergy:
-            RecordForm("Log Activity", creating: record) {
+            RecordForm("Activity", creating: record) {
                 FormDefinition.activeEnergy.content(record)
             }
         case let record as RestingEnergy:
-            RecordForm("Log Resting Energy", creating: record) {
+            RecordForm("Resting Energy", creating: record) {
                 FormDefinition.restingEnergy.content(record)
             }
         default:

@@ -14,7 +14,7 @@ struct RecordRowDefinition<R, U>: Sendable where R: HealthRecord, U: Dimension {
             measurement: field.measurement(.constant(property(record))),
             subtitle: { subtitle(record) }
         ) {
-            destination(record)  // FIXME: called in endless loop
+            destination(record)
         }
     }
 }
@@ -41,16 +41,16 @@ enum RecordDefinition {
         field: FieldDefinition.dietaryCalorie,
         property: { $0.calories },
         subtitle: {
-            @Bindable var calorie = $0
-            let macros = $calorie.macros.defaulted(to: .init())
+            let calorie = $0
+            let macros = calorie.macros ?? .init()
             let protein = FieldDefinition.protein.measurement(
-                macros.protein
+                .constant(macros.protein)
             )
             let carbs = FieldDefinition.carbs.measurement(
-                macros.carbs
+                .constant(macros.carbs)
             )
             let fat = FieldDefinition.fat.measurement(
-                macros.fat
+                .constant(macros.fat)
             )
 
             AnyView(
@@ -98,9 +98,9 @@ enum RecordDefinition {
             field: FieldDefinition.activityCalorie(workout: workout),
             property: { $0.calories },
             subtitle: {
-                @Bindable var calorie = $0
+                let calorie = $0
                 let duration = FieldDefinition.activity.measurement(
-                    $calorie.duration
+                    .constant(calorie.duration)
                 )
 
                 AnyView(

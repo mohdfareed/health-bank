@@ -53,14 +53,16 @@ struct RecordField<Unit: Dimension, DetailContent: View>: View {
                 definition.validator?(computed) ?? true
             {
                 Button {
-                    withAnimation(.spring) {
+                    withAnimation(.default) {
                         $measurement.value.wrappedValue = computed
                     }
                 } label: {
                     $measurement.computedText(
                         computed, format: definition.formatter
                     )
-                }.contentTransition(.numericText())
+                }
+                .transition(.opacity)
+                .contentTransition(.numericText())
             }
             Text(measurement.unit.symbol)
         }
