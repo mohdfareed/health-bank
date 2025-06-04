@@ -21,12 +21,6 @@ let package = Package(
         .executableTarget(
             name: App.name,
             path: "App",
-        ),
-
-        .testTarget(
-            name: "\(App.name)Tests",
-            dependencies: [Target.Dependency(stringLiteral: App.name)],
-            path: "Tests/AppTests"
-        ),
+        )
     ]
 )

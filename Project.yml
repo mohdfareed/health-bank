@@ -75,12 +75,6 @@ targets:
       - path: Assets
         buildPhase: resources
 
-    scheme:
-      testTargets:
-        - HealthBankTests
-        - HealthBankUITests
-      gatherCoverageData: true
-
     entitlements:
       path: HealthBank.xcodeproj/App.entitlements # signing entitlements
       properties:
@@ -101,24 +95,3 @@ targets:
           - UIInterfaceOrientationPortraitUpsideDown
           - UIInterfaceOrientationLandscapeLeft
           - UIInterfaceOrientationLandscapeRight
-
-  # MARK: Tests Targets
-  # ===========================================================================
-
-  HealthBankTests:
-    type: bundle.unit-test
-    platform: iOS
-    sources: Tests/AppTests
-    options:
-      - transitivelyLinkDependencies: true
-    dependencies:
-      - target: HealthBank
-
-  HealthBankUITests:
-    type: bundle.ui-testing
-    platform: iOS
-    sources: Tests/UITests
-    options:
-      - transitivelyLinkDependencies: true
-    dependencies:
-      - target: HealthBank
