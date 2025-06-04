@@ -89,7 +89,7 @@ enum FormDefinition {
                         }
 
                         Divider()
-                        Text("No Activity").tag(nil as WorkoutActivity?)
+                        Text("Other").tag(nil as WorkoutActivity?)
                     } label: {
                         Label {
                             Text("Activity")

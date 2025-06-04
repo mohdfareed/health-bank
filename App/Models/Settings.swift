@@ -20,28 +20,22 @@ typealias Weekday = Locale.Weekday
 extension Settings {
     /// The app theme.
     static var theme: Settings<AppTheme> { .init("Theme", default: .system) }
-    /// Whether to enable notifications for the app.
-    static var notifications: Settings<Bool?> { .init("Notifications") }
+
     /// Whether to enable HealthKit integration.
     static var enableHealthKit: Settings<Bool> {
         .init("EnableHealthKit", default: false)
     }
-}
 
-// Localization
-extension Settings {
     /// The app's unit measurement system.
     static var unitSystem: Settings<MeasurementSystem?> {
         .init("MeasurementSystem", default: nil)
     }
+
     /// The app's first day of the week.
     static var firstDayOfWeek: Settings<Weekday?> {
         .init("FirstWeekDay", default: nil)
     }
-}
 
-// Trackers
-extension Settings {
     /// The active user daily goals.
     static var userGoals: Settings<UUID> {
         .init("Goals", default: .zero)

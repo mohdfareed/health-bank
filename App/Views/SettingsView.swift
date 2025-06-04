@@ -16,7 +16,6 @@ struct SettingsView: View {
             Form {
                 Section(header: Text("General Settings")) {
                     GeneralSettings()
-                    LocalizationSettings()
                     if HealthKitService.isAvailable {
                         HealthKitSettings()
                     }
@@ -81,7 +80,7 @@ extension View {
 
 struct GeneralSettings: View {
     @AppStorage(.theme) var theme: AppTheme
-    @AppStorage(.notifications) var notifications: Bool?
+    @AppLocale private var locale
 
     var body: some View {
         Picker(
@@ -95,20 +94,6 @@ struct GeneralSettings: View {
         ) { Text(self.theme.localized) }
         .frame(maxHeight: 8)
 
-        // TODO: Implement notifications
-        // Toggle(isOn: self.$notifications.defaulted(to: false)) {
-        //     Label(
-        //         "Enable notifications",
-        //         systemImage: "bell"
-        //     ).labelStyle(.automatic)
-        // }
-    }
-}
-
-private struct LocalizationSettings: View {
-    @AppLocale private var locale
-
-    var body: some View {
         Picker(
             "Measurements", systemImage: "ruler",
             selection: self.$locale.units,

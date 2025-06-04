@@ -49,11 +49,10 @@ extension WorkoutActivity {
         case .dancing: return .cardioDance
         case .martialArts: return .martialArts
         case .boxing: return .boxing
-        case .other: return .other
         }
     }
 
-    fileprivate init(from hkActivity: HKWorkoutActivityType) {
+    fileprivate init?(from hkActivity: HKWorkoutActivityType) {
         switch hkActivity {
         case .traditionalStrengthTraining, .functionalStrengthTraining:
             self = .weightlifting
@@ -68,7 +67,7 @@ extension WorkoutActivity {
         case .boxing:
             self = .boxing
         default:
-            self = .other
+            return nil
         }
     }
 }

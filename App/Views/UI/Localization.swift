@@ -91,8 +91,6 @@ extension WorkoutActivity {
             return String(localized: "boxing").localizedCapitalized
         case .martialArts:
             return String(localized: "martial arts").localizedCapitalized
-        case .other:
-            return String(localized: "other").localizedCapitalized
         }
 
     }

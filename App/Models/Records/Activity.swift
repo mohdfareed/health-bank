@@ -5,7 +5,7 @@ import SwiftData
 /// The workout types.
 public enum WorkoutActivity: Codable, CaseIterable, Hashable {
     case cardio, cycling, swimming, weightlifting
-    case dancing, boxing, martialArts, other
+    case dancing, boxing, martialArts
 }
 
 /// Represents active energy expenditure from physical activity.

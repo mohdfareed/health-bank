@@ -113,8 +113,6 @@ extension WorkoutActivity {
             return .boxing
         case .martialArts:
             return .martialArts
-        case .other:
-            return .activeCalorie
         }
     }
 }

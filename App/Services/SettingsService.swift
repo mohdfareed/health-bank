@@ -41,7 +41,6 @@ extension UserDefaults {
     func resetSettings() {
         for settings in [
             AnySettings(.theme),
-            .init(.notifications),
             .init(.unitSystem),
             .init(.firstDayOfWeek),
         ] {
