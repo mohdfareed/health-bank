@@ -2,7 +2,7 @@ import SwiftData
 import SwiftUI
 
 struct RecordFormDefinition<
-    R: HealthRecord, C: View
+    R: HealthDate, C: View
 >: Sendable {
     @ViewBuilder var content: @MainActor (R) -> C
 }

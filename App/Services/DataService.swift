@@ -11,7 +11,7 @@ import SwiftUI
 /// Both local and HealthKit data are paginated for memory efficiency.
 @MainActor @propertyWrapper
 struct DataQuery<T>: DynamicProperty
-where T: HealthRecord {
+where T: HealthDate {
     @Environment(\.modelContext)
     private var modelContext
     @Environment(\.healthKit)
@@ -28,7 +28,8 @@ where T: HealthRecord {
     @State private var offset: Int = 0  // pagination offset
 
     var wrappedValue: [T] {
-        data.sorted(by: { $0.date > $1.date })
+        data.sorted { $0.date > $1.date }
+            .prefix(pageSize).map { $0 as T }
     }
     var projectedValue: Self { self }
 

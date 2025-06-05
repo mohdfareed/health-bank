@@ -1,38 +1,6 @@
 import Foundation
 import SwiftData
 
-// MARK: Errors
-// ============================================================================
-
-/// An application error.
-enum AppError: Error {
-    /// An error related to HealthKit operations.
-    case healthKit(HealthKitError)
-    /// An error related to data storage operations (e.g., SwiftData).
-    case storage(StorageError)
-    /// An error related to unit conversion or localization.
-    case localization(String, underlyingError: Error? = nil)
-    /// A generic runtime error with a descriptive message.
-    case runtimeError(String, underlyingError: Error? = nil)
-}
-
-/// Specific errors related to HealthKit operations.
-enum HealthKitError: Error {
-    case queryFailed(Error, String? = nil)
-    case saveFailed(Error, String? = nil)
-    case deleteFailed(Error, String? = nil)
-    case authorizationFailed(Error)
-    case unexpectedError(String)
-}
-
-/// Specific errors related to data storage operations (e.g., SwiftData).
-enum StorageError: Error {
-    case fetchFailed(Error, String? = nil)  // E.g., "Failed to fetch X model"
-    case saveFailed(Error, String? = nil)  // E.g., "Failed to save X model"
-    case deleteFailed(Error, String? = nil)  // E.g., "Failed to delete X model"
-    case modelNotFound(String)  // E.g., "Model X with ID Y not found"
-}
-
 // MARK: Data
 // ============================================================================
 
@@ -41,8 +9,8 @@ public enum DataSource: Codable, CaseIterable, Hashable {
     case local, healthKit
 }
 
-/// Base protocol for all health data records.
-public protocol HealthRecord: PersistentModel {
+/// Base protocol for all health data.
+public protocol HealthDate: PersistentModel {
     /// When the data was recorded.
     var date: Date { get set }
     /// Where the data originated from.
@@ -50,16 +18,16 @@ public protocol HealthRecord: PersistentModel {
 }
 
 /// Base protocol for data queries.
-@MainActor public protocol HealthQuery<Record> {
-    /// The type of data record this query returns.
-    associatedtype Record: HealthRecord
+@MainActor public protocol HealthQuery<Data> {
+    /// The type of data this query returns.
+    associatedtype Data: HealthDate
     /// The local data fetch descriptor generator.
-    func descriptor(from: Date, to: Date) -> FetchDescriptor<Record>
-    /// Fetch the records from HealthKit.
+    func descriptor(from: Date, to: Date) -> FetchDescriptor<Data>
+    /// Fetch the data from HealthKit.
     func fetch(
         from: Date, to: Date, limit: Int?,
         store: HealthKitService
-    ) async -> [Record]
+    ) async -> [Data]
 }
 
 // MARK: Singleton
@@ -138,4 +106,48 @@ struct AnySettings: Sendable {
         self.id = key.id
         self.default = key.default
     }
+}
+
+// MARK: Errors
+// ============================================================================
+
+/// An application error.
+enum AppError: Error {
+    /// An error related to HealthKit operations.
+    case healthKit(HealthKitError)
+    /// An error related to data storage operations (e.g., SwiftData).
+    case data(DataError)
+    /// An error related to analytics operations.
+    case analytics(AnalyticsError)
+
+    /// An error related to unit conversion or localization.
+    case localization(String, Error? = nil)
+    /// A generic runtime error with a descriptive message.
+    case runtimeError(String, Error? = nil)
+}
+
+/// Specific errors related to HealthKit operations.
+enum HealthKitError: Error {
+    case queryFailed(Error, String? = nil)
+    case saveFailed(Error, String? = nil)
+    case deleteFailed(Error, String? = nil)
+    case authorizationFailed(Error)
+    case unexpectedError(String)
+}
+
+/// Specific errors related to local data storage operations (SwiftData).
+enum DataError: Error {
+    case fetchFailed(Error, String? = nil)
+    case saveFailed(Error, String? = nil)
+    case deleteFailed(Error, String? = nil)
+    case modelNotFound(String)
+    case unexpectedError(String)
+}
+
+/// Specific errors related to data and analytics.
+enum AnalyticsError: Error {
+    case invalidData(String)
+    case missingData(String)
+    case calculationError(String, Error? = nil)
+    case unexpectedError(String)
 }

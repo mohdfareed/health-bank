@@ -22,7 +22,7 @@ public final class HealthKitService: Sendable {
 
     private var chronologicalSortDescriptor: NSSortDescriptor {
         NSSortDescriptor(
-            key: HKSampleSortIdentifierEndDate, ascending: false
+            key: HKSampleSortIdentifierStartDate, ascending: false
         )
     }
 }
@@ -68,11 +68,11 @@ extension HealthKitService {
 // ============================================================================
 
 extension HealthKitService {
-    /// Execute a quantity sample query for the given date range.
-    func fetchQuantitySamples(
-        for type: HKQuantityType,
+    /// Execute a sample query for the given date range.
+    func fetchSamples(
+        for type: HKSampleType,
         from startDate: Date, to endDate: Date, limit: Int?
-    ) async -> [HKQuantitySample] {
+    ) async -> [HKSample] {
         guard isActive else {
             logger.debug("HealthKit inactive, returning empty results")
             return []
@@ -95,12 +95,28 @@ extension HealthKitService {
                     )
                     continuation.resume(returning: [])
                 } else {
-                    let quantitySamples = samples as? [HKQuantitySample] ?? []
-                    continuation.resume(returning: quantitySamples)
+                    continuation.resume(returning: samples ?? [])
                 }
             }
             store.execute(query)
         }
+    }
+
+    func fetchQuantitySamples(
+        for type: HKQuantityType,
+        from startDate: Date, to endDate: Date, limit: Int? = nil
+    ) async -> [HKQuantitySample] {
+        return await fetchSamples(
+            for: type, from: startDate, to: endDate, limit: limit
+        ) as? [HKQuantitySample] ?? []
+    }
+
+    func fetchWorkoutSamples(
+        from startDate: Date, to endDate: Date, limit: Int? = nil
+    ) async -> [HKWorkout] {
+        return await fetchSamples(
+            for: .workoutType(), from: startDate, to: endDate, limit: limit
+        ) as? [HKWorkout] ?? []
     }
 }
 
@@ -111,14 +127,14 @@ extension HealthKitService {
     /// Execute a correlation sample query for the given date range.
     func fetchCorrelationSamples(
         for type: HKCorrelationType,
-        from startDate: Date, to endDate: Date,
+        from startDate: Date, to endDate: Date
     ) async -> [HKCorrelation] {
         guard isActive else {
             logger.debug("HealthKit inactive, returning empty results")
             return []
         }
 
-        return await withCheckedContinuation { continuation in
+        let samples: [HKCorrelation] = await withCheckedContinuation { cont in
             let predicate = HKQuery.predicateForSamples(
                 withStart: startDate, end: endDate,
                 options: .strictEndDate
@@ -131,52 +147,15 @@ extension HealthKitService {
                     self.logger.error(
                         "Failed to fetch \(type.identifier): \(error)"
                     )
-                    continuation.resume(returning: [])
+                    cont.resume(returning: [])
                 } else {
-                    continuation.resume(returning: correlations ?? [])
+                    cont.resume(returning: correlations ?? [])
                 }
             }
             store.execute(query)
         }
-    }
-}
 
-// MARK: Workout Query
-// ============================================================================
-
-extension HealthKitService {
-    /// Execute a workout query for the given date range.
-    func fetchWorkouts(
-        from startDate: Date, to endDate: Date, limit: Int?
-    ) async -> [HKWorkout] {
-        guard isActive else {
-            logger.debug("HealthKit inactive, returning empty results")
-            return []
-        }
-
-        return await withCheckedContinuation { continuation in
-            let predicate = HKQuery.predicateForSamples(
-                withStart: startDate, end: endDate,
-                options: .strictEndDate
-            )
-
-            let query = HKSampleQuery(
-                sampleType: HKObjectType.workoutType(),
-                predicate: predicate, limit: limit ?? HKObjectQueryNoLimit,
-                sortDescriptors: [chronologicalSortDescriptor]
-            ) { _, samples, error in
-                if let error = error {
-                    self.logger.error(
-                        "Failed to fetch workouts: \(error)"
-                    )
-                    continuation.resume(returning: [])
-                } else {
-                    let workouts = samples as? [HKWorkout] ?? []
-                    continuation.resume(returning: workouts)
-                }
-            }
-            store.execute(query)
-        }
+        return samples
     }
 }
 

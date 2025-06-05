@@ -116,7 +116,7 @@ enum FieldDefinition {
 
     // Activity Duration
     static let activity = RecordFieldDefinition<UnitDuration>(
-        title: "Duration",
+        title: "Activity",
         image: .activeCalorie,
         tint: .activeCalorie,
         unitDefinition: .activity,

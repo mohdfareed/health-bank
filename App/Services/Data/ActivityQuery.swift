@@ -7,8 +7,11 @@ struct ActivityQuery: HealthQuery {
         from: Date, to: Date, limit: Int? = nil,
         store: HealthKitService
     ) async -> [ActiveEnergy] {
-        let workouts = await store.fetchWorkouts(from: from, to: to, limit: limit)
-        return workouts.map { workout in
+        let workoutSamples = await store.fetchWorkoutSamples(
+            from: from, to: to, limit: limit
+        )
+
+        let workouts = workoutSamples.map { workout in
             let sample = workout.statistics(
                 for: HKQuantityType(.activeEnergyBurned)
             )?.sumQuantity()
@@ -26,6 +29,38 @@ struct ActivityQuery: HealthQuery {
                 duration: duration, workout: .init(from: activity)
             )
         }
+
+        let samples = await store.fetchQuantitySamples(
+            for: HKQuantityType(.activeEnergyBurned),
+            from: from, to: to, limit: limit
+        )
+
+        let calories: [ActiveEnergy] = samples.compactMap { sample in
+            // check if sample already in workouts
+            if workoutSamples.contains(where: {
+                $0.startDate <= sample.startDate
+                    && $0.endDate >= sample.endDate
+            }) {
+                return nil
+            }
+
+            let caloriesInKcal = sample.quantity.doubleValue(
+                for: .kilocalorie()
+            )
+            let calories = UnitDefinition.calorie.asBase(
+                caloriesInKcal, from: .kilocalories
+            )
+            return ActiveEnergy(
+                calories, date: sample.startDate,
+                source: sample.sourceRevision.source.dataSource
+            )
+        }
+
+        // Combine the calories from workouts and samples
+        return (calories + workouts)
+            .sorted { $0.date > $1.date }
+            .prefix(limit ?? Int.max)
+            .map { $0 as ActiveEnergy }
     }
 
     func descriptor(from: Date, to: Date) -> FetchDescriptor<ActiveEnergy> {

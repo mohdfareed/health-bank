@@ -5,16 +5,10 @@ import SwiftData
 @Model final class UserGoals: Singleton {
     var date: Date = Date()
 
-    // calories
+    // goals
     var calories: Double? = 2000
     var macros: CalorieMacros? = nil
-
-    // activity
-    var burnedCalories: Double? = 500
     var activity: TimeInterval? = 30
-
-    // weight
-    var weight: Double? = 70
 
     // singleton
     var id: UUID

@@ -4,7 +4,7 @@ import SwiftUI
 // TODO: Remove icons from record row for category views.
 
 /// A view that displays records of a specific type with source filtering.
-struct CategoryView<T: HealthRecord>: View {
+struct CategoryView<T: HealthDate>: View {
     @Environment(\.modelContext) private var context: ModelContext
     @DataQuery var records: [T]
 

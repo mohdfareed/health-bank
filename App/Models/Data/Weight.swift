@@ -1,8 +1,8 @@
 import Foundation
 import SwiftData
 
-/// SwiftData model for weight records.
-@Model public final class Weight: HealthRecord {
+/// SwiftData model for weight data.
+@Model public final class Weight: HealthDate {
     public var date: Date
     public var source: DataSource
 

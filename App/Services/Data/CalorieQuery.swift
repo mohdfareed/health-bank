@@ -15,7 +15,7 @@ struct DietaryQuery: HealthQuery {
             from: from, to: to
         )
 
-        let calories = correlations.compactMap { correlation in
+        let foods = correlations.compactMap { correlation in
             let calories = correlation.objects(
                 for: HKQuantityType(.dietaryEnergyConsumed)
             ).compactMap { $0 as? HKQuantitySample }
@@ -50,10 +50,35 @@ struct DietaryQuery: HealthQuery {
             return calorie
         }
 
-        if let limit = limit {
-            return Array(calories.prefix(limit))
+        let samples = await store.fetchQuantitySamples(
+            for: HKQuantityType(.dietaryEnergyConsumed),
+            from: from, to: to, limit: limit
+        )
+
+        let calories: [DietaryCalorie] = samples.compactMap { sample in
+            // Check if sample already in workouts
+            if correlations.contains(where: {
+                $0.startDate <= sample.startDate
+                    && $0.endDate >= sample.endDate
+            }) {
+                return nil
+            }
+
+            let caloriesInKcal = sample.quantity.doubleValue(
+                for: .kilocalorie()
+            )
+            let calories = UnitDefinition.calorie.asBase(
+                caloriesInKcal, from: .kilocalories
+            )
+            return DietaryCalorie(
+                calories, date: sample.startDate,
+                source: sample.sourceRevision.source.dataSource
+            )
         }
-        return calories
+
+        // Combine the calories from foods and samples
+        return (calories + foods).sorted { $0.date > $1.date }
+            .prefix(limit ?? Int.max).map { $0 as DietaryCalorie }
     }
 
     func descriptor(from: Date, to: Date) -> FetchDescriptor<DietaryCalorie> {
@@ -80,7 +105,7 @@ struct RestingQuery: HealthQuery {
             from: from, to: to, limit: limit
         )
 
-        return samples.map { sample in
+        let calories = samples.map { sample in
             let caloriesInKcal = sample.quantity.doubleValue(
                 for: .kilocalorie()
             )
@@ -92,6 +117,9 @@ struct RestingQuery: HealthQuery {
                 source: sample.sourceRevision.source.dataSource
             )
         }
+
+        return calories.sorted { $0.date > $1.date }
+            .prefix(limit ?? Int.max).map { $0 as RestingEnergy }
     }
 
     func descriptor(from: Date, to: Date) -> FetchDescriptor<RestingEnergy> {

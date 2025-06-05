@@ -1,7 +1,7 @@
 import SwiftData
 import SwiftUI
 
-struct RecordForm<R: HealthRecord, Content: View>: View {
+struct RecordForm<R: HealthDate, Content: View>: View {
     @Environment(\.modelContext) private var context
     @Environment(\.dismiss) private var dismiss
     @State private var showConfirmation = false

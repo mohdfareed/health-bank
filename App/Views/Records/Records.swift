@@ -1,6 +1,6 @@
 import SwiftUI
 
-struct RecordRowDefinition<R, U>: Sendable where R: HealthRecord, U: Dimension {
+struct RecordRowDefinition<R, U>: Sendable where R: HealthDate, U: Dimension {
     let field: RecordFieldDefinition<U>
     let property: @Sendable (R) -> Double?
 

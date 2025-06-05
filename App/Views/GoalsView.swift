@@ -33,30 +33,13 @@ struct GoalView: View {
                 value: macros.fat, source: .local,
                 computed: goals.calorieGoal.calculatedFat
             )
-        }
-        .onChange(of: goals) { save() }
-        .onChange(of: goals.macros) { save() }
-
-        Section(header: Text("Daily Activity Goals")) {
-            RecordField(
-                FieldDefinition.calorie,
-                value: $goals.burnedCalories, source: .local
-            )
             RecordField(
                 FieldDefinition.activity,
                 value: $goals.activity, source: .local
             )
         }
         .onChange(of: goals) { save() }
-
-        Section(header: Text("Measurement Goals")) {
-            RecordField(
-                FieldDefinition.weight,
-                value: $goals.weight,
-                source: .local, showPicker: true
-            )
-        }
-        .onChange(of: goals) { save() }
+        .onChange(of: goals.macros) { save() }
     }
 
     private func save() {

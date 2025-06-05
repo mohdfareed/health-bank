@@ -3,7 +3,7 @@ import SwiftUI
 // REVIEW: animations
 
 struct RecordRow<R, U, S, Destination>: View
-where R: HealthRecord, U: Dimension, S: View, Destination: View {
+where R: HealthDate, U: Dimension, S: View, Destination: View {
     let record: R
     let field: RecordFieldDefinition<U>
     @LocalizedMeasurement var measurement: Measurement<U>

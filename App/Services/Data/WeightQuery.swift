@@ -12,7 +12,7 @@ struct WeightQuery: HealthQuery {
             from: from, to: to, limit: limit
         )
 
-        return samples.map { sample in
+        let weights = samples.map { sample in
             let weightInKg = sample.quantity.doubleValue(
                 for: .gramUnit(with: .kilo)
             )
@@ -24,6 +24,9 @@ struct WeightQuery: HealthQuery {
                 source: sample.sourceRevision.source.dataSource
             )
         }
+
+        return weights.sorted { $0.date > $1.date }
+            .prefix(limit ?? Int.max).map { $0 as Weight }
     }
 
     func descriptor(from: Date, to: Date) -> FetchDescriptor<Weight> {

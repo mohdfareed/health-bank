@@ -5,17 +5,15 @@ import SwiftUI
 
 extension Color {
     static var accent: Color { .init("Accent") }
-    static var logoPrimary: Color { .init("LogoPrimary") }
-    static var logoSecondary: Color { .init("LogoSecondary") }
 
     // Data Sources
     static var local: Color { .accent }
     static var healthKit: Color { .pink }
     static var cloud: Color { .blue }
 
-    // Records
+    // Data Records
     static var calories: Color { .init("Calorie") }
-    static var dietaryCalorie: Color { .blue }
+    static var dietaryCalorie: Color { .red }
     static var activeCalorie: Color { .green }
     static var restingCalorie: Color { .indigo }
     static var weight: Color { .purple }
@@ -33,14 +31,13 @@ extension Color {
 
 extension Image {
     static var logo: Image { .init("Logo") }
-    static var logoAlt: Image { .init("LogoAlt") }
 
     // Data Sources
     static var local: Image? { logo }
     static var cloud: Image { .init(systemName: "icloud.fill") }
     static var healthKit: Image { .init(systemName: "heart.fill") }
 
-    // Records
+    // Data Records
     static var calories: Image { .init(systemName: "flame.fill") }
     static var dietaryCalorie: Image { .init(systemName: "fork.knife") }
     static var activeCalorie: Image { .init(systemName: "figure.run") }
@@ -114,14 +111,5 @@ extension WorkoutActivity {
         case .martialArts:
             return .martialArts
         }
-    }
-}
-
-extension ShapeStyle where Self == Color {
-    public static var logoGradient: LinearGradient {
-        LinearGradient(
-            colors: [.logoPrimary, .logoSecondary],
-            startPoint: .bottom, endPoint: .top
-        )
     }
 }
