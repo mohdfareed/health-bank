@@ -2,8 +2,6 @@ import Foundation
 import SwiftData
 import SwiftUI
 
-// FIXME: Use @Query instead of @State for better performance
-
 // MARK: Data Query
 // ============================================================================
 
@@ -21,14 +19,18 @@ where T: HealthDate {
     private let dateRange: ClosedRange<Date>
     private let pageSize: Int
 
-    @State var isLoading = false
-    @State var hasMoreData = true
+    @State private var items: [T] = []  // Aggregated, paged items
+    @State private var cursorDate: Date? = nil  // Pagination cursor
+    @State private var remoteExhausted = false
+    @State private var localExhausted = false
 
-    @State private var data: [T] = []  // Aggregated data
-    @State private var offset: Int = 0  // pagination offset
+    @State var isLoading = false
+    var isExhausted: Bool {
+        localExhausted && remoteExhausted
+    }
 
     var wrappedValue: [T] {
-        data.sorted { $0.date > $1.date }
+        items.sorted { $0.date > $1.date }
     }
     var projectedValue: Self { self }
 
@@ -49,64 +51,64 @@ extension DataQuery {
     func reload() async {
         guard !isLoading else { return }
 
-        data = []
-        offset = 0
-        hasMoreData = true
-        await load()
+        // Reset pagination
+        items = []
+        localExhausted = false
+        remoteExhausted = false
+
+        // Start from the top of the date range
+        cursorDate = dateRange.upperBound
+        await loadNextPage()
     }
 
-    func load() async {
-        guard !isLoading, hasMoreData else { return }
+    func loadNextPage() async {
+        guard !isLoading, !isExhausted else { return }
         defer { isLoading = false }
         isLoading = true
 
-        let newData = await loadLocalData() + loadRemoteData()
-        data += newData
-        hasMoreData = newData.count >= pageSize
-    }
-}
+        // Determine bounds for this page
+        let toDate = cursorDate ?? dateRange.upperBound
+        let fromDate = dateRange.lowerBound
 
-// MARK: Loading Logic
-// ============================================================================
-
-extension DataQuery {
-    private func loadRemoteData() async -> [T] {
-        guard HealthKitService.isAvailable else { return [] }
-        let startDate: Date
-
-        // Calculate start date for cursor-based pagination
-        // Use last remote item's date + 1ms to avoid duplicates
-        let remoteData = data.filter({ $0.source != .local })
-        if let lastItem = remoteData.max(by: { $0.date < $1.date }) {
-            startDate = lastItem.date.addingTimeInterval(0.001)
-        } else {
-            startDate = dateRange.lowerBound
-        }
-
-        return await query.fetch(
-            from: startDate, to: dateRange.upperBound, limit: pageSize,
-            store: healthKitService
-        ).filter { $0.source != .local }
-    }
-
-    private func loadLocalData() -> [T] {
-        var descriptor = query.descriptor(
-            from: dateRange.lowerBound, to: dateRange.upperBound
-        )
-        descriptor.fetchOffset = offset
+        // 1) Fetch local chunk
+        var descriptor = query.descriptor(from: fromDate, to: toDate)
         descriptor.fetchLimit = pageSize
-
+        var localChunk: [T] = []
         do {
-            let localData = try modelContext.fetch(descriptor)
-            offset += localData.count
-            return localData
+            localChunk = try modelContext.fetch(descriptor)
+            if localChunk.count < pageSize {
+                localExhausted = true
+            }
         } catch {
-            AppLogger.new(for: T.Type.self).error(
-                "Failed to fetch local data: \(error)"
-            )
-            return []
+            localExhausted = true
+        }
+
+        // 2) Fetch HealthKit chunk
+        var remoteChunk: [T] = []
+        if HealthKitService.isAvailable, !remoteExhausted {
+            let hkEnd = toDate.addingTimeInterval(-0.001)
+            remoteChunk = await query.fetch(
+                from: fromDate, to: hkEnd, limit: pageSize,
+                store: healthKitService
+            ).filter { $0.source != .local }
+            if remoteChunk.count < pageSize {
+                remoteExhausted = true
+            }
+        }
+
+        // 3) Combine and sort both chunks by date descending
+        let combined = (localChunk + remoteChunk).sorted { $0.date > $1.date }
+
+        // 4) Take only up to `pageSize` items from the combined array
+        let pageToShow = Array(combined.prefix(pageSize))
+        items.append(contentsOf: pageToShow)
+
+        // 5) Update cursorDate to the last item's date minus a small epsilon
+        if let last = pageToShow.last {
+            cursorDate = last.date.addingTimeInterval(-0.001)
         }
     }
+
 }
 
 // MARK: Extensions

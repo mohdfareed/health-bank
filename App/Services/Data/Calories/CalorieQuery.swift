@@ -48,7 +48,7 @@ struct DietaryQuery: HealthQuery {
                 calorie.macros = nil  // No macros available
             }
             return calorie
-        }
+        }.sorted { $0.date > $1.date }.prefix(limit ?? Int.max)
 
         let samples = await store.fetchQuantitySamples(
             for: HKQuantityType(.dietaryEnergyConsumed),
@@ -77,8 +77,7 @@ struct DietaryQuery: HealthQuery {
         }
 
         // Combine the calories from foods and samples
-        return (calories + foods).sorted { $0.date > $1.date }
-            .prefix(limit ?? Int.max).map { $0 as DietaryCalorie }
+        return calories + foods
     }
 
     func descriptor(from: Date, to: Date) -> FetchDescriptor<DietaryCalorie> {
@@ -118,8 +117,7 @@ struct RestingQuery: HealthQuery {
             )
         }
 
-        return calories.sorted { $0.date > $1.date }
-            .prefix(limit ?? Int.max).map { $0 as RestingEnergy }
+        return calories
     }
 
     func descriptor(from: Date, to: Date) -> FetchDescriptor<RestingEnergy> {

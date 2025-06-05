@@ -10,7 +10,6 @@ struct CategoryView<T: HealthDate>: View {
 
     @State private var selectedSources: [DataSource] = []
     @State private var isAddingRecord = false
-    @State private var isInitialized = false
 
     private let category: HealthRecordCategory
     private let query: any HealthQuery<T>
@@ -28,7 +27,7 @@ struct CategoryView<T: HealthDate>: View {
         self.category = category
         self.query = category.query()
         _records = DataQuery(
-            query, from: .distantPast, to: .distantFuture, limit: 20
+            query, from: .distantPast, to: .distantFuture
         )
     }
 
@@ -44,14 +43,11 @@ struct CategoryView<T: HealthDate>: View {
         .animation(.default, value: records)
         .animation(.default, value: selectedSources)
         .animation(.default, value: $records.isLoading)
-        .animation(.default, value: $records.hasMoreData)
+        .animation(.default, value: $records.isExhausted)
 
         .onAppear {
             Task {
-                if !isInitialized {
-                    isInitialized = true
-                    await $records.load()
-                }
+                await $records.loadNextPage()
             }
         }
         .refreshable {
@@ -88,9 +84,9 @@ struct CategoryView<T: HealthDate>: View {
     }
 
     @ViewBuilder private func loadMoreButton() -> some View {
-        if $records.hasMoreData && !$records.isLoading {
+        if !$records.isLoading && !$records.isExhausted {
             Button("Load More") {
-                Task { await $records.load() }
+                Task { await $records.loadNextPage() }
             }
             .frame(maxWidth: .infinity)
             .listRowSeparator(.hidden)

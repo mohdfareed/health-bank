@@ -25,8 +25,7 @@ struct WeightQuery: HealthQuery {
             )
         }
 
-        return weights.sorted { $0.date > $1.date }
-            .prefix(limit ?? Int.max).map { $0 as Weight }
+        return weights
     }
 
     func descriptor(from: Date, to: Date) -> FetchDescriptor<Weight> {

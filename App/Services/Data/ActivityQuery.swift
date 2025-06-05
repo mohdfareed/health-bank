@@ -57,10 +57,7 @@ struct ActivityQuery: HealthQuery {
         }
 
         // Combine the calories from workouts and samples
-        return (calories + workouts)
-            .sorted { $0.date > $1.date }
-            .prefix(limit ?? Int.max)
-            .map { $0 as ActiveEnergy }
+        return calories + workouts
     }
 
     func descriptor(from: Date, to: Date) -> FetchDescriptor<ActiveEnergy> {
