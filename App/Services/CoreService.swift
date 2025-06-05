@@ -7,11 +7,11 @@ import SwiftUI
 /// The app's logger factory.
 struct AppLogger {
     static func new<T>(for category: T.Type) -> Logger {
-        return Logger(subsystem: appID, category: "\(T.self)")
+        return Logger(subsystem: AppID, category: "\(T.self)")
     }
 
     static func new<T>(for category: T) -> Logger {
-        return Logger(subsystem: appID, category: "\(T.self)")
+        return Logger(subsystem: AppID, category: "\(T.self)")
     }
 }
 

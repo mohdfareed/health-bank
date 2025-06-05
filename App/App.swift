@@ -2,27 +2,25 @@ import SwiftData
 import SwiftUI
 
 /// The app's bundle identifier.
-let appID: String = Bundle.main.bundleIdentifier ?? "Debug.App"
+let AppID: String = Bundle.main.bundleIdentifier ?? "Debug.App"
 
 @main struct MainApp: App {
     internal let logger = AppLogger.new(for: Self.self)
     let container: ModelContainer
 
     static var schema: Schema {
-        .init([
-            UserGoals.self,
-            DietaryCalorie.self,
-            ActiveEnergy.self,
-            RestingEnergy.self,
-            Weight.self,
-        ])
+        .init(
+            HealthDataModel.allTypes + [
+                UserGoals.self
+            ]
+        )
     }
 
     init() {
         // MARK: Model Container Initialization
         // ====================================================================
         do {
-            self.logger.debug("Initializing model container for \(appID)")
+            self.logger.debug("Initializing model container for \(AppID)")
             self.container = try .init(for: MainApp.schema)
         } catch {
             #if !DEBUG  // Production migration logic

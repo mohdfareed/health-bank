@@ -29,7 +29,6 @@ where T: HealthDate {
 
     var wrappedValue: [T] {
         data.sorted { $0.date > $1.date }
-            .prefix(pageSize).map { $0 as T }
     }
     var projectedValue: Self { self }
 
@@ -125,12 +124,25 @@ extension ModelContext {
     /// Erase all data in the context.
     func eraseAll() {
         do {
-            try self.delete(model: DietaryCalorie.self)
-            try self.delete(model: RestingEnergy.self)
-            try self.delete(model: ActiveEnergy.self)
-            try self.delete(model: Weight.self)
+            for model in HealthDataModel.allCases {
+                try erase(model: model)
+            }
+            try self.delete(model: UserGoals.self)
         } catch {
             print("Failed to erase all data: \(error)")
+        }
+    }
+
+    private func erase(model: HealthDataModel) throws {
+        switch model {
+        case .calorie:
+            try self.delete(model: model.dataType as! DietaryCalorie.Type)
+        case .activity:
+            try self.delete(model: model.dataType as! ActiveEnergy.Type)
+        case .resting:
+            try self.delete(model: model.dataType as! RestingEnergy.Type)
+        case .weight:
+            try self.delete(model: model.dataType as! Weight.Type)
         }
     }
 }
