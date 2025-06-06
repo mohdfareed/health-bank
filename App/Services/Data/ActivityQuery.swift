@@ -11,7 +11,7 @@ struct ActivityQuery: HealthQuery {
             from: from, to: to, limit: limit
         )
 
-        let workouts = workoutSamples.map { workout in
+        let workouts = workoutSamples.compactMap { workout in
             let sample = workout.statistics(
                 for: HKQuantityType(.activeEnergyBurned)
             )?.sumQuantity()
@@ -30,20 +30,12 @@ struct ActivityQuery: HealthQuery {
             )
         }
 
-        let samples = await store.fetchQuantitySamples(
+        let samples = await store.fetchActivitySamples(
             for: HKQuantityType(.activeEnergyBurned),
-            from: from, to: to, limit: limit
+            from: from, to: to, workouts: workoutSamples, limit: limit
         )
 
         let calories: [ActiveEnergy] = samples.compactMap { sample in
-            // check if sample already in workouts
-            if workoutSamples.contains(where: {
-                $0.startDate <= sample.startDate
-                    && $0.endDate >= sample.endDate
-            }) {
-                return nil
-            }
-
             let caloriesInKcal = sample.quantity.doubleValue(
                 for: .kilocalorie()
             )
@@ -56,7 +48,6 @@ struct ActivityQuery: HealthQuery {
             )
         }
 
-        // Combine the calories from workouts and samples
         return calories + workouts
     }
 

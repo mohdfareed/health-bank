@@ -9,7 +9,8 @@ extension HealthKitService {
     /// Execute a sample query for the given date range.
     func fetchSamples(
         for type: HKSampleType,
-        from startDate: Date, to endDate: Date, limit: Int?
+        from startDate: Date, to endDate: Date, limit: Int?,
+        predicate: NSPredicate? = nil
     ) async -> [HKSample] {
         guard isActive else {
             logger.debug("HealthKit inactive, returning empty results")
@@ -17,10 +18,12 @@ extension HealthKitService {
         }
 
         return await withCheckedContinuation { continuation in
-            let predicate = HKQuery.predicateForSamples(
-                withStart: startDate, end: endDate,
-                options: .strictEndDate
-            )
+            let predicate =
+                predicate
+                ?? HKQuery.predicateForSamples(
+                    withStart: startDate, end: endDate,
+                    options: .strictEndDate
+                )
 
             let query = HKSampleQuery(
                 sampleType: type,
@@ -57,5 +60,42 @@ extension HealthKitService {
         return await fetchSamples(
             for: .workoutType(), from: startDate, to: endDate, limit: limit
         ) as? [HKWorkout] ?? []
+    }
+}
+
+// MARK: Activity Sample Query
+// ============================================================================
+
+extension HealthKitService {
+    func fetchActivitySamples(
+        for type: HKQuantityType,
+        from startDate: Date, to endDate: Date,
+        workouts: [HKWorkout] = [], limit: Int? = nil
+    ) async -> [HKQuantitySample] {
+        let datePredicate = HKQuery.predicateForSamples(
+            withStart: startDate, end: endDate,
+            options: .strictEndDate
+        )
+
+        let workoutPredicate =
+            NSCompoundPredicate(
+                orPredicateWithSubpredicates: workouts.map { workout in
+                    HKQuery.predicateForObjects(from: workout)
+                }
+            )
+
+        let notWorkoutPredicate = NSCompoundPredicate(
+            notPredicateWithSubpredicate: workoutPredicate
+        )
+        let finalPredicate = NSCompoundPredicate(
+            andPredicateWithSubpredicates: [
+                datePredicate, notWorkoutPredicate,
+            ]
+        )
+
+        return await fetchSamples(
+            for: type, from: startDate, to: endDate, limit: limit,
+            predicate: finalPredicate
+        ) as? [HKQuantitySample] ?? []
     }
 }
