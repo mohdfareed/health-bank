@@ -3,6 +3,8 @@ import SwiftUI
 
 /// The app's bundle identifier.
 let AppID: String = Bundle.main.bundleIdentifier ?? "Debug.App"
+/// The source code repository URL.
+let RepoURL: String = "https://github.com/mohdfareed/health-bank"
 
 @main struct MainApp: App {
     internal let logger = AppLogger.new(for: Self.self)

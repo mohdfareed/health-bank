@@ -19,7 +19,7 @@ enum FormDefinition {
                 RecordField(
                     FieldDefinition.weight,
                     value: $weight.weight.optional(0),
-                    isInternal: weight.isInternal,
+                    isInternal: weight.isInternal, showPicker: true,
                 )
             )
         }

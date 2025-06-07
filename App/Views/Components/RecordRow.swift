@@ -27,8 +27,8 @@ where R: HealthDate, U: Dimension, S: View, Destination: View {
             destination()
         } label: {
             LabeledContent {
-                if !record.isInternal {
-                    Image.healthKit.asText.foregroundColor(Color.healthKit)
+                if record.isInternal {
+                    Image.logo.asText.foregroundColor(Color.accent)
                 }
             } label: {
                 DetailedRow(image: nil, tint: nil) {

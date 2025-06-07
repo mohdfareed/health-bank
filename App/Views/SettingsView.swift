@@ -61,15 +61,23 @@ struct SettingsView: View {
 
                 GoalView(goalsID)
 
-                Button(
-                    "Reset Settings",
-                    role: .destructive
-                ) { reset = true }
+                Section {
+                    NavigationLink(destination: AboutView()) {
+                        Label("About", systemImage: "info.circle")
+                    }
+                }
 
-                Button(
-                    "Erase All Data",
-                    role: .destructive
-                ) { erase = true }
+                Section {
+                    Button(
+                        "Reset Settings",
+                        role: .destructive
+                    ) { reset = true }
+
+                    Button(
+                        "Erase All Data",
+                        role: .destructive
+                    ) { erase = true }
+                }
             }
             .navigationTitle("Settings")
             .scrollDismissesKeyboard(.immediately)

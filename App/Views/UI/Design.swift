@@ -33,6 +33,10 @@ extension Color {
 extension Image {
     static var logo: Image { .init("Logo") }
 
+    // Apple Health
+    static var appleHealth: Image { .init("AppleHealth") }
+    static var appleHealthBadge: Image { .init("AppleHealthBadge") }
+
     // Data Sources
     static var local: Image? { logo }
     static var cloud: Image { .init(systemName: "icloud.fill") }
@@ -40,7 +44,7 @@ extension Image {
 
     // Data Records
     static var calories: Image { .init(systemName: "flame.fill") }
-    static var weight: Image { .init(systemName: "scalemass.fill") }
+    static var weight: Image { .init(systemName: "scalemass") }
 
     // Dietary Energy
     static var dietaryCalorie: Image { .init("Apple.Fill") }
