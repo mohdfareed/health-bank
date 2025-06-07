@@ -4,7 +4,7 @@ import SwiftUI
 // TODO: Remove icons from record row for category views.
 
 /// A view that displays records of a specific type with source filtering.
-struct CategoryView<T: HealthDate>: View {
+struct CategoryView<T: HealthData>: View {
     @Environment(\.modelContext) private var context: ModelContext
     @DataQuery var records: [T]
     @State private var isAddingRecord = false
@@ -86,7 +86,7 @@ struct CategoryView<T: HealthDate>: View {
     }
 
     @ViewBuilder private func swipeActions(for record: T) -> some View {
-        if record.isInternal {
+        if record.source == .app {
             Button(role: .destructive) {
                 // TODO: Implement delete action
             } label: {

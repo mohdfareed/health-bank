@@ -6,6 +6,18 @@ import SwiftData
 // ============================================================================
 
 struct DietaryQuery: HealthQuery {
+    func save(store: HealthKitService) async throws {
+
+    }
+
+    func delete(store: HealthKitService) async throws {
+
+    }
+
+    func update(store: HealthKitService) async throws {
+
+    }
+
     @MainActor func fetch(
         from: Date, to: Date, limit: Int? = nil,
         store: HealthKitService
@@ -36,10 +48,10 @@ struct DietaryQuery: HealthQuery {
 
             let calorie = DietaryCalorie(
                 totalCalories ?? 0,
-                date: correlation.startDate,
                 macros: .init(p: totalProtein, f: totalFat, c: totalCarbs),
-                isInternal: correlation.sourceRevision.source.isInternal,
                 id: correlation.uuid,
+                source: correlation.sourceRevision.source.dataSource,
+                date: correlation.startDate,
             )
 
             if totalCalories == nil {
@@ -64,9 +76,10 @@ struct DietaryQuery: HealthQuery {
                 caloriesInKcal, from: .kilocalories
             )
             return DietaryCalorie(
-                calories, date: sample.startDate,
-                isInternal: sample.sourceRevision.source.isInternal,
+                calories,
                 id: sample.uuid,
+                source: sample.sourceRevision.source.dataSource,
+                date: sample.startDate,
             )
         }
 

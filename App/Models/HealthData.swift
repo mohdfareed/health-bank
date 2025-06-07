@@ -10,7 +10,7 @@ enum HealthDataModel: CaseIterable {
     case activity
     case weight
 
-    var dataType: any HealthDate.Type {
+    var dataType: any HealthData.Type {
         switch self {
         case .calorie:
             return DietaryCalorie.self
@@ -21,7 +21,7 @@ enum HealthDataModel: CaseIterable {
         }
     }
 
-    static var allTypes: [any HealthDate.Type] {
+    static var allTypes: [any HealthData.Type] {
         allCases.map { $0.dataType }
     }
 }
@@ -29,12 +29,19 @@ enum HealthDataModel: CaseIterable {
 // MARK: Interface
 // ============================================================================
 
+/// The health data source.
+public enum DataSource: Codable, CaseIterable {
+    case app
+    case healthKit
+    case other
+}
+
 /// Base protocol for all health data.
-public protocol HealthDate: Identifiable, Observable {
+public protocol HealthData: Identifiable, Observable {
     /// The data's ID.
     var id: UUID { get }
-    /// Whether the health data was created by this app.
-    var isInternal: Bool { get }
+    /// The data's source.
+    var source: DataSource { get }
     /// When the data was recorded.
     var date: Date { get set }
 }
@@ -42,10 +49,18 @@ public protocol HealthDate: Identifiable, Observable {
 /// Base protocol for data queries.
 @MainActor public protocol HealthQuery<Data> {
     /// The type of data this query returns.
-    associatedtype Data: HealthDate
+    associatedtype Data: HealthData
+
     /// Fetch the data models from HealthKit.
     func fetch(
         from: Date, to: Date, limit: Int?,
         store: HealthKitService
     ) async -> [Data]
+
+    /// Save data in HealthKit.
+    func save(store: HealthKitService) async throws
+    /// Delete data from HealthKit.
+    func delete(store: HealthKitService) async throws
+    /// Update data in HealthKit.
+    func update(store: HealthKitService) async throws
 }

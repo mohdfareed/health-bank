@@ -3,6 +3,18 @@ import HealthKit
 import SwiftData
 
 struct ActivityQuery: HealthQuery {
+    func save(store: HealthKitService) async throws {
+
+    }
+
+    func delete(store: HealthKitService) async throws {
+
+    }
+
+    func update(store: HealthKitService) async throws {
+
+    }
+
     @MainActor func fetch(
         from: Date, to: Date, limit: Int? = nil,
         store: HealthKitService
@@ -24,10 +36,11 @@ struct ActivityQuery: HealthQuery {
             let activity = workout.workoutActivityType
 
             return ActiveEnergy(
-                calories, date: workout.startDate,
+                calories,
                 duration: duration, workout: .init(from: activity),
-                isInternal: workout.sourceRevision.source.isInternal,
-                id: workout.uuid
+                id: workout.uuid,
+                source: workout.sourceRevision.source.dataSource,
+                date: workout.startDate,
             )
         }
 
@@ -44,9 +57,10 @@ struct ActivityQuery: HealthQuery {
                 caloriesInKcal, from: .kilocalories
             )
             return ActiveEnergy(
-                calories, date: sample.startDate,
-                isInternal: sample.sourceRevision.source.isInternal,
+                calories,
                 id: sample.uuid,
+                source: sample.sourceRevision.source.dataSource,
+                date: sample.startDate,
             )
         }
 

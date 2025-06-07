@@ -11,8 +11,8 @@ public enum WorkoutActivity: Codable, CaseIterable, Hashable {
 /// Represents active energy expenditure from physical activity.
 public final class ActiveEnergy: Calorie {
     public var id: UUID
+    public let source: DataSource
     public var date: Date
-    public var isInternal: Bool
 
     public var calories: Double
     /// The workout duration.
@@ -21,16 +21,18 @@ public final class ActiveEnergy: Calorie {
     public var workout: WorkoutActivity?
 
     public init(
-        _ value: Double, date: Date = Date(),
+        _ value: Double,
         duration: TimeInterval? = nil, workout: WorkoutActivity? = nil,
-        isInternal: Bool = true, id: UUID = UUID(),
+        id: UUID = UUID(),
+        source: DataSource = .app,
+        date: Date = Date(),
     ) {
         self.calories = value
         self.duration = duration
         self.workout = workout
 
         self.id = id
+        self.source = source
         self.date = date
-        self.isInternal = isInternal
     }
 }

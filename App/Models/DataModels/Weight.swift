@@ -1,23 +1,25 @@
 import Foundation
-import SwiftData
+import HealthKit
 
 /// SwiftData model for weight data.
-public final class Weight: HealthDate {
-    public var id: UUID
+@Observable public final class Weight: HealthData {
+    public let id: UUID
+    public let source: DataSource
     public var date: Date
-    public var isInternal: Bool
 
     /// The weight value.
     public var weight: Double
 
     public init(
-        _ value: Double, date: Date = Date(),
-        isInternal: Bool = true, id: UUID = UUID()
+        _ weight: Double,
+        id: UUID = UUID(),
+        source: DataSource = .app,
+        date: Date = Date(),
     ) {
-        self.weight = value
+        self.weight = weight
 
         self.id = id
+        self.source = source
         self.date = date
-        self.isInternal = isInternal
     }
 }

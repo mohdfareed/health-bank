@@ -1,7 +1,7 @@
 import SwiftUI
 
 struct RecordRow<R, U, S, Destination>: View
-where R: HealthDate, U: Dimension, S: View, Destination: View {
+where R: HealthData, U: Dimension, S: View, Destination: View {
     let record: R
     let field: RecordFieldDefinition<U>
     @LocalizedMeasurement var measurement: Measurement<U>
@@ -27,7 +27,7 @@ where R: HealthDate, U: Dimension, S: View, Destination: View {
             destination()
         } label: {
             LabeledContent {
-                if record.isInternal {
+                if record.source == .app {
                     Image.logo.asText.foregroundColor(Color.accent)
                 }
             } label: {

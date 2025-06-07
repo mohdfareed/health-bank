@@ -2,14 +2,67 @@ import Foundation
 import HealthKit
 import SwiftUI
 
+enum HealthKitDataType: CaseIterable {
+    case bodyMass
+    case dietaryCalories, activeCalories, basalCalories
+    case protein, carbs, fat
+    case workout
+
+    var sampleType: HKSampleType {
+        switch self {
+        case .bodyMass:
+            return HKQuantityType(.bodyMass)
+        case .dietaryCalories:
+            return HKQuantityType(.dietaryEnergyConsumed)
+        case .activeCalories:
+            return HKQuantityType(.activeEnergyBurned)
+        case .basalCalories:
+            return HKQuantityType(.basalEnergyBurned)
+        case .protein:
+            return HKQuantityType(.dietaryProtein)
+        case .carbs:
+            return HKQuantityType(.dietaryCarbohydrates)
+        case .fat:
+            return HKQuantityType(.dietaryFatTotal)
+        case .workout:
+            return HKWorkoutType.workoutType()
+        }
+    }
+
+    var quantityType: HKQuantityType {
+        switch self {
+        case .bodyMass:
+            return HKQuantityType(.bodyMass)
+        case .dietaryCalories:
+            return HKQuantityType(.dietaryEnergyConsumed)
+        case .activeCalories:
+            return HKQuantityType(.activeEnergyBurned)
+        case .basalCalories:
+            return HKQuantityType(.basalEnergyBurned)
+        case .protein:
+            return HKQuantityType(.dietaryProtein)
+        case .carbs:
+            return HKQuantityType(.dietaryCarbohydrates)
+        case .fat:
+            return HKQuantityType(.dietaryFatTotal)
+        case .workout:
+            return HKQuantityType(.appleExerciseTime)
+        }
+    }
+}
+
 // TODO: Add background sync:
 // https://developer.apple.com/documentation/swiftdata/modelcontext/didsave
+// TODO: Support statistics queries for charts:
+// https://developer.apple.com/documentation/healthkit/executing-statistics-collection-queries
 
 // MARK: Service
 // ============================================================================
 
 /// Service for querying HealthKit data with model-specific query methods.
 public final class HealthKitService: Sendable {
+    internal static let shared = HealthKitService()
+
     public static let AppSource = AppName
     public static let AppSourceID = AppID
 
@@ -27,6 +80,16 @@ public final class HealthKitService: Sendable {
             key: HKSampleSortIdentifierStartDate, ascending: false
         )
     }
+
+    // User unit preferences
+    @MainActor static var unitsCache: [HKQuantityType: Unit] = [:]
+
+    init() {
+        Task {
+            await setupUnits()
+        }
+        logger.info("HealthKit service initialized.")
+    }
 }
 
 // MARK: Environment Integration
@@ -34,7 +97,7 @@ public final class HealthKitService: Sendable {
 
 extension EnvironmentValues {
     /// The HealthKit service used for querying HealthKit data.
-    @Entry var healthKit: HealthKitService = .init()
+    @Entry var healthKit: HealthKitService = .shared
 }
 
 extension View {
@@ -48,9 +111,16 @@ extension View {
 // ============================================================================
 
 extension HKSource {
-    /// Returns whether the source is internal to the app.
-    var isInternal: Bool {
-        self.bundleIdentifier == HealthKitService.AppSourceID
+    /// Returns the data source of the HealthKit source.
+    var dataSource: DataSource {
+        switch bundleIdentifier {
+        case HealthKitService.AppSourceID:
+            return .app
+        case "com.apple.Health":
+            return .healthKit
+        default:
+            return .other
+        }
     }
 }
 

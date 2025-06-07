@@ -44,6 +44,12 @@ struct SettingsView: View {
                             ForEach(systems, id: \.self) { system in
                                 Text(system.localized).tag(system)
                             }
+                            Divider()
+                            Label {
+                                Text("System")
+                            } icon: {
+                                Image(systemName: "globe")
+                            }.tag(nil as MeasurementSystem?)
                         },
                     ) { Text(self.locale.measurementSystem.localized) }
                     .frame(maxHeight: 8)

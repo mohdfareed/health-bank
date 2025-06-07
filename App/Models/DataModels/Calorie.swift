@@ -6,7 +6,7 @@ import SwiftData
 
 /// Protocol defining the basic properties for any calorie entry.
 /// All calorie values are stored in kilocalories (kcal).
-public protocol Calorie: HealthDate {
+public protocol Calorie: HealthData {
     /// Energy value in kilocalories.
     var calories: Double { get set }
 }
@@ -33,22 +33,25 @@ public struct CalorieMacros: Codable, Hashable, Sendable {
 /// Represents dietary calorie intake.
 public final class DietaryCalorie: Calorie {
     public var id: UUID
+    public let source: DataSource
     public var date: Date
-    public var isInternal: Bool
 
     public var calories: Double
     // Optional macro-nutrient breakdown
     public var macros: CalorieMacros?
 
     public init(
-        _ value: Double, date: Date = Date(), macros: CalorieMacros? = nil,
-        isInternal: Bool = true, id: UUID = UUID()
+        _ value: Double, macros: CalorieMacros? = nil,
+        id: UUID = UUID(),
+        source: DataSource = .app,
+        date: Date = Date(),
+
     ) {
         self.calories = value
         self.macros = macros
 
         self.id = id
+        self.source = source
         self.date = date
-        self.isInternal = isInternal
     }
 }

@@ -3,6 +3,18 @@ import HealthKit
 import SwiftData
 
 struct WeightQuery: HealthQuery {
+    func save(store: HealthKitService) async throws {
+
+    }
+
+    func delete(store: HealthKitService) async throws {
+
+    }
+
+    func update(store: HealthKitService) async throws {
+
+    }
+
     @MainActor func fetch(
         from: Date, to: Date, limit: Int? = nil,
         store: HealthKitService
@@ -20,9 +32,10 @@ struct WeightQuery: HealthQuery {
                 weightInKg, from: .kilograms
             )
             return Weight(
-                weight, date: sample.startDate,
-                isInternal: sample.sourceRevision.source.isInternal,
-                id: sample.uuid
+                weight,
+                id: sample.uuid,
+                source: sample.sourceRevision.source.dataSource,
+                date: sample.startDate,
             )
         }
 

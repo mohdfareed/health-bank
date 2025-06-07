@@ -5,7 +5,7 @@ extension UserGoals {
     /// The calories daily goal.
     var calorieGoal: DietaryCalorie {
         get {
-            .init(self.calories ?? 0, date: self.date, macros: self.macros)
+            .init(self.calories ?? 0, macros: self.macros, date: self.date)
         }
         set {
             self.date = newValue.date

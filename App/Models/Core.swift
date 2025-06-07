@@ -1,4 +1,5 @@
 import Foundation
+import HealthKit
 import SwiftData
 
 // MARK: Singleton
@@ -26,13 +27,17 @@ struct UnitDefinition<D: Dimension> {
     let baseUnit: D
     /// The alternative units allowed for the unit.
     let altUnits: [D]
+    // The HealthKit unit type, if applicable.
+    let healthKitType: HealthKitDataType
 
     init(
         _ unit: D = .baseUnit(), alts: [D] = [],
-        usage: MeasurementFormatUnitUsage<D> = .general
+        healthKitType: HealthKitDataType,
+        usage: MeasurementFormatUnitUsage<D> = .general,
     ) {
         self.baseUnit = unit
         self.altUnits = alts
+        self.healthKitType = healthKitType
         self.usage = usage
     }
 }

@@ -1,7 +1,7 @@
 import SwiftData
 import SwiftUI
 
-struct RecordForm<R: HealthDate, Content: View>: View {
+struct RecordForm<R: HealthData, Content: View>: View {
     @Environment(\.modelContext) private var context
     @Environment(\.dismiss) private var dismiss
     @State private var showConfirmation = false
@@ -39,9 +39,9 @@ struct RecordForm<R: HealthDate, Content: View>: View {
                     }
                 }
             }
-            .disabled(!record.isInternal)
+            .disabled(record.source != .app)
 
-            if isEditing && record.isInternal {
+            if isEditing && record.source == .app {
                 Section {
                     Button(role: .destructive) {
                         showConfirmation = true

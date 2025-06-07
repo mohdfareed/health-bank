@@ -29,7 +29,7 @@ enum HealthRecordCategory: String, CaseIterable, Identifiable {
         }
     }
 
-    func query<T: HealthDate>() -> any HealthQuery<T> {
+    func query<T: HealthData>() -> any HealthQuery<T> {
         switch self {
         case .dietary: return DietaryQuery() as! any HealthQuery<T>
         case .active: return ActivityQuery() as! any HealthQuery<T>
@@ -37,7 +37,7 @@ enum HealthRecordCategory: String, CaseIterable, Identifiable {
         }
     }
 
-    func record() -> any HealthDate {
+    func record() -> any HealthData {
         switch self {
         case .dietary: return DietaryCalorie(0)
         case .active: return ActiveEnergy(0)
@@ -51,7 +51,7 @@ enum HealthRecordCategory: String, CaseIterable, Identifiable {
 
 extension HealthRecordCategory {
     @ViewBuilder @MainActor
-    static func recordRow(_ record: any HealthDate) -> some View {
+    static func recordRow(_ record: any HealthData) -> some View {
         switch record {
         case let weight as Weight:
             RecordDefinition.weight.recordRow(weight)

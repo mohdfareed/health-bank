@@ -22,9 +22,9 @@ struct AppLocale: DynamicProperty {
     var projectedValue: AppLocale { self }
 
     /// Binding for measurement system setting.
-    var units: Binding<MeasurementSystem> {
+    var units: Binding<MeasurementSystem?> {
         Binding(
-            get: { unitSystem ?? systemLocale.measurementSystem },
+            get: { unitSystem },
             set: { unitSystem = $0 }
         )
     }

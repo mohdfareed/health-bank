@@ -2,7 +2,7 @@ import SwiftData
 import SwiftUI
 
 struct RecordFormDefinition<
-    R: HealthDate, C: View
+    R: HealthData, C: View
 >: Sendable {
     @ViewBuilder var content: @MainActor (R) -> C
 }
@@ -19,7 +19,7 @@ enum FormDefinition {
                 RecordField(
                     FieldDefinition.weight,
                     value: $weight.weight.optional(0),
-                    isInternal: weight.isInternal, showPicker: true,
+                    isInternal: weight.source == .app, showPicker: true,
                 )
             )
         }
@@ -35,25 +35,25 @@ enum FormDefinition {
                     RecordField(
                         FieldDefinition.calorie,
                         value: $calorie.calories.optional(0),
-                        isInternal: calorie.isInternal,
+                        isInternal: calorie.source == .app,
                         computed: calorie.calculatedCalories
                     )
                     RecordField(
                         FieldDefinition.protein,
                         value: macros.protein,
-                        isInternal: calorie.isInternal,
+                        isInternal: calorie.source == .app,
                         computed: calorie.calculatedProtein
                     )
                     RecordField(
                         FieldDefinition.carbs,
                         value: macros.carbs,
-                        isInternal: calorie.isInternal,
+                        isInternal: calorie.source == .app,
                         computed: calorie.calculatedCarbs
                     )
                     RecordField(
                         FieldDefinition.fat,
                         value: macros.fat,
-                        isInternal: calorie.isInternal,
+                        isInternal: calorie.source == .app,
                         computed: calorie.calculatedFat
                     )
                 }
@@ -69,12 +69,12 @@ enum FormDefinition {
                     RecordField(
                         FieldDefinition.calorie,
                         value: $calorie.calories.optional(0),
-                        isInternal: calorie.isInternal,
+                        isInternal: calorie.source == .app,
                     )
                     RecordField(
                         FieldDefinition.duration,
                         value: $calorie.duration,
-                        isInternal: calorie.isInternal, showPicker: true,
+                        isInternal: calorie.source == .app, showPicker: true,
                     )
 
                     Picker(selection: $calorie.workout) {
@@ -98,7 +98,7 @@ enum FormDefinition {
                                 .foregroundStyle(Color.activeCalorie)
                         }
                     }
-                    .disabled(!calorie.isInternal)
+                    .disabled(calorie.source != .app)
                     .contentTransition(
                         .symbolEffect(.replace)
                     )

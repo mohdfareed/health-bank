@@ -1,3 +1,4 @@
+import HealthKit
 import SwiftUI
 
 // MARK: Localization
@@ -59,6 +60,9 @@ private func nativeUnit<D: Dimension>(
 @MainActor @propertyWrapper
 struct LocalizedMeasurement<D: Dimension>: DynamicProperty {
     @AppLocale private var locale
+    @Environment(\.healthKit)
+    var healthKitService: HealthKitService
+
     @Binding var baseValue: Double?
     @State var displayUnit: D?
     let definition: UnitDefinition<D>
@@ -81,7 +85,24 @@ struct LocalizedMeasurement<D: Dimension>: DynamicProperty {
 
     var unit: Binding<D?> {
         Binding(
-            get: { displayUnit ?? definition.unit(for: locale) },
+            get: {
+                // 1) User override
+                if let override = displayUnit {
+                    return override
+                }
+                // 2) App Settings preferred unit
+                if $locale.units.wrappedValue != nil {
+                    return definition.unit(for: locale)
+                }
+                // 3) HealthKit preferred unit
+                if let hkUnit = healthKitService.preferredUnit(
+                    for: definition.healthKitType.quantityType
+                ) as? D {
+                    return hkUnit
+                }
+                // 4) Default localization
+                return definition.unit(for: locale)
+            },
             set: { displayUnit = $0 }
         )
     }

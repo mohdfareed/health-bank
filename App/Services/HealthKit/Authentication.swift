@@ -2,17 +2,6 @@ import Foundation
 import HealthKit
 import SwiftUI
 
-let healthKitDataTypes: Set<HKSampleType> = [
-    HKQuantityType(.bodyMass),
-    HKQuantityType(.dietaryEnergyConsumed),
-    HKQuantityType(.activeEnergyBurned),
-    HKQuantityType(.basalEnergyBurned),
-    HKQuantityType(.dietaryProtein),
-    HKQuantityType(.dietaryCarbohydrates),
-    HKQuantityType(.dietaryFatTotal),
-    HKWorkoutType.workoutType(),
-]
-
 // MARK: Authorization
 // ============================================================================
 
@@ -32,8 +21,9 @@ extension HealthKitService {
             return
         }
 
+        let dataTypes = HealthKitDataType.allCases.map { $0.sampleType }
         store.requestAuthorization(
-            toShare: healthKitDataTypes, read: healthKitDataTypes
+            toShare: Set(dataTypes), read: Set(dataTypes)
         ) { [weak self] success, error in
             if let error = error {
                 self?.logger.error("HealthKit authorization failed: \(error)")
@@ -61,22 +51,22 @@ extension HealthKitService {
 
     /// Check if the app has complete authorization for all types.
     private func isAuthorized() -> Bool {
-        return healthKitDataTypes.allSatisfy { type in
-            isAuthorized(for: type) == .sharingAuthorized
+        return HealthKitDataType.allCases.allSatisfy { type in
+            isAuthorized(for: type.sampleType) == .sharingAuthorized
         }
     }
 
     /// Check if the user has reviewed the permissions for all types.
     private func isReviewed() -> Bool {
-        return healthKitDataTypes.allSatisfy { type in
-            isAuthorized(for: type) != .notDetermined
+        return HealthKitDataType.allCases.allSatisfy { type in
+            isAuthorized(for: type.sampleType) != .notDetermined
         }
     }
 
     /// Check if the user has denied permissions for all types.
     private func isDenied() -> Bool {
-        return healthKitDataTypes.allSatisfy { type in
-            isAuthorized(for: type) == .sharingDenied
+        return HealthKitDataType.allCases.allSatisfy { type in
+            isAuthorized(for: type.sampleType) == .sharingDenied
         }
     }
 }

@@ -5,11 +5,10 @@ import SwiftUI
 // MARK: Data Query
 // ============================================================================
 
-/// A property wrapper that combines SwiftData and HealthKit data queries.
-/// Both local and HealthKit data are paginated for memory efficiency.
+/// A property wrapper that paginates HealthKit data queries.
 @MainActor @propertyWrapper
 struct DataQuery<T>: DynamicProperty
-where T: HealthDate {
+where T: HealthData {
     @Environment(\.healthKit)
     private var healthKitService
 
@@ -50,7 +49,7 @@ extension DataQuery {
         isExhausted = false
 
         // Start from the top of the date range
-        cursorDate = dateRange.upperBound
+        cursorDate = dateRange.lowerBound
         await loadNextPage()
     }
 
@@ -60,15 +59,14 @@ extension DataQuery {
         isLoading = true
 
         // 1) Determine bounds for this page
-        let toDate = cursorDate ?? dateRange.upperBound
-        let fromDate = dateRange.lowerBound
+        let fromDate = cursorDate ?? dateRange.lowerBound
+        let toDate = dateRange.upperBound
 
         // 2) Fetch HealthKit chunk
         var remoteChunk: [T] = []
         if HealthKitService.isAvailable {
-            let hkEnd = toDate.addingTimeInterval(-0.001)
             remoteChunk = await query.fetch(
-                from: fromDate, to: hkEnd, limit: pageSize,
+                from: fromDate, to: toDate, limit: pageSize,
                 store: healthKitService
             )
             if remoteChunk.count < pageSize {
@@ -77,18 +75,17 @@ extension DataQuery {
         }
 
         // 3) Combine and sort both chunks by date descending
-        let combined = remoteChunk.sorted { $0.date > $1.date }
+        let chunk = remoteChunk.sorted { $0.date > $1.date }
 
         // 4) Take only up to `pageSize` items from the combined array
-        let pageToShow = Array(combined.prefix(pageSize))
-        items.append(contentsOf: pageToShow)
+        let page = Array(chunk.prefix(pageSize))
+        items.append(contentsOf: page)
 
         // 5) Update cursorDate to the last item's date minus a small epsilon
-        if let last = pageToShow.last {
+        if let last = page.last {
             cursorDate = last.date.addingTimeInterval(-0.001)
         }
     }
-
 }
 
 // MARK: Extensions
