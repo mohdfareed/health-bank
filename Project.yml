@@ -86,10 +86,11 @@ targets:
         UILaunchScreen:
           UIColorName: LaunchScreenBG
           UIImageName: LaunchScreenLogo
+          # REVIEW: Check working. Update translation in Assets/Info.plist.xcstrings
         NSHealthShareUsageDescription: |
           Enable the app to create and share health data with Apple Health.
         NSHealthUpdateUsageDescription: |
-          Enable the app to read and use health data in Apple Health.
+          Enable the app to read health data and their units from Apple Health.
         UISupportedInterfaceOrientations:
           - UIInterfaceOrientationPortrait
           - UIInterfaceOrientationPortraitUpsideDown

@@ -43,16 +43,6 @@ extension Image {
     static var cloud: Image { .init(systemName: "icloud.fill") }
     static var healthKit: Image { .init(systemName: "heart.fill") }
 
-    // Health Status Badges
-    static var heartBadgeCheckmark: Image { .init("heart.badge.checkmark") }
-    static var heartBadgeXmark: Image { .init("heart.badge.xmark") }
-    static var heartBadgeExclamationmark: Image {
-        .init("heart.badge.exclamationmark")
-    }
-    static var heartBadgeQuestionmark: Image {
-        .init("heart.badge.questionmark")
-    }
-
     // Data Records
     static var calories: Image { .init(systemName: "flame.fill") }
     static var weight: Image { .init(systemName: "scalemass") }

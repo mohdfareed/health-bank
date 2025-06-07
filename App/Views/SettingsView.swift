@@ -206,39 +206,49 @@ struct HealthPermissionsManager: View {
         Button {
             service.requestAuthorization()
         } label: {
-            switch service.authorizationStatus() {
-            case .notReviewed:
-                Label {
-                    Text("Request Authorization")
-                        .foregroundStyle(Color.accent)
-                } icon: {
-                    Image.heartBadgeQuestionmark
-                        .foregroundStyle(Color.primary, Color.accent)
-                }
-            case .authorized:
-                Label {
-                    Text("Authorized")
+            Label {
+                HStack {
+                    Text("Permissions")
                         .foregroundStyle(Color.primary)
-                } icon: {
-                    Image.heartBadgeCheckmark
-                        .foregroundStyle(Color.green, Color.accent)
+                    Spacer()
+                    switch service.authorizationStatus() {
+                    case .notReviewed:
+                        Label {
+                            Image(systemName: "lock.shield.fill")
+                                .foregroundStyle(Color.accent)
+                        } icon: {
+                            Text("Request")
+                                .foregroundStyle(Color.accent)
+                        }
+                    case .authorized:
+                        Label {
+                            Image(systemName: "checkmark.shield.fill")
+                                .foregroundStyle(Color.green)
+                        } icon: {
+                            Text("Authorized")
+                                .foregroundStyle(Color.secondary)
+                        }
+                    case .denied:
+                        Label {
+                            Image(systemName: "xmark.shield.fill")
+                                .foregroundStyle(Color.red)
+                        } icon: {
+                            Text("Denied")
+                                .foregroundStyle(Color.secondary)
+                        }
+                    case .partiallyAuthorized:
+                        Label {
+                            Image(systemName: "exclamationmark.shield.fill")
+                                .foregroundStyle(Color.yellow)
+                        } icon: {
+                            Text("Partially Authorized")
+                                .foregroundStyle(Color.secondary)
+                        }
+                    }
                 }
-            case .denied:
-                Label {
-                    Text("Authorization Denied")
-                        .foregroundStyle(Color.primary)
-                } icon: {
-                    Image.heartBadgeXmark
-                        .foregroundStyle(Color.red, Color.accent)
-                }
-            case .partiallyAuthorized:
-                Label {
-                    Text("Partially Authorized")
-                        .foregroundStyle(Color.primary)
-                } icon: {
-                    Image.heartBadgeExclamationmark
-                        .foregroundStyle(Color.yellow, Color.accent)
-                }
+            } icon: {
+                Image.healthKit
+                    .foregroundStyle(Color.healthKit)
             }
         }
     }

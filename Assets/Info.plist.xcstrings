@@ -29,7 +29,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Enable the app to read and use health data in Apple Health."
+            "value" : "Enable the app to read health data and their units from Apple Health."
           }
         }
       }

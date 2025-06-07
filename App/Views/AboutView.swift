@@ -2,7 +2,7 @@ import HealthKit
 import SwiftUI
 
 struct AboutView: View {
-    @Environment(\.openURL) private var openURL
+    @Environment(\.healthKit) private var healthKit
 
     var body: some View {
         NavigationStack {
@@ -33,7 +33,7 @@ struct AboutView: View {
                         """
                         Health data is stored and managed by Apple Health.
                         This app does not collect or store personal health information.
-                        You can manage the app data and permissions in Apple Health:
+                        You can manage app data and permissions in Apple Health:
                         Settings > Apps > Health > Data Access & Devices > \(AppName)
                         """
                     )
