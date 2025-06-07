@@ -87,9 +87,9 @@ targets:
           UIColorName: LaunchScreenBG
           UIImageName: LaunchScreenLogo
         NSHealthShareUsageDescription: |
-          Show your Apple Health data in the app.
+          Enable the app to create and share health data with Apple Health.
         NSHealthUpdateUsageDescription: |
-          Backup your local data to Apple Health.
+          Enable the app to read and use health data in Apple Health.
         UISupportedInterfaceOrientations:
           - UIInterfaceOrientationPortrait
           - UIInterfaceOrientationPortraitUpsideDown

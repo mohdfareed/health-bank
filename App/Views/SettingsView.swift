@@ -65,12 +65,13 @@ struct SettingsView: View {
                 Section {
                     HealthPermissionsManager(service: healthKit)
                 } header: {
-                    Text("Apple Health Permissions")
+                    Text("Apple Health")
                 } footer: {
                     Text(
                         """
-                        Manage permissions for accessing health data.
-                        Permissions can be changed at:
+                        Manage all data created by this app at:
+                        Settings > Apps > Health > Data Access & Devices > \(AppName)
+                        Manage permissions for accessing health data at:
                         Settings > Privacy & Security > Health > \(AppName)
                         """
                     )
@@ -97,7 +98,7 @@ struct SettingsView: View {
                 }
             }
             .navigationTitle("Settings")
-            .scrollDismissesKeyboard(.immediately)
+            .scrollDismissesKeyboard(.interactively)
 
             .resetAlert(isPresented: $reset)
             .eraseAlert(isPresented: $erase, context: context)

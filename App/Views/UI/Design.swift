@@ -88,6 +88,15 @@ extension Image {
         Text("\(self)")
             .font(.footnote.bold())
     }
+
+    static var appleHealthLogo: some View {
+        Image.appleHealth
+            .resizable()
+            .aspectRatio(contentMode: .fit)
+            .frame(height: 48)
+            .padding(1).background(Color.secondary)  // Stroke
+            .cornerRadius(12)  // Stroke corner radius
+    }
 }
 
 extension WorkoutActivity {

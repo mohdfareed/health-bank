@@ -41,14 +41,16 @@ struct MeasurementField<Unit: Dimension, Content: View>: View {
             }.layoutPriority(-1)
 
         } label: {
-            label().gesture(
-                TapGesture().onEnded {
-                    withAnimation(.default) {
-                        isActive = true
-                    }
-                }, isEnabled: !isActive
-            )
+            label()
         }
+
+        .gesture(
+            TapGesture().onEnded {
+                withAnimation(.default) {
+                    isActive = true
+                }
+            }, isEnabled: !isActive
+        )
 
         .onChange(of: $measurement.baseValue) {
             if !isValid {

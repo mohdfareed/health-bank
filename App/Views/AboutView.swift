@@ -7,6 +7,56 @@ struct AboutView: View {
     var body: some View {
         NavigationStack {
             Form {
+                // Apple Health Integration
+                Section {
+                    // Apple Health Header
+                    HStack(spacing: 16) {
+                        Image.appleHealthLogo
+                            .frame(height: 48)
+
+                        VStack(alignment: .leading, spacing: 4) {
+                            Text("Apple Health Integration")
+                                .font(.headline)
+                                .fontWeight(.medium)
+                            Text(
+                                """
+                                This app integrates with Apple Health to track and manage your health data.
+                                """
+                            )
+                            .font(.footnote)
+                            .foregroundStyle(.secondary)
+                        }
+                    }
+
+                    // Privacy Information
+                    Text(
+                        """
+                        Health data is stored and managed by Apple Health.
+                        This app does not collect or store personal health information.
+                        You can manage the app data and permissions in Apple Health:
+                        Settings > Apps > Health > Data Access & Devices > \(AppName)
+                        """
+                    )
+                    .font(.footnote)
+                    .foregroundStyle(.secondary)
+                }.listRowSeparator(.hidden)
+
+                // Credits & Licenses Section
+                Section {
+                    CreditRow(
+                        service: "SF Symbols",
+                        description: "System icons by Apple",
+                        url: "https://developer.apple.com/sf-symbols/"
+                    )
+                    CreditRow(
+                        service: "Icons8",
+                        description: "Custom app icons and symbols",
+                        url: "https://icons8.com"
+                    )
+                } header: {
+                    Text("Credits & Licenses")
+                }
+
                 // App Information Section
                 Section {
                     AppInfoRow(
@@ -28,57 +78,6 @@ struct AboutView: View {
                     )
                 } header: {
                     Text("App Information")
-                }
-
-                // Apple Health Integration
-                Section {
-                    // Apple Health Header
-                    HStack(spacing: 16) {
-                        Image.appleHealth
-                            .resizable()
-                            .aspectRatio(contentMode: .fit)
-                            .frame(height: 48)
-                            .padding(1).background(Color.secondary)  // Stroke
-                            .cornerRadius(12)  // Stroke corner radius
-                        VStack(alignment: .leading, spacing: 4) {
-                            Text("Apple Health Integration")
-                                .font(.headline)
-                                .fontWeight(.medium)
-                            Text(
-                                """
-                                This app integrates with Apple Health to track and manage your health data.
-                                """
-                            )
-                            .font(.footnote)
-                            .foregroundStyle(.secondary)
-                        }
-                    }
-
-                    // Privacy Information
-                    Text(
-                        """
-                        Health data is stored and managed by Apple Health.
-                        This app does not collect or store personal health information.
-                        """
-                    )
-                    .font(.footnote)
-                    .foregroundStyle(.secondary)
-                }.listRowSeparator(.hidden)
-
-                // Credits & Licenses Section
-                Section {
-                    CreditRow(
-                        service: "SF Symbols",
-                        description: "System icons by Apple",
-                        url: "https://developer.apple.com/sf-symbols/"
-                    )
-                    CreditRow(
-                        service: "Icons8",
-                        description: "Custom app icons and symbols",
-                        url: "https://icons8.com"
-                    )
-                } header: {
-                    Text("Credits & Licenses")
                 }
 
                 // Source Code Section
