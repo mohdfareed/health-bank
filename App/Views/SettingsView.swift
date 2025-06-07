@@ -1,14 +1,15 @@
 import SwiftData
 import SwiftUI
 
-// TODO: Add licenses subpage with Apple Health licenses
 // TODO: Animate changing theme
 
 struct SettingsView: View {
     @Environment(\.modelContext)
     internal var context: ModelContext
     @Environment(\.colorScheme)
-    private var colorScheme: ColorScheme
+    internal var colorScheme: ColorScheme
+    @Environment(\.healthKit)
+    private var healthKit: HealthKitService
 
     @AppStorage(.userGoals) var goalsID: UUID
     @AppStorage(.theme) var theme: AppTheme
@@ -62,7 +63,23 @@ struct SettingsView: View {
                 GoalView(goalsID)
 
                 Section {
-                    NavigationLink(destination: AboutView()) {
+                    HealthPermissionsManager(service: healthKit)
+                } header: {
+                    Text("Apple Health Permissions")
+                } footer: {
+                    Text(
+                        """
+                        Manage permissions for accessing health data.
+                        Permissions can be changed at:
+                        Settings > Privacy & Security > Health > \(AppName)
+                        """
+                    )
+                }
+
+                Section {
+                    NavigationLink(
+                        destination: AboutView()
+                    ) {
                         Label("About", systemImage: "info.circle")
                     }
                 }
@@ -121,6 +138,51 @@ extension View {
                 This action cannot be undone.
                 """
             )
+        }
+    }
+}
+
+struct HealthPermissionsManager: View {
+    let service: HealthKitService
+
+    var body: some View {
+        Button {
+            service.requestAuthorization()
+        } label: {
+            switch service.authorizationStatus() {
+            case .notReviewed:
+                Label {
+                    Text("Request Authorization")
+                        .foregroundStyle(Color.accent)
+                } icon: {
+                    Image.heartBadgeQuestionmark
+                        .foregroundStyle(Color.primary, Color.accent)
+                }
+            case .authorized:
+                Label {
+                    Text("Authorized")
+                        .foregroundStyle(Color.primary)
+                } icon: {
+                    Image.heartBadgeCheckmark
+                        .foregroundStyle(Color.green, Color.accent)
+                }
+            case .denied:
+                Label {
+                    Text("Authorization Denied")
+                        .foregroundStyle(Color.primary)
+                } icon: {
+                    Image.heartBadgeXmark
+                        .foregroundStyle(Color.red, Color.accent)
+                }
+            case .partiallyAuthorized:
+                Label {
+                    Text("Partially Authorized")
+                        .foregroundStyle(Color.primary)
+                } icon: {
+                    Image.heartBadgeExclamationmark
+                        .foregroundStyle(Color.yellow, Color.accent)
+                }
+            }
         }
     }
 }

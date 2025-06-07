@@ -31,7 +31,8 @@ extension Color {
 // ============================================================================
 
 extension Image {
-    static var logo: Image { .init("Logo") }
+    static var logo: Image { .init("logo") }
+    static var appSettings: Image { .init("gear.badge.ellipsis") }
 
     // Apple Health
     static var appleHealth: Image { .init("AppleHealth") }
@@ -42,16 +43,26 @@ extension Image {
     static var cloud: Image { .init(systemName: "icloud.fill") }
     static var healthKit: Image { .init(systemName: "heart.fill") }
 
+    // Health Status Badges
+    static var heartBadgeCheckmark: Image { .init("heart.badge.checkmark") }
+    static var heartBadgeXmark: Image { .init("heart.badge.xmark") }
+    static var heartBadgeExclamationmark: Image {
+        .init("heart.badge.exclamationmark")
+    }
+    static var heartBadgeQuestionmark: Image {
+        .init("heart.badge.questionmark")
+    }
+
     // Data Records
     static var calories: Image { .init(systemName: "flame.fill") }
     static var weight: Image { .init(systemName: "scalemass") }
 
     // Dietary Energy
-    static var dietaryCalorie: Image { .init("Apple.Fill") }
+    static var dietaryCalorie: Image { .init("apple.fill") }
     static var macros: Image { .init(systemName: "chart.pie") }
-    static var protein: Image { .init("Meat") }
-    static var fat: Image { .init("Avocado") }
-    static var carbs: Image { .init("Bread") }
+    static var protein: Image { .init("meat") }
+    static var fat: Image { .init("avocado") }
+    static var carbs: Image { .init("bread") }
 
     // Activity
     static var activeCalorie: Image { .init(systemName: "figure.run") }

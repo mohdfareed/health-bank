@@ -2,10 +2,6 @@ import Foundation
 import HealthKit
 import SwiftUI
 
-#if canImport(HealthKitUI)
-    import HealthKitUI
-#endif
-
 let healthKitDataTypes: Set<HKSampleType> = [
     HKQuantityType(.bodyMass),
     HKQuantityType(.dietaryEnergyConsumed),
@@ -19,6 +15,14 @@ let healthKitDataTypes: Set<HKSampleType> = [
 
 // MARK: Authorization
 // ============================================================================
+
+/// The authorization status for HealthKit data types.
+enum HealthAuthorizationStatus {
+    case notReviewed
+    case authorized
+    case denied
+    case partiallyAuthorized
+}
 
 extension HealthKitService {
     /// Request authorization for all required health data types.
@@ -38,34 +42,41 @@ extension HealthKitService {
     }
 
     /// Check authorization status for a specific data type.
-    func checkAuthorization(for type: HKObjectType) -> HKAuthorizationStatus {
+    func isAuthorized(for type: HKObjectType) -> HKAuthorizationStatus {
         return store.authorizationStatus(for: type)
     }
 
-}
+    /// Check the overall authorization status for all health data types.
+    func authorizationStatus() -> HealthAuthorizationStatus {
+        if !isReviewed() {
+            return .notReviewed
+        } else if isAuthorized() {
+            return .authorized
+        } else if isDenied() {
+            return .denied
+        } else {
+            return .partiallyAuthorized
+        }
+    }
 
-extension View {
-    /// Add HealthKit data access request sheet to the current view.
-    func healthKitAuthorizationSheet(
-        isPresented: Binding<Bool>,
-        service: HealthKitService
-    ) -> some View {
-        #if canImport(HealthKitUI)
-            self.healthDataAccessRequest(
-                store: service.store,
-                shareTypes: healthKitDataTypes,
-                readTypes: healthKitDataTypes,
-                trigger: isPresented.wrappedValue
-            ) { _ in isPresented.wrappedValue = false }
-        #else
-            self.alert(
-                "Apple Health Not Available",
-                isPresented: isPresented
-            ) {
-                Button("OK", role: .cancel) {}
-            } message: {
-                Text("Apple Health is not available on this device.")
-            }
-        #endif
+    /// Check if the app has complete authorization for all types.
+    private func isAuthorized() -> Bool {
+        return healthKitDataTypes.allSatisfy { type in
+            isAuthorized(for: type) == .sharingAuthorized
+        }
+    }
+
+    /// Check if the user has reviewed the permissions for all types.
+    private func isReviewed() -> Bool {
+        return healthKitDataTypes.allSatisfy { type in
+            isAuthorized(for: type) != .notDetermined
+        }
+    }
+
+    /// Check if the user has denied permissions for all types.
+    private func isDenied() -> Bool {
+        return healthKitDataTypes.allSatisfy { type in
+            isAuthorized(for: type) == .sharingDenied
+        }
     }
 }
