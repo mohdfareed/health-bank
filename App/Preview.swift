@@ -67,7 +67,6 @@ import SwiftUI
         var body: some View {
             AppView()
                 .modelContainer(container)
-                .colorScheme(.dark)
         }
     }
 

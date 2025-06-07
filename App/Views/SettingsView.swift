@@ -8,6 +8,9 @@ struct SettingsView: View {
     internal var context: ModelContext
 
     @AppStorage(.userGoals) var goalsID: UUID
+    @AppStorage(.theme) var theme: AppTheme
+    @AppLocale private var locale
+
     @State private var reset = false
     @State private var erase = false
 
@@ -15,10 +18,42 @@ struct SettingsView: View {
         NavigationStack {
             Form {
                 Section(header: Text("General Settings")) {
-                    GeneralSettings()
-                    if HealthKitService.isAvailable {
-                        HealthKitSettings()
-                    }
+                    Picker(
+                        "Theme",
+                        systemImage: theme == .light
+                            ? "sun.max.fill"
+                            : "moon.fill",
+                        selection: self.$theme,
+                        content: {
+                            ForEach(AppTheme.allCases, id: \.self) { theme in
+                                Text(theme.localized).tag(theme)
+                            }
+                        }
+                    ) { Text(self.theme.localized) }
+                    .frame(maxHeight: 8)
+
+                    Picker(
+                        "Measurements", systemImage: "ruler",
+                        selection: self.$locale.units,
+                        content: {
+                            let systems = MeasurementSystem.measurementSystems
+                            ForEach(systems, id: \.self) { system in
+                                Text(system.localized).tag(system)
+                            }
+                        },
+                    ) { Text(self.locale.measurementSystem.localized) }
+                    .frame(maxHeight: 8)
+
+                    Picker(
+                        "First Weekday", systemImage: "calendar",
+                        selection: self.$locale.firstWeekDay,
+                        content: {
+                            ForEach(Weekday.allCases, id: \.self) { weekday in
+                                Text(weekday.localized).tag(weekday)
+                            }
+                        }
+                    ) { Text(self.locale.firstDayOfWeek.abbreviated) }
+                    .frame(maxHeight: 8)
                 }
 
                 GoalView(goalsID)
@@ -35,6 +70,7 @@ struct SettingsView: View {
             }
             .navigationTitle("Settings")
             .scrollDismissesKeyboard(.interactively)
+
             .resetAlert(isPresented: $reset)
             .eraseAlert(isPresented: $erase, context: context)
         }
@@ -74,70 +110,6 @@ extension View {
                 This action cannot be undone.
                 """
             )
-        }
-    }
-}
-
-struct GeneralSettings: View {
-    @AppStorage(.theme) var theme: AppTheme
-    @AppLocale private var locale
-
-    var body: some View {
-        Picker(
-            "Theme", systemImage: "paintbrush",
-            selection: self.$theme,
-            content: {
-                ForEach(AppTheme.allCases, id: \.self) { theme in
-                    Text(theme.localized).tag(theme)
-                }
-            }
-        ) { Text(self.theme.localized) }
-        .frame(maxHeight: 8)
-
-        Picker(
-            "Measurements", systemImage: "ruler",
-            selection: self.$locale.units,
-            content: {
-                let systems = MeasurementSystem.measurementSystems
-                ForEach(systems, id: \.self) { system in
-                    Text(system.localized).tag(system)
-                }
-            },
-        ) { Text(self.locale.measurementSystem.localized) }
-        .frame(maxHeight: 8)
-
-        Picker(
-            "First Weekday", systemImage: "calendar",
-            selection: self.$locale.firstWeekDay,
-            content: {
-                ForEach(Weekday.allCases, id: \.self) { weekday in
-                    Text(weekday.localized).tag(weekday)
-                }
-            }
-        ) { Text(self.locale.firstDayOfWeek.abbreviated) }
-        .frame(maxHeight: 8)
-    }
-}
-
-private struct HealthKitSettings: View {
-    @Environment(\.healthKit)
-    private var healthKitService
-
-    @AppStorage(.enableHealthKit)
-    private var enableHealthKit: Bool
-
-    var body: some View {
-        Toggle(isOn: self.$enableHealthKit) {
-            Label {
-                Text("Apple Health Integration")
-            } icon: {
-                Image.healthKit
-            }
-        }
-        .onChange(of: self.enableHealthKit) { _, newValue in
-            if newValue {
-                healthKitService.requestAuthorization()
-            }
         }
     }
 }

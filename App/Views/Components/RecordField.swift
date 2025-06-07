@@ -1,7 +1,5 @@
 import SwiftUI
 
-// REVIEW: animations
-
 struct RecordField<Unit: Dimension, DetailContent: View>: View {
     let definition: RecordFieldDefinition<Unit>
     @LocalizedMeasurement var measurement: Measurement<Unit>
@@ -29,43 +27,38 @@ struct RecordField<Unit: Dimension, DetailContent: View>: View {
     }
 
     var body: some View {
-        DetailedRow(image: definition.image, tint: definition.tint) {
-            Text(String(localized: definition.title))
-        } subtitle: {
-            subtitle.textScale(.secondary)
-        } details: {
-            details().textScale(.secondary)
-        } content: {
-            MeasurementField(
-                measurement: $measurement, validator: definition.validator,
-                format: definition.formatter, showPicker: showPicker,
-                disabled: source != .local
-            )
+        MeasurementField(
+            validator: definition.validator, format: definition.formatter,
+            showPicker: showPicker, disabled: source != .local,
+            measurement: $measurement,
+        ) {
+            DetailedRow(image: definition.image, tint: definition.tint) {
+                Text(String(localized: definition.title))
+            } subtitle: {
+                subtitle.textScale(.secondary)
+            } details: {
+                details().textScale(.secondary)
+            }
         }
-        .animation(.default, value: measurement)
-        .animation(.default, value: showPicker)
     }
 
-    var subtitle: some View {
-        HStack {
-            if let computed = computed?(),
-                computed != $measurement.value.wrappedValue,
-                definition.validator?(computed) ?? true
-            {
-                Button {
-                    withAnimation(.default) {
-                        $measurement.value.wrappedValue = computed
-                    }
-                } label: {
-                    $measurement.computedText(
-                        computed, format: definition.formatter
-                    )
+    @ViewBuilder
+    private var subtitle: some View {
+        if let computed = computed?(),
+            computed != $measurement.value.wrappedValue,
+            definition.validator?(computed) ?? true
+        {
+            Button {
+                withAnimation(.default) {
+                    $measurement.value.wrappedValue = computed
                 }
-                .transition(.opacity)
-                .contentTransition(.numericText())
+            } label: {
+                $measurement.computedText(
+                    computed, format: definition.formatter
+                )
             }
-            Text(measurement.unit.symbol)
         }
+        Text(measurement.unit.symbol).textScale(.secondary)
     }
 }
 

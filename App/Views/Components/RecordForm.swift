@@ -66,8 +66,8 @@ struct RecordForm<R: HealthDate, Content: View>: View {
 
             }
         }
-        .scrollDismissesKeyboard(.immediately)
         .navigationTitle(String(localized: title))
+        .scrollDismissesKeyboard(.immediately)
 
         .toolbar {
             if isEditing {

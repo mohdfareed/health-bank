@@ -1,40 +1,59 @@
 import SwiftUI
 
-// REVIEW: animations
-
-struct MeasurementField<Unit: Dimension>: View {
-    @LocalizedMeasurement var measurement: Measurement<Unit>
-
+struct MeasurementField<Unit: Dimension, Content: View>: View {
     let validator: ((Double) -> Bool)?
+
     let format: FloatingPointFormatStyle<Double>
     let showPicker: Bool
     let disabled: Bool
 
+    @LocalizedMeasurement
+    var measurement: Measurement<Unit>
+    @ViewBuilder
+    var label: () -> Content
+
+    @FocusState
+    private var isActive: Bool
+
     var body: some View {
-        HStack(alignment: .center, spacing: 4) {
-            TextField("—", value: $measurement.value, format: format)
-                .multilineTextAlignment(.trailing)
-                #if os(iOS)
-                    .keyboardType(.decimalPad)
-                #endif
+        LabeledContent {
+            HStack(alignment: .center, spacing: 4) {
+                TextField("—", value: $measurement.value, format: format)
+                    .focused($isActive)
 
-                .disabled(disabled)
-                .foregroundStyle(!disabled ? .primary : .tertiary)
-                .onChange(of: $measurement.baseValue) {
-                    if !isValid {
-                        withAnimation(.default) {
-                            $measurement.baseValue = nil
-                        }
-                    }
+                    .multilineTextAlignment(.trailing)
+                    #if os(iOS)
+                        .keyboardType(.decimalPad)
+                    #endif
+
+                    .disabled(disabled)
+                    .foregroundStyle(!disabled ? .primary : .tertiary)
+
+                if showPicker && $measurement.availableUnits().count > 1 {
+                    picker.frame(maxWidth: 12, maxHeight: 8).fixedSize()
                 }
+            }.layoutPriority(-1)
+        } label: {
+            label().gesture(
+                TapGesture().onEnded {
+                    withAnimation(.default) {
+                        isActive = true
+                    }
+                }, isEnabled: !isActive
+            )
+        }
 
-            if showPicker && $measurement.availableUnits().count > 1 {
-                picker.frame(maxWidth: 12, maxHeight: 8).fixedSize()
+        .onChange(of: $measurement.baseValue) {
+            if !isValid {
+                withAnimation(.default) {
+                    $measurement.baseValue = nil
+                }
             }
         }
 
-        .animation(.default, value: $measurement.value.wrappedValue)
-        .animation(.default, value: $measurement.unit.wrappedValue)
+        .animation(.default, value: $measurement.baseValue)
+        .animation(.default, value: $measurement.displayUnit)
+        .animation(.default, value: disabled)
     }
 
     private var picker: some View {

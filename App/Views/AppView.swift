@@ -24,5 +24,12 @@ struct AppView: View {
         }
         .environment(\.locale, self.locale)
         .preferredColorScheme(self.theme.colorScheme)
+
+        .animation(.default, value: self.theme)
+        .animation(.default, value: self.locale)
+
+        .contentTransition(.symbolEffect(.replace))
+        .contentTransition(.numericText())
+        .contentTransition(.opacity)
     }
 }

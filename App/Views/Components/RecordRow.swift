@@ -28,15 +28,19 @@ where R: HealthDate, U: Dimension, S: View, Destination: View {
         NavigationLink {
             destination()
         } label: {
-            DetailedRow(image: field.image, tint: field.tint) {
-                let unit = Text(measurement.unit.symbol).textScale(.secondary)
-                Text("\(measurement.value.formatted(field.formatter)) \(unit)")
-            } subtitle: {
-                DateView(date: record.date)
-            } details: {
-                subtitle()
-            } content: {
+            LabeledContent {
                 record.source.icon?.asText.foregroundStyle(record.source.color)
+            } label: {
+                DetailedRow(image: field.image, tint: field.tint) {
+                    let value = measurement.value.formatted(field.formatter)
+                    let unit = Text(measurement.unit.symbol)
+                        .textScale(.secondary)
+                    Text("\(value) \(unit)")
+                } subtitle: {
+                    DateView(date: record.date)
+                } details: {
+                    subtitle()
+                }
             }
         }
     }
@@ -83,6 +87,5 @@ struct ValueView<Unit: Dimension>: View {
                 )
             )
         }
-        .contentTransition(.numericText())
     }
 }
