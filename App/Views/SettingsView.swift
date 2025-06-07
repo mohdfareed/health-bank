@@ -2,10 +2,13 @@ import SwiftData
 import SwiftUI
 
 // TODO: Add licenses subpage with Apple Health licenses
+// TODO: Animate changing theme
 
 struct SettingsView: View {
     @Environment(\.modelContext)
     internal var context: ModelContext
+    @Environment(\.colorScheme)
+    private var colorScheme: ColorScheme
 
     @AppStorage(.userGoals) var goalsID: UUID
     @AppStorage(.theme) var theme: AppTheme
@@ -20,7 +23,7 @@ struct SettingsView: View {
                 Section(header: Text("General Settings")) {
                     Picker(
                         "Theme",
-                        systemImage: theme == .light
+                        systemImage: colorScheme == .light
                             ? "sun.max.fill"
                             : "moon.fill",
                         selection: self.$theme,
@@ -69,7 +72,7 @@ struct SettingsView: View {
                 ) { erase = true }
             }
             .navigationTitle("Settings")
-            .scrollDismissesKeyboard(.interactively)
+            .scrollDismissesKeyboard(.immediately)
 
             .resetAlert(isPresented: $reset)
             .eraseAlert(isPresented: $erase, context: context)

@@ -1,7 +1,5 @@
 import SwiftUI
 
-// REVIEW: animations
-
 struct DetailedRow<Title: View, Subtitle: View, Details: View>: View {
     let image: Image?
     let tint: Color?
@@ -37,8 +35,6 @@ struct DetailedRow<Title: View, Subtitle: View, Details: View>: View {
 
         .animation(.default, value: tint)
         .animation(.default, value: image)
-        .animation(.default, value: subtitle() as? AnyHashable)
-        .animation(.default, value: details() as? AnyHashable)
     }
 }
 

@@ -29,8 +29,7 @@ struct RecordField<Unit: Dimension, DetailContent: View>: View {
     var body: some View {
         MeasurementField(
             validator: definition.validator, format: definition.formatter,
-            showPicker: showPicker, disabled: source != .local,
-            measurement: $measurement,
+            showPicker: showPicker, measurement: $measurement,
         ) {
             DetailedRow(image: definition.image, tint: definition.tint) {
                 Text(String(localized: definition.title))
@@ -40,6 +39,7 @@ struct RecordField<Unit: Dimension, DetailContent: View>: View {
                 details().textScale(.secondary)
             }
         }
+        .disabled(source != .local)
     }
 
     @ViewBuilder
@@ -53,12 +53,17 @@ struct RecordField<Unit: Dimension, DetailContent: View>: View {
                     $measurement.value.wrappedValue = computed
                 }
             } label: {
-                $measurement.computedText(
-                    computed, format: definition.formatter
-                )
+                HStack(spacing: 4) {
+                    let icon = Image(systemName: "function").asText
+                    Text("\(icon):").foregroundStyle(.indigo.secondary)
+                    $measurement.computedText(
+                        computed, format: definition.formatter
+                    )
+                    .contentTransition(.numericText())
+                }
             }
         }
-        Text(measurement.unit.symbol).textScale(.secondary)
+        Text(measurement.unit.symbol)
     }
 }
 
@@ -81,5 +86,29 @@ extension RecordField where DetailContent == EmptyView {
             computed: computed,
             details: { EmptyView() }
         )
+    }
+}
+
+// MARK: Extensions
+// ============================================================================
+
+extension LocalizedMeasurement {
+    func computedText(
+        _ computed: Double?, format: FloatingPointFormatStyle<Double>
+    ) -> Text? {
+        guard let computed = computed else {
+            return nil
+        }
+
+        guard computed != self.baseValue else {
+            return nil
+        }
+
+        let measurement = Measurement(
+            value: computed, unit: self.definition.baseUnit
+        ).converted(to: self.unit.wrappedValue ?? self.definition.baseUnit)
+
+        let text = measurement.value.formatted(format)
+        return Text(text).foregroundStyle(.indigo.secondary)
     }
 }

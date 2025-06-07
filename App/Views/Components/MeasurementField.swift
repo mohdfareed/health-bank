@@ -1,11 +1,11 @@
 import SwiftUI
 
 struct MeasurementField<Unit: Dimension, Content: View>: View {
-    let validator: ((Double) -> Bool)?
+    @Environment(\.isEnabled) private var enabled
 
+    let validator: ((Double) -> Bool)?
     let format: FloatingPointFormatStyle<Double>
     let showPicker: Bool
-    let disabled: Bool
 
     @LocalizedMeasurement
     var measurement: Measurement<Unit>
@@ -14,6 +14,12 @@ struct MeasurementField<Unit: Dimension, Content: View>: View {
 
     @FocusState
     private var isActive: Bool
+    private var isValid: Bool {
+        guard let value = $measurement.baseValue,
+            let validator = validator
+        else { return true }
+        return validator(value)
+    }
 
     var body: some View {
         LabeledContent {
@@ -26,13 +32,14 @@ struct MeasurementField<Unit: Dimension, Content: View>: View {
                         .keyboardType(.decimalPad)
                     #endif
 
-                    .disabled(disabled)
-                    .foregroundStyle(!disabled ? .primary : .tertiary)
+                    .disabled(!enabled)
+                    .foregroundStyle(enabled ? .primary : .tertiary)
 
                 if showPicker && $measurement.availableUnits().count > 1 {
                     picker.frame(maxWidth: 12, maxHeight: 8).fixedSize()
                 }
             }.layoutPriority(-1)
+
         } label: {
             label().gesture(
                 TapGesture().onEnded {
@@ -53,7 +60,7 @@ struct MeasurementField<Unit: Dimension, Content: View>: View {
 
         .animation(.default, value: $measurement.baseValue)
         .animation(.default, value: $measurement.displayUnit)
-        .animation(.default, value: disabled)
+        .animation(.default, value: enabled)
     }
 
     private var picker: some View {
@@ -77,34 +84,5 @@ struct MeasurementField<Unit: Dimension, Content: View>: View {
             }.tag(nil as Unit?)
         }.labelsHidden()
             .animation(.default, value: $measurement.unit.wrappedValue)
-    }
-
-    private var isValid: Bool {
-        guard let value = $measurement.baseValue,
-            let validator = validator
-        else { return true }
-        return validator(value)
-    }
-}
-
-extension LocalizedMeasurement {
-    func computedText(
-        _ computed: Double?, format: FloatingPointFormatStyle<Double>
-    ) -> Text? {
-        guard let computed = computed else {
-            return nil
-        }
-
-        guard computed != self.baseValue else {
-            return nil
-        }
-
-        let measurement = Measurement(
-            value: computed, unit: self.definition.baseUnit
-        ).converted(to: self.unit.wrappedValue ?? self.definition.baseUnit)
-
-        let text = measurement.value.formatted(format)
-        let icon = Image(systemName: "function").asText
-        return Text("\(icon): \(text)").foregroundStyle(.indigo.secondary)
     }
 }

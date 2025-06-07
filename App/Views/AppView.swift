@@ -8,6 +8,8 @@ import SwiftUI
 struct AppView: View {
     @AppStorage(.theme)
     internal var theme: AppTheme
+    @Environment(\.colorScheme)
+    private var colorScheme: ColorScheme
     @AppLocale private var locale
 
     var body: some View {
@@ -26,6 +28,7 @@ struct AppView: View {
         .preferredColorScheme(self.theme.colorScheme)
 
         .animation(.default, value: self.theme)
+        .animation(.default, value: self.colorScheme)
         .animation(.default, value: self.locale)
 
         .contentTransition(.symbolEffect(.replace))
