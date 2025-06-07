@@ -9,11 +9,9 @@ let AppID: String = Bundle.main.bundleIdentifier ?? "Debug.App"
     let container: ModelContainer
 
     static var schema: Schema {
-        .init(
-            HealthDataModel.allTypes + [
-                UserGoals.self
-            ]
-        )
+        .init([
+            UserGoals.self
+        ])
     }
 
     init() {
@@ -59,5 +57,5 @@ let AppID: String = Bundle.main.bundleIdentifier ?? "Debug.App"
 }
 
 #Preview {
-    AppPreview()  // Preview for the app
+    AppView()
 }

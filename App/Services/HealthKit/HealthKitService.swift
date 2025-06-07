@@ -48,10 +48,9 @@ extension View {
 // ============================================================================
 
 extension HKSource {
-    /// Returns the data source of the HealthKit source.
-    var dataSource: DataSource {
-        let appID = HealthKitService.AppSourceID
-        return self.bundleIdentifier == appID ? .local : .healthKit
+    /// Returns whether the source is internal to the app.
+    var isInternal: Bool {
+        self.bundleIdentifier == HealthKitService.AppSourceID
     }
 }
 

@@ -105,6 +105,11 @@ enum RecordDefinition {
 
                 AnyView(
                     HStack(alignment: .bottom, spacing: 0) {
+                        if calorie.workout != nil {
+                            calorie.workout?.icon.asText
+                                .foregroundStyle(Color.activeCalorie)
+                            Spacer().frame(maxWidth: 8)
+                        }
                         if calorie.duration != nil {
                             ValueView(
                                 measurement: duration,
@@ -125,19 +130,4 @@ enum RecordDefinition {
             }
         )
     }
-
-    static let resting = RecordRowDefinition<RestingEnergy, UnitEnergy>(
-        field: FieldDefinition.calorie,
-        property: { $0.calories },
-        subtitle: { _ in AnyView(EmptyView()) },
-        destination: { resting in
-            AnyView(
-                RecordForm(
-                    "Resting Energy", editing: resting
-                ) {
-                    FormDefinition.restingEnergy.content(resting)
-                }
-            )
-        }
-    )
 }

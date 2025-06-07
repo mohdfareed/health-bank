@@ -10,8 +10,6 @@ import SwiftUI
 @MainActor @propertyWrapper
 struct DataQuery<T>: DynamicProperty
 where T: HealthDate {
-    @Environment(\.modelContext)
-    private var modelContext
     @Environment(\.healthKit)
     private var healthKitService
 
@@ -21,13 +19,9 @@ where T: HealthDate {
 
     @State private var items: [T] = []  // Aggregated, paged items
     @State private var cursorDate: Date? = nil  // Pagination cursor
-    @State private var remoteExhausted = false
-    @State private var localExhausted = false
 
     @State var isLoading = false
-    var isExhausted: Bool {
-        localExhausted && remoteExhausted
-    }
+    @State var isExhausted = false
 
     var wrappedValue: [T] {
         items.sorted { $0.date > $1.date }
@@ -53,8 +47,7 @@ extension DataQuery {
 
         // Reset pagination
         items = []
-        localExhausted = false
-        remoteExhausted = false
+        isExhausted = false
 
         // Start from the top of the date range
         cursorDate = dateRange.upperBound
@@ -66,38 +59,25 @@ extension DataQuery {
         defer { isLoading = false }
         isLoading = true
 
-        // Determine bounds for this page
+        // 1) Determine bounds for this page
         let toDate = cursorDate ?? dateRange.upperBound
         let fromDate = dateRange.lowerBound
 
-        // 1) Fetch local chunk
-        var descriptor = query.descriptor(from: fromDate, to: toDate)
-        descriptor.fetchLimit = pageSize
-        var localChunk: [T] = []
-        do {
-            localChunk = try modelContext.fetch(descriptor)
-            if localChunk.count < pageSize {
-                localExhausted = true
-            }
-        } catch {
-            localExhausted = true
-        }
-
         // 2) Fetch HealthKit chunk
         var remoteChunk: [T] = []
-        if HealthKitService.isAvailable, !remoteExhausted {
+        if HealthKitService.isAvailable {
             let hkEnd = toDate.addingTimeInterval(-0.001)
             remoteChunk = await query.fetch(
                 from: fromDate, to: hkEnd, limit: pageSize,
                 store: healthKitService
-            ).filter { $0.source != .local }
+            )
             if remoteChunk.count < pageSize {
-                remoteExhausted = true
+                isExhausted = true
             }
         }
 
         // 3) Combine and sort both chunks by date descending
-        let combined = (localChunk + remoteChunk).sorted { $0.date > $1.date }
+        let combined = remoteChunk.sorted { $0.date > $1.date }
 
         // 4) Take only up to `pageSize` items from the combined array
         let pageToShow = Array(combined.prefix(pageSize))
@@ -136,15 +116,6 @@ extension ModelContext {
     }
 
     private func erase(model: HealthDataModel) throws {
-        switch model {
-        case .calorie:
-            try self.delete(model: model.dataType as! DietaryCalorie.Type)
-        case .activity:
-            try self.delete(model: model.dataType as! ActiveEnergy.Type)
-        case .resting:
-            try self.delete(model: model.dataType as! RestingEnergy.Type)
-        case .weight:
-            try self.delete(model: model.dataType as! Weight.Type)
-        }
+        // TODO: Implement model-specific erasure logic
     }
 }

@@ -37,8 +37,9 @@ struct DietaryQuery: HealthQuery {
             let calorie = DietaryCalorie(
                 totalCalories ?? 0,
                 date: correlation.startDate,
-                source: correlation.sourceRevision.source.dataSource,
-                macros: .init(p: totalProtein, f: totalFat, c: totalCarbs)
+                macros: .init(p: totalProtein, f: totalFat, c: totalCarbs),
+                isInternal: correlation.sourceRevision.source.isInternal,
+                id: correlation.uuid,
             )
 
             if totalCalories == nil {
@@ -48,22 +49,14 @@ struct DietaryQuery: HealthQuery {
                 calorie.macros = nil  // No macros available
             }
             return calorie
-        }.sorted { $0.date > $1.date }.prefix(limit ?? Int.max)
+        }
 
-        let samples = await store.fetchQuantitySamples(
+        let samples = await store.fetchDietarySamples(
             for: HKQuantityType(.dietaryEnergyConsumed),
             from: from, to: to, limit: limit
         )
 
         let calories: [DietaryCalorie] = samples.compactMap { sample in
-            // Check if sample already in workouts
-            if correlations.contains(where: {
-                $0.startDate <= sample.startDate
-                    && $0.endDate >= sample.endDate
-            }) {
-                return nil
-            }
-
             let caloriesInKcal = sample.quantity.doubleValue(
                 for: .kilocalorie()
             )
@@ -72,61 +65,11 @@ struct DietaryQuery: HealthQuery {
             )
             return DietaryCalorie(
                 calories, date: sample.startDate,
-                source: sample.sourceRevision.source.dataSource
+                isInternal: sample.sourceRevision.source.isInternal,
+                id: sample.uuid,
             )
         }
 
-        // Combine the calories from foods and samples
-        return calories + foods
-    }
-
-    func descriptor(from: Date, to: Date) -> FetchDescriptor<DietaryCalorie> {
-        let predicate = #Predicate<DietaryCalorie> {
-            from <= $0.date && $0.date <= to
-        }
-        return FetchDescriptor(
-            predicate: predicate,
-            sortBy: [.init(\.date, order: .reverse)]
-        )
-    }
-}
-
-// MARK: Resting Calories
-// ============================================================================
-
-struct RestingQuery: HealthQuery {
-    @MainActor func fetch(
-        from: Date, to: Date, limit: Int? = nil,
-        store: HealthKitService
-    ) async -> [RestingEnergy] {
-        let samples = await store.fetchQuantitySamples(
-            for: HKQuantityType(.basalEnergyBurned),
-            from: from, to: to, limit: limit
-        )
-
-        let calories = samples.map { sample in
-            let caloriesInKcal = sample.quantity.doubleValue(
-                for: .kilocalorie()
-            )
-            let calories = UnitDefinition.calorie.asBase(
-                caloriesInKcal, from: .kilocalories
-            )
-            return RestingEnergy(
-                calories, date: sample.startDate,
-                source: sample.sourceRevision.source.dataSource
-            )
-        }
-
-        return calories
-    }
-
-    func descriptor(from: Date, to: Date) -> FetchDescriptor<RestingEnergy> {
-        let predicate = #Predicate<RestingEnergy> {
-            from <= $0.date && $0.date <= to
-        }
-        return FetchDescriptor(
-            predicate: predicate,
-            sortBy: [.init(\.date, order: .reverse)]
-        )
+        return (calories + foods).sorted { $0.date > $1.date }
     }
 }

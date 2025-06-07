@@ -8,17 +8,6 @@ import SwiftUI
 
 let AppName = String(localized: "HealthBank")
 
-extension DataSource {
-    var localized: String {
-        switch self {
-        case .local: return AppName
-        case .healthKit:
-            return String(localized: "apple health")
-                .localizedCapitalized
-        }
-    }
-}
-
 extension AppTheme {
     var localized: String {
         switch self {
@@ -101,7 +90,6 @@ extension HealthRecordCategory {
         switch self {
         case .dietary: return String(localized: "food").localizedCapitalized
         case .active: return String(localized: "activity").localizedCapitalized
-        case .resting: return String(localized: "resting energy").localizedCapitalized
         case .weight: return String(localized: "weight").localizedCapitalized
         }
     }

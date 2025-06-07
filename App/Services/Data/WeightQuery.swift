@@ -21,20 +21,11 @@ struct WeightQuery: HealthQuery {
             )
             return Weight(
                 weight, date: sample.startDate,
-                source: sample.sourceRevision.source.dataSource
+                isInternal: sample.sourceRevision.source.isInternal,
+                id: sample.uuid
             )
         }
 
         return weights
-    }
-
-    func descriptor(from: Date, to: Date) -> FetchDescriptor<Weight> {
-        let predicate = #Predicate<Weight> {
-            from <= $0.date && $0.date <= to
-        }
-        return FetchDescriptor(
-            predicate: predicate,
-            sortBy: [.init(\.date, order: .reverse)]
-        )
     }
 }

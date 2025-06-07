@@ -2,18 +2,22 @@ import Foundation
 import SwiftData
 
 /// SwiftData model for weight data.
-@Model public final class Weight: HealthDate {
+public final class Weight: HealthDate {
+    public var id: UUID
     public var date: Date
-    public var source: DataSource
+    public var isInternal: Bool
 
     /// The weight value.
     public var weight: Double
 
     public init(
-        _ value: Double, date: Date = Date(), source: DataSource = .local,
+        _ value: Double, date: Date = Date(),
+        isInternal: Bool = true, id: UUID = UUID()
     ) {
         self.weight = value
+
+        self.id = id
         self.date = date
-        self.source = source
+        self.isInternal = isInternal
     }
 }

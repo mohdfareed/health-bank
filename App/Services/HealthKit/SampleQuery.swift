@@ -79,8 +79,8 @@ extension HealthKitService {
 
         let workoutPredicate =
             NSCompoundPredicate(
-                orPredicateWithSubpredicates: workouts.map { workout in
-                    HKQuery.predicateForObjects(from: workout)
+                orPredicateWithSubpredicates: workouts.map {
+                    HKQuery.predicateForObjects(from: $0)
                 }
             )
 
@@ -90,6 +90,32 @@ extension HealthKitService {
         let finalPredicate = NSCompoundPredicate(
             andPredicateWithSubpredicates: [
                 datePredicate, notWorkoutPredicate,
+            ]
+        )
+
+        return await fetchSamples(
+            for: type, from: startDate, to: endDate, limit: limit,
+            predicate: finalPredicate
+        ) as? [HKQuantitySample] ?? []
+    }
+}
+
+// MARK: Dietary Sample Query
+// ============================================================================
+
+extension HealthKitService {
+    func fetchDietarySamples(
+        for type: HKQuantityType,
+        from startDate: Date, to endDate: Date, limit: Int? = nil
+    ) async -> [HKQuantitySample] {
+        let datePredicate = HKQuery.predicateForSamples(
+            withStart: startDate, end: endDate,
+            options: .strictEndDate
+        )
+
+        let finalPredicate = NSCompoundPredicate(
+            andPredicateWithSubpredicates: [
+                datePredicate, HKQuery.predicateForObjectsWithNoCorrelation(),
             ]
         )
 

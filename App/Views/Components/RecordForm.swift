@@ -39,23 +39,9 @@ struct RecordForm<R: HealthDate, Content: View>: View {
                     }
                 }
             }
-            .disabled(record.source != .local)
+            .disabled(!record.isInternal)
 
-            if record.source != .local {
-                Section {
-                    LabeledContent {
-                        Text(record.source.localized)
-                    } label: {
-                        Label {
-                        } icon: {
-                            record.source.icon?
-                                .foregroundStyle(record.source.color)
-                        }
-                    }
-                }
-            }
-
-            if isEditing && record.source == .local {
+            if isEditing && record.isInternal {
                 Section {
                     Button(role: .destructive) {
                         showConfirmation = true
@@ -109,16 +95,18 @@ struct RecordForm<R: HealthDate, Content: View>: View {
     }
 
     private func saveRecord() {
-        record.date = date
-        if !isEditing {
-            context.insert(record)
-        }
-        try? context.save()
+        // TODO: Implement saving logic
+        // record.date = date
+        // if !isEditing {
+        //     context.insert(record)
+        // }
+        // try? context.save()
     }
 
     private func deleteRecord() {
-        context.delete(record)
-        try? context.save()
+        // TODO: Implement deletion logic
+        // context.delete(record)
+        // try? context.save()
     }
 }
 

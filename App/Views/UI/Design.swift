@@ -13,17 +13,18 @@ extension Color {
 
     // Data Records
     static var calories: Color { .init("Calorie") }
-    static var dietaryCalorie: Color { .red }
-    static var activeCalorie: Color { .green }
-    static var restingCalorie: Color { .indigo }
     static var weight: Color { .purple }
-    static var duration: Color { .orange }
 
-    // Macros
+    // Dietary Energy
+    static var dietaryCalorie: Color { .red }
     static var macros: Color { .indigo }
-    static var protein: Color { .purple }
-    static var carbs: Color { .green }
-    static var fat: Color { .yellow }
+    static var protein: Color { .orange }
+    static var carbs: Color { .yellow }
+    static var fat: Color { .green }
+
+    // Activity
+    static var activeCalorie: Color { .green }
+    static var duration: Color { .orange }
 }
 
 // MARK: Iconography
@@ -39,17 +40,18 @@ extension Image {
 
     // Data Records
     static var calories: Image { .init(systemName: "flame.fill") }
-    static var dietaryCalorie: Image { .init(systemName: "fork.knife") }
-    static var activeCalorie: Image { .init(systemName: "figure.run") }
-    static var restingCalorie: Image { .init(systemName: "zzz") }
-    static var duration: Image { .init(systemName: "timer") }
-    static var weight: Image { .init(systemName: "figure") }
+    static var weight: Image { .init(systemName: "scalemass.fill") }
 
-    // Macros
+    // Dietary Energy
+    static var dietaryCalorie: Image { .init("Apple.Fill") }
     static var macros: Image { .init(systemName: "chart.pie") }
-    static var protein: Image { .init(systemName: "dumbbell") }
-    static var fat: Image { .init(systemName: "drop.circle") }
-    static var carbs: Image { .init(systemName: "carrot.fill") }
+    static var protein: Image { .init("Meat") }
+    static var fat: Image { .init("Avocado") }
+    static var carbs: Image { .init("Bread") }
+
+    // Activity
+    static var activeCalorie: Image { .init(systemName: "figure.run") }
+    static var duration: Image { .init(systemName: "timer") }
 
     // Workouts
     static var cardio: Image { .init(systemName: "figure.walk.treadmill") }
@@ -70,26 +72,6 @@ extension Image {
     var asText: Text {
         Text("\(self)")
             .font(.footnote.bold())
-    }
-}
-
-extension DataSource {
-    var icon: Image? {
-        switch self {
-        case .local:
-            return .local
-        case .healthKit:
-            return .healthKit
-        }
-    }
-
-    var color: Color {
-        switch self {
-        case .local:
-            return .local
-        case .healthKit:
-            return .healthKit
-        }
     }
 }
 

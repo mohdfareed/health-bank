@@ -7,21 +7,10 @@ import SwiftUI
 struct CategoryView<T: HealthDate>: View {
     @Environment(\.modelContext) private var context: ModelContext
     @DataQuery var records: [T]
-
-    @State private var selectedSources: [DataSource] = []
     @State private var isAddingRecord = false
 
     private let category: HealthRecordCategory
     private let query: any HealthQuery<T>
-
-    private var filteredRecords: [T] {
-        records.filter { record in
-            if selectedSources.isEmpty {
-                return true  // No filter applied, show all records
-            }
-            return selectedSources.contains(record.source)
-        }
-    }
 
     init(_ category: HealthRecordCategory) {
         self.category = category
@@ -33,15 +22,13 @@ struct CategoryView<T: HealthDate>: View {
 
     var body: some View {
         List {
-            ForEach(filteredRecords, id: \.id) { record in
+            ForEach(records) { record in
                 HealthRecordCategory.recordRow(record)
                     .swipeActions { swipeActions(for: record) }
             }
             loadMoreButton()
         }
         .navigationTitle(category.localized)
-        .animation(.default, value: records)
-        .animation(.default, value: selectedSources)
         .animation(.default, value: $records.isLoading)
         .animation(.default, value: $records.isExhausted)
 
@@ -72,10 +59,6 @@ struct CategoryView<T: HealthDate>: View {
 
     @ToolbarContentBuilder
     private func toolbar() -> some ToolbarContent {
-        ToolbarItem(placement: .navigation) {
-            DataSourceFilterMenu($selectedSources)
-        }
-
         ToolbarItem {
             Button("Add", systemImage: "plus") {
                 isAddingRecord = true
@@ -103,66 +86,11 @@ struct CategoryView<T: HealthDate>: View {
     }
 
     @ViewBuilder private func swipeActions(for record: T) -> some View {
-        if record.source == .local {
+        if record.isInternal {
             Button(role: .destructive) {
-                context.delete(record)
-                do {
-                    try context.save()
-                } catch {
-                    AppLogger.new(for: T.self)
-                        .error("Failed to save model: \(error)")
-                }
+                // TODO: Implement delete action
             } label: {
                 Label("Delete", systemImage: "trash")
-            }
-        }
-    }
-
-    // TODO: Add activity filters (record specific filters)
-    /// A specialized filter menu for DataSource filtering.
-    private struct DataSourceFilterMenu: View {
-        @Binding var selected: [DataSource]
-
-        init(_ selected: Binding<[DataSource]>) {
-            self._selected = selected
-        }
-
-        var body: some View {
-            Menu {
-                ForEach(DataSource.allCases, id: \.self) { source in
-                    Toggle(
-                        isOn: Binding(
-                            get: { selected.contains(source) },
-                            set: {
-                                if $0 {
-                                    selected = [source]
-                                } else {
-                                    selected.removeAll { $0 == source }
-                                }
-                            }
-                        )
-                    ) {
-                        Label {
-                            Text(source.localized)
-                        } icon: {
-                            source.icon ?? Image.logo
-                        }
-                    }
-                }
-
-                Divider()
-                Toggle(
-                    isOn: Binding(
-                        get: { selected.isEmpty },
-                        set: { if $0 { selected = [] } }
-                    )
-                ) {
-                    Text("All Sources")
-                }
-            } label: {
-                Label(
-                    "Filter", systemImage: "line.3.horizontal.decrease.circle"
-                )
             }
         }
     }

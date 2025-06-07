@@ -1,7 +1,5 @@
 import SwiftUI
 
-// REVIEW: animations
-
 struct RecordRow<R, U, S, Destination>: View
 where R: HealthDate, U: Dimension, S: View, Destination: View {
     let record: R
@@ -29,9 +27,11 @@ where R: HealthDate, U: Dimension, S: View, Destination: View {
             destination()
         } label: {
             LabeledContent {
-                record.source.icon?.asText.foregroundStyle(record.source.color)
+                if !record.isInternal {
+                    Image.healthKit.asText.foregroundColor(Color.healthKit)
+                }
             } label: {
-                DetailedRow(image: field.image, tint: field.tint) {
+                DetailedRow(image: nil, tint: nil) {
                     let value = measurement.value.formatted(field.formatter)
                     let unit = Text(measurement.unit.symbol)
                         .textScale(.secondary)

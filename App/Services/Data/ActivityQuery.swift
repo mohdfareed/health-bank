@@ -25,14 +25,15 @@ struct ActivityQuery: HealthQuery {
 
             return ActiveEnergy(
                 calories, date: workout.startDate,
-                source: workout.sourceRevision.source.dataSource,
-                duration: duration, workout: .init(from: activity)
+                duration: duration, workout: .init(from: activity),
+                isInternal: workout.sourceRevision.source.isInternal,
+                id: workout.uuid
             )
         }
 
         let samples = await store.fetchActivitySamples(
-            for: HKQuantityType(.activeEnergyBurned),
-            from: from, to: to, workouts: workoutSamples, limit: limit
+            for: HKQuantityType(.dietaryEnergyConsumed),
+            from: from, to: to, limit: limit
         )
 
         let calories: [ActiveEnergy] = samples.compactMap { sample in
@@ -44,21 +45,12 @@ struct ActivityQuery: HealthQuery {
             )
             return ActiveEnergy(
                 calories, date: sample.startDate,
-                source: sample.sourceRevision.source.dataSource
+                isInternal: sample.sourceRevision.source.isInternal,
+                id: sample.uuid,
             )
         }
 
-        return calories + workouts
-    }
-
-    func descriptor(from: Date, to: Date) -> FetchDescriptor<ActiveEnergy> {
-        let predicate = #Predicate<ActiveEnergy> {
-            from <= $0.date && $0.date <= to
-        }
-        return FetchDescriptor(
-            predicate: predicate,
-            sortBy: [.init(\.date, order: .reverse)]
-        )
+        return (calories + workouts).sorted { $0.date > $1.date }
     }
 }
 

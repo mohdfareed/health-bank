@@ -77,8 +77,8 @@ enum FieldDefinition {
     // Resting Calories
     static let restingCalorie = RecordFieldDefinition<UnitEnergy>(
         title: "Calories",
-        image: .restingCalorie,
-        tint: .restingCalorie,
+        image: .calories,
+        tint: .calories,
         unitDefinition: .calorie,
         validator: { $0 >= 0 },
         formatter: .number.precision(.fractionLength(0))

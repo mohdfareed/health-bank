@@ -31,39 +31,24 @@ public struct CalorieMacros: Codable, Hashable, Sendable {
 // ============================================================================
 
 /// Represents dietary calorie intake.
-@Model public final class DietaryCalorie: Calorie {
-    public var calories: Double
+public final class DietaryCalorie: Calorie {
+    public var id: UUID
     public var date: Date
-    public var source: DataSource
+    public var isInternal: Bool
 
+    public var calories: Double
     // Optional macro-nutrient breakdown
     public var macros: CalorieMacros?
 
     public init(
-        _ value: Double, date: Date = Date(), source: DataSource = .local,
-        macros: CalorieMacros? = nil
+        _ value: Double, date: Date = Date(), macros: CalorieMacros? = nil,
+        isInternal: Bool = true, id: UUID = UUID()
     ) {
         self.calories = value
-        self.date = date
-        self.source = source
         self.macros = macros
-    }
-}
 
-// MARK: - Resting Energy
-// ============================================================================
-
-/// Represents resting energy expenditure (basal metabolic rate).
-@Model public final class RestingEnergy: Calorie {
-    public var calories: Double
-    public var date: Date
-    public var source: DataSource
-
-    public init(
-        _ value: Double, date: Date = Date(), source: DataSource = .local
-    ) {
-        self.calories = value
+        self.id = id
         self.date = date
-        self.source = source
+        self.isInternal = isInternal
     }
 }

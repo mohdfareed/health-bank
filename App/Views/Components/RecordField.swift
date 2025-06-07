@@ -4,7 +4,7 @@ struct RecordField<Unit: Dimension, DetailContent: View>: View {
     let definition: RecordFieldDefinition<Unit>
     @LocalizedMeasurement var measurement: Measurement<Unit>
 
-    let source: DataSource
+    let isInternal: Bool
     let showPicker: Bool
     let computed: (() -> Double?)?
 
@@ -13,14 +13,14 @@ struct RecordField<Unit: Dimension, DetailContent: View>: View {
     init(
         _ definition: RecordFieldDefinition<Unit>,
         value: Binding<Double?>,
-        source: DataSource,
+        isInternal: Bool,
         showPicker: Bool = false,
         computed: (() -> Double?)? = nil,
         @ViewBuilder details: @escaping () -> DetailContent = { EmptyView() }
     ) {
         self.definition = definition
         self._measurement = definition.measurement(value)
-        self.source = source
+        self.isInternal = isInternal
         self.showPicker = showPicker
         self.computed = computed
         self.details = details
@@ -39,7 +39,7 @@ struct RecordField<Unit: Dimension, DetailContent: View>: View {
                 details().textScale(.secondary)
             }
         }
-        .disabled(source != .local)
+        .disabled(!isInternal)
     }
 
     @ViewBuilder
@@ -74,14 +74,14 @@ extension RecordField where DetailContent == EmptyView {
     init(
         _ definition: RecordFieldDefinition<Unit>,
         value: Binding<Double?>,
-        source: DataSource,
+        isInternal: Bool,
         showPicker: Bool = false,
         computed: (() -> Double?)? = nil
     ) {
         self.init(
             definition,
             value: value,
-            source: source,
+            isInternal: isInternal,
             showPicker: showPicker,
             computed: computed,
             details: { EmptyView() }

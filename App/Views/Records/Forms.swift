@@ -19,7 +19,7 @@ enum FormDefinition {
                 RecordField(
                     FieldDefinition.weight,
                     value: $weight.weight.optional(0),
-                    source: weight.source,
+                    isInternal: weight.isInternal,
                 )
             )
         }
@@ -35,25 +35,25 @@ enum FormDefinition {
                     RecordField(
                         FieldDefinition.calorie,
                         value: $calorie.calories.optional(0),
-                        source: calorie.source,
+                        isInternal: calorie.isInternal,
                         computed: calorie.calculatedCalories
                     )
                     RecordField(
                         FieldDefinition.protein,
                         value: macros.protein,
-                        source: calorie.source,
+                        isInternal: calorie.isInternal,
                         computed: calorie.calculatedProtein
                     )
                     RecordField(
                         FieldDefinition.carbs,
                         value: macros.carbs,
-                        source: calorie.source,
+                        isInternal: calorie.isInternal,
                         computed: calorie.calculatedCarbs
                     )
                     RecordField(
                         FieldDefinition.fat,
                         value: macros.fat,
-                        source: calorie.source,
+                        isInternal: calorie.isInternal,
                         computed: calorie.calculatedFat
                     )
                 }
@@ -69,12 +69,12 @@ enum FormDefinition {
                     RecordField(
                         FieldDefinition.calorie,
                         value: $calorie.calories.optional(0),
-                        source: calorie.source,
+                        isInternal: calorie.isInternal,
                     )
                     RecordField(
                         FieldDefinition.duration,
                         value: $calorie.duration,
-                        source: calorie.source, showPicker: true,
+                        isInternal: calorie.isInternal, showPicker: true,
                     )
 
                     Picker(selection: $calorie.workout) {
@@ -98,25 +98,12 @@ enum FormDefinition {
                                 .foregroundStyle(Color.activeCalorie)
                         }
                     }
-                    .disabled(calorie.source != .local)
+                    .disabled(!calorie.isInternal)
                     .contentTransition(
                         .symbolEffect(.replace)
                     )
                     .frame(maxHeight: 8)
                 }
-            )
-        }
-    )
-
-    static let restingEnergy = RecordFormDefinition<RestingEnergy, AnyView>(
-        content: {
-            @Bindable var calorie = $0
-            AnyView(
-                RecordField(
-                    FieldDefinition.calorie,
-                    value: $calorie.calories.optional(0),
-                    source: calorie.source,
-                )
             )
         }
     )

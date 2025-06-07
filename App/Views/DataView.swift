@@ -32,7 +32,6 @@ struct HealthDataView: View {
                         }
                     }
                 }
-                .padding(.vertical, 8)
             }
             .navigationTitle("Health Records")
         }
@@ -52,8 +51,6 @@ struct HealthDataView: View {
             CategoryView<DietaryCalorie>(category)
         case .active:
             CategoryView<ActiveEnergy>(category)
-        case .resting:
-            CategoryView<RestingEnergy>(category)
         case .weight:
             CategoryView<Weight>(category)
         }

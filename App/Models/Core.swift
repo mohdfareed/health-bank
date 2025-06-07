@@ -1,35 +1,6 @@
 import Foundation
 import SwiftData
 
-// MARK: Data
-// ============================================================================
-
-/// The supported sources of data.
-public enum DataSource: Codable, CaseIterable, Hashable {
-    case local, healthKit
-}
-
-/// Base protocol for all health data.
-public protocol HealthDate: PersistentModel {
-    /// When the data was recorded.
-    var date: Date { get set }
-    /// Where the data originated from.
-    var source: DataSource { get }
-}
-
-/// Base protocol for data queries.
-@MainActor public protocol HealthQuery<Data> {
-    /// The type of data this query returns.
-    associatedtype Data: HealthDate
-    /// The local data fetch descriptor generator.
-    func descriptor(from: Date, to: Date) -> FetchDescriptor<Data>
-    /// Fetch the data from HealthKit.
-    func fetch(
-        from: Date, to: Date, limit: Int?,
-        store: HealthKitService
-    ) async -> [Data]
-}
-
 // MARK: Singleton
 // ============================================================================
 
