@@ -133,3 +133,24 @@ extension [HKQuantitySample] {
         }
     }
 }
+
+// MARK: Data Reset
+// ============================================================================
+
+extension HealthKitService {
+    /// Delete all HealthKit data for the app.
+    @MainActor public func eraseData() async throws {
+        guard isActive else { return }
+
+        logger.info("Resetting HealthKit data...")
+        let types = HealthKitDataType.allCases.map { $0.sampleType }
+        let predicate = HKQuery.predicateForSamples(
+            withStart: nil, end: nil, options: .strictEndDate
+        )
+
+        for type in types {
+            try await store.deleteObjects(of: type, predicate: predicate)
+        }
+        logger.info("HealthKit data reset completed.")
+    }
+}

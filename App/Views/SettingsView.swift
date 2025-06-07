@@ -9,7 +9,7 @@ struct SettingsView: View {
     @Environment(\.colorScheme)
     internal var colorScheme: ColorScheme
     @Environment(\.healthKit)
-    private var healthKit: HealthKitService
+    internal var healthKit: HealthKitService
 
     @AppStorage(.userGoals) var goalsID: UUID
     @AppStorage(.theme) var theme: AppTheme
@@ -17,53 +17,13 @@ struct SettingsView: View {
 
     @State private var reset = false
     @State private var erase = false
+    @State private var isErasing = false
 
     var body: some View {
         NavigationStack {
             Form {
                 Section(header: Text("General Settings")) {
-                    Picker(
-                        "Theme",
-                        systemImage: colorScheme == .light
-                            ? "sun.max.fill"
-                            : "moon.fill",
-                        selection: self.$theme,
-                        content: {
-                            ForEach(AppTheme.allCases, id: \.self) { theme in
-                                Text(theme.localized).tag(theme)
-                            }
-                        }
-                    ) { Text(self.theme.localized) }
-                    .frame(maxHeight: 8)
-
-                    Picker(
-                        "Measurements", systemImage: "ruler",
-                        selection: self.$locale.units,
-                        content: {
-                            let systems = MeasurementSystem.measurementSystems
-                            ForEach(systems, id: \.self) { system in
-                                Text(system.localized).tag(system)
-                            }
-                            Divider()
-                            Label {
-                                Text("System")
-                            } icon: {
-                                Image(systemName: "globe")
-                            }.tag(nil as MeasurementSystem?)
-                        },
-                    ) { Text(self.locale.measurementSystem.localized) }
-                    .frame(maxHeight: 8)
-
-                    Picker(
-                        "First Weekday", systemImage: "calendar",
-                        selection: self.$locale.firstWeekDay,
-                        content: {
-                            ForEach(Weekday.allCases, id: \.self) { weekday in
-                                Text(weekday.localized).tag(weekday)
-                            }
-                        }
-                    ) { Text(self.locale.firstDayOfWeek.abbreviated) }
-                    .frame(maxHeight: 8)
+                    generalSettings
                 }
 
                 GoalView(goalsID)
@@ -75,8 +35,6 @@ struct SettingsView: View {
                 } footer: {
                     Text(
                         """
-                        Manage all data created by this app at:
-                        Settings > Apps > Health > Data Access & Devices > \(AppName)
                         Manage permissions for accessing health data at:
                         Settings > Privacy & Security > Health > \(AppName)
                         """
@@ -92,23 +50,89 @@ struct SettingsView: View {
                 }
 
                 Section {
-                    Button(
-                        "Reset Settings",
-                        role: .destructive
-                    ) { reset = true }
-
-                    Button(
-                        "Erase All Data",
-                        role: .destructive
-                    ) { erase = true }
+                    Button("Reset Settings", role: .destructive) {
+                        reset = true
+                    }
+                    Button("Erase All Data", role: .destructive) {
+                        erase = true
+                    }
                 }
             }
             .navigationTitle("Settings")
             .scrollDismissesKeyboard(.interactively)
 
             .resetAlert(isPresented: $reset)
-            .eraseAlert(isPresented: $erase, context: context)
+            .eraseAlert(
+                isPresented: $erase, isErasing: $isErasing,
+                healthKit: healthKit, context: context
+            )
         }
+    }
+
+    @ViewBuilder var generalSettings: some View {
+        Picker(
+            "Theme",
+            systemImage: colorScheme == .light
+                ? "sun.max.fill"
+                : "moon.fill",
+            selection: self.$theme,
+            content: {
+                ForEach(AppTheme.allCases, id: \.self) { theme in
+                    if theme != .system {
+                        Text(theme.localized).tag(theme)
+                    }
+                }
+
+                Divider()
+                Label {
+                    Text("System")
+                } icon: {
+                    Image(systemName: "globe")
+                }.tag(AppTheme.system)
+            }
+        ) { Text(self.theme.localized) }
+        .frame(maxHeight: 8)
+
+        Picker(
+            "Measurements", systemImage: "ruler",
+            selection: self.$locale.units,
+            content: {
+                let systems = MeasurementSystem.measurementSystems
+                ForEach(systems, id: \.self) { system in
+                    Text(system.localized).tag(system)
+                }
+                Divider()
+                Label {
+                    Text("System")
+                } icon: {
+                    Image(systemName: "globe")
+                }.tag(nil as MeasurementSystem?)
+            },
+        ) {
+            if self.$locale.units.wrappedValue == nil {
+                Text("System")
+            } else {
+                Text(self.locale.measurementSystem.localized)
+            }
+        }
+        .frame(maxHeight: 8)
+
+        Picker(
+            "First Weekday", systemImage: "calendar",
+            selection: self.$locale.firstWeekDay,
+            content: {
+                ForEach(Weekday.allCases, id: \.self) { weekday in
+                    Text(weekday.localized).tag(weekday)
+                }
+                Divider()
+                Label {
+                    Text("System")
+                } icon: {
+                    Image(systemName: "globe")
+                }.tag(nil as MeasurementSystem?)
+            }
+        ) { Text(self.locale.firstDayOfWeek.abbreviated) }
+        .frame(maxHeight: 8)
     }
 }
 
@@ -128,23 +152,49 @@ extension View {
             )
         }
     }
-
     fileprivate func eraseAlert(
-        isPresented: Binding<Bool>, context: ModelContext
+        isPresented: Binding<Bool>, isErasing: Binding<Bool>,
+        healthKit: HealthKitService, context: ModelContext
     ) -> some View {
         self.alert("Erase All App Data", isPresented: isPresented) {
             Button("Cancel", role: .cancel) {}
             Button("Erase", role: .destructive) {
-                UserDefaults.standard.resetSettings()
-                context.eraseAll()
+                withAnimation {
+                    isPresented.wrappedValue = false
+                    isErasing.wrappedValue = true
+                }
+
+                Task {
+                    UserDefaults.standard.resetSettings()
+                    try? context.container.erase()
+                    try await healthKit.eraseData()
+                    withAnimation {
+                        isErasing.wrappedValue = false
+                    }
+                }
             }
         } message: {
             Text(
                 """
-                Erase all health records, settings, and app data.
+                Erase all health data, settings, and app data.
                 This action cannot be undone.
                 """
             )
+        }
+        .overlay {
+            if isErasing.wrappedValue {
+                ZStack {
+                    Color.black.opacity(0.4).ignoresSafeArea()
+                    ProgressView("Erasing Health Data...")
+                        .progressViewStyle(.circular)
+                        .padding()
+                        .background(
+                            .regularMaterial,
+                            in: RoundedRectangle(cornerRadius: 10)
+                        )
+                }
+                .transition(.opacity)
+            }
         }
     }
 }

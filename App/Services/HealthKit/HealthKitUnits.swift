@@ -10,6 +10,19 @@ extension HealthKitService {
     }
 
     internal func setupUnits() async {
+        await self.loadUnits()
+        NotificationCenter.default.addObserver(
+            forName: .HKUserPreferencesDidChange,
+            object: nil,
+            queue: .main
+        ) { _ in
+            Task {
+                await self.loadUnits()
+            }
+        }
+    }
+
+    private func loadUnits() async {
         var units: [HKQuantityType: HKUnit] = [:]
         do {
             units = try await store.preferredUnits(
@@ -20,25 +33,13 @@ extension HealthKitService {
             )
         } catch {
             let error = error.localizedDescription
-            logger.error("Failed to fetch preferred units: \(error)")
+            logger.error("Failed to load preferred units: \(error)")
             return
         }
 
-        for (type, unit) in units {
-            await MainActor.run {
+        await MainActor.run {
+            for (type, unit) in units {
                 Self.unitsCache[type] = unit.measurementUnit
-            }
-        }
-
-        NotificationCenter.default.addObserver(
-            forName: .HKUserPreferencesDidChange,
-            object: nil,
-            queue: .main
-        ) { _ in
-            Task {
-                await MainActor.run {
-                    Self.unitsCache.removeAll()
-                }
             }
         }
     }
