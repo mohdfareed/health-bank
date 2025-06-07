@@ -30,10 +30,16 @@ enum HealthDataModel: CaseIterable {
 // ============================================================================
 
 /// The health data source.
-public enum DataSource: Codable, CaseIterable {
-    case app
-    case healthKit
-    case other
+public enum DataSource: Codable, CaseIterable, Equatable {
+    case app, healthKit
+    case other(String)
+
+    static public var allCases: [DataSource] {
+        return [
+            .app, .healthKit,
+            .other(String(localized: "unknown")),
+        ]
+    }
 }
 
 /// Base protocol for all health data.

@@ -51,6 +51,19 @@ struct RecordForm<R: HealthData, Content: View>: View {
                 }
 
             }
+
+            Section {
+                LabeledContent {
+                    Text(record.source.localized)
+                } label: {
+                    Label {
+                        Text("Source")
+                    } icon: {
+                        record.source.icon
+                            .foregroundStyle(record.source.color)
+                    }
+                }
+            }
         }
         .navigationTitle(String(localized: title))
         .scrollDismissesKeyboard(.immediately)

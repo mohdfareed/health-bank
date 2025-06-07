@@ -60,7 +60,7 @@ enum HealthKitDataType: CaseIterable {
 // ============================================================================
 
 /// Service for querying HealthKit data with model-specific query methods.
-public final class HealthKitService: Sendable {
+public class HealthKitService: @unchecked Sendable {
     internal static let shared = HealthKitService()
 
     public static let AppSource = AppName
@@ -82,13 +82,89 @@ public final class HealthKitService: Sendable {
     }
 
     // User unit preferences
-    @MainActor static var unitsCache: [HKQuantityType: Unit] = [:]
+    @MainActor
+    static var unitsCache: [HKQuantityType: Unit] = [:]
 
     init() {
         Task {
             await setupUnits()
         }
         logger.info("HealthKit service initialized.")
+    }
+
+    // MARK: Sample Queries
+
+    /// Execute a sample query for the given date range.
+    public func fetchSamples(
+        for type: HKSampleType,
+        from startDate: Date, to endDate: Date, limit: Int?,
+        predicate: NSPredicate? = nil
+    ) async -> [HKSample] {
+        guard isActive else {
+            logger.debug("HealthKit inactive, returning empty results")
+            return []
+        }
+
+        return await withCheckedContinuation { continuation in
+            let predicate =
+                predicate
+                ?? HKQuery.predicateForSamples(
+                    withStart: startDate, end: endDate,
+                    options: .strictEndDate
+                )
+
+            let query = HKSampleQuery(
+                sampleType: type,
+                predicate: predicate, limit: limit ?? HKObjectQueryNoLimit,
+                sortDescriptors: [chronologicalSortDescriptor]
+            ) { _, samples, error in
+                if let error = error {
+                    self.logger.error(
+                        "Failed to fetch \(type.identifier): \(error)"
+                    )
+                    continuation.resume(returning: [])
+                } else {
+                    continuation.resume(returning: samples ?? [])
+                }
+            }
+            store.execute(query)
+        }
+    }
+
+    // MARK: Correlation Queries
+
+    /// Execute a correlation sample query for the given date range.
+    public func fetchCorrelationSamples(
+        for type: HKCorrelationType,
+        from startDate: Date, to endDate: Date
+    ) async -> [HKCorrelation] {
+        guard isActive else {
+            logger.debug("HealthKit inactive, returning empty results")
+            return []
+        }
+
+        let samples: [HKCorrelation] = await withCheckedContinuation { cont in
+            let predicate = HKQuery.predicateForSamples(
+                withStart: startDate, end: endDate,
+                options: .strictEndDate
+            )
+
+            let query = HKCorrelationQuery(
+                type: type, predicate: predicate, samplePredicates: nil
+            ) { _, correlations, error in
+                if let error = error {
+                    self.logger.error(
+                        "Failed to fetch \(type.identifier): \(error)"
+                    )
+                    cont.resume(returning: [])
+                } else {
+                    cont.resume(returning: correlations ?? [])
+                }
+            }
+            store.execute(query)
+        }
+
+        return samples
     }
 }
 
@@ -119,7 +195,10 @@ extension HKSource {
         case "com.apple.Health":
             return .healthKit
         default:
-            return .other
+            AppLogger.new(for: HealthKitService.self).debug(
+                "Unknown source: \(self.bundleIdentifier)"
+            )
+            return .other(name)
         }
     }
 }

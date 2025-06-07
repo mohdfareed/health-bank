@@ -1,7 +1,6 @@
+import HealthKit
 import SwiftData
 import SwiftUI
-
-// TODO: Remove icons from record row for category views.
 
 /// A view that displays records of a specific type with source filtering.
 struct CategoryView<T: HealthData>: View {

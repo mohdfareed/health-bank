@@ -6,46 +6,7 @@ import SwiftUI
 // ============================================================================
 
 extension HealthKitService {
-    /// Execute a sample query for the given date range.
-    func fetchSamples(
-        for type: HKSampleType,
-        from startDate: Date, to endDate: Date, limit: Int?,
-        predicate: NSPredicate? = nil
-    ) async -> [HKSample] {
-        guard isActive else {
-            logger.debug("HealthKit inactive, returning empty results")
-            return []
-        }
-
-        return await withCheckedContinuation { continuation in
-            let predicate =
-                predicate
-                ?? HKQuery.predicateForSamples(
-                    withStart: startDate, end: endDate,
-                    options: .strictEndDate
-                )
-
-            let query = HKSampleQuery(
-                sampleType: type,
-                predicate: predicate, limit: limit ?? HKObjectQueryNoLimit,
-                sortDescriptors: [chronologicalSortDescriptor]
-            ) { _, samples, error in
-                if let error = error {
-                    self.logger.error(
-                        "Failed to fetch \(type.identifier): \(error)"
-                    )
-                    continuation.resume(returning: [])
-                } else {
-                    continuation.resume(returning: samples ?? [])
-                }
-            }
-            store.execute(query)
-        }
-    }
-}
-
-extension HealthKitService {
-    func fetchQuantitySamples(
+    public func fetchQuantitySamples(
         for type: HKQuantityType,
         from startDate: Date, to endDate: Date, limit: Int? = nil
     ) async -> [HKQuantitySample] {
@@ -54,7 +15,7 @@ extension HealthKitService {
         ) as? [HKQuantitySample] ?? []
     }
 
-    func fetchWorkoutSamples(
+    public func fetchWorkoutSamples(
         from startDate: Date, to endDate: Date, limit: Int? = nil
     ) async -> [HKWorkout] {
         return await fetchSamples(
@@ -67,7 +28,7 @@ extension HealthKitService {
 // ============================================================================
 
 extension HealthKitService {
-    func fetchActivitySamples(
+    public func fetchActivitySamples(
         for type: HKQuantityType,
         from startDate: Date, to endDate: Date,
         workouts: [HKWorkout] = [], limit: Int? = nil
@@ -104,7 +65,7 @@ extension HealthKitService {
 // ============================================================================
 
 extension HealthKitService {
-    func fetchDietarySamples(
+    public func fetchDietarySamples(
         for type: HKQuantityType,
         from startDate: Date, to endDate: Date, limit: Int? = nil
     ) async -> [HKQuantitySample] {

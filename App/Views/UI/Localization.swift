@@ -8,6 +8,18 @@ import SwiftUI
 
 let AppName = String(localized: "HealthBank")
 
+extension DataSource {
+    var localized: String {
+        switch self {
+        case .app: return AppName.localizedCapitalized
+        case .healthKit:
+            return String(localized: "apple health")
+                .localizedCapitalized
+        case .other(let name): return name.localizedCapitalized
+        }
+    }
+}
+
 extension AppTheme {
     var localized: String {
         switch self {

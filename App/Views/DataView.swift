@@ -4,36 +4,37 @@ import SwiftUI
 struct HealthDataView: View {
     @Environment(\.modelContext) private var context: ModelContext
     @State private var activeCategory: HealthRecordCategory? = nil
+    @State private var navigationPath = NavigationPath()
 
     var body: some View {
-        NavigationStack {
-            List {
-                ForEach(
-                    HealthRecordCategory.allCases, id: \.self
-                ) { category in
-                    NavigationLink(
-                        destination: categoryView(for: category)
-                    ) {
-                        Label {
-                            HStack {
-                                Text(category.localized)
-                                    .font(.headline)
-                                Spacer()
-                                Image(systemName: "plus.circle")
-                                    .font(.headline)
-                                    .foregroundStyle(Color.accent)
-                                    .onTapGesture {
-                                        activeCategory = category
-                                    }
-                            }
-                        } icon: {
-                            category.icon
-                                .foregroundStyle(category.color)
+        NavigationStack(path: $navigationPath) {
+            List(HealthRecordCategory.allCases) { category in
+                Button {
+                    navigationPath.append(category)
+                } label: {
+                    Label {
+                        HStack {
+                            Text(category.localized)
+                                .font(.headline)
+                            Spacer()
+                            Image(systemName: "plus.circle")
+                                .font(.headline)
+                                .foregroundStyle(Color.accent)
+                                .onTapGesture {
+                                    activeCategory = category
+                                }
                         }
+                    } icon: {
+                        category.icon
+                            .foregroundStyle(category.color)
                     }
                 }
+                .foregroundStyle(.primary)
             }
-            .navigationTitle("Health Records")
+            .navigationTitle("Health Data")
+            .navigationDestination(for: HealthRecordCategory.self) { category in
+                categoryView(for: category)
+            }
         }
 
         .sheet(item: $activeCategory) { category in
@@ -76,7 +77,7 @@ struct HealthDataView: View {
                     }
                 }
             } label: {
-                Label("Log Record", systemImage: "plus.circle")
+                Label("Log Data", systemImage: "plus.circle")
             }
         }
     }

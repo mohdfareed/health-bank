@@ -5,8 +5,8 @@ import SwiftUI
 // ============================================================================
 
 enum HealthRecordCategory: String, CaseIterable, Identifiable {
-    var id: ObjectIdentifier {
-        ObjectIdentifier(HealthRecordCategory.Type.self)
+    var id: String {
+        self.rawValue
     }
 
     case dietary

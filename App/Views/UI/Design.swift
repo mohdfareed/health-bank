@@ -7,9 +7,9 @@ extension Color {
     static var accent: Color { .init("Accent") }
 
     // Data Sources
-    static var local: Color { .accent }
     static var healthKit: Color { .pink }
     static var cloud: Color { .blue }
+    static var unknownApp: Color { .gray }
 
     // Data Records
     static var calories: Color { .init("Calorie") }
@@ -39,9 +39,9 @@ extension Image {
     static var appleHealthBadge: Image { .init("AppleHealthBadge") }
 
     // Data Sources
-    static var local: Image? { logo }
     static var cloud: Image { .init(systemName: "icloud.fill") }
     static var healthKit: Image { .init(systemName: "heart.fill") }
+    static var unknownApp: Image { .init(systemName: "questionmark.app.fill") }
 
     // Data Records
     static var calories: Image { .init(systemName: "flame.fill") }
@@ -86,6 +86,30 @@ extension Image {
             .frame(height: 48)
             .padding(1).background(Color.secondary)  // Stroke
             .cornerRadius(12)  // Stroke corner radius
+    }
+}
+
+extension DataSource {
+    var icon: Image {
+        switch self {
+        case .app:
+            return .logo
+        case .healthKit:
+            return .healthKit
+        case .other:
+            return .unknownApp
+        }
+    }
+
+    var color: Color {
+        switch self {
+        case .app:
+            return .accent
+        case .healthKit:
+            return .healthKit
+        case .other:
+            return .unknownApp
+        }
     }
 }
 
