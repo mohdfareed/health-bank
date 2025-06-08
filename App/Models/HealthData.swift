@@ -32,12 +32,12 @@ enum HealthDataModel: CaseIterable, Identifiable {
 
 /// The health data source.
 public enum DataSource: Codable, CaseIterable, Equatable {
-    case app, healthKit
+    case app, healthKit, device
     case other(String)
 
     static public var allCases: [DataSource] {
         return [
-            .app, .healthKit,
+            .app, .healthKit, .device,
             .other(String(localized: "unknown")),
         ]
     }

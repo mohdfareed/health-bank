@@ -8,12 +8,16 @@ struct CategoryView<T: HealthData>: View {
     @DataQuery var records: [T]
     @State private var isAddingRecord = false
 
-    private let category: HealthRecordCategory
-    private let query: any HealthQuery<T>
+    private let dataModel: HealthDataModel
+    private let uiDefinition: any HealthRecordUIDefinition
 
-    init(_ category: HealthRecordCategory) {
-        self.category = category
-        self.query = category.query()
+    init(_ dataModel: HealthDataModel) {
+        self.dataModel = dataModel
+        self.uiDefinition = dataModel.uiDefinition
+
+        // Use the query method from HealthDataModel extension
+        let query: any HealthQuery<T> = dataModel.query()
+
         _records = DataQuery(
             query, from: .distantPast, to: .distantFuture
         )
@@ -22,12 +26,12 @@ struct CategoryView<T: HealthData>: View {
     var body: some View {
         List {
             ForEach(records) { record in
-                HealthRecordCategory.recordRow(record)
+                GenericRecordRow(record: record, dataModel: dataModel, uiDefinition: uiDefinition)
                     .swipeActions { swipeActions(for: record) }
             }
             loadMoreButton()
         }
-        .navigationTitle(category.localized)
+        .navigationTitle(String(localized: uiDefinition.title))
         .animation(.default, value: $records.isLoading)
         .animation(.default, value: $records.isExhausted)
 
@@ -46,7 +50,9 @@ struct CategoryView<T: HealthData>: View {
         .toolbarTitleDisplayMode(.inline)
 
         .sheet(isPresented: $isAddingRecord) {
-            NavigationStack { category.recordSheet }
+            NavigationStack {
+                createRecordSheet()
+            }
         }
 
         .onChange(of: isAddingRecord) { _, new in
@@ -89,6 +95,7 @@ struct CategoryView<T: HealthData>: View {
             Button(role: .destructive) {
                 Task {
                     do {
+                        let query: any HealthQuery<T> = dataModel.query()
                         try await query.delete(record, store: healthKit)
                     } catch {
                         let error = error.localizedDescription
@@ -101,5 +108,48 @@ struct CategoryView<T: HealthData>: View {
                 Label("Delete", systemImage: "trash")
             }
         }
+    }
+
+    @ViewBuilder private func createRecordSheet() -> some View {
+        dataModel.createNewRecordForm()
+    }
+}
+
+/// A generic record row that works with any HealthRecordUIDefinition
+private struct GenericRecordRow<T: HealthData>: View {
+    let record: T
+    let dataModel: HealthDataModel
+    let uiDefinition: any HealthRecordUIDefinition
+
+    var body: some View {
+        NavigationLink {
+            createEditRecordSheet()
+        } label: {
+            LabeledContent {
+                if record.source == .app {
+                    Image.logo.asText.foregroundColor(Color.accent)
+                }
+            } label: {
+                VStack(alignment: .leading, spacing: 4) {
+                    HStack {
+                        Text(record.date, style: .date)
+                            .foregroundStyle(.secondary)
+                        Spacer()
+                        Text(record.date, style: .time)
+                            .foregroundStyle(.secondary)
+                    }
+                    .font(.caption)
+
+                    HStack {
+                        dataModel.createRowSubtitle(record)
+                        Spacer()
+                    }
+                }
+            }
+        }
+    }
+
+    @ViewBuilder private func createEditRecordSheet() -> some View {
+        dataModel.createEditRecordForm(record)
     }
 }

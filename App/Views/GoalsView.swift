@@ -1,8 +1,6 @@
 import SwiftData
 import SwiftUI
 
-// TODO: Convert to `Records/Forms.swift` definition.
-
 struct GoalView: View {
     @Environment(\.modelContext) private var context: ModelContext
     @Query.Singleton var goals: UserGoals
@@ -11,32 +9,8 @@ struct GoalView: View {
     }
 
     var body: some View {
-        let macros = $goals.macros.defaulted(to: .init())
         Section(header: Text("Daily Calorie Budget")) {
-            RecordField(
-                FieldDefinition.calorie,
-                value: $goals.calories, isInternal: true,
-                computed: goals.calorieGoal.calculatedCalories
-            )
-            RecordField(
-                FieldDefinition.protein,
-                value: macros.protein, isInternal: true,
-                computed: goals.calorieGoal.calculatedProtein
-            )
-            RecordField(
-                FieldDefinition.carbs,
-                value: macros.carbs, isInternal: true,
-                computed: goals.calorieGoal.calculatedCarbs
-            )
-            RecordField(
-                FieldDefinition.fat,
-                value: macros.fat, isInternal: true,
-                computed: goals.calorieGoal.calculatedFat
-            )
-            RecordField(
-                FieldDefinition.activity,
-                value: $goals.activity, isInternal: true,
-            )
+            GoalMeasurementField(goals: Bindable(goals))
         }
         .onChange(of: goals) { save() }
         .onChange(of: goals.macros) { save() }
@@ -49,5 +23,73 @@ struct GoalView: View {
             AppLogger.new(for: GoalView.self)
                 .error("Failed to save model: \(error)")
         }
+    }
+}
+
+struct GoalMeasurementField: View {
+    @Bindable var goals: UserGoals
+
+    init(goals: Bindable<UserGoals>) {
+        self.goals = goals.wrappedValue
+    }
+
+    var body: some View {
+        // Calories field
+        RecordField(
+            .calorie,
+            value: $goals.calories,
+            isInternal: true,
+            computed: {
+                goals.calorieGoal.calculatedCalories()
+            }
+        )
+
+        // Protein field
+        RecordField(
+            .protein,
+            value: macrosBinding.protein,
+            isInternal: true,
+            computed: {
+                goals.calorieGoal.calculatedProtein()
+            }
+        )
+
+        // Carbs field
+        RecordField(
+            .carbs,
+            value: macrosBinding.carbs,
+            isInternal: true,
+            computed: {
+                goals.calorieGoal.calculatedCarbs()
+            }
+        )
+
+        // Fat field
+        RecordField(
+            .fat,
+            value: macrosBinding.fat,
+            isInternal: true,
+            computed: {
+                goals.calorieGoal.calculatedFat()
+            }
+        )
+
+        // Activity field
+        RecordField(
+            .activity,
+            value: $goals.activity,
+            isInternal: true
+        )
+    }
+
+    private var macrosBinding:
+        (protein: Binding<Double?>, carbs: Binding<Double?>, fat: Binding<Double?>)
+    {
+        let macros = $goals.macros.defaulted(to: .init())
+        return (
+            protein: macros.protein,
+            carbs: macros.carbs,
+            fat: macros.fat
+        )
     }
 }

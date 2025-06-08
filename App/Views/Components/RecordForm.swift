@@ -38,8 +38,21 @@ struct RecordForm<R: HealthData, Content: View>: View {
                             .foregroundStyle(.gray)
                     }
                 }
+                .disabled(record.source != .app)
             }
-            .disabled(record.source != .app)
+
+            LabeledContent {
+                Text(record.source.localized)
+                    .foregroundStyle(.tertiary)
+            } label: {
+                Label {
+                    Text("Source")
+                        .foregroundStyle(.secondary)
+                } icon: {
+                    record.source.icon
+                        .foregroundStyle(Color.accent)
+                }
+            }
 
             if isEditing && record.source == .app {
                 Section {
@@ -50,21 +63,6 @@ struct RecordForm<R: HealthData, Content: View>: View {
                     }
                 }
 
-            }
-
-            Section {
-                LabeledContent {
-                    Text(record.source.localized)
-                        .foregroundStyle(.tertiary)
-                } label: {
-                    Label {
-                        Text("Source")
-                            .foregroundStyle(.secondary)
-                    } icon: {
-                        record.source.icon
-                            .foregroundStyle(record.source.color)
-                    }
-                }
             }
         }
         .navigationTitle(String(localized: title))
@@ -110,7 +108,7 @@ struct RecordForm<R: HealthData, Content: View>: View {
     }
 
     private func saveRecord() {
-        // TODO: Implement saving logic
+        // TODO: Implement saving logic (requires query object)
         // record.date = date
         // if !isEditing {
         //     context.insert(record)

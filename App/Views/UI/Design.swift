@@ -5,11 +5,7 @@ import SwiftUI
 
 extension Color {
     static var accent: Color { .init("Accent") }
-
-    // Data Sources
     static var healthKit: Color { .pink }
-    static var cloud: Color { .blue }
-    static var unknownApp: Color { .gray }
 
     // Data Records
     static var calories: Color { .init("Calorie") }
@@ -39,9 +35,14 @@ extension Image {
     static var appleHealthBadge: Image { .init("AppleHealthBadge") }
 
     // Data Sources
-    static var cloud: Image { .init(systemName: "icloud.fill") }
+    static var device: Image {
+        .init(systemName: "applewatch").symbolRenderingMode(.hierarchical)
+    }
     static var healthKit: Image { .init(systemName: "heart.fill") }
-    static var unknownApp: Image { .init(systemName: "questionmark.app.fill") }
+    static var unknownApp: Image {
+        .init(systemName: "questionmark.app.dashed")
+            .symbolRenderingMode(.hierarchical)
+    }
 
     // Data Records
     static var calories: Image { .init(systemName: "flame.fill") }
@@ -96,17 +97,8 @@ extension DataSource {
             return .logo
         case .healthKit:
             return .healthKit
-        case .other:
-            return .unknownApp
-        }
-    }
-
-    var color: Color {
-        switch self {
-        case .app:
-            return .accent
-        case .healthKit:
-            return .healthKit
+        case .device:
+            return .device
         case .other:
             return .unknownApp
         }

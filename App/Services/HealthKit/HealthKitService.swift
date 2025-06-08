@@ -189,11 +189,13 @@ extension View {
 extension HKSource {
     /// Returns the data source of the HealthKit source.
     var dataSource: DataSource {
-        switch bundleIdentifier {
+        switch bundleIdentifier.lowercased() {
         case HealthKitService.AppSourceID:
             return .app
-        case "com.apple.Health":
+        case "com.apple.health":
             return .healthKit
+        case let id where id.hasPrefix("com.apple.health."):
+            return .device
         default:
             AppLogger.new(for: HealthKitService.self).debug(
                 "Unknown source: \(self.bundleIdentifier)"

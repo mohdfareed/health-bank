@@ -3,16 +3,16 @@ import SwiftUI
 
 struct HealthDataView: View {
     @Environment(\.modelContext) private var context: ModelContext
-    @State private var activeCategory: HealthRecordCategory? = nil
+    @State private var activeDataModel: HealthDataModel? = nil
     @State private var navigationPath = NavigationPath()
 
     var body: some View {
         NavigationStack(path: $navigationPath) {
-            List(HealthRecordCategory.allCases) { category in
-                NavigationLink(value: category) {
+            List(HealthDataModel.allCases, id: \.self) { dataModel in
+                NavigationLink(value: dataModel) {
                     Label {
                         HStack {
-                            Text(category.localized)
+                            Text(String(localized: dataModel.uiDefinition.title))
                                 .font(.headline)
                             Spacer()
                             Image(systemName: "plus.circle")
@@ -20,58 +20,62 @@ struct HealthDataView: View {
                                 .imageScale(.medium)
                                 .foregroundStyle(Color.accent)
                                 .onTapGesture {
-                                    activeCategory = category
+                                    activeDataModel = dataModel
                                 }
                         }
                     } icon: {
-                        category.icon
-                            .foregroundStyle(category.color)
+                        dataModel.uiDefinition.icon
+                            .foregroundStyle(dataModel.uiDefinition.color)
                     }
                 }
                 .foregroundStyle(.primary)
             }
             .navigationTitle("Health Data")
-            .navigationDestination(for: HealthRecordCategory.self) {
+            .navigationDestination(for: HealthDataModel.self) {
                 categoryView(for: $0)
             }
         }
 
-        .sheet(item: $activeCategory) { category in
+        .sheet(item: $activeDataModel) { dataModel in
             NavigationStack {
-                category.recordSheet
+                createRecordSheet(for: dataModel)
             }
         }
     }
 
+    @ViewBuilder private func createRecordSheet(for dataModel: HealthDataModel) -> some View {
+        dataModel.createNewRecordForm()
+    }
+
     @ViewBuilder private func categoryView(
-        for category: HealthRecordCategory
+        for dataModel: HealthDataModel
     ) -> some View {
-        switch category {
-        case .dietary:
-            CategoryView<DietaryCalorie>(category)
-        case .active:
-            CategoryView<ActiveEnergy>(category)
+        switch dataModel {
+        case .calorie:
+            CategoryView<DietaryCalorie>(dataModel)
+        case .activity:
+            CategoryView<ActiveEnergy>(dataModel)
         case .weight:
-            CategoryView<Weight>(category)
+            CategoryView<Weight>(dataModel)
         }
     }
 
     private struct CategoryAddMenu: View {
-        let action: (HealthRecordCategory) -> Void
-        init(_ action: @escaping (HealthRecordCategory) -> Void) {
+        let action: (HealthDataModel) -> Void
+        init(_ action: @escaping (HealthDataModel) -> Void) {
             self.action = action
         }
 
         var body: some View {
             Menu {
                 ForEach(
-                    HealthRecordCategory.allCases, id: \.self
-                ) { category in
-                    Button(action: { action(category) }) {
+                    HealthDataModel.allCases, id: \.self
+                ) { dataModel in
+                    Button(action: { action(dataModel) }) {
                         Label {
-                            Text(category.localized)
+                            Text(String(localized: dataModel.uiDefinition.title))
                         } icon: {
-                            category.icon
+                            dataModel.uiDefinition.icon
                         }
                     }
                 }

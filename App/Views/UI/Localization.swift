@@ -15,6 +15,9 @@ extension DataSource {
         case .healthKit:
             return String(localized: "apple health")
                 .localizedCapitalized
+        case .device:
+            return String(localized: "apple device")
+                .localizedCapitalized
         case .other(let name): return name.localizedCapitalized
         }
     }
@@ -94,15 +97,5 @@ extension WorkoutActivity {
             return String(localized: "martial arts").localizedCapitalized
         }
 
-    }
-}
-
-extension HealthRecordCategory {
-    var localized: String {
-        switch self {
-        case .dietary: return String(localized: "food").localizedCapitalized
-        case .active: return String(localized: "activity").localizedCapitalized
-        case .weight: return String(localized: "weight").localizedCapitalized
-        }
     }
 }

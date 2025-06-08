@@ -22,35 +22,37 @@ struct MeasurementField<Unit: Dimension, Content: View>: View {
     }
 
     var body: some View {
-        LabeledContent {
-            HStack(alignment: .center, spacing: 4) {
-                TextField("—", value: $measurement.value, format: format)
-                    .focused($isActive)
+        ZStack {
+            LabeledContent {
+                HStack(alignment: .center, spacing: 4) {
+                    TextField("—", value: $measurement.value, format: format)
+                        .focused($isActive)
 
-                    .multilineTextAlignment(.trailing)
-                    #if os(iOS)
-                        .keyboardType(.decimalPad)
-                    #endif
+                        .multilineTextAlignment(.trailing)
+                        #if os(iOS)
+                            .keyboardType(.decimalPad)
+                        #endif
 
-                    .disabled(!enabled)
-                    .foregroundStyle(enabled ? .primary : .tertiary)
+                        .disabled(!enabled)
+                        .foregroundStyle(enabled ? .primary : .tertiary)
 
-                if showPicker && $measurement.availableUnits().count > 1 {
-                    picker.frame(maxWidth: 12, maxHeight: 8).fixedSize()
+                    if showPicker && $measurement.availableUnits().count > 1 {
+                        picker.frame(maxWidth: 12, maxHeight: 8).fixedSize()
+                    }
+                }.layoutPriority(-1)
+            } label: {
+                label()
+            }
+
+            // Trap all taps when not active
+            Color.clear.contentShape(Rectangle())
+                .onTapGesture {
+                    if !isActive {
+                        withAnimation { isActive = true }
+                    }
                 }
-            }.layoutPriority(-1)
-
-        } label: {
-            label()
+                .allowsHitTesting(!isActive)
         }
-
-        .gesture(
-            TapGesture().onEnded {
-                withAnimation(.default) {
-                    isActive = true
-                }
-            }, isEnabled: !isActive
-        )
 
         .onChange(of: $measurement.baseValue) {
             if !isValid {
