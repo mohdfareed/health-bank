@@ -7,6 +7,7 @@ struct CalorieRecordUI: HealthRecordUIDefinition {
 
     typealias FormContent = AnyView
     typealias RowSubtitle = AnyView
+    typealias MainValue = AnyView
 
     // MARK: Visual Identity
 
@@ -27,6 +28,47 @@ struct CalorieRecordUI: HealthRecordUIDefinition {
         DietaryCalorie(0)
     }
 
+    // MARK: Field Definitions
+
+    /// Field definitions specific to calorie records
+    enum Fields {
+        static let calorie = RecordFieldDefinition(
+            unitDefinition: .calorie,
+            validator: { $0 > 0 && $0 <= 10000 },
+            formatter: .number.precision(.fractionLength(0)),
+            image: .calories,
+            tint: .dietaryCalorie,
+            title: "Calories"
+        )
+
+        static let protein = RecordFieldDefinition(
+            unitDefinition: .macro,
+            validator: { $0 >= 0 && $0 <= 1000 },
+            formatter: .number.precision(.fractionLength(0)),
+            image: .protein,
+            tint: .protein,
+            title: "Protein"
+        )
+
+        static let carbs = RecordFieldDefinition(
+            unitDefinition: .macro,
+            validator: { $0 >= 0 && $0 <= 1000 },
+            formatter: .number.precision(.fractionLength(0)),
+            image: .carbs,
+            tint: .carbs,
+            title: "Carbs"
+        )
+
+        static let fat = RecordFieldDefinition(
+            unitDefinition: .macro,
+            validator: { $0 >= 0 && $0 <= 1000 },
+            formatter: .number.precision(.fractionLength(0)),
+            image: .fat,
+            tint: .fat,
+            title: "Fat"
+        )
+    }
+
     // MARK: UI Component Builders
 
     @MainActor
@@ -34,9 +76,7 @@ struct CalorieRecordUI: HealthRecordUIDefinition {
         if let calorie = record as? DietaryCalorie {
             let bindableCalorie = Bindable(calorie)
             return AnyView(
-                VStack(spacing: 16) {
-                    CalorieMeasurementField(calorie: bindableCalorie, uiDefinition: self)
-                }
+                CalorieMeasurementField(calorie: bindableCalorie, uiDefinition: self)
             )
         } else {
             return AnyView(EmptyView())
@@ -77,6 +117,23 @@ struct CalorieRecordUI: HealthRecordUIDefinition {
             return AnyView(EmptyView())
         }
     }
+
+    @MainActor
+    func mainValue<T: HealthData>(_ record: T) -> MainValue {
+        if let calorie = record as? DietaryCalorie {
+            let measurement = Measurement(value: calorie.calories, unit: UnitEnergy.kilocalories)
+
+            return AnyView(
+                ValueView(
+                    measurement: measurement,
+                    icon: nil, tint: nil,
+                    format: preferredFormatter
+                )
+            )
+        } else {
+            return AnyView(EmptyView())
+        }
+    }
 }
 
 // Helper view for macro values in row subtitle
@@ -99,6 +156,8 @@ struct MacroValueView: View {
             icon: icon, tint: tint,
             format: .number.precision(.fractionLength(1))
         )
+        .textScale(.secondary)
+        .imageScale(.small)
     }
 }
 
@@ -107,15 +166,15 @@ struct CalorieMeasurementField: View {
     let uiDefinition: CalorieRecordUI
 
     init(calorie: Bindable<DietaryCalorie>, uiDefinition: CalorieRecordUI) {
-        self.calorie = calorie.wrappedValue
         self.uiDefinition = uiDefinition
+        _calorie = calorie
     }
 
     var body: some View {
         Group {
             // Calories field
             RecordField(
-                .calorie,
+                CalorieRecordUI.Fields.calorie,
                 value: $calorie.calories.optional(0),
                 isInternal: calorie.source == .app,
                 computed: {
@@ -125,7 +184,7 @@ struct CalorieMeasurementField: View {
 
             // Protein field
             RecordField(
-                .protein,
+                CalorieRecordUI.Fields.protein,
                 value: macrosBinding.protein,
                 isInternal: calorie.source == .app,
                 computed: {
@@ -135,7 +194,7 @@ struct CalorieMeasurementField: View {
 
             // Carbs field
             RecordField(
-                .carbs,
+                CalorieRecordUI.Fields.carbs,
                 value: macrosBinding.carbs,
                 isInternal: calorie.source == .app,
                 computed: {
@@ -145,7 +204,7 @@ struct CalorieMeasurementField: View {
 
             // Fat field
             RecordField(
-                .fat,
+                CalorieRecordUI.Fields.fat,
                 value: macrosBinding.fat,
                 isInternal: calorie.source == .app,
                 computed: {

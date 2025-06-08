@@ -53,6 +53,14 @@ public protocol HealthData: Identifiable, Observable {
     var date: Date { get set }
 }
 
+/// Protocol for health data that supports copying for form editing
+public protocol CopyableHealthData: HealthData {
+    /// Creates a copy of this record for editing
+    func copy() -> Self
+    /// Copies values from another record to this one
+    func copyValues(from other: Self)
+}
+
 /// Base protocol for data queries.
 @MainActor public protocol HealthQuery<Data> {
     /// The type of data this query returns.

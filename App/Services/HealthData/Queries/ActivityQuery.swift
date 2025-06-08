@@ -5,6 +5,20 @@ import SwiftData
 // TODO: Implement interface. Auto associate new workout with samples on save/update.
 
 struct ActivityQuery: HealthQuery {
+    var workoutFilters: Set<WorkoutActivity>
+
+    init(workoutFilter: WorkoutActivity? = nil) {
+        if let filter = workoutFilter {
+            self.workoutFilters = Set([filter])
+        } else {
+            self.workoutFilters = Set()
+        }
+    }
+
+    init(workoutFilters: Set<WorkoutActivity>) {
+        self.workoutFilters = workoutFilters
+    }
+
     func save(_ data: ActiveEnergy, store: HealthKitService) async throws {
 
     }
@@ -66,7 +80,17 @@ struct ActivityQuery: HealthQuery {
             )
         }
 
-        return (calories + workouts).sorted { $0.date > $1.date }
+        let allActivities = (calories + workouts).sorted { $0.date > $1.date }
+
+        // Apply workout filters if specified
+        if !workoutFilters.isEmpty {
+            return allActivities.filter { activity in
+                guard let workout = activity.workout else { return false }
+                return workoutFilters.contains(workout)
+            }
+        }
+
+        return allActivities
     }
 }
 

@@ -1,31 +1,35 @@
 import SwiftData
 import SwiftUI
 
-struct RecordForm<R: HealthData, Content: View>: View {
+struct RecordForm<R: CopyableHealthData, Content: View>: View {
     @Environment(\.modelContext) private var context
     @Environment(\.dismiss) private var dismiss
     @State private var showConfirmation = false
 
     let title: String.LocalizationValue
-    let record: R
+    let originalRecord: R
     let isEditing: Bool
+    @State private var editableRecord: R
     @State private var date: Date
-    @ViewBuilder let content: () -> Content
+    @ViewBuilder let content: (R) -> Content
 
     init(
         _ title: String.LocalizationValue, record: R, isEditing: Bool,
-        @ViewBuilder content: @escaping () -> Content
+        @ViewBuilder content: @escaping (R) -> Content
     ) {
-        self._date = State(initialValue: record.date)
         self.title = title
-        self.record = record
-        self.content = content
+        self.originalRecord = record
         self.isEditing = isEditing
+        self.content = content
+
+        // Initialize state with copies
+        self._editableRecord = State(initialValue: record.copy())
+        self._date = State(initialValue: record.date)
     }
 
     var body: some View {
         Form {
-            content()
+            content(editableRecord)
 
             Section {
                 DatePicker(
@@ -38,23 +42,23 @@ struct RecordForm<R: HealthData, Content: View>: View {
                             .foregroundStyle(.gray)
                     }
                 }
-                .disabled(record.source != .app)
+                .disabled(editableRecord.source != .app)
             }
 
             LabeledContent {
-                Text(record.source.localized)
+                Text(editableRecord.source.localized)
                     .foregroundStyle(.tertiary)
             } label: {
                 Label {
                     Text("Source")
                         .foregroundStyle(.secondary)
                 } icon: {
-                    record.source.icon
+                    editableRecord.source.icon
                         .foregroundStyle(Color.accent)
                 }
             }
 
-            if isEditing && record.source == .app {
+            if isEditing && editableRecord.source == .app {
                 Section {
                     Button(role: .destructive) {
                         showConfirmation = true
@@ -108,17 +112,25 @@ struct RecordForm<R: HealthData, Content: View>: View {
     }
 
     private func saveRecord() {
+        // Apply changes from editable record to original
+        editableRecord.date = date
+
+        if isEditing {
+            // Copy values from editable record to original
+            originalRecord.copyValues(from: editableRecord)
+        } else {
+            // For new records, the editableRecord is the one to save
+            // TODO: Implement saving logic (requires query object)
+            // context.insert(editableRecord)
+        }
+
         // TODO: Implement saving logic (requires query object)
-        // record.date = date
-        // if !isEditing {
-        //     context.insert(record)
-        // }
         // try? context.save()
     }
 
     private func deleteRecord() {
         // TODO: Implement deletion logic
-        // context.delete(record)
+        // context.delete(originalRecord)
         // try? context.save()
     }
 }
@@ -129,7 +141,7 @@ struct RecordForm<R: HealthData, Content: View>: View {
 extension RecordForm {
     init(  // For create mode (when record is new)
         _ title: String.LocalizationValue, creating record: R,
-        @ViewBuilder content: @escaping () -> Content
+        @ViewBuilder content: @escaping (R) -> Content
     ) {
         self.init(
             title, record: record, isEditing: false,
@@ -139,7 +151,7 @@ extension RecordForm {
 
     init(  // For edit mode (when record exists)
         _ title: String.LocalizationValue, editing record: R,
-        @ViewBuilder content: @escaping () -> Content
+        @ViewBuilder content: @escaping (R) -> Content
     ) {
         self.init(
             title, record: record, isEditing: true,

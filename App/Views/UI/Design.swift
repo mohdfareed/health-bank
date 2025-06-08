@@ -14,8 +14,8 @@ extension Color {
     // Dietary Energy
     static var dietaryCalorie: Color { .red }
     static var macros: Color { .indigo }
-    static var protein: Color { .orange }
-    static var carbs: Color { .yellow }
+    static var protein: Color { .brown }
+    static var carbs: Color { .orange }
     static var fat: Color { .green }
 
     // Activity
@@ -28,7 +28,6 @@ extension Color {
 
 extension Image {
     static var logo: Image { .init("logo") }
-    static var appSettings: Image { .init("gear.badge.ellipsis") }
 
     // Apple Health
     static var appleHealth: Image { .init("AppleHealth") }

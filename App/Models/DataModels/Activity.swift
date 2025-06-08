@@ -9,7 +9,7 @@ public enum WorkoutActivity: Codable, CaseIterable, Hashable {
 }
 
 /// Represents active energy expenditure from physical activity.
-public final class ActiveEnergy: Calorie {
+public final class ActiveEnergy: Calorie, CopyableHealthData {
     public var id: UUID
     public let source: DataSource
     public var date: Date
@@ -34,5 +34,25 @@ public final class ActiveEnergy: Calorie {
         self.id = id
         self.source = source
         self.date = date
+    }
+
+    /// Creates a copy of this activity record for editing
+    public func copy() -> ActiveEnergy {
+        return ActiveEnergy(
+            calories,
+            duration: duration,
+            workout: workout,
+            id: id,
+            source: source,
+            date: date
+        )
+    }
+
+    /// Copies values from another activity record to this one
+    public func copyValues(from other: ActiveEnergy) {
+        self.calories = other.calories
+        self.duration = other.duration
+        self.workout = other.workout
+        self.date = other.date
     }
 }

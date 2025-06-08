@@ -45,12 +45,12 @@ struct RecordField<Unit: Dimension, DetailContent: View>: View {
     @ViewBuilder
     private var subtitle: some View {
         if let computed = computed?(),
-            computed != $measurement.value.wrappedValue,
+            computed != $measurement.baseValue,
             definition.validator?(computed) ?? true
         {
             Button {
                 withAnimation(.default) {
-                    $measurement.value.wrappedValue = computed
+                    $measurement.baseValue = computed
                 }
             } label: {
                 HStack(spacing: 4) {

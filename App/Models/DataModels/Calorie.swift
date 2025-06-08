@@ -31,7 +31,7 @@ public struct CalorieMacros: Codable, Hashable, Sendable {
 // ============================================================================
 
 /// Represents dietary calorie intake.
-public final class DietaryCalorie: Calorie {
+public final class DietaryCalorie: Calorie, CopyableHealthData {
     public var id: UUID
     public let source: DataSource
     public var date: Date
@@ -53,5 +53,23 @@ public final class DietaryCalorie: Calorie {
         self.id = id
         self.source = source
         self.date = date
+    }
+
+    /// Creates a copy of this calorie record for editing
+    public func copy() -> DietaryCalorie {
+        return DietaryCalorie(
+            calories,
+            macros: macros,
+            id: id,
+            source: source,
+            date: date
+        )
+    }
+
+    /// Copies values from another calorie record to this one
+    public func copyValues(from other: DietaryCalorie) {
+        self.calories = other.calories
+        self.macros = other.macros
+        self.date = other.date
     }
 }

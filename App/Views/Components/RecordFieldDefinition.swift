@@ -40,8 +40,8 @@ extension RecordFieldDefinition where Unit == UnitEnergy {
         unitDefinition: .calorie,
         validator: { $0 > 0 && $0 <= 10000 },
         formatter: .number.precision(.fractionLength(0)),
-        image: .dietaryCalorie,
-        tint: .dietaryCalorie,
+        image: .calories,
+        tint: .calories,
         title: "Calories"
     )
 }
@@ -50,7 +50,7 @@ extension RecordFieldDefinition where Unit == UnitMass {
     static let protein = RecordFieldDefinition(
         unitDefinition: .macro,
         validator: { $0 >= 0 && $0 <= 1000 },
-        formatter: .number.precision(.fractionLength(1)),
+        formatter: .number.precision(.fractionLength(0)),
         image: .protein,
         tint: .protein,
         title: "Protein"
@@ -59,7 +59,7 @@ extension RecordFieldDefinition where Unit == UnitMass {
     static let carbs = RecordFieldDefinition(
         unitDefinition: .macro,
         validator: { $0 >= 0 && $0 <= 1000 },
-        formatter: .number.precision(.fractionLength(1)),
+        formatter: .number.precision(.fractionLength(0)),
         image: .carbs,
         tint: .carbs,
         title: "Carbs"
@@ -68,7 +68,7 @@ extension RecordFieldDefinition where Unit == UnitMass {
     static let fat = RecordFieldDefinition(
         unitDefinition: .macro,
         validator: { $0 >= 0 && $0 <= 1000 },
-        formatter: .number.precision(.fractionLength(1)),
+        formatter: .number.precision(.fractionLength(0)),
         image: .fat,
         tint: .fat,
         title: "Fat"

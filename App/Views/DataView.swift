@@ -14,14 +14,6 @@ struct HealthDataView: View {
                         HStack {
                             Text(String(localized: dataModel.uiDefinition.title))
                                 .font(.headline)
-                            Spacer()
-                            Image(systemName: "plus.circle")
-                                .font(.headline)
-                                .imageScale(.medium)
-                                .foregroundStyle(Color.accent)
-                                .onTapGesture {
-                                    activeDataModel = dataModel
-                                }
                         }
                     } icon: {
                         dataModel.uiDefinition.icon
@@ -29,7 +21,19 @@ struct HealthDataView: View {
                     }
                 }
                 .foregroundStyle(.primary)
+
             }
+
+            .overlay(alignment: .bottom) {
+                // Menu button for creating new records
+                CategoryAddMenu { dataModel in
+                    activeDataModel = dataModel
+                }
+                .buttonStyle(.borderedProminent)
+                .buttonBorderShape(.roundedRectangle(radius: .infinity))
+                .padding()
+            }
+
             .navigationTitle("Health Data")
             .navigationDestination(for: HealthDataModel.self) {
                 categoryView(for: $0)
@@ -80,7 +84,10 @@ struct HealthDataView: View {
                     }
                 }
             } label: {
-                Label("Log Data", systemImage: "plus.circle")
+                Label("Add Data", systemImage: "plus")
+                    .frame(width: 50, height: 50)
+                    .labelStyle(.iconOnly)
+                    .font(.title)
             }
         }
     }

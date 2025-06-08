@@ -30,7 +30,7 @@ struct GoalMeasurementField: View {
     @Bindable var goals: UserGoals
 
     init(goals: Bindable<UserGoals>) {
-        self.goals = goals.wrappedValue
+        _goals = goals
     }
 
     var body: some View {

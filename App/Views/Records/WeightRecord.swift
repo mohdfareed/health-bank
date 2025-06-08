@@ -6,6 +6,7 @@ struct WeightRecordUI: HealthRecordUIDefinition {
 
     typealias FormContent = AnyView
     typealias RowSubtitle = EmptyView
+    typealias MainValue = AnyView
 
     // MARK: Visual Identity
 
@@ -26,6 +27,20 @@ struct WeightRecordUI: HealthRecordUIDefinition {
         Weight(0)
     }
 
+    // MARK: Field Definitions
+
+    /// Field definitions specific to weight records
+    enum Fields {
+        static let weight = RecordFieldDefinition(
+            unitDefinition: .weight,
+            validator: { $0 > 0 },
+            formatter: .number.precision(.fractionLength(1)),
+            image: .weight,
+            tint: .weight,
+            title: "Weight"
+        )
+    }
+
     // MARK: UI Component Builders
 
     @MainActor
@@ -33,9 +48,7 @@ struct WeightRecordUI: HealthRecordUIDefinition {
         if let weight = record as? Weight {
             let bindableWeight = Bindable(weight)
             return AnyView(
-                VStack(spacing: 16) {
-                    WeightMeasurementField(weight: bindableWeight, uiDefinition: self)
-                }
+                WeightMeasurementField(weight: bindableWeight, uiDefinition: self)
             )
         } else {
             return AnyView(EmptyView())
@@ -46,6 +59,23 @@ struct WeightRecordUI: HealthRecordUIDefinition {
     func rowSubtitle<T: HealthData>(_ record: T) -> RowSubtitle {
         EmptyView()
     }
+
+    @MainActor
+    func mainValue<T: HealthData>(_ record: T) -> MainValue {
+        if let weight = record as? Weight {
+            let measurement = Measurement(value: weight.weight, unit: UnitMass.kilograms)
+
+            return AnyView(
+                ValueView(
+                    measurement: measurement,
+                    icon: nil, tint: nil,
+                    format: preferredFormatter
+                )
+            )
+        } else {
+            return AnyView(EmptyView())
+        }
+    }
 }
 
 struct WeightMeasurementField: View {
@@ -53,15 +83,16 @@ struct WeightMeasurementField: View {
     let uiDefinition: WeightRecordUI
 
     init(weight: Bindable<Weight>, uiDefinition: WeightRecordUI) {
-        self.weight = weight.wrappedValue
         self.uiDefinition = uiDefinition
+        _weight = weight
     }
 
     var body: some View {
         RecordField(
-            .weight,
+            WeightRecordUI.Fields.weight,
             value: $weight.weight.optional(0),
-            isInternal: weight.source == .app
+            isInternal: weight.source == .app,
+            showPicker: true
         )
     }
 }

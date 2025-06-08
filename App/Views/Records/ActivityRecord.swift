@@ -7,6 +7,7 @@ struct ActivityRecordUI: HealthRecordUIDefinition {
 
     typealias FormContent = AnyView
     typealias RowSubtitle = AnyView
+    typealias MainValue = AnyView
 
     // MARK: Visual Identity
 
@@ -27,6 +28,29 @@ struct ActivityRecordUI: HealthRecordUIDefinition {
         ActiveEnergy(0)
     }
 
+    // MARK: Field Definitions
+
+    /// Field definitions specific to activity records
+    enum Fields {
+        static let calorie = RecordFieldDefinition(
+            unitDefinition: .calorie,
+            validator: { $0 > 0 && $0 <= 10000 },
+            formatter: .number.precision(.fractionLength(0)),
+            image: .calories,
+            tint: .calories,
+            title: "Calories"
+        )
+
+        static let duration = RecordFieldDefinition(
+            unitDefinition: .activity,
+            validator: { $0 > 0 && $0 <= 1440 },  // max 24 hours in minutes
+            formatter: .number.precision(.fractionLength(0)),
+            image: .duration,
+            tint: .duration,
+            title: "Duration"
+        )
+    }
+
     // MARK: UI Component Builders
 
     @MainActor
@@ -34,9 +58,7 @@ struct ActivityRecordUI: HealthRecordUIDefinition {
         if let activity = record as? ActiveEnergy {
             let bindableActivity = Bindable(activity)
             return AnyView(
-                VStack(spacing: 16) {
-                    ActivityMeasurementField(activity: bindableActivity, uiDefinition: self)
-                }
+                ActivityMeasurementField(activity: bindableActivity, uiDefinition: self)
             )
         } else {
             return AnyView(EmptyView())
@@ -56,10 +78,27 @@ struct ActivityRecordUI: HealthRecordUIDefinition {
                     if activity.duration != nil {
                         DurationValueView(
                             value: activity.duration ?? 0,
-                            icon: .duration, tint: .duration
+                            icon: nil, tint: nil
                         )
                     }
                 }
+            )
+        } else {
+            return AnyView(EmptyView())
+        }
+    }
+
+    @MainActor
+    func mainValue<T: HealthData>(_ record: T) -> MainValue {
+        if let activity = record as? ActiveEnergy {
+            let measurement = Measurement(value: activity.calories, unit: UnitEnergy.kilocalories)
+
+            return AnyView(
+                ValueView(
+                    measurement: measurement,
+                    icon: nil, tint: nil,
+                    format: preferredFormatter
+                )
             )
         } else {
             return AnyView(EmptyView())
@@ -72,24 +111,26 @@ struct ActivityMeasurementField: View {
     let uiDefinition: ActivityRecordUI
 
     init(activity: Bindable<ActiveEnergy>, uiDefinition: ActivityRecordUI) {
-        self.activity = activity.wrappedValue
         self.uiDefinition = uiDefinition
+        _activity = activity
     }
 
     var body: some View {
-        List {
+        Section {
             // Calories field
             RecordField(
-                .calorie,
+                ActivityRecordUI.Fields.calorie,
                 value: $activity.calories.optional(0),
-                isInternal: activity.source == .app
+                isInternal: activity.source == .app,
+                showPicker: true
             )
 
             // Duration field
             RecordField(
-                .activity,
+                ActivityRecordUI.Fields.duration,
                 value: durationBinding,
-                isInternal: activity.source == .app
+                isInternal: activity.source == .app,
+                showPicker: true
             )
 
             // Workout picker
@@ -113,7 +154,8 @@ struct ActivityMeasurementField: View {
                 Label {
                     Text("Activity")
                 } icon: {
-                    Image(systemName: "figure.run")
+                    Image.activeCalorie
+                        .foregroundStyle(Color.activeCalorie)
                 }
             }
             .disabled(activity.source != .app)
@@ -131,11 +173,11 @@ struct ActivityMeasurementField: View {
 // Helper view for duration values in row subtitle
 struct DurationValueView: View {
     let value: Double
-    let icon: Image
-    let tint: Color
+    let icon: Image?
+    let tint: Color?
     @LocalizedMeasurement var measurement: Measurement<UnitDuration>
 
-    init(value: Double, icon: Image, tint: Color) {
+    init(value: Double, icon: Image?, tint: Color?) {
         self.value = value
         self.icon = icon
         self.tint = tint
