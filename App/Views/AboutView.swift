@@ -167,25 +167,25 @@ struct HealthPermissionsManager: View {
                     Spacer()
                     switch status {
                     case .notReviewed:
-                        Image(systemName: "lock.shield.fill")
-                            .foregroundStyle(Color.accent)
                         Text("Request")
                             .foregroundStyle(Color.accent)
+                        Image(systemName: "lock.shield.fill")
+                            .foregroundStyle(Color.accent)
                     case .authorized:
-                        Image(systemName: "checkmark.shield.fill")
-                            .foregroundStyle(Color.green)
                         Text("Authorized")
                             .foregroundStyle(Color.secondary)
+                        Image(systemName: "checkmark.shield.fill")
+                            .foregroundStyle(Color.green)
                     case .denied:
-                        Image(systemName: "xmark.shield.fill")
-                            .foregroundStyle(Color.red)
                         Text("Denied")
                             .foregroundStyle(Color.secondary)
+                        Image(systemName: "xmark.shield.fill")
+                            .foregroundStyle(Color.red)
                     case .partiallyAuthorized:
-                        Image(systemName: "exclamationmark.shield.fill")
-                            .foregroundStyle(Color.yellow)
                         Text("Partially Authorized")
                             .foregroundStyle(Color.secondary)
+                        Image(systemName: "exclamationmark.shield.fill")
+                            .foregroundStyle(Color.yellow)
                     }
                 }
             } icon: {

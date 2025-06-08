@@ -24,7 +24,7 @@ struct ValueView: View {
 
     var body: some View {
         HStack(alignment: .center, spacing: 2) {
-            icon?.foregroundStyle(tint ?? .primary)
+            icon?.asText.foregroundStyle(tint ?? .primary)
             Text(value, format: format)
             Text(unit).textScale(.secondary)
                 .foregroundStyle(.secondary)

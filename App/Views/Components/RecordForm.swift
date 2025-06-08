@@ -2,7 +2,7 @@ import SwiftData
 import SwiftUI
 
 struct RecordForm<R: CopyableHealthData, Content: View>: View {
-    @Environment(\.modelContext) private var context
+    @Environment(\.healthKit) private var healthKit
     @Environment(\.dismiss) private var dismiss
     @State private var showConfirmation = false
 
@@ -112,26 +112,98 @@ struct RecordForm<R: CopyableHealthData, Content: View>: View {
     }
 
     private func saveRecord() {
-        // Apply changes from editable record to original
-        editableRecord.date = date
+        Task {
+            do {
+                // Apply date changes to editable record first
+                editableRecord.date = date
 
-        if isEditing {
-            // Copy values from editable record to original
-            originalRecord.copyValues(from: editableRecord)
-        } else {
-            // For new records, the editableRecord is the one to save
-            // TODO: Implement saving logic (requires query object)
-            // context.insert(editableRecord)
+                if isEditing {
+                    // Copy all values from editable record to original
+                    originalRecord.copyValues(from: editableRecord)
+                    // Update the record using the appropriate query
+                    try await updateRecord(originalRecord)
+                } else {
+                    // Save new record using the appropriate query
+                    try await saveNewRecord(editableRecord)
+                }
+                await MainActor.run {
+                    dismiss()
+                }
+            } catch {
+                // Handle error with better logging
+                let logger = AppLogger.new(for: Self.self)
+                logger.error("Failed to save record: \(error)")
+                // For now, still dismiss but log the error properly
+                await MainActor.run {
+                    dismiss()
+                }
+            }
         }
+    }
 
-        // TODO: Implement saving logic (requires query object)
-        // try? context.save()
+    private func saveNewRecord(_ record: R) async throws {
+        switch record {
+        case let weight as Weight:
+            let query = WeightQuery()
+            try await query.save(weight, store: healthKit)
+        case let calorie as DietaryCalorie:
+            let query = DietaryQuery()
+            try await query.save(calorie, store: healthKit)
+        case let activity as ActiveEnergy:
+            let query = ActivityQuery()
+            try await query.save(activity, store: healthKit)
+        default:
+            throw DataError.unexpectedError("Unsupported record type")
+        }
+    }
+
+    private func updateRecord(_ record: R) async throws {
+        switch record {
+        case let weight as Weight:
+            let query = WeightQuery()
+            try await query.update(weight, store: healthKit)
+        case let calorie as DietaryCalorie:
+            let query = DietaryQuery()
+            try await query.update(calorie, store: healthKit)
+        case let activity as ActiveEnergy:
+            let query = ActivityQuery()
+            try await query.update(activity, store: healthKit)
+        default:
+            throw DataError.unexpectedError("Unsupported record type")
+        }
     }
 
     private func deleteRecord() {
-        // TODO: Implement deletion logic
-        // context.delete(originalRecord)
-        // try? context.save()
+        Task {
+            do {
+                try await deleteRecordAsync(originalRecord)
+                await MainActor.run {
+                    dismiss()
+                }
+            } catch {
+                let logger = AppLogger.new(for: Self.self)
+                logger.error("Failed to delete record: \(error)")
+                await MainActor.run {
+                    dismiss()
+                }
+            }
+        }
+    }
+
+    private func deleteRecordAsync(_ record: R) async throws {
+        switch record {
+        case let weight as Weight:
+            let query = WeightQuery()
+            try await query.delete(weight, store: healthKit)
+        case let calorie as DietaryCalorie:
+            let query = DietaryQuery()
+            try await query.delete(calorie, store: healthKit)
+        case let activity as ActiveEnergy:
+            let query = ActivityQuery()
+            try await query.delete(activity, store: healthKit)
+        default:
+            throw DataError.unexpectedError("Unsupported record type")
+        }
     }
 }
 

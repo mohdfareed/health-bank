@@ -154,7 +154,7 @@ struct MacroValueView: View {
         ValueView(
             measurement: measurement,
             icon: icon, tint: tint,
-            format: .number.precision(.fractionLength(1))
+            format: .number.precision(.fractionLength(0))
         )
         .textScale(.secondary)
         .imageScale(.small)

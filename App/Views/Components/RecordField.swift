@@ -45,7 +45,8 @@ struct RecordField<Unit: Dimension, DetailContent: View>: View {
     @ViewBuilder
     private var subtitle: some View {
         if let computed = computed?(),
-            computed != $measurement.baseValue,
+            let currentValue = $measurement.baseValue,
+            abs(computed - currentValue) > 0.001,  // Use epsilon comparison for floating point
             definition.validator?(computed) ?? true
         {
             Button {

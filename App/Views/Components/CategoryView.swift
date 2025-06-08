@@ -25,50 +25,37 @@ struct CategoryView<T: HealthData>: View {
             self._selectedFilters = State(initialValue: Set())
         }
 
-        // Use the query method from HealthDataModel extension
-        let query: any HealthQuery<T>
-        if dataModel == .activity, let filter = workoutFilter {
-            query = ActivityQuery(workoutFilter: filter) as! any HealthQuery<T>
-        } else {
-            query = dataModel.query()
-        }
-
-        _records = DataQuery(
-            query, from: .distantPast, to: .distantFuture
-        )
-    }
-
-    init(_ dataModel: HealthDataModel, workoutFilters: Set<WorkoutActivity>) {
-        self.dataModel = dataModel
-        self.uiDefinition = dataModel.uiDefinition
-        self.workoutFilter = nil
-        self._selectedFilters = State(initialValue: workoutFilters)
-
-        // Use the query method from HealthDataModel extension
-        let query: any HealthQuery<T>
-        if dataModel == .activity, !workoutFilters.isEmpty {
-            query = ActivityQuery(workoutFilters: workoutFilters) as! any HealthQuery<T>
-        } else {
-            query = dataModel.query()
-        }
-
+        // Use the query method from HealthDataModel extension (no filtering at query level)
+        let query: any HealthQuery<T> = dataModel.query()
         _records = DataQuery(
             query, from: .distantPast, to: .distantFuture
         )
     }
 
     var body: some View {
-        // If selectedFilters differ from the initial state, show filtered view
-        if dataModel == .activity && selectedFilters != (workoutFilter.map { Set([$0]) } ?? Set()) {
-            CategoryView<T>(dataModel, workoutFilters: selectedFilters)
-        } else {
-            mainContent
+        mainContent
+    }
+
+    private var filteredRecords: [T] {
+        // If no filters are selected or this isn't activity data, return all records
+        guard dataModel == .activity && !selectedFilters.isEmpty else {
+            return records
+        }
+
+        // Filter records based on workout activity
+        return records.filter { record in
+            guard let activeEnergy = record as? ActiveEnergy,
+                let workout = activeEnergy.workout
+            else {
+                return false
+            }
+            return selectedFilters.contains(workout)
         }
     }
 
     private var mainContent: some View {
         List {
-            ForEach(records) { record in
+            ForEach(filteredRecords) { record in
                 GenericRecordRow(record: record, dataModel: dataModel, uiDefinition: uiDefinition)
                     .swipeActions { swipeActions(for: record) }
             }
@@ -78,6 +65,7 @@ struct CategoryView<T: HealthData>: View {
         .animation(.default, value: $records.isLoading)
         .animation(.default, value: $records.isExhausted)
         .animation(.default, value: selectedFilters)
+        .animation(.default, value: filteredRecords.count)
 
         .onAppear {
             Task {
@@ -120,7 +108,9 @@ struct CategoryView<T: HealthData>: View {
                         Label {
                             Text("All Activities")
                         } icon: {
-                            Image(systemName: selectedFilters.isEmpty ? "checkmark" : "")
+                            if selectedFilters.isEmpty {
+                                Image(systemName: "checkmark")
+                            }
                         }
                     }
 
@@ -139,9 +129,9 @@ struct CategoryView<T: HealthData>: View {
                             Label {
                                 Text(activity.localized)
                             } icon: {
-                                Image(
-                                    systemName: selectedFilters.contains(activity)
-                                        ? "checkmark" : "")
+                                if selectedFilters.contains(activity) {
+                                    Image(systemName: "checkmark")
+                                }
                             }
                         }
                     }
@@ -165,7 +155,13 @@ struct CategoryView<T: HealthData>: View {
     }
 
     @ViewBuilder private func loadMoreButton() -> some View {
-        if !$records.isLoading && !$records.isExhausted {
+        // Only show load more button if we have unfiltered data available
+        // and we're not filtering (or if we're filtering but have matching items)
+        let hasFilteredItems = !filteredRecords.isEmpty
+        let isFiltering = dataModel == .activity && !selectedFilters.isEmpty
+        let showButton = !isFiltering || (isFiltering && hasFilteredItems)
+
+        if !$records.isLoading && !$records.isExhausted && showButton {
             Button("Load More") {
                 Task { await $records.loadNextPage() }
             }
@@ -190,6 +186,8 @@ struct CategoryView<T: HealthData>: View {
                     do {
                         let query: any HealthQuery<T> = dataModel.query()
                         try await query.delete(record, store: healthKit)
+                        // Reload data after successful deletion
+                        await $records.reload()
                     } catch {
                         let error = error.localizedDescription
                         AppLogger.new(for: Self.self).error(
@@ -219,11 +217,9 @@ private struct GenericRecordRow<T: HealthData>: View {
             createEditRecordSheet()
         } label: {
             LabeledContent {
-                if record.source == .app {
-                    Image.logo.asText
-                        .foregroundColor(Color.accent)
-                        .font(.caption2)
-                }
+                record.source.icon.asText
+                    .foregroundColor(Color.accent)
+                    .font(.caption2)
             } label: {
                 DetailedRow(image: nil, tint: nil) {
                     dataModel.createMainValue(record)

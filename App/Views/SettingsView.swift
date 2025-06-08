@@ -13,11 +13,9 @@ struct SettingsView: View {
 
     @AppStorage(.userGoals) var goalsID: UUID
     @AppStorage(.theme) var theme: AppTheme
-    @AppLocale private var locale
 
+    @AppLocale private var locale
     @State private var reset = false
-    @State private var erase = false
-    @State private var isErasing = false
 
     var body: some View {
         NavigationStack {
@@ -47,25 +45,20 @@ struct SettingsView: View {
                     ) {
                         Label("About", systemImage: "info.circle")
                     }
-                }
 
-                Section {
-                    Button("Reset Settings", role: .destructive) {
-                        reset = true
-                    }
-                    Button("Erase All Data", role: .destructive) {
-                        erase = true
+                    Button(action: { reset = true }) {
+                        Label {
+                            Text("Reset Settings")
+                                .foregroundStyle(.red)
+                        } icon: {
+                            Image(systemName: "arrow.counterclockwise")
+                        }
                     }
                 }
             }
             .navigationTitle("Settings")
             .scrollDismissesKeyboard(.interactively)
-
             .resetAlert(isPresented: $reset)
-            .eraseAlert(
-                isPresented: $erase, isErasing: $isErasing,
-                healthKit: healthKit, context: context
-            )
         }
     }
 
@@ -150,52 +143,6 @@ extension View {
                 This action cannot be undone.
                 """
             )
-        }
-    }
-    fileprivate func eraseAlert(
-        isPresented: Binding<Bool>, isErasing: Binding<Bool>,
-        healthKit: HealthKitService, context: ModelContext
-    ) -> some View {
-        self.alert("Erase All App Data", isPresented: isPresented) {
-            Button("Cancel", role: .cancel) {}
-            Button("Erase", role: .destructive) {
-                withAnimation {
-                    isPresented.wrappedValue = false
-                    isErasing.wrappedValue = true
-                }
-
-                Task {
-                    try await healthKit.eraseData()
-                    withAnimation {
-                        try? context.delete(model: UserGoals.self)
-                        try? context.save()
-                        UserDefaults.standard.resetSettings()
-                        isErasing.wrappedValue = false
-                    }
-                }
-            }
-        } message: {
-            Text(
-                """
-                Erase all health data, settings, and app data.
-                This action cannot be undone.
-                """
-            )
-        }
-        .overlay {
-            if isErasing.wrappedValue {
-                ZStack {
-                    Color.black.opacity(0.4).ignoresSafeArea()
-                    ProgressView("Erasing Health Data...")
-                        .progressViewStyle(.circular)
-                        .padding()
-                        .background(
-                            .regularMaterial,
-                            in: RoundedRectangle(cornerRadius: 10)
-                        )
-                }
-                .transition(.opacity)
-            }
         }
     }
 }
