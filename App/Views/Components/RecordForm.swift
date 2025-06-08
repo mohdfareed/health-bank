@@ -55,9 +55,11 @@ struct RecordForm<R: HealthData, Content: View>: View {
             Section {
                 LabeledContent {
                     Text(record.source.localized)
+                        .foregroundStyle(.tertiary)
                 } label: {
                     Label {
                         Text("Source")
+                            .foregroundStyle(.secondary)
                     } icon: {
                         record.source.icon
                             .foregroundStyle(record.source.color)

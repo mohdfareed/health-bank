@@ -2,6 +2,8 @@ import Foundation
 import HealthKit
 import SwiftData
 
+// TODO: Implement interface. Auto associate new workout with samples on save/update.
+
 struct ActivityQuery: HealthQuery {
     func save(_ data: ActiveEnergy, store: HealthKitService) async throws {
 

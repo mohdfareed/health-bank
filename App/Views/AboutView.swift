@@ -156,6 +156,7 @@ struct HealthPermissionsManager: View {
     let service: HealthKitService
 
     var body: some View {
+        let status = service.authorizationStatus()
         Button {
             service.requestAuthorization()
         } label: {
@@ -164,39 +165,27 @@ struct HealthPermissionsManager: View {
                     Text("Permissions")
                         .foregroundStyle(Color.primary)
                     Spacer()
-                    switch service.authorizationStatus() {
+                    switch status {
                     case .notReviewed:
-                        Label {
-                            Image(systemName: "lock.shield.fill")
-                                .foregroundStyle(Color.accent)
-                        } icon: {
-                            Text("Request")
-                                .foregroundStyle(Color.accent)
-                        }
+                        Image(systemName: "lock.shield.fill")
+                            .foregroundStyle(Color.accent)
+                        Text("Request")
+                            .foregroundStyle(Color.accent)
                     case .authorized:
-                        Label {
-                            Image(systemName: "checkmark.shield.fill")
-                                .foregroundStyle(Color.green)
-                        } icon: {
-                            Text("Authorized")
-                                .foregroundStyle(Color.secondary)
-                        }
+                        Image(systemName: "checkmark.shield.fill")
+                            .foregroundStyle(Color.green)
+                        Text("Authorized")
+                            .foregroundStyle(Color.secondary)
                     case .denied:
-                        Label {
-                            Image(systemName: "xmark.shield.fill")
-                                .foregroundStyle(Color.red)
-                        } icon: {
-                            Text("Denied")
-                                .foregroundStyle(Color.secondary)
-                        }
+                        Image(systemName: "xmark.shield.fill")
+                            .foregroundStyle(Color.red)
+                        Text("Denied")
+                            .foregroundStyle(Color.secondary)
                     case .partiallyAuthorized:
-                        Label {
-                            Image(systemName: "exclamationmark.shield.fill")
-                                .foregroundStyle(Color.yellow)
-                        } icon: {
-                            Text("Partially Authorized")
-                                .foregroundStyle(Color.secondary)
-                        }
+                        Image(systemName: "exclamationmark.shield.fill")
+                            .foregroundStyle(Color.yellow)
+                        Text("Partially Authorized")
+                            .foregroundStyle(Color.secondary)
                     }
                 }
             } icon: {
@@ -204,5 +193,6 @@ struct HealthPermissionsManager: View {
                     .foregroundStyle(Color.healthKit)
             }
         }
+        .animation(.default, value: status)
     }
 }

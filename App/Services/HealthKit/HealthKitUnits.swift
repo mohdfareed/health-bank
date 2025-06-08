@@ -48,7 +48,7 @@ extension HealthKitService {
 extension UnitDuration {
     static var days: UnitDuration {
         return UnitDuration(
-            symbol: "day",
+            symbol: "d",
             // 60 seconds * 60 minutes * 24 hours
             converter: UnitConverterLinear(coefficient: 86400)
         )

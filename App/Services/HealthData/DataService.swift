@@ -2,6 +2,20 @@ import Foundation
 import SwiftData
 import SwiftUI
 
+extension HealthDataModel {
+    /// Gets the appropriate query for this data type
+    func query<T: HealthData>() -> any HealthQuery<T> {
+        switch self {
+        case .weight:
+            return WeightQuery() as! any HealthQuery<T>
+        case .calorie:
+            return DietaryQuery() as! any HealthQuery<T>
+        case .activity:
+            return ActivityQuery() as! any HealthQuery<T>
+        }
+    }
+}
+
 // MARK: Data Query
 // ============================================================================
 
@@ -58,7 +72,8 @@ extension DataQuery {
         isLoading = true
 
         // 1) Determine bounds for this page
-        // For chronological pagination (newest first), we paginate backwards from cursorDate
+        // For chronological pagination (newest first),
+        // we paginate backwards from cursorDate
         let toDate = cursorDate ?? dateRange.upperBound
         let fromDate = dateRange.lowerBound
 

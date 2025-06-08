@@ -30,9 +30,9 @@ struct AppLocale: DynamicProperty {
     }
 
     /// Binding for first day of week setting.
-    var firstWeekDay: Binding<Weekday> {
+    var firstWeekDay: Binding<Weekday?> {
         Binding(
-            get: { firstDayOfWeek ?? systemLocale.firstDayOfWeek },
+            get: { firstDayOfWeek },
             set: { firstDayOfWeek = $0 }
         )
     }
