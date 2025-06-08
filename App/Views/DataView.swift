@@ -9,9 +9,7 @@ struct HealthDataView: View {
     var body: some View {
         NavigationStack(path: $navigationPath) {
             List(HealthRecordCategory.allCases) { category in
-                Button {
-                    navigationPath.append(category)
-                } label: {
+                NavigationLink(value: category) {
                     Label {
                         HStack {
                             Text(category.localized)
@@ -19,6 +17,7 @@ struct HealthDataView: View {
                             Spacer()
                             Image(systemName: "plus.circle")
                                 .font(.headline)
+                                .imageScale(.medium)
                                 .foregroundStyle(Color.accent)
                                 .onTapGesture {
                                     activeCategory = category
@@ -32,8 +31,8 @@ struct HealthDataView: View {
                 .foregroundStyle(.primary)
             }
             .navigationTitle("Health Data")
-            .navigationDestination(for: HealthRecordCategory.self) { category in
-                categoryView(for: category)
+            .navigationDestination(for: HealthRecordCategory.self) {
+                categoryView(for: $0)
             }
         }
 

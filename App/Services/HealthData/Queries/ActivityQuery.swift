@@ -3,15 +3,15 @@ import HealthKit
 import SwiftData
 
 struct ActivityQuery: HealthQuery {
-    func save(store: HealthKitService) async throws {
+    func save(_ data: ActiveEnergy, store: HealthKitService) async throws {
 
     }
 
-    func delete(store: HealthKitService) async throws {
+    func delete(_ data: ActiveEnergy, store: HealthKitService) async throws {
 
     }
 
-    func update(store: HealthKitService) async throws {
+    func update(_ data: ActiveEnergy, store: HealthKitService) async throws {
 
     }
 

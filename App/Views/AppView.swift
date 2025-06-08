@@ -3,7 +3,6 @@ import SwiftUI
 
 // TODO: Add dashboard view to track goals and progress
 // TODO: Add welcome screen for new users
-// TODO: Add Works with Apple HealthKit section
 
 struct AppView: View {
     @AppStorage(.theme)

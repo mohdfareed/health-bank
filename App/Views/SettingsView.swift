@@ -26,7 +26,7 @@ struct SettingsView: View {
                     generalSettings
                 }
 
-                GoalView(goalsID)
+                GoalView(goalsID).animation(.default, value: goalsID)
 
                 Section {
                     HealthPermissionsManager(service: healthKit)
@@ -165,10 +165,11 @@ extension View {
                 }
 
                 Task {
-                    UserDefaults.standard.resetSettings()
-                    try? context.container.erase()
                     try await healthKit.eraseData()
                     withAnimation {
+                        try? context.delete(model: UserGoals.self)
+                        try? context.save()
+                        UserDefaults.standard.resetSettings()
                         isErasing.wrappedValue = false
                     }
                 }
@@ -194,61 +195,6 @@ extension View {
                         )
                 }
                 .transition(.opacity)
-            }
-        }
-    }
-}
-
-struct HealthPermissionsManager: View {
-    let service: HealthKitService
-
-    var body: some View {
-        Button {
-            service.requestAuthorization()
-        } label: {
-            Label {
-                HStack {
-                    Text("Permissions")
-                        .foregroundStyle(Color.primary)
-                    Spacer()
-                    switch service.authorizationStatus() {
-                    case .notReviewed:
-                        Label {
-                            Image(systemName: "lock.shield.fill")
-                                .foregroundStyle(Color.accent)
-                        } icon: {
-                            Text("Request")
-                                .foregroundStyle(Color.accent)
-                        }
-                    case .authorized:
-                        Label {
-                            Image(systemName: "checkmark.shield.fill")
-                                .foregroundStyle(Color.green)
-                        } icon: {
-                            Text("Authorized")
-                                .foregroundStyle(Color.secondary)
-                        }
-                    case .denied:
-                        Label {
-                            Image(systemName: "xmark.shield.fill")
-                                .foregroundStyle(Color.red)
-                        } icon: {
-                            Text("Denied")
-                                .foregroundStyle(Color.secondary)
-                        }
-                    case .partiallyAuthorized:
-                        Label {
-                            Image(systemName: "exclamationmark.shield.fill")
-                                .foregroundStyle(Color.yellow)
-                        } icon: {
-                            Text("Partially Authorized")
-                                .foregroundStyle(Color.secondary)
-                        }
-                    }
-                }
-            } icon: {
-                Image.healthKit
-                    .foregroundStyle(Color.healthKit)
             }
         }
     }

@@ -11,7 +11,7 @@ let AppName = String(localized: "HealthBank")
 extension DataSource {
     var localized: String {
         switch self {
-        case .app: return AppName.localizedCapitalized
+        case .app: return AppName
         case .healthKit:
             return String(localized: "apple health")
                 .localizedCapitalized

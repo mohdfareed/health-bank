@@ -64,9 +64,9 @@ public protocol HealthData: Identifiable, Observable {
     ) async -> [Data]
 
     /// Save data in HealthKit.
-    func save(store: HealthKitService) async throws
+    func save(_ data: Data, store: HealthKitService) async throws
     /// Delete data from HealthKit.
-    func delete(store: HealthKitService) async throws
+    func delete(_ data: Data, store: HealthKitService) async throws
     /// Update data in HealthKit.
-    func update(store: HealthKitService) async throws
+    func update(_ data: Data, store: HealthKitService) async throws
 }

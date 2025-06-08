@@ -59,5 +59,6 @@ let RepoURL: String = "https://github.com/mohdfareed/health-bank"
 }
 
 #Preview {
+    // TODO: use mock health kit service
     AppView()
 }

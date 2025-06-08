@@ -4,7 +4,7 @@ import SwiftUI
 
 /// A view that displays records of a specific type with source filtering.
 struct CategoryView<T: HealthData>: View {
-    @Environment(\.modelContext) private var context: ModelContext
+    @Environment(\.healthKit) private var healthKit: HealthKitService
     @DataQuery var records: [T]
     @State private var isAddingRecord = false
 
@@ -87,7 +87,16 @@ struct CategoryView<T: HealthData>: View {
     @ViewBuilder private func swipeActions(for record: T) -> some View {
         if record.source == .app {
             Button(role: .destructive) {
-                // TODO: Implement delete action
+                Task {
+                    do {
+                        try await query.delete(record, store: healthKit)
+                    } catch {
+                        let error = error.localizedDescription
+                        AppLogger.new(for: Self.self).error(
+                            "Failed to delete record: \(error)"
+                        )
+                    }
+                }
             } label: {
                 Label("Delete", systemImage: "trash")
             }
