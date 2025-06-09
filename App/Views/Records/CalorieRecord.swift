@@ -11,13 +11,13 @@ struct CalorieRecordUI: HealthRecordUIDefinition {
 
     // MARK: Visual Identity
 
-    var title: String.LocalizationValue { "Food" }
-    var icon: Image { .dietaryCalorie }
-    var color: Color { .dietaryCalorie }
+    var title: String.LocalizationValue { "Calories" }
+    var icon: Image { .calories }
+    var color: Color { .calories }
 
     // MARK: Chart Integration
 
-    var chartColor: Color { .dietaryCalorie }
+    var chartColor: Color { .calories }
     var preferredFormatter: FloatingPointFormatStyle<Double> {
         .number.precision(.fractionLength(0))
     }
@@ -37,7 +37,7 @@ struct CalorieRecordUI: HealthRecordUIDefinition {
             validator: { $0 >= 0 },
             formatter: .number.precision(.fractionLength(0)),
             image: .calories,
-            tint: .dietaryCalorie,
+            tint: .calories,
             title: "Calories"
         )
 
@@ -136,11 +136,12 @@ struct CalorieRecordUI: HealthRecordUIDefinition {
     @MainActor
     func mainValue<T: HealthData>(_ record: T) -> MainValue {
         if let calorie = record as? DietaryCalorie {
-            let measurement = Measurement(value: calorie.calories, unit: UnitEnergy.kilocalories)
-
             return AnyView(
                 ValueView(
-                    measurement: measurement,
+                    measurement: .init(
+                        baseValue: .constant(calorie.calories),
+                        definition: .calorie
+                    ),
                     icon: nil, tint: nil,
                     format: preferredFormatter
                 )
@@ -167,12 +168,39 @@ struct MacroValueView: View {
 
     var body: some View {
         ValueView(
-            measurement: measurement,
+            measurement: $measurement,
             icon: icon, tint: tint,
             format: .number.precision(.fractionLength(0))
         )
         .textScale(.secondary)
         .imageScale(.small)
+        .symbolVariant(.fill)
+    }
+}
+
+// Helper view for macro values in row subtitle
+struct AlcoholValueView: View {
+    let value: Double
+    let icon: Image
+    let tint: Color
+    @LocalizedMeasurement var measurement: Measurement<UnitVolume>
+
+    init(value: Double, icon: Image, tint: Color) {
+        self.value = value
+        self.icon = icon
+        self.tint = tint
+        self._measurement = LocalizedMeasurement(.constant(value), definition: .alcohol)
+    }
+
+    var body: some View {
+        ValueView(
+            measurement: $measurement,
+            icon: icon, tint: tint,
+            format: .number.precision(.fractionLength(0))
+        )
+        .textScale(.secondary)
+        .imageScale(.small)
+        .symbolVariant(.fill)
     }
 }
 
@@ -232,6 +260,7 @@ struct CalorieMeasurementField: View {
                 CalorieRecordUI.Fields.alcohol,
                 value: $calorie.alcohol,
                 isInternal: calorie.source == .app,
+                showPicker: true,
                 computed: {
                     calorie.calculatedAlcohol()
                 }

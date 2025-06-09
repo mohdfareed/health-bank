@@ -1,5 +1,36 @@
 import SwiftUI
 
+/// Simple field definition that works with RecordField component
+struct RecordFieldDefinition<Unit: Dimension>: Sendable {
+    let validator: (@Sendable (Double) -> Bool)?
+    let formatter: FloatingPointFormatStyle<Double>
+    let image: Image
+    let tint: Color
+    let title: String.LocalizationValue
+    let unitDefinition: UnitDefinition<Unit>
+
+    init(
+        unitDefinition: UnitDefinition<Unit>,
+        validator: (@Sendable (Double) -> Bool)? = nil,
+        formatter: FloatingPointFormatStyle<Double>,
+        image: Image,
+        tint: Color,
+        title: String.LocalizationValue
+    ) {
+        self.unitDefinition = unitDefinition
+        self.validator = validator
+        self.formatter = formatter
+        self.image = image
+        self.tint = tint
+        self.title = title
+    }
+
+    @MainActor
+    func measurement(_ binding: Binding<Double?>) -> LocalizedMeasurement<Unit> {
+        LocalizedMeasurement(binding, definition: unitDefinition)
+    }
+}
+
 /// Protocol defining UI-specific behavior for health data types.
 /// Each health data type implements this to define its visual appearance,
 /// form configuration, and display behavior.

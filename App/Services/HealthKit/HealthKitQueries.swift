@@ -137,4 +137,21 @@ extension HealthKitService {
             limit: limit, predicate: predicate
         ) as? [HKQuantitySample] ?? []
     }
+
+    public func fetchAlcoholSamples(
+        from startDate: Date = .distantPast, to endDate: Date = .distantPast,
+        limit: Int? = nil, predicate: NSPredicate? = nil
+    ) async -> [HKQuantitySample] {
+        var finalPredicate = HKQuery.predicateForObjectsWithNoCorrelation()
+        if let predicate = predicate {
+            finalPredicate = NSCompoundPredicate(
+                andPredicateWithSubpredicates: [finalPredicate, predicate]
+            )
+        }
+
+        return await fetchSamples(
+            for: .alcohol, from: startDate, to: endDate,
+            limit: limit, predicate: predicate
+        ) as? [HKQuantitySample] ?? []
+    }
 }

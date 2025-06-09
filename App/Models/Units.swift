@@ -28,9 +28,9 @@ extension UnitDefinition where D == UnitMass {
 extension UnitDefinition where D == UnitVolume {
     /// Alcohol contents unit definition (standard drink as base).
     static let alcohol = UnitDefinition<UnitVolume>(
-        .milliliters,
+        .standardDrink,
         alts: [.milliliters, .fluidOunces, .standardDrink],
-        usage: .liquid,
+        usage: .asProvided,
         healthKitType: .alcohol,
     )
 }
@@ -38,7 +38,7 @@ extension UnitDefinition where D == UnitVolume {
 extension UnitMass {
     /// Standard drink unit definition (14 grams of alcohol).
     static let standardDrink = UnitMass(
-        symbol: "stdDr",
+        symbol: "drinks",
         converter: UnitConverterLinear(coefficient: 14)
     )
 }
@@ -46,7 +46,7 @@ extension UnitMass {
 extension UnitVolume {
     /// Standard drink unit definition (17.7 milliliters of pure alcohol).
     static let standardDrink = UnitVolume(
-        symbol: "stdDr",
+        symbol: "drinks",
         converter: UnitConverterLinear(coefficient: 17.7)
     )
 }

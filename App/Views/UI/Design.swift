@@ -12,12 +12,11 @@ extension Color {
     static var weight: Color { .purple }
 
     // Dietary Energy
-    static var dietaryCalorie: Color { .red }
     static var macros: Color { .indigo }
     static var protein: Color { .brown }
     static var carbs: Color { .orange }
     static var fat: Color { .green }
-    static var alcohol: Color { .purple }
+    static var alcohol: Color { .red }
 }
 
 // MARK: Iconography
@@ -39,15 +38,14 @@ extension Image {
 
     // Data Records
     static var calories: Image { .init(systemName: "flame.fill") }
-    static var weight: Image { .init(systemName: "scalemass") }
+    static var weight: Image { .init(systemName: "figure") }
 
     // Dietary Energy
-    static var dietaryCalorie: Image { .init("apple.fill") }
     static var macros: Image { .init(systemName: "chart.pie") }
     static var protein: Image { .init("meat") }
     static var fat: Image { .init("avocado") }
     static var carbs: Image { .init("bread") }
-    static var alcohol: Image { .init("wine.glass") }
+    static var alcohol: Image { .init(systemName: "wineglass") }
 }
 
 // MARK: Miscellaneous

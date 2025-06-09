@@ -92,6 +92,8 @@ extension HKUnit {
         case .fluidOunceUS():
             return UnitVolume.fluidOunces
 
+        case .count():
+            return nil  // Count is not mapped to a Measurement Unit
         default:
             // Fallback for unmapped units - create a custom unit
             AppLogger.new(for: HealthKitService.self).warning(

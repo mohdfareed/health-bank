@@ -76,7 +76,7 @@ struct MeasurementField<Unit: Dimension, Content: View>: View {
                             width: .wide, usage: .asProvided,
                             numberFormatStyle: format
                         )
-                    ).localizedCapitalized
+                    )
                 ).tag($0)
             }
 

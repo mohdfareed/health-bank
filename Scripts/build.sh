@@ -7,6 +7,7 @@ if [[ ! -n $HEALTH_BANK_TEAM_ID ]]; then
 fi
 export HEALTH_BANK_TEAM_ID
 
-echo "Generating project..."
+echo "Building project..."
 swift build
+echo "Generating project..."
 swift run xcodegen

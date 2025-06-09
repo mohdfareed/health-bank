@@ -36,7 +36,7 @@ struct GoalMeasurementField: View {
     var body: some View {
         // Calories field
         RecordField(
-            .calorie,
+            CalorieRecordUI.Fields.calorie,
             value: $goals.calories,
             isInternal: true,
             computed: {
@@ -46,7 +46,7 @@ struct GoalMeasurementField: View {
 
         // Protein field
         RecordField(
-            .protein,
+            CalorieRecordUI.Fields.protein,
             value: macrosBinding.protein,
             isInternal: true,
             computed: {
@@ -56,7 +56,7 @@ struct GoalMeasurementField: View {
 
         // Carbs field
         RecordField(
-            .carbs,
+            CalorieRecordUI.Fields.carbs,
             value: macrosBinding.carbs,
             isInternal: true,
             computed: {
@@ -66,7 +66,7 @@ struct GoalMeasurementField: View {
 
         // Fat field
         RecordField(
-            .fat,
+            CalorieRecordUI.Fields.fat,
             value: macrosBinding.fat,
             isInternal: true,
             computed: {

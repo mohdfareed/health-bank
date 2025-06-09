@@ -63,11 +63,12 @@ struct WeightRecordUI: HealthRecordUIDefinition {
     @MainActor
     func mainValue<T: HealthData>(_ record: T) -> MainValue {
         if let weight = record as? Weight {
-            let measurement = Measurement(value: weight.weight, unit: UnitMass.kilograms)
-
             return AnyView(
                 ValueView(
-                    measurement: measurement,
+                    measurement: .init(
+                        baseValue: .constant(weight.weight),
+                        definition: .weight
+                    ),
                     icon: nil, tint: nil,
                     format: preferredFormatter
                 )

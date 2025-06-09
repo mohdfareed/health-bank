@@ -23,87 +23,76 @@ extension UserGoals {
 extension DietaryCalorie {
     /// The amount of calories calculated from the macros or alcohol content.
     func calculatedCalories() -> Double? {
-        if let alcohol = self.alcohol {
-            let drinks = Measurement(
-                value: alcohol, unit: UnitDefinition.alcohol.baseUnit
-            ).converted(to: UnitVolume.standardDrink)
-            return drinks.value * 98
-        }
-
         guard
             let p = self.macros?.protein,
             let f = self.macros?.fat,
-            let c = self.macros?.carbs
+            let c = self.macros?.carbs,
+            let a = self.alcohol
         else { return nil }
-        let calc = ((p + c) * 4) + (f * 9)
-
-        if calc < 0 {
-            return nil
-        }
-        return calc
+        return ((p + c) * 4) + (f * 9) + (a * 98)
     }
 
     /// The amount of protein calculated from the calories, carbs, and fat.
     func calculatedProtein() -> Double? {
         guard
             let fat = self.macros?.fat,
-            let carbs = self.macros?.carbs
+            let carbs = self.macros?.carbs,
+            let alcohol = self.alcohol
         else { return nil }
 
         let fatCalories = fat * 9
         let carbsCalories = carbs * 4
-        let calc = Double(self.calories - fatCalories - carbsCalories) / 4
+        let alcoholCalories = alcohol * 98
 
-        if calc < 0 {
-            return nil
-        }
-        return calc
+        let macros = fatCalories + carbsCalories + alcoholCalories
+        return Double(self.calories - macros) / 4
     }
 
     /// The amount of carbs calculated from the calories, protein, and fat.
     func calculatedCarbs() -> Double? {
         guard
             let protein = self.macros?.protein,
-            let fat = self.macros?.fat
+            let fat = self.macros?.fat,
+            let alcohol = self.alcohol
         else { return nil }
 
         let proteinCalories = protein * 4
         let fatCalories = fat * 9
-        let calc = Double(self.calories - proteinCalories - fatCalories) / 4
+        let alcoholCalories = alcohol * 98
 
-        if calc < 0 {
-            return nil
-        }
-        return calc
+        let macros = proteinCalories + fatCalories + alcoholCalories
+        return Double(self.calories - macros) / 4
     }
 
     /// The amount of fat calculated from the calories, protein, and carbs.
     func calculatedFat() -> Double? {
         guard
             let protein = self.macros?.protein,
-            let carbs = self.macros?.carbs
+            let carbs = self.macros?.carbs,
+            let alcohol = self.alcohol
         else { return nil }
 
         let proteinCalories = protein * 4
         let carbsCalories = carbs * 4
-        let calc = Double(self.calories - proteinCalories - carbsCalories) / 9
+        let alcoholCalories = alcohol * 98
 
-        if calc < 0 {
-            return nil
-        }
-        return calc
+        let macros = proteinCalories + carbsCalories + alcoholCalories
+        return Double(self.calories - macros) / 9
     }
 
     /// The amount of alcohol calculated from the calories.
     func calculatedAlcohol() -> Double? {
-        let drinks = calories / 98
-        let calc = Measurement(
-            value: drinks, unit: UnitVolume.standardDrink
-        ).converted(to: UnitDefinition.alcohol.baseUnit)
+        guard
+            let protein = self.macros?.protein,
+            let fat = self.macros?.fat,
+            let carbs = self.macros?.carbs
+        else { return nil }
 
-        if calc.value < 0 {
-            return nil
-        }
-        return calc.value
+        let proteinCalories = protein * 4
+        let fatCalories = fat * 9
+        let carbsCalories = carbs * 4
+
+        let macros = proteinCalories + fatCalories + carbsCalories
+        return Double(self.calories - macros) / 98
     }
 }

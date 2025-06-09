@@ -3,7 +3,7 @@ import SwiftData
 import SwiftUI
 
 /// A view that displays records of a specific type with source filtering.
-struct CategoryView<T: HealthData>: View {
+struct RecordList<T: HealthData>: View {
     @Environment(\.healthKit) private var healthKit: HealthKitService
     @DataQuery var records: [T]
     @State private var isAddingRecord = false
@@ -23,14 +23,9 @@ struct CategoryView<T: HealthData>: View {
     }
 
     var body: some View {
-        mainContent
-    }
-
-    private var mainContent: some View {
         List {
             ForEach(records) { record in
                 GenericRecordRow(record: record, dataModel: dataModel, uiDefinition: uiDefinition)
-                    .swipeActions { swipeActions(for: record) }
             }
             loadMoreButton()
         }
@@ -93,29 +88,6 @@ struct CategoryView<T: HealthData>: View {
         }
     }
 
-    @ViewBuilder private func swipeActions(for record: T) -> some View {
-        if record.source == .app {
-            Button(role: .destructive) {
-                Task {
-                    do {
-                        let query: any HealthQuery<T> = dataModel.query()
-                        try await query.delete(record, store: healthKit)
-
-                        // Reload data after successful deletion
-                        await $records.reload()
-                    } catch {
-                        let error = error.localizedDescription
-                        AppLogger.new(for: Self.self).error(
-                            "Failed to delete record: \(error)"
-                        )
-                    }
-                }
-            } label: {
-                Label("Delete", systemImage: "trash")
-            }
-        }
-    }
-
     @ViewBuilder private func createRecordSheet() -> some View {
         dataModel.createNewRecordForm()
     }
@@ -123,6 +95,8 @@ struct CategoryView<T: HealthData>: View {
 
 /// A generic record row that works with any HealthRecordUIDefinition
 private struct GenericRecordRow<T: HealthData>: View {
+    @AppLocale private var locale
+
     let record: T
     let dataModel: HealthDataModel
     let uiDefinition: any HealthRecordUIDefinition
@@ -139,15 +113,13 @@ private struct GenericRecordRow<T: HealthData>: View {
                 DetailedRow(image: nil, tint: nil) {
                     dataModel.createMainValue(record)
                 } subtitle: {
+                    Text(formatTime(record.date))
+                        .foregroundStyle(.tertiary)
+                        .font(.footnote)
+                } details: {
                     dataModel.createRowSubtitle(record)
                         .textScale(.secondary)
                         .foregroundStyle(.secondary)
-                } details: {
-                    Text(
-                        record.date.formatted(
-                            date: .abbreviated, time: .shortened
-                        )
-                    )
                 }
             }
         }
@@ -155,5 +127,16 @@ private struct GenericRecordRow<T: HealthData>: View {
 
     @ViewBuilder private func createEditRecordSheet() -> some View {
         dataModel.createEditRecordForm(record)
+    }
+
+    func formatTime(_ date: Date) -> String {
+        // 1) Create a formatter for the "2 days ago" part:
+        let formatter = RelativeDateTimeFormatter()
+        formatter.locale = locale
+        formatter.calendar = locale.calendar
+        formatter.dateTimeStyle = .named  // “2 days ago at 3:45 PM”
+        formatter.unitsStyle = .full  // “2 d. ago” vs “2 days ago”
+        formatter.formattingContext = .dynamic
+        return formatter.localizedString(for: date, relativeTo: Date())
     }
 }

@@ -114,27 +114,15 @@ struct RecordForm<R: HealthData, Content: View>: View {
     private func saveRecord() {
         Task {
             do {
-                // Apply date changes to editable record first
                 editableRecord.date = date
-
                 if isEditing {
-                    // Update the record using the appropriate query
                     try await updateRecord(editableRecord)
                 } else {
-                    // Save new record using the appropriate query
                     try await saveNewRecord(editableRecord)
                 }
-                await MainActor.run {
-                    dismiss()
-                }
             } catch {
-                // Handle error with better logging
                 let logger = AppLogger.new(for: Self.self)
                 logger.error("Failed to save record: \(error)")
-                // For now, still dismiss but log the error properly
-                await MainActor.run {
-                    dismiss()
-                }
             }
         }
     }
@@ -169,15 +157,9 @@ struct RecordForm<R: HealthData, Content: View>: View {
         Task {
             do {
                 try await deleteRecordAsync(originalRecord)
-                await MainActor.run {
-                    dismiss()
-                }
             } catch {
                 let logger = AppLogger.new(for: Self.self)
                 logger.error("Failed to delete record: \(error)")
-                await MainActor.run {
-                    dismiss()
-                }
             }
         }
     }

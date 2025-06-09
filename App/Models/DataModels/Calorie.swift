@@ -39,7 +39,7 @@ public struct CalorieMacros: Codable, Hashable, Sendable {
     public var calories: Double
     // Optional macro-nutrient breakdown
     public var macros: CalorieMacros?
-    /// Alcohol contents in grams.
+    /// Alcohol contents in standard drinks.
     public var alcohol: Double?
 
     public init(

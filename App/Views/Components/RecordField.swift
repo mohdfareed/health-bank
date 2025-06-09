@@ -48,22 +48,21 @@ struct RecordField<Unit: Dimension, DetailContent: View>: View {
         if let computed = computed?(),
             abs(($measurement.baseValue ?? 0) - computed) > .ulpOfOne
         {
-            Button {
-                withAnimation(.default) {
-                    $measurement.baseValue = computed
-                }
-            } label: {
-                HStack(spacing: 2) {
-                    let icon = Image(systemName: "function").asText
-                    Text("\(icon):").foregroundStyle(.indigo.secondary)
+            HStack(spacing: 2) {
+                let icon = Image(systemName: "function").asText
+                Text("\(icon):").foregroundStyle(.indigo.secondary)
 
-                    $measurement.computedText(
-                        computed, format: definition.formatter
-                    )
-                    .foregroundStyle(.indigo)
-                    .contentTransition(.numericText(value: computed))
-                }
+                $measurement.computedText(
+                    computed, format: definition.formatter
+                )
+                .foregroundStyle(.indigo)
+                .contentTransition(.numericText(value: computed))
             }
+            .simultaneousGesture(
+                TapGesture().onEnded {
+                    withAnimation { $measurement.baseValue = computed }
+                }
+            )
         }
         Text(measurement.unit.symbol)
     }

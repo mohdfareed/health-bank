@@ -8,20 +8,41 @@ struct HealthDataView: View {
 
     var body: some View {
         NavigationStack(path: $navigationPath) {
-            List(HealthDataModel.allCases, id: \.self) { dataModel in
-                NavigationLink(value: dataModel) {
-                    Label {
-                        HStack {
-                            Text(String(localized: dataModel.uiDefinition.title))
-                                .font(.headline)
+            ScrollView {
+                LazyVGrid(
+                    columns: [
+                        GridItem(.flexible()), GridItem(.flexible()),
+                    ], spacing: 16
+                ) {
+                    ForEach(HealthDataModel.allCases, id: \.self) { model in
+                        Button {
+                            navigationPath.append(model)
+                        } label: {
+                            VStack(spacing: 12) {
+                                model.uiDefinition.icon
+                                    .foregroundStyle(model.uiDefinition.color)
+                                    .font(.system(size: 60))
+
+                                Text(String(localized: model.uiDefinition.title))
+                                    .textScale(.secondary)
+                                    .foregroundColor(.secondary)
+                                    .multilineTextAlignment(.center)
+                            }
+                            .frame(maxWidth: .infinity, maxHeight: .infinity)
+                            .buttonStyle(.plain)
+                            .aspectRatio(0.8, contentMode: .fill)
+                            .background(
+                                model.uiDefinition.color.opacity(0.15),
+                                in: RoundedRectangle(cornerRadius: 12)
+                            )
+                            .background(
+                                .thinMaterial,
+                                in: RoundedRectangle(cornerRadius: 12)
+                            )
                         }
-                    } icon: {
-                        dataModel.uiDefinition.icon
-                            .foregroundStyle(dataModel.uiDefinition.color)
                     }
                 }
-                .foregroundStyle(.primary)
-
+                .padding()
             }
 
             .overlay(alignment: .bottom) {
@@ -29,8 +50,6 @@ struct HealthDataView: View {
                 CategoryAddMenu { dataModel in
                     activeDataModel = dataModel
                 }
-                .buttonStyle(.borderedProminent)
-                .frame(idealWidth: .infinity, alignment: .center)
                 .padding()
             }
 
@@ -56,14 +75,16 @@ struct HealthDataView: View {
     ) -> some View {
         switch dataModel {
         case .calorie:
-            CategoryView<DietaryCalorie>(dataModel)
+            RecordList<DietaryCalorie>(dataModel)
         case .weight:
-            CategoryView<Weight>(dataModel)
+            RecordList<Weight>(dataModel)
         }
     }
 
     private struct CategoryAddMenu: View {
         let action: (HealthDataModel) -> Void
+        @State private var isAppeared = false
+
         init(_ action: @escaping (HealthDataModel) -> Void) {
             self.action = action
         }
@@ -82,10 +103,14 @@ struct HealthDataView: View {
                     }
                 }
             } label: {
-                Label("Add Data", systemImage: "plus")
-                    .frame(idealWidth: .infinity, alignment: .center)
+                Label("Add Data", systemImage: "plus.circle.fill")
                     .labelStyle(.iconOnly)
-                    .font(.title)
+                    .font(.system(size: 60))
+                    .symbolEffect(.bounce, value: isAppeared)
+            }
+            .buttonStyle(.borderless)
+            .onAppear {
+                isAppeared.toggle()
             }
         }
     }
