@@ -53,7 +53,6 @@ let RepoURL: String = "https://github.com/mohdfareed/health-bank"
         WindowGroup {
             AppView()
                 .modelContainer(self.container)
-                .healthKit(.init())
         }
     }
 }

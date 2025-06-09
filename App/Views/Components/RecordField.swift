@@ -40,27 +40,28 @@ struct RecordField<Unit: Dimension, DetailContent: View>: View {
             }
         }
         .disabled(!isInternal)
+        .animation(.default, value: computed?())
     }
 
     @ViewBuilder
     private var subtitle: some View {
         if let computed = computed?(),
-            let currentValue = $measurement.baseValue,
-            abs(computed - currentValue) > 0.001,  // Use epsilon comparison for floating point
-            definition.validator?(computed) ?? true
+            abs(($measurement.baseValue ?? 0) - computed) > .ulpOfOne
         {
             Button {
                 withAnimation(.default) {
                     $measurement.baseValue = computed
                 }
             } label: {
-                HStack(spacing: 4) {
+                HStack(spacing: 2) {
                     let icon = Image(systemName: "function").asText
                     Text("\(icon):").foregroundStyle(.indigo.secondary)
+
                     $measurement.computedText(
                         computed, format: definition.formatter
                     )
-                    .contentTransition(.numericText())
+                    .foregroundStyle(.indigo)
+                    .contentTransition(.numericText(value: computed))
                 }
             }
         }
@@ -95,21 +96,13 @@ extension RecordField where DetailContent == EmptyView {
 
 extension LocalizedMeasurement {
     func computedText(
-        _ computed: Double?, format: FloatingPointFormatStyle<Double>
-    ) -> Text? {
-        guard let computed = computed else {
-            return nil
-        }
-
-        guard computed != self.baseValue else {
-            return nil
-        }
-
+        _ computed: Double, format: FloatingPointFormatStyle<Double>
+    ) -> some View {
         let measurement = Measurement(
             value: computed, unit: self.definition.baseUnit
         ).converted(to: self.unit.wrappedValue ?? self.definition.baseUnit)
 
-        let text = measurement.value.formatted(format)
-        return Text(text).foregroundStyle(.indigo.secondary)
+        let value = measurement.value.formatted(format)
+        return Text(value)
     }
 }

@@ -83,14 +83,3 @@ extension RecordFieldDefinition where Unit == UnitMass {
         title: "Weight"
     )
 }
-
-extension RecordFieldDefinition where Unit == UnitDuration {
-    static let activity = RecordFieldDefinition(
-        unitDefinition: .activity,
-        validator: { $0 > 0 && $0 <= 1440 },  // max 24 hours in minutes
-        formatter: .number.precision(.fractionLength(0)),
-        image: .activeCalorie,
-        tint: .activeCalorie,
-        title: "Activity"
-    )
-}

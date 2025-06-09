@@ -2,11 +2,13 @@ import Foundation
 import HealthKit
 import SwiftUI
 
-enum HealthKitDataType: CaseIterable {
+// MARK: Supported Types
+// ============================================================================
+
+public enum HealthKitDataType: CaseIterable, Sendable {
     case bodyMass
     case dietaryCalories, activeCalories, basalCalories
-    case protein, carbs, fat
-    case workout
+    case protein, carbs, fat, alcohol
 
     var sampleType: HKSampleType {
         switch self {
@@ -24,8 +26,8 @@ enum HealthKitDataType: CaseIterable {
             return HKQuantityType(.dietaryCarbohydrates)
         case .fat:
             return HKQuantityType(.dietaryFatTotal)
-        case .workout:
-            return HKWorkoutType.workoutType()
+        case .alcohol:
+            return HKQuantityType(.numberOfAlcoholicBeverages)
         }
     }
 
@@ -45,14 +47,12 @@ enum HealthKitDataType: CaseIterable {
             return HKQuantityType(.dietaryCarbohydrates)
         case .fat:
             return HKQuantityType(.dietaryFatTotal)
-        case .workout:
-            return HKQuantityType(.appleExerciseTime)
+        case .alcohol:
+            return HKQuantityType(.numberOfAlcoholicBeverages)
         }
     }
 }
 
-// TODO: Add background sync:
-// https://developer.apple.com/documentation/swiftdata/modelcontext/didsave
 // TODO: Support statistics queries for charts:
 // https://developer.apple.com/documentation/healthkit/executing-statistics-collection-queries
 
@@ -70,12 +70,9 @@ public class HealthKitService: @unchecked Sendable {
     internal let store = HKHealthStore()
 
     static var isAvailable: Bool { HKHealthStore.isHealthDataAvailable() }
-    var isActive: Bool {
-        UserDefaults.standard.bool(for: .enableHealthKit) && Self.isAvailable
-    }
 
     // Sample query sorting
-    internal var chronologicalSortDescriptor: NSSortDescriptor {
+    internal var defaultSortDescriptor: NSSortDescriptor {
         NSSortDescriptor(
             key: HKSampleSortIdentifierStartDate, ascending: false
         )
@@ -85,86 +82,46 @@ public class HealthKitService: @unchecked Sendable {
     @MainActor
     static var unitsCache: [HKQuantityType: Unit] = [:]
 
-    init() {
-        Task {
-            await setupUnits()
+    private init() {
+        guard Self.isAvailable else {
+            logger.debug("HealthKit unavailable, skipping initialization")
+            return
         }
+
+        Task { await setupUnits() }
         logger.info("HealthKit service initialized.")
     }
+}
 
-    // MARK: Sample Queries
+// MARK: Data Access
+// ============================================================================
 
-    /// Execute a sample query for the given date range.
-    public func fetchSamples(
-        for type: HKSampleType,
-        from startDate: Date, to endDate: Date, limit: Int?,
-        predicate: NSPredicate? = nil
-    ) async -> [HKSample] {
-        guard isActive else {
-            logger.debug("HealthKit inactive, returning empty results")
-            return []
-        }
-
-        return await withCheckedContinuation { continuation in
-            let predicate =
-                predicate
-                ?? HKQuery.predicateForSamples(
-                    withStart: startDate, end: endDate,
-                    options: .strictEndDate
-                )
-
-            let query = HKSampleQuery(
-                sampleType: type,
-                predicate: predicate, limit: limit ?? HKObjectQueryNoLimit,
-                sortDescriptors: [chronologicalSortDescriptor]
-            ) { _, samples, error in
+extension HealthKitService {
+    /// Save a quantity sample to HealthKit.
+    public func save(_ sample: HKObject) async throws {
+        guard Self.isAvailable else { return }
+        return try await withCheckedThrowingContinuation { continuation in
+            store.save(sample) { success, error in
                 if let error = error {
-                    self.logger.error(
-                        "Failed to fetch \(type.identifier): \(error)"
-                    )
-                    continuation.resume(returning: [])
+                    self.logger.error("Failed to save sample: \(error)")
+                    continuation.resume(throwing: error)
+                } else if success {
+                    continuation.resume(returning: ())
                 } else {
-                    continuation.resume(returning: samples ?? [])
+                    let error = HealthKitError.saveFailed("Unknown save error")
+                    continuation.resume(throwing: error)
                 }
             }
-            store.execute(query)
         }
     }
 
-    // MARK: Correlation Queries
-
-    /// Execute a correlation sample query for the given date range.
-    public func fetchCorrelationSamples(
-        for type: HKCorrelationType,
-        from startDate: Date, to endDate: Date
-    ) async -> [HKCorrelation] {
-        guard isActive else {
-            logger.debug("HealthKit inactive, returning empty results")
-            return []
-        }
-
-        let samples: [HKCorrelation] = await withCheckedContinuation { cont in
-            let predicate = HKQuery.predicateForSamples(
-                withStart: startDate, end: endDate,
-                options: .strictEndDate
-            )
-
-            let query = HKCorrelationQuery(
-                type: type, predicate: predicate, samplePredicates: nil
-            ) { _, correlations, error in
-                if let error = error {
-                    self.logger.error(
-                        "Failed to fetch \(type.identifier): \(error)"
-                    )
-                    cont.resume(returning: [])
-                } else {
-                    cont.resume(returning: correlations ?? [])
-                }
-            }
-            store.execute(query)
-        }
-
-        return samples
+    /// Delete a sample from HealthKit.
+    public func delete(_ id: UUID, of type: HKObjectType) async throws {
+        guard Self.isAvailable else { return }
+        let predicate = HKQuery.predicateForObject(with: id)
+        try await store.deleteObjects(
+            of: type, predicate: predicate
+        )
     }
 }
 
@@ -176,13 +133,6 @@ extension EnvironmentValues {
     @Entry var healthKit: HealthKitService = .shared
 }
 
-extension View {
-    /// Sets the HealthKit service for the view's environment.
-    func healthKit(_ service: HealthKitService) -> some View {
-        environment(\.healthKit, service)
-    }
-}
-
 // MARK: Extensions
 // ============================================================================
 
@@ -190,17 +140,20 @@ extension HKSource {
     /// Returns the data source of the HealthKit source.
     var dataSource: DataSource {
         switch bundleIdentifier.lowercased() {
-        case HealthKitService.AppSourceID:
+        case HealthKitService.AppSourceID.lowercased():
             return .app
-        case "com.apple.health":
+        case let id where id.hasPrefix("com.apple.health"):
             return .healthKit
-        case let id where id.hasPrefix("com.apple.health."):
-            return .device
+
         default:
-            AppLogger.new(for: HealthKitService.self).debug(
-                "Unknown source: \(self.bundleIdentifier)"
-            )
-            return .other(name)
+            switch name.lowercased() {
+            case HealthKitService.AppSource.lowercased():
+                return .app
+            case "health":
+                return .healthKit
+            default:
+                return .other(name)
+            }
         }
     }
 }
@@ -215,23 +168,15 @@ extension [HKQuantitySample] {
     }
 }
 
-// MARK: Data Reset
-// ============================================================================
+extension HKWorkoutBuilder {
+    /// Creates a workout builder with the specified activity type.
+    convenience init(activityType: HKWorkoutActivityType) {
+        let config = HKWorkoutConfiguration()
+        config.activityType = activityType
 
-extension HealthKitService {
-    /// Delete all HealthKit data for the app.
-    @MainActor public func eraseData() async throws {
-        guard isActive else { return }
-
-        logger.info("Resetting HealthKit data...")
-        let types = HealthKitDataType.allCases.map { $0.sampleType }
-        let predicate = HKQuery.predicateForSamples(
-            withStart: nil, end: nil, options: .strictEndDate
+        self.init(
+            healthStore: HealthKitService.shared.store,
+            configuration: config, device: nil
         )
-
-        for type in types {
-            try await store.deleteObjects(of: type, predicate: predicate)
-        }
-        logger.info("HealthKit data reset completed.")
     }
 }

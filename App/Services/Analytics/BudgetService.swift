@@ -22,7 +22,7 @@ struct BudgetReport<T: BudgetEntry> {
 
     init(_ budget: T, consumed: T) throws {
         guard budget.magnitude > T.zero.magnitude else {
-            throw AnalyticsError.invalidData("Budget must be greater than 0.")
+            throw AppError.analytics("Budget must be greater than 0.")
         }
 
         self.budget = budget
@@ -79,13 +79,13 @@ struct BudgetService {
         using calendar: Calendar = .current
     ) throws -> [Date: BudgetReport<T>] {
         guard total.magnitude > T.zero.magnitude else {
-            throw AnalyticsError.invalidData("Budget must be greater than 0.")
+            throw AppError.analytics("Budget must be greater than 0.")
         }
 
         // Generate all period dates within the range
         let periodDates = generatePeriodDates(from: date, mode: mode)
         guard !periodDates.isEmpty else {
-            throw AnalyticsError.invalidData(
+            throw AppError.analytics(
                 "No valid periods found in the date range."
             )
         }

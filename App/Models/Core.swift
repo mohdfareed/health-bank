@@ -20,20 +20,20 @@ protocol Singleton: PersistentModel where Self.ID == UUID {
 // ============================================================================
 
 /// The unit localization definition.
-struct UnitDefinition<D: Dimension> {
-    /// The unit formatting usage.
-    let usage: MeasurementFormatUnitUsage<D>
+struct UnitDefinition<D: Dimension>: Sendable {
     /// The display unit to use if not localized.
     let baseUnit: D
     /// The alternative units allowed for the unit.
     let altUnits: [D]
-    // The HealthKit unit type, if applicable.
+    /// The unit formatting usage.
+    let usage: MeasurementFormatUnitUsage<D>
+    // The HealthKit unit type.
     let healthKitType: HealthKitDataType
 
     init(
         _ unit: D = .baseUnit(), alts: [D] = [],
-        healthKitType: HealthKitDataType,
         usage: MeasurementFormatUnitUsage<D> = .general,
+        healthKitType: HealthKitDataType,
     ) {
         self.baseUnit = unit
         self.altUnits = alts
@@ -92,10 +92,9 @@ enum AppError: Error {
     /// An error related to HealthKit operations.
     case healthKit(HealthKitError)
     /// An error related to data storage operations (e.g., SwiftData).
-    case data(DataError)
+    case data(String, Error? = nil)
     /// An error related to analytics operations.
-    case analytics(AnalyticsError)
-
+    case analytics(String, Error? = nil)
     /// An error related to unit conversion or localization.
     case localization(String, Error? = nil)
     /// A generic runtime error with a descriptive message.
@@ -104,26 +103,9 @@ enum AppError: Error {
 
 /// Specific errors related to HealthKit operations.
 enum HealthKitError: Error {
-    case queryFailed(Error, String? = nil)
-    case saveFailed(Error, String? = nil)
-    case deleteFailed(Error, String? = nil)
-    case authorizationFailed(Error)
-    case unexpectedError(String)
-}
-
-/// Specific errors related to local data storage operations (SwiftData).
-enum DataError: Error {
-    case fetchFailed(Error, String? = nil)
-    case saveFailed(Error, String? = nil)
-    case deleteFailed(Error, String? = nil)
-    case modelNotFound(String)
-    case unexpectedError(String)
-}
-
-/// Specific errors related to data and analytics.
-enum AnalyticsError: Error {
-    case invalidData(String)
-    case missingData(String)
-    case calculationError(String, Error? = nil)
+    case authorizationFailed(String)
+    case queryFailed(String)
+    case saveFailed(String)
+    case deleteFailed(String)
     case unexpectedError(String)
 }

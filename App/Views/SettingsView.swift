@@ -122,9 +122,15 @@ struct SettingsView: View {
                     Text("System")
                 } icon: {
                     Image(systemName: "globe")
-                }.tag(nil as MeasurementSystem?)
+                }.tag(nil as Weekday?)
             }
-        ) { Text(self.locale.firstDayOfWeek.abbreviated) }
+        ) {
+            if self.$locale.firstWeekDay.wrappedValue == nil {
+                Text("System")
+            } else {
+                Text(self.locale.firstDayOfWeek.abbreviated)
+            }
+        }
         .frame(maxHeight: 8)
     }
 }

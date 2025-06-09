@@ -73,17 +73,14 @@ struct GoalMeasurementField: View {
                 goals.calorieGoal.calculatedFat()
             }
         )
-
-        // Activity field
-        RecordField(
-            .activity,
-            value: $goals.activity,
-            isInternal: true
-        )
     }
 
     private var macrosBinding:
-        (protein: Binding<Double?>, carbs: Binding<Double?>, fat: Binding<Double?>)
+        (
+            protein: Binding<Double?>,
+            carbs: Binding<Double?>,
+            fat: Binding<Double?>
+        )
     {
         let macros = $goals.macros.defaulted(to: .init())
         return (

@@ -1,3 +1,5 @@
+import Foundation
+
 // MARK: Budgets and Goals
 // ============================================================================
 
@@ -19,8 +21,15 @@ extension UserGoals {
 // ============================================================================
 
 extension DietaryCalorie {
-    /// The amount of calories calculated from the macros.
+    /// The amount of calories calculated from the macros or alcohol content.
     func calculatedCalories() -> Double? {
+        if let alcohol = self.alcohol {
+            let drinks = Measurement(
+                value: alcohol, unit: UnitDefinition.alcohol.baseUnit
+            ).converted(to: UnitVolume.standardDrink)
+            return drinks.value * 98
+        }
+
         guard
             let p = self.macros?.protein,
             let f = self.macros?.fat,
@@ -83,5 +92,18 @@ extension DietaryCalorie {
             return nil
         }
         return calc
+    }
+
+    /// The amount of alcohol calculated from the calories.
+    func calculatedAlcohol() -> Double? {
+        let drinks = calories / 98
+        let calc = Measurement(
+            value: drinks, unit: UnitVolume.standardDrink
+        ).converted(to: UnitDefinition.alcohol.baseUnit)
+
+        if calc.value < 0 {
+            return nil
+        }
+        return calc.value
     }
 }

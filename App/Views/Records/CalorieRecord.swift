@@ -34,7 +34,7 @@ struct CalorieRecordUI: HealthRecordUIDefinition {
     enum Fields {
         static let calorie = RecordFieldDefinition(
             unitDefinition: .calorie,
-            validator: { $0 > 0 && $0 <= 10000 },
+            validator: { $0 >= 0 },
             formatter: .number.precision(.fractionLength(0)),
             image: .calories,
             tint: .dietaryCalorie,
@@ -43,7 +43,7 @@ struct CalorieRecordUI: HealthRecordUIDefinition {
 
         static let protein = RecordFieldDefinition(
             unitDefinition: .macro,
-            validator: { $0 >= 0 && $0 <= 1000 },
+            validator: { $0 >= 0 },
             formatter: .number.precision(.fractionLength(0)),
             image: .protein,
             tint: .protein,
@@ -52,7 +52,7 @@ struct CalorieRecordUI: HealthRecordUIDefinition {
 
         static let carbs = RecordFieldDefinition(
             unitDefinition: .macro,
-            validator: { $0 >= 0 && $0 <= 1000 },
+            validator: { $0 >= 0 },
             formatter: .number.precision(.fractionLength(0)),
             image: .carbs,
             tint: .carbs,
@@ -61,11 +61,20 @@ struct CalorieRecordUI: HealthRecordUIDefinition {
 
         static let fat = RecordFieldDefinition(
             unitDefinition: .macro,
-            validator: { $0 >= 0 && $0 <= 1000 },
+            validator: { $0 >= 0 },
             formatter: .number.precision(.fractionLength(0)),
             image: .fat,
             tint: .fat,
             title: "Fat"
+        )
+
+        static let alcohol = RecordFieldDefinition(
+            unitDefinition: .alcohol,
+            validator: { $0 >= 0 },
+            formatter: .number.precision(.fractionLength(0)),
+            image: .alcohol,
+            tint: .alcohol,
+            title: "Alcohol"
         )
     }
 
@@ -87,7 +96,6 @@ struct CalorieRecordUI: HealthRecordUIDefinition {
     func rowSubtitle<T: HealthData>(_ record: T) -> RowSubtitle {
         if let calorie = record as? DietaryCalorie {
             let macros = calorie.macros ?? .init()
-
             return AnyView(
                 HStack(alignment: .bottom, spacing: 0) {
                     if calorie.macros?.protein != nil {
@@ -108,6 +116,13 @@ struct CalorieRecordUI: HealthRecordUIDefinition {
                         MacroValueView(
                             value: macros.fat ?? 0,
                             icon: .fat, tint: .fat
+                        )
+                        Spacer().frame(maxWidth: 8)
+                    }
+                    if calorie.alcohol != nil {
+                        MacroValueView(
+                            value: calorie.alcohol ?? 0,
+                            icon: .alcohol, tint: .alcohol
                         )
                         Spacer().frame(maxWidth: 8)
                     }
@@ -209,6 +224,16 @@ struct CalorieMeasurementField: View {
                 isInternal: calorie.source == .app,
                 computed: {
                     calorie.calculatedFat()
+                }
+            )
+
+            // Alcohol field
+            RecordField(
+                CalorieRecordUI.Fields.alcohol,
+                value: $calorie.alcohol,
+                isInternal: calorie.source == .app,
+                computed: {
+                    calorie.calculatedAlcohol()
                 }
             )
         }

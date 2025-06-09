@@ -35,8 +35,6 @@ extension HealthDataModel {
             return WeightRecordUI()
         case .calorie:
             return CalorieRecordUI()
-        case .activity:
-            return ActivityRecordUI()
         }
     }
 
@@ -54,11 +52,6 @@ extension HealthDataModel {
             RecordForm(uiDefinition.title, record: DietaryCalorie(0), isEditing: false) {
                 editableRecord in
                 CalorieRecordUI().formContent(editableRecord)
-            }
-        case .activity:
-            RecordForm(uiDefinition.title, record: ActiveEnergy(0), isEditing: false) {
-                editableRecord in
-                ActivityRecordUI().formContent(editableRecord)
             }
         }
     }
@@ -83,15 +76,6 @@ extension HealthDataModel {
             } else {
                 EmptyView()
             }
-        case .activity:
-            if let activity = record as? ActiveEnergy {
-                RecordForm(uiDefinition.title, record: activity, isEditing: true) {
-                    editableRecord in
-                    ActivityRecordUI().formContent(editableRecord)
-                }
-            } else {
-                EmptyView()
-            }
         }
     }
 
@@ -111,12 +95,6 @@ extension HealthDataModel {
             } else {
                 EmptyView()
             }
-        case .activity:
-            if let activity = record as? ActiveEnergy {
-                ActivityRecordUI().rowSubtitle(activity)
-            } else {
-                EmptyView()
-            }
         }
     }
 
@@ -133,12 +111,6 @@ extension HealthDataModel {
         case .calorie:
             if let calorie = record as? DietaryCalorie {
                 CalorieRecordUI().mainValue(calorie)
-            } else {
-                EmptyView()
-            }
-        case .activity:
-            if let activity = record as? ActiveEnergy {
-                ActivityRecordUI().mainValue(activity)
             } else {
                 EmptyView()
             }

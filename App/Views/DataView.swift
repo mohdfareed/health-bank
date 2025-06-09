@@ -30,7 +30,7 @@ struct HealthDataView: View {
                     activeDataModel = dataModel
                 }
                 .buttonStyle(.borderedProminent)
-                .buttonBorderShape(.roundedRectangle(radius: .infinity))
+                .frame(idealWidth: .infinity, alignment: .center)
                 .padding()
             }
 
@@ -57,8 +57,6 @@ struct HealthDataView: View {
         switch dataModel {
         case .calorie:
             CategoryView<DietaryCalorie>(dataModel)
-        case .activity:
-            CategoryView<ActiveEnergy>(dataModel)
         case .weight:
             CategoryView<Weight>(dataModel)
         }
@@ -85,7 +83,7 @@ struct HealthDataView: View {
                 }
             } label: {
                 Label("Add Data", systemImage: "plus")
-                    .frame(width: 50, height: 50)
+                    .frame(idealWidth: .infinity, alignment: .center)
                     .labelStyle(.iconOnly)
                     .font(.title)
             }

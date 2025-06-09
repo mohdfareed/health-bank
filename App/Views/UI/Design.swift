@@ -17,10 +17,7 @@ extension Color {
     static var protein: Color { .brown }
     static var carbs: Color { .orange }
     static var fat: Color { .green }
-
-    // Activity
-    static var activeCalorie: Color { .green }
-    static var duration: Color { .orange }
+    static var alcohol: Color { .purple }
 }
 
 // MARK: Iconography
@@ -34,9 +31,6 @@ extension Image {
     static var appleHealthBadge: Image { .init("AppleHealthBadge") }
 
     // Data Sources
-    static var device: Image {
-        .init(systemName: "applewatch").symbolRenderingMode(.hierarchical)
-    }
     static var healthKit: Image { .init(systemName: "heart.fill") }
     static var unknownApp: Image {
         .init(systemName: "questionmark.app.dashed")
@@ -53,38 +47,18 @@ extension Image {
     static var protein: Image { .init("meat") }
     static var fat: Image { .init("avocado") }
     static var carbs: Image { .init("bread") }
-
-    // Activity
-    static var activeCalorie: Image { .init(systemName: "figure.run") }
-    static var duration: Image { .init(systemName: "timer") }
-
-    // Workouts
-    static var cardio: Image { .init(systemName: "figure.walk.treadmill") }
-    static var weightlifting: Image {
-        .init(systemName: "figure.strengthtraining.traditional")
-    }
-    static var cycling: Image { .init(systemName: "figure.outdoor.cycle") }
-    static var swimming: Image { .init(systemName: "figure.pool.swim") }
-    static var dancing: Image { .init(systemName: "figure.dance") }
-    static var boxing: Image { .init(systemName: "figure.boxing") }
-    static var martialArts: Image { .init(systemName: "figure.kickboxing") }
+    static var alcohol: Image { .init("wine.glass") }
 }
 
 // MARK: Miscellaneous
 // ============================================================================
-
 extension Image {
-    var asText: Text {
-        Text("\(self)")
-            .font(.footnote.bold())
-    }
-
     static var appleHealthLogo: some View {
         Image.appleHealth
             .resizable()
             .aspectRatio(contentMode: .fit)
             .frame(height: 48)
-            .padding(1).background(Color.secondary)  // Stroke
+            .padding(1).background(.quinary)  // Stroke
             .cornerRadius(12)  // Stroke corner radius
     }
 }
@@ -96,31 +70,17 @@ extension DataSource {
             return .logo
         case .healthKit:
             return .healthKit
-        case .device:
-            return .device
         case .other:
             return .unknownApp
         }
     }
 }
 
-extension WorkoutActivity {
-    var icon: Image {
-        switch self {
-        case .cardio:
-            return .cardio
-        case .cycling:
-            return .cycling
-        case .swimming:
-            return .swimming
-        case .weightlifting:
-            return .weightlifting
-        case .dancing:
-            return .dancing
-        case .boxing:
-            return .boxing
-        case .martialArts:
-            return .martialArts
-        }
+// MARK: Extensions
+// ============================================================================
+
+extension Image {
+    var asText: Text {
+        Text("\(self)").font(.footnote.bold())
     }
 }

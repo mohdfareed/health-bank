@@ -153,10 +153,11 @@ struct CreditRow: View {
 }
 
 struct HealthPermissionsManager: View {
+    @State private var authStatus: HealthAuthorizationStatus = .denied
+
     let service: HealthKitService
 
     var body: some View {
-        let status = service.authorizationStatus()
         Button {
             service.requestAuthorization()
         } label: {
@@ -165,7 +166,7 @@ struct HealthPermissionsManager: View {
                     Text("Permissions")
                         .foregroundStyle(Color.primary)
                     Spacer()
-                    switch status {
+                    switch authStatus {
                     case .notReviewed:
                         Text("Request")
                             .foregroundStyle(Color.accent)
@@ -193,6 +194,9 @@ struct HealthPermissionsManager: View {
                     .foregroundStyle(Color.healthKit)
             }
         }
-        .animation(.default, value: status)
+        .animation(.default, value: authStatus)
+        .onAppear {
+            authStatus = service.authorizationStatus()
+        }
     }
 }

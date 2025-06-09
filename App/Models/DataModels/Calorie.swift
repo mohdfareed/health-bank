@@ -31,7 +31,7 @@ public struct CalorieMacros: Codable, Hashable, Sendable {
 // ============================================================================
 
 /// Represents dietary calorie intake.
-public final class DietaryCalorie: Calorie, CopyableHealthData {
+@Observable public final class DietaryCalorie: Calorie {
     public var id: UUID
     public let source: DataSource
     public var date: Date
@@ -39,9 +39,11 @@ public final class DietaryCalorie: Calorie, CopyableHealthData {
     public var calories: Double
     // Optional macro-nutrient breakdown
     public var macros: CalorieMacros?
+    /// Alcohol contents in grams.
+    public var alcohol: Double?
 
     public init(
-        _ value: Double, macros: CalorieMacros? = nil,
+        _ value: Double, macros: CalorieMacros? = nil, alcohol: Double? = nil,
         id: UUID = UUID(),
         source: DataSource = .app,
         date: Date = Date(),
@@ -49,27 +51,10 @@ public final class DietaryCalorie: Calorie, CopyableHealthData {
     ) {
         self.calories = value
         self.macros = macros
+        self.alcohol = alcohol
 
         self.id = id
         self.source = source
         self.date = date
-    }
-
-    /// Creates a copy of this calorie record for editing
-    public func copy() -> DietaryCalorie {
-        return DietaryCalorie(
-            calories,
-            macros: macros,
-            id: id,
-            source: source,
-            date: date
-        )
-    }
-
-    /// Copies values from another calorie record to this one
-    public func copyValues(from other: DietaryCalorie) {
-        self.calories = other.calories
-        self.macros = other.macros
-        self.date = other.date
     }
 }

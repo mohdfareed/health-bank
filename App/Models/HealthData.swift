@@ -6,17 +6,13 @@ import SwiftData
 
 /// The health data model types.
 enum HealthDataModel: CaseIterable, Identifiable {
-    case calorie
-    case activity
-    case weight
+    case calorie, weight
 
     var id: Self { self }
     var dataType: any HealthData.Type {
         switch self {
         case .calorie:
             return DietaryCalorie.self
-        case .activity:
-            return ActiveEnergy.self
         case .weight:
             return Weight.self
         }
@@ -32,12 +28,12 @@ enum HealthDataModel: CaseIterable, Identifiable {
 
 /// The health data source.
 public enum DataSource: Codable, CaseIterable, Equatable {
-    case app, healthKit, device
+    case app, healthKit
     case other(String)
 
     static public var allCases: [DataSource] {
         return [
-            .app, .healthKit, .device,
+            .app, .healthKit,
             .other(String(localized: "unknown")),
         ]
     }
@@ -51,14 +47,6 @@ public protocol HealthData: Identifiable, Observable {
     var source: DataSource { get }
     /// When the data was recorded.
     var date: Date { get set }
-}
-
-/// Protocol for health data that supports copying for form editing
-public protocol CopyableHealthData: HealthData {
-    /// Creates a copy of this record for editing
-    func copy() -> Self
-    /// Copies values from another record to this one
-    func copyValues(from other: Self)
 }
 
 /// Base protocol for data queries.

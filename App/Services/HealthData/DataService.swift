@@ -10,9 +10,15 @@ extension HealthDataModel {
             return WeightQuery() as! any HealthQuery<T>
         case .calorie:
             return DietaryQuery() as! any HealthQuery<T>
-        case .activity:
-            return ActivityQuery() as! any HealthQuery<T>
         }
+    }
+}
+
+extension HealthQuery {
+    func update(_ data: Data, store: HealthKitService) async throws {
+        // For HealthKit, update is implemented as delete + save
+        try await delete(data, store: store)
+        try await save(data, store: store)
     }
 }
 

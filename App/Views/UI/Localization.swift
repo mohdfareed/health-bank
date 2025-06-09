@@ -15,9 +15,6 @@ extension DataSource {
         case .healthKit:
             return String(localized: "apple health")
                 .localizedCapitalized
-        case .device:
-            return String(localized: "apple device")
-                .localizedCapitalized
         case .other(let name): return name.localizedCapitalized
         }
     }
@@ -75,27 +72,5 @@ extension MeasurementSystem {
         case .uk: return String(localized: "uk").localizedUppercase
         default: return self.rawValue.localizedCapitalized
         }
-    }
-}
-
-extension WorkoutActivity {
-    var localized: String {
-        switch self {
-        case .cardio:
-            return String(localized: "cardio").localizedCapitalized
-        case .cycling:
-            return String(localized: "cycling").localizedCapitalized
-        case .swimming:
-            return String(localized: "swimming").localizedCapitalized
-        case .weightlifting:
-            return String(localized: "weightlifting").localizedCapitalized
-        case .dancing:
-            return String(localized: "dancing").localizedCapitalized
-        case .boxing:
-            return String(localized: "boxing").localizedCapitalized
-        case .martialArts:
-            return String(localized: "martial arts").localizedCapitalized
-        }
-
     }
 }

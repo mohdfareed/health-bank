@@ -22,11 +22,6 @@ extension Settings {
     /// The app theme.
     static var theme: Settings<AppTheme> { .init("Theme", default: .system) }
 
-    /// Whether to enable HealthKit integration.
-    static var enableHealthKit: Settings<Bool> {
-        .init("EnableHealthKit", default: false)
-    }
-
     /// The app's unit measurement system.
     static var unitSystem: Settings<MeasurementSystem?> {
         .init("MeasurementSystem", default: nil)
@@ -51,9 +46,8 @@ extension Settings {
     var date: Date = Date()
 
     // goals
-    var calories: Double? = 2000
+    var calories: Double? = nil
     var macros: CalorieMacros? = nil
-    var activity: TimeInterval? = 30
 
     // singleton
     var id: UUID

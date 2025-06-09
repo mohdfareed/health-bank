@@ -1,7 +1,7 @@
 import SwiftData
 import SwiftUI
 
-struct RecordForm<R: CopyableHealthData, Content: View>: View {
+struct RecordForm<R: HealthData, Content: View>: View {
     @Environment(\.healthKit) private var healthKit
     @Environment(\.dismiss) private var dismiss
     @State private var showConfirmation = false
@@ -23,7 +23,7 @@ struct RecordForm<R: CopyableHealthData, Content: View>: View {
         self.content = content
 
         // Initialize state with copies
-        self._editableRecord = State(initialValue: record.copy())
+        self._editableRecord = State(initialValue: record)
         self._date = State(initialValue: record.date)
     }
 
@@ -118,10 +118,8 @@ struct RecordForm<R: CopyableHealthData, Content: View>: View {
                 editableRecord.date = date
 
                 if isEditing {
-                    // Copy all values from editable record to original
-                    originalRecord.copyValues(from: editableRecord)
                     // Update the record using the appropriate query
-                    try await updateRecord(originalRecord)
+                    try await updateRecord(editableRecord)
                 } else {
                     // Save new record using the appropriate query
                     try await saveNewRecord(editableRecord)
@@ -149,11 +147,8 @@ struct RecordForm<R: CopyableHealthData, Content: View>: View {
         case let calorie as DietaryCalorie:
             let query = DietaryQuery()
             try await query.save(calorie, store: healthKit)
-        case let activity as ActiveEnergy:
-            let query = ActivityQuery()
-            try await query.save(activity, store: healthKit)
         default:
-            throw DataError.unexpectedError("Unsupported record type")
+            throw AppError.data("Unsupported record type")
         }
     }
 
@@ -165,11 +160,8 @@ struct RecordForm<R: CopyableHealthData, Content: View>: View {
         case let calorie as DietaryCalorie:
             let query = DietaryQuery()
             try await query.update(calorie, store: healthKit)
-        case let activity as ActiveEnergy:
-            let query = ActivityQuery()
-            try await query.update(activity, store: healthKit)
         default:
-            throw DataError.unexpectedError("Unsupported record type")
+            throw AppError.data("Unsupported record type")
         }
     }
 
@@ -198,11 +190,8 @@ struct RecordForm<R: CopyableHealthData, Content: View>: View {
         case let calorie as DietaryCalorie:
             let query = DietaryQuery()
             try await query.delete(calorie, store: healthKit)
-        case let activity as ActiveEnergy:
-            let query = ActivityQuery()
-            try await query.delete(activity, store: healthKit)
         default:
-            throw DataError.unexpectedError("Unsupported record type")
+            throw AppError.data("Unsupported record type")
         }
     }
 }

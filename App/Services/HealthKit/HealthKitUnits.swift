@@ -1,35 +1,34 @@
 import HealthKit
 
+// MARK: Units Service
+// ============================================================================
+
 extension HealthKitService {
-    /// Returns the preferred unit for a single quantity type, converted to a Measurement-compatible Unit
-    /// - Parameter quantityType: The HKQuantityType to get the preferred unit for
-    /// - Returns: A Unit that can be used with the Measurement API
+    /// Returns the preferred unit for a single quantity type.
     @MainActor
-    func preferredUnit(for quantityType: HKQuantityType) -> Unit? {
+    public func preferredUnit(for quantityType: HKQuantityType) -> Unit? {
         Self.unitsCache[quantityType]
     }
 
+    /// Sets up the HealthKit units. Must be called once on initialization.
     internal func setupUnits() async {
-        await self.loadUnits()
+        await self.loadUnits()  // Load initial units
+
+        // Observe changes to user preferences and reload units
         NotificationCenter.default.addObserver(
             forName: .HKUserPreferencesDidChange,
-            object: nil,
-            queue: .main
-        ) { _ in
-            Task {
-                await self.loadUnits()
-            }
-        }
+            object: nil, queue: .main
+        ) { _ in Task { await self.loadUnits() } }
     }
 
     private func loadUnits() async {
         var units: [HKQuantityType: HKUnit] = [:]
+
         do {
             units = try await store.preferredUnits(
                 for: Set(
-                    HealthKitDataType.allCases.compactMap {
-                        $0.sampleType as? HKQuantityType
-                    })
+                    HealthKitDataType.allCases.compactMap { $0.quantityType }
+                )
             )
         } catch {
             let error = error.localizedDescription
@@ -45,19 +44,11 @@ extension HealthKitService {
     }
 }
 
-extension UnitDuration {
-    static var days: UnitDuration {
-        return UnitDuration(
-            symbol: "d",
-            // 60 seconds * 60 minutes * 24 hours
-            converter: UnitConverterLinear(coefficient: 86400)
-        )
-    }
-}
+// MARK: Unit Conversion
+// ============================================================================
 
 extension HKUnit {
-    /// Converts an HKUnit to a Measurement-compatible Unit
-    var measurementUnit: Unit? {
+    internal var measurementUnit: Unit? {
         switch self {
         // Energy units
         case .kilocalorie():
@@ -90,6 +81,16 @@ extension HKUnit {
             return UnitDuration.hours
         case .day():
             return UnitDuration.days
+
+        // Volume units
+        case .liter():
+            return UnitVolume.liters
+        case .literUnit(with: .milli):
+            return UnitVolume.milliliters
+        case .fluidOunceImperial():
+            return UnitVolume.imperialFluidOunces
+        case .fluidOunceUS():
+            return UnitVolume.fluidOunces
 
         default:
             // Fallback for unmapped units - create a custom unit
