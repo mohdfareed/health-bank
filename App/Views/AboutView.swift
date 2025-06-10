@@ -189,6 +189,7 @@ struct HealthPermissionsManager: View {
                     .foregroundStyle(Color.healthKit)
             }
         }
+        .disabled(authStatus != .notReviewed)
         .animation(.default, value: authStatus)
         .onAppear {
             authStatus = service.authorizationStatus()

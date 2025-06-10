@@ -14,14 +14,6 @@ extension HealthDataModel {
     }
 }
 
-extension HealthQuery {
-    func update(_ data: Data, store: HealthKitService) async throws {
-        // For HealthKit, update is implemented as delete + save
-        try await delete(data, store: store)
-        try await save(data, store: store)
-    }
-}
-
 // MARK: Data Query
 // ============================================================================
 

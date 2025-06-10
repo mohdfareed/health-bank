@@ -120,7 +120,7 @@ struct DietaryQuery: HealthQuery {
             type: correlationType, start: data.date, end: data.date,
             objects: Set(samples)
         )
-        try await store.save(correlation)
+        try await store.save(correlation, of: correlationType)
     }
 
     func delete(_ data: DietaryCalorie, store: HealthKitService) async throws {

@@ -114,10 +114,15 @@ struct RecordForm<R: HealthData, Content: View>: View {
         Task {
             do {
                 editableRecord.date = date
-                if isEditing {
-                    try await updateRecord(editableRecord)
-                } else {
-                    try await saveNewRecord(editableRecord)
+                switch editableRecord {
+                case let weight as Weight:
+                    let query = WeightQuery()
+                    try await query.save(weight, store: healthKit)
+                case let calorie as DietaryCalorie:
+                    let query = DietaryQuery()
+                    try await query.save(calorie, store: healthKit)
+                default:
+                    throw AppError.data("Unsupported record type")
                 }
             } catch {
                 let logger = AppLogger.new(for: Self.self)
@@ -126,53 +131,23 @@ struct RecordForm<R: HealthData, Content: View>: View {
         }
     }
 
-    private func saveNewRecord(_ record: R) async throws {
-        switch record {
-        case let weight as Weight:
-            let query = WeightQuery()
-            try await query.save(weight, store: healthKit)
-        case let calorie as DietaryCalorie:
-            let query = DietaryQuery()
-            try await query.save(calorie, store: healthKit)
-        default:
-            throw AppError.data("Unsupported record type")
-        }
-    }
-
-    private func updateRecord(_ record: R) async throws {
-        switch record {
-        case let weight as Weight:
-            let query = WeightQuery()
-            try await query.update(weight, store: healthKit)
-        case let calorie as DietaryCalorie:
-            let query = DietaryQuery()
-            try await query.update(calorie, store: healthKit)
-        default:
-            throw AppError.data("Unsupported record type")
-        }
-    }
-
     private func deleteRecord() {
         Task {
             do {
-                try await deleteRecordAsync(originalRecord)
+                switch originalRecord {
+                case let weight as Weight:
+                    let query = WeightQuery()
+                    try await query.delete(weight, store: healthKit)
+                case let calorie as DietaryCalorie:
+                    let query = DietaryQuery()
+                    try await query.delete(calorie, store: healthKit)
+                default:
+                    throw AppError.data("Unsupported record type")
+                }
             } catch {
                 let logger = AppLogger.new(for: Self.self)
                 logger.error("Failed to delete record: \(error)")
             }
-        }
-    }
-
-    private func deleteRecordAsync(_ record: R) async throws {
-        switch record {
-        case let weight as Weight:
-            let query = WeightQuery()
-            try await query.delete(weight, store: healthKit)
-        case let calorie as DietaryCalorie:
-            let query = DietaryQuery()
-            try await query.delete(calorie, store: healthKit)
-        default:
-            throw AppError.data("Unsupported record type")
         }
     }
 }
