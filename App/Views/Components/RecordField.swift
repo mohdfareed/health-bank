@@ -45,8 +45,8 @@ struct RecordField<Unit: Dimension, DetailContent: View>: View {
 
     @ViewBuilder
     private var subtitle: some View {
-        if let computed = computed?(),
-            abs(($measurement.baseValue ?? 0) - computed) > .ulpOfOne
+        if let computed = computed?(), let baseValue = $measurement.baseValue,
+            abs(baseValue - computed) > .ulpOfOne
         {
             HStack(spacing: 2) {
                 let icon = Image(systemName: "function").asText

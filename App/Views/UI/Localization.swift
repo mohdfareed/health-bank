@@ -1,8 +1,6 @@
 import Foundation
 import SwiftUI
 
-// TODO: Fix forced capitalization.
-
 // MARK: Settings
 // ============================================================================
 
@@ -11,11 +9,12 @@ let AppName = String(localized: "HealthBank")
 extension DataSource {
     var localized: String {
         switch self {
-        case .app: return AppName
+        case .app:
+            return AppName
         case .healthKit:
-            return String(localized: "apple health")
-                .localizedCapitalized
-        case .other(let name): return name.localizedCapitalized
+            return String(localized: "apple health").localizedCapitalized
+        case .other(let name):
+            return name
         }
     }
 }

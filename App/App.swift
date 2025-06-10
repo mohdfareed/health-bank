@@ -1,6 +1,9 @@
 import SwiftData
 import SwiftUI
 
+// TODO: Create reusable goals the user can choose from.
+// TODO: Create calorie entries preset system.
+
 /// The app's bundle identifier.
 let AppID: String = Bundle.main.bundleIdentifier ?? "Debug.App"
 /// The source code repository URL.

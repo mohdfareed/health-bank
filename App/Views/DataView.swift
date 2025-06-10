@@ -32,7 +32,7 @@ struct HealthDataView: View {
                             .buttonStyle(.plain)
                             .aspectRatio(0.8, contentMode: .fill)
                             .background(
-                                model.uiDefinition.color.opacity(0.15),
+                                model.uiDefinition.color.opacity(0.05),
                                 in: RoundedRectangle(cornerRadius: 12)
                             )
                             .background(

@@ -44,11 +44,6 @@ struct AboutView: View {
                 // Credits & Licenses Section
                 Section {
                     CreditRow(
-                        service: "SF Symbols",
-                        description: "System icons by Apple",
-                        url: "https://developer.apple.com/sf-symbols/"
-                    )
-                    CreditRow(
                         service: "Icons8",
                         description: "Custom app icons and symbols",
                         url: "https://icons8.com"

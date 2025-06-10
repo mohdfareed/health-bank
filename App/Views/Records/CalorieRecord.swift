@@ -120,7 +120,7 @@ struct CalorieRecordUI: HealthRecordUIDefinition {
                         Spacer().frame(maxWidth: 8)
                     }
                     if calorie.alcohol != nil {
-                        MacroValueView(
+                        AlcoholValueView(
                             value: calorie.alcohol ?? 0,
                             icon: .alcohol, tint: .alcohol
                         )

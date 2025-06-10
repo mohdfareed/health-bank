@@ -51,7 +51,6 @@ struct RecordForm<R: HealthData, Content: View>: View {
             } label: {
                 Label {
                     Text("Source")
-                        .foregroundStyle(.secondary)
                 } icon: {
                     editableRecord.source.icon
                         .foregroundStyle(Color.accent)

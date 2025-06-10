@@ -81,10 +81,9 @@ struct RecordList<T: HealthData>: View {
         if $records.isLoading {
             HStack {
                 Spacer()
-                ProgressView().scaleEffect(0.8)
+                ProgressView()
                 Spacer()
             }
-            .listRowSeparator(.hidden)
         }
     }
 
