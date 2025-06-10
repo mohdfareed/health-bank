@@ -22,7 +22,7 @@ packages:
 
 # MARK: Project Files
 # =============================================================================
-# REVIEW: check synced folder support:
+# REVIEW: Check synced folder support:
 # https://github.com/yonaskolb/XcodeGen/pull/1541
 
 fileGroups:

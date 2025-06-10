@@ -111,6 +111,9 @@ struct RecordForm<R: HealthData, Content: View>: View {
     }
 
     private func saveRecord() {
+        // Cannot delete records not created by the app
+        if originalRecord.source != .app { return }
+
         Task {
             do {
                 editableRecord.date = date
@@ -132,6 +135,9 @@ struct RecordForm<R: HealthData, Content: View>: View {
     }
 
     private func deleteRecord() {
+        // Cannot delete records not created by the app
+        if originalRecord.source != .app { return }
+
         Task {
             do {
                 switch originalRecord {
