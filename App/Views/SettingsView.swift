@@ -80,7 +80,6 @@ struct SettingsView: View {
                 Label {
                     Text("System")
                 } icon: {
-                    Image(systemName: "globe")
                 }.tag(AppTheme.system)
             }
         ) { Text(self.theme.localized) }
@@ -98,7 +97,6 @@ struct SettingsView: View {
                 Label {
                     Text("System")
                 } icon: {
-                    Image(systemName: "globe")
                 }.tag(nil as MeasurementSystem?)
             },
         ) {
@@ -121,7 +119,6 @@ struct SettingsView: View {
                 Label {
                     Text("System")
                 } icon: {
-                    Image(systemName: "globe")
                 }.tag(nil as Weekday?)
             }
         ) {

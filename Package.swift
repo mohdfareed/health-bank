@@ -1,4 +1,4 @@
-// swift-tools-version: 6.0
+// swift-tools-version: 6.2
 
 import Foundation
 import PackageDescription
@@ -9,7 +9,7 @@ struct App {
 
 let package = Package(
     name: App.name,
-    platforms: [.iOS(.v18), .watchOS(.v11), .macOS(.v15)],
+    platforms: [.iOS(.v26), .watchOS(.v26), .macOS(.v26)],
 
     dependencies: [
         .package(

@@ -15,12 +15,26 @@ struct DashboardView: View {
                     ForEach(DashboardCard.CardType.allCases, id: \.self) { cardType in
                         DashboardCard(type: cardType)
                             .transition(.scale.combined(with: .opacity))
+                            .transform {
+                                if #available(iOS 26, macOS 26, watchOS 26, *) {
+                                    $0.glassEffect(
+                                        .regular.interactive(),
+                                        in: RoundedRectangle(cornerRadius: 16)
+                                    )
+                                    $0.scrollEdgeEffectStyle(.automatic, for: .vertical)
+                                }
+                            }
                     }
                 }
                 .padding()
                 .animation(.spring(response: 0.6, dampingFraction: 0.8), value: true)
             }
             .navigationTitle("Dashboard")
+            .transform {
+                if #available(iOS 26, macOS 26, watchOS 26, *) {
+                    $0.scrollEdgeEffectStyle(.soft, for: .vertical)
+                }
+            }
         }
     }
 }

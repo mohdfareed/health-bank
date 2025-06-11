@@ -13,43 +13,7 @@ struct HealthDataView: View {
                     columns: [
                         GridItem(.flexible()), GridItem(.flexible()),
                     ], spacing: 16
-                ) {
-                    ForEach(HealthDataModel.allCases, id: \.self) { model in
-                        Button {
-                            navigationPath.append(model)
-                        } label: {
-                            VStack(spacing: 12) {
-                                model.uiDefinition.icon
-                                    .foregroundStyle(model.uiDefinition.color)
-                                    .font(.system(size: 60))
-
-                                Text(String(localized: model.uiDefinition.title))
-                                    .textScale(.secondary)
-                                    .foregroundColor(.secondary)
-                                    .multilineTextAlignment(.center)
-                            }
-                            .frame(maxWidth: .infinity, maxHeight: .infinity)
-                            .buttonStyle(.plain)
-                            .aspectRatio(0.8, contentMode: .fill)
-                            .background(
-                                model.uiDefinition.color.opacity(0.15),
-                                in: RoundedRectangle(cornerRadius: 12)
-                            )
-                            .background(
-                                .thinMaterial,
-                                in: RoundedRectangle(cornerRadius: 12)
-                            )
-                        }
-                    }
-                }
-                .padding()
-            }
-
-            .overlay(alignment: .bottom) {
-                // Menu button for creating new records
-                CategoryAddMenu { dataModel in
-                    activeDataModel = dataModel
-                }
+                ) { HealthDataCards(navigationPath: $navigationPath) }
                 .padding()
             }
 
@@ -61,13 +25,9 @@ struct HealthDataView: View {
 
         .sheet(item: $activeDataModel) { dataModel in
             NavigationStack {
-                createRecordSheet(for: dataModel)
+                dataModel.createNewRecordForm()
             }
         }
-    }
-
-    @ViewBuilder private func createRecordSheet(for dataModel: HealthDataModel) -> some View {
-        dataModel.createNewRecordForm()
     }
 
     @ViewBuilder private func categoryView(
@@ -80,38 +40,43 @@ struct HealthDataView: View {
             RecordList<Weight>(dataModel)
         }
     }
+}
 
-    private struct CategoryAddMenu: View {
-        let action: (HealthDataModel) -> Void
-        @State private var isAppeared = false
+struct HealthDataCards: View {
+    @Environment(\.modelContext) private var context: ModelContext
+    @State private var activeDataModel: HealthDataModel? = nil
+    @Binding var navigationPath: NavigationPath
 
-        init(_ action: @escaping (HealthDataModel) -> Void) {
-            self.action = action
-        }
-
-        var body: some View {
-            Menu {
-                ForEach(
-                    HealthDataModel.allCases, id: \.self
-                ) { dataModel in
-                    Button(action: { action(dataModel) }) {
-                        Label {
-                            Text(String(localized: dataModel.uiDefinition.title))
-                        } icon: {
-                            dataModel.uiDefinition.icon
-                        }
-                    }
-                }
+    var body: some View {
+        ForEach(HealthDataModel.allCases, id: \.self) { model in
+            Button {
+                navigationPath.append(model)
             } label: {
-                Label("Add Data", systemImage: "plus.circle.fill")
-                    .labelStyle(.iconOnly)
-                    .font(.system(size: 60))
-                    .symbolEffect(.bounce, value: isAppeared)
+                VStack(spacing: 12) {
+                    model.uiDefinition.icon
+                        .font(.system(size: 60))
+                    Text(String(localized: model.uiDefinition.title))
+                        .multilineTextAlignment(.center)
+                        .textScale(.secondary)
+                }
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
             }
-            .buttonStyle(.borderless)
-            .onAppear {
-                isAppeared.toggle()
+            .aspectRatio(0.8, contentMode: .fill)
+
+            .transform {
+                if #available(iOS 26, macOS 26, watchOS 26, *) {
+                    $0.glassEffect(
+                        .regular.tint(model.uiDefinition.color),
+                        in: .buttonBorder
+                    )
+                    .buttonStyle(.glass)
+                } else {
+                    $0
+                        .buttonStyle(.bordered)
+                        .foregroundStyle(model.uiDefinition.color)
+                }
             }
+            .buttonBorderShape(.roundedRectangle)
         }
     }
 }

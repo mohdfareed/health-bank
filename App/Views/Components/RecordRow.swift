@@ -8,6 +8,8 @@ struct RecordField<Unit: Dimension, DetailContent: View>: View {
     let showPicker: Bool
     let computed: (() -> Double?)?
 
+    @FocusState
+    private var isActive: Bool
     @ViewBuilder let details: () -> DetailContent
 
     init(
@@ -34,17 +36,31 @@ struct RecordField<Unit: Dimension, DetailContent: View>: View {
             DetailedRow(image: definition.image, tint: definition.tint) {
                 Text(String(localized: definition.title))
             } subtitle: {
-                subtitle.textScale(.secondary)
+                computedButton.textScale(.secondary)
+                Text(measurement.unit.symbol).textScale(.secondary)
             } details: {
                 details().textScale(.secondary)
             }
         }
         .disabled(!isInternal)
+        .focused($isActive)
         .animation(.default, value: computed?())
+
+        .toolbar(
+            content: {
+                ToolbarItemGroup(placement: .keyboard) {
+                    if isActive {
+                        computedButton
+                            .fixedSize()
+                            .animation(.default, value: $measurement.baseValue)
+                    }
+                }
+            }
+        )
     }
 
     @ViewBuilder
-    private var subtitle: some View {
+    private var computedButton: some View {
         if let computed = computed?(), let baseValue = $measurement.baseValue,
             abs(baseValue - computed) > .ulpOfOne
         {
@@ -64,7 +80,6 @@ struct RecordField<Unit: Dimension, DetailContent: View>: View {
                 }
             )
         }
-        Text(measurement.unit.symbol)
     }
 }
 

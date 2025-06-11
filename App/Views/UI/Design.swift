@@ -13,10 +13,10 @@ extension Color {
 
     // Dietary Energy
     static var macros: Color { .indigo }
-    static var protein: Color { .brown }
+    static var protein: Color { .red }
     static var carbs: Color { .orange }
     static var fat: Color { .green }
-    static var alcohol: Color { .red }
+    static var alcohol: Color { .indigo }
 }
 
 // MARK: Iconography

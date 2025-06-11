@@ -3,7 +3,9 @@
   "lldb.library": "/Applications/Xcode.app/Contents/SharedFrameworks/LLDB.framework/Versions/A/LLDB",
   "lldb.launch.expressions": "native",
   // swift
-  "sweetpad.xcodegen.autogenerate": true,
+  "swift.swiftEnvironmentVariables": {
+    "DEVELOPER_DIR": "/Applications/Xcode-beta.app/Contents/Developer",
+  },
   "[swift]": {
     "editor.defaultFormatter": "swiftlang.swift-vscode",
     "editor.detectIndentation": false,
@@ -50,6 +52,7 @@
     "typealias",
     "xcodegen",
     "xcodeproj",
-    "xmark"
+    "xmark",
+    "xyaxis"
   ],
 }

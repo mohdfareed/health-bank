@@ -36,6 +36,20 @@ struct MeasurementField<Unit: Dimension, Content: View>: View {
                         .disabled(!enabled)
                         .foregroundStyle(enabled ? .primary : .tertiary)
 
+                        .toolbar(
+                            content: {
+                                ToolbarItemGroup(placement: .keyboard) {
+                                    if isActive {
+                                        Button("Done") {
+                                            withAnimation(.default) {
+                                                isActive = false
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        )
+
                     if showPicker && $measurement.availableUnits().count > 1 {
                         picker.frame(maxWidth: 12, maxHeight: 8).fixedSize()
                     }
