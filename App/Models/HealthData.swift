@@ -47,6 +47,8 @@ public protocol HealthData: Identifiable, Observable {
     var source: DataSource { get }
     /// When the data was recorded.
     var date: Date { get set }
+    /// Default initializer for creation defaults.
+    init()
 }
 
 /// Base protocol for data queries.

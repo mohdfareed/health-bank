@@ -43,7 +43,8 @@ public struct CalorieMacros: Codable, Hashable, Sendable {
     public var alcohol: Double?
 
     public init(
-        _ value: Double, macros: CalorieMacros? = nil, alcohol: Double? = nil,
+        _ value: Double,
+        macros: CalorieMacros? = nil, alcohol: Double? = nil,
         id: UUID = UUID(),
         source: DataSource = .app,
         date: Date = Date(),
@@ -56,5 +57,9 @@ public struct CalorieMacros: Codable, Hashable, Sendable {
         self.id = id
         self.source = source
         self.date = date
+    }
+
+    public convenience init() {
+        self.init(0)
     }
 }

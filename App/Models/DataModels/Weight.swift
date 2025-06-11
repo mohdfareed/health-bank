@@ -22,4 +22,8 @@ import HealthKit
         self.source = source
         self.date = date
     }
+
+    public convenience init() {
+        self.init(0)
+    }
 }

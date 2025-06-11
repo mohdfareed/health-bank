@@ -30,6 +30,7 @@ struct HealthDataView: View {
         }
     }
 
+    // FIXME: Fix architecture
     @ViewBuilder private func categoryView(
         for dataModel: HealthDataModel
     ) -> some View {
@@ -53,7 +54,7 @@ struct HealthDataCards: View {
                 navigationPath.append(model)
             } label: {
                 VStack(spacing: 12) {
-                    model.uiDefinition.icon
+                    model.definition.icon
                         .font(.system(size: 60))
                     Text(String(localized: model.uiDefinition.title))
                         .multilineTextAlignment(.center)

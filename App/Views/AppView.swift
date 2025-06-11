@@ -63,7 +63,9 @@ struct AppView: View {
 
         .sheet(item: $activeDataModel) { dataModel in
             NavigationStack {
-                dataModel.createNewRecordForm()
+                dataModel.definition.formContent(
+                    activeDataModel!.dataType.init()
+                )
             }
         }
     }
@@ -77,18 +79,18 @@ struct AddButtons: View {
         ) { dataModel in
             Button(action: { action(dataModel) }) {
                 Label {
-                    Text(String(localized: dataModel.uiDefinition.title))
+                    Text(String(localized: dataModel.definition.title))
                 } icon: {
-                    dataModel.uiDefinition.icon
+                    dataModel.definition.icon
                 }
             }
             .transform {
                 if #available(iOS 26, macOS 26, watchOS 26, *) {
                     $0.glassEffect(
-                        .regular.tint(dataModel.uiDefinition.color)
+                        .regular.tint(dataModel.definition.color)
                     )
                 } else {
-                    $0.foregroundStyle(dataModel.uiDefinition.color)
+                    $0.foregroundStyle(dataModel.definition.color)
                 }
             }
             .padding(.horizontal)
@@ -111,11 +113,11 @@ struct AddMenu: View {
                     Label {
                         Text(
                             String(
-                                localized: dataModel.uiDefinition.title
+                                localized: dataModel.definition.title
                             )
                         )
                     } icon: {
-                        dataModel.uiDefinition.icon
+                        dataModel.definition.icon
                     }
                 }
             }

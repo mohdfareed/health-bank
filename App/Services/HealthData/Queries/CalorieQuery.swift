@@ -120,6 +120,8 @@ struct DietaryQuery: HealthQuery {
             type: correlationType, start: data.date, end: data.date,
             objects: Set(samples)
         )
+
+        try await delete(data, store: store)
         try await store.save(correlation, of: correlationType)
     }
 

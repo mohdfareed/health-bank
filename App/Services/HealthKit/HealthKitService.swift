@@ -100,9 +100,6 @@ extension HealthKitService {
     /// Save a quantity sample to HealthKit, replacing any existing entry with the same UUID.
     public func save(_ sample: HKObject, of type: HKObjectType) async throws {
         guard Self.isAvailable else { return }
-
-        // Check if an object with this UUID already exists and delete it
-        try? await delete(sample.uuid, of: type)
         // Save the new sample
         return try await withCheckedThrowingContinuation { continuation in
             store.save(sample) { success, error in

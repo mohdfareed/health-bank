@@ -13,28 +13,30 @@ struct DashboardView: View {
             ScrollView {
                 LazyVGrid(columns: columns, spacing: 16) {
                     ForEach(DashboardCard.CardType.allCases, id: \.self) { cardType in
-                        DashboardCard(type: cardType)
-                            .transition(.scale.combined(with: .opacity))
-                            .transform {
-                                if #available(iOS 26, macOS 26, watchOS 26, *) {
-                                    $0.glassEffect(
-                                        .regular.interactive(),
-                                        in: RoundedRectangle(cornerRadius: 16)
+                        Button {
+                            // Navigate to detailed view
+                        } label: {
+                            DashboardCard(type: cardType)
+                                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                        }
+                        .transform {
+                            if #available(iOS 26, macOS 26, watchOS 26, *) {
+                                $0.glassEffect(in: .buttonBorder)
+                                    .buttonStyle(.glass)
+                            } else {
+                                $0.buttonStyle(.borderless)
+                                    .background(
+                                        cardType.color.opacity(0.1),
+                                        in: .buttonBorder
                                     )
-                                    $0.scrollEdgeEffectStyle(.automatic, for: .vertical)
-                                }
                             }
+                        }
+                        .buttonBorderShape(.roundedRectangle)
                     }
                 }
                 .padding()
-                .animation(.spring(response: 0.6, dampingFraction: 0.8), value: true)
             }
             .navigationTitle("Dashboard")
-            .transform {
-                if #available(iOS 26, macOS 26, watchOS 26, *) {
-                    $0.scrollEdgeEffectStyle(.soft, for: .vertical)
-                }
-            }
         }
     }
 }
@@ -128,28 +130,5 @@ struct DashboardCard: View {
             }
         }
         .padding()
-        .background(
-            RoundedRectangle(cornerRadius: 16)
-                .fill(.background.secondary)
-                .shadow(
-                    color: .black.opacity(0.1),
-                    radius: isPressed ? 2 : 8,
-                    x: 0,
-                    y: isPressed ? 1 : 4
-                )
-        )
-        .scaleEffect(isPressed ? 0.98 : 1.0)
-        .animation(.spring(response: 0.3, dampingFraction: 0.6), value: isPressed)
-        .onTapGesture {
-            withAnimation(.spring(response: 0.3, dampingFraction: 0.6)) {
-                isPressed = true
-            }
-
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-                withAnimation(.spring(response: 0.3, dampingFraction: 0.6)) {
-                    isPressed = false
-                }
-            }
-        }
     }
 }

@@ -97,7 +97,7 @@ extension HKUnit {
         default:
             // Fallback for unmapped units - create a custom unit
             AppLogger.new(for: HealthKitService.self).warning(
-                "HKUnit \(self) not mapped to a Measurement Unit, using base."
+                "HKUnit \(self) not mapped to a Measurement Unit."
             )
             return nil
         }

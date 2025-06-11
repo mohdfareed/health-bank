@@ -47,7 +47,12 @@ private func nativeUnit<D: Dimension>(
         return UnitVolume(forLocale: locale, usage: usage) as? D
     case let usage as MeasurementFormatUnitUsage<UnitSpeed>:
         return UnitSpeed(forLocale: locale, usage: usage) as? D
-    default: return nil
+    default:
+        // For unsupported dimensions, return nil
+        AppLogger.new(for: UnitDefinition.self).warning(
+            "Unsupported unit type: \(D.self)"
+        )
+        return nil
     }
 }
 

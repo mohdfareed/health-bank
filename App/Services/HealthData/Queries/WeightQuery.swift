@@ -39,6 +39,8 @@ struct WeightQuery: HealthQuery {
             type: HKQuantityType(.bodyMass), quantity: quantity,
             start: data.date, end: data.date
         )
+
+        try await delete(data, store: store)
         try await store.save(sample, of: sample.sampleType)
     }
 
