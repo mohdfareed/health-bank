@@ -1,39 +1,32 @@
 import SwiftData
 import SwiftUI
 
+enum RecordFormType {
+    case view, create, edit
+}
+
 struct RecordForm<R: HealthData, Content: View>: View {
     @Environment(\.healthKit) private var healthKit
     @Environment(\.dismiss) private var dismiss
+
     @State private var showConfirmation = false
 
     let title: String.LocalizationValue
-    let originalRecord: R
-    let isEditing: Bool
-    @State private var editableRecord: R
-    @State private var date: Date
-    @ViewBuilder let content: (R) -> Content
+    let formType: RecordFormType
 
-    init(
-        _ title: String.LocalizationValue, record: R, isEditing: Bool,
-        @ViewBuilder content: @escaping (R) -> Content
-    ) {
-        self.title = title
-        self.originalRecord = record
-        self.isEditing = isEditing
-        self.content = content
+    let saveFunc: (R) -> Void
+    let deleteFunc: (R) -> Void
 
-        // Initialize state with copies
-        self._editableRecord = State(initialValue: record)
-        self._date = State(initialValue: record.date)
-    }
+    @Binding var record: R
+    @ViewBuilder let content: (Binding<R>) -> Content
 
     var body: some View {
         Form {
-            content(editableRecord)
+            content($record)
 
             Section {
                 DatePicker(
-                    selection: $date,
+                    selection: $record.date,
                     displayedComponents: [.date, .hourAndMinute]
                 ) {
                     Label {
@@ -42,22 +35,24 @@ struct RecordForm<R: HealthData, Content: View>: View {
                             .foregroundStyle(.gray)
                     }
                 }
-                .disabled(editableRecord.source != .app)
+                .disabled(formType == .view)
             }
 
-            LabeledContent {
-                Text(editableRecord.source.localized)
-                    .foregroundStyle(.tertiary)
-            } label: {
-                Label {
-                    Text("Source")
-                } icon: {
-                    editableRecord.source.icon
-                        .foregroundStyle(Color.accent)
+            if formType != .create {
+                LabeledContent {
+                    Text(record.source.localized)
+                        .foregroundStyle(.tertiary)
+                } label: {
+                    Label {
+                        Text("Source")
+                    } icon: {
+                        record.source.icon
+                            .foregroundStyle(Color.accent)
+                    }
                 }
             }
 
-            if isEditing && editableRecord.source == .app {
+            if formType == .edit {
                 Section {
                     Button(role: .destructive) {
                         showConfirmation = true
@@ -72,25 +67,33 @@ struct RecordForm<R: HealthData, Content: View>: View {
         .scrollDismissesKeyboard(.immediately)
 
         .toolbar {
-            if isEditing {
+            if formType == .view {  // HealthKit samples
                 ToolbarItem(placement: .confirmationAction) {
-                    Button("Done") {
-                        saveRecord()
+                    Button("Done", systemImage: "checkmark") {
                         dismiss()
                     }
                 }
-
-            } else {
+            } else if formType == .edit {  // App samples
+                ToolbarItem(placement: .confirmationAction) {
+                    Button("Done", systemImage: "checkmark") {
+                        saveFunc(record)
+                        dismiss()
+                    }
+                    .tint(.accent)
+                }
+            } else {  // New (app) samples
                 ToolbarItem(placement: .cancellationAction) {
-                    Button("Cancel") {
+                    Button("Cancel", systemImage: "xcross") {
                         dismiss()
                     }
+                    .tint(.red)
                 }
                 ToolbarItem(placement: .confirmationAction) {
-                    Button("Add") {
-                        saveRecord()
+                    Button("Add", systemImage: "plus") {
+                        saveFunc(record)
                         dismiss()
                     }
+                    .tint(.green)
                 }
             }
         }.toolbarTitleDisplayMode(.inline)
@@ -102,83 +105,11 @@ struct RecordForm<R: HealthData, Content: View>: View {
         ) {
             Button("Cancel", role: .cancel) {}
             Button("Delete", role: .destructive) {
-                deleteRecord()
+                deleteFunc(record)
                 dismiss()
             }
         } message: {
             Text("This action cannot be undone.")
         }
-    }
-
-    private func saveRecord() {
-        // Cannot delete records not created by the app
-        if originalRecord.source != .app { return }
-
-        Task {
-            do {
-                editableRecord.date = date
-                switch editableRecord {
-                case let weight as Weight:
-                    let query = WeightQuery()
-                    try await query.save(weight, store: healthKit)
-                case let calorie as DietaryCalorie:
-                    let query = DietaryQuery()
-                    try await query.save(calorie, store: healthKit)
-                default:
-                    throw AppError.data("Unsupported record type")
-                }
-            } catch {
-                let logger = AppLogger.new(for: Self.self)
-                logger.error("Failed to save record: \(error)")
-            }
-        }
-    }
-
-    private func deleteRecord() {
-        // Cannot delete records not created by the app
-        if originalRecord.source != .app { return }
-
-        Task {
-            do {
-                switch originalRecord {
-                case let weight as Weight:
-                    let query = WeightQuery()
-                    try await query.delete(weight, store: healthKit)
-                case let calorie as DietaryCalorie:
-                    let query = DietaryQuery()
-                    try await query.delete(calorie, store: healthKit)
-                default:
-                    throw AppError.data("Unsupported record type")
-                }
-            } catch {
-                let logger = AppLogger.new(for: Self.self)
-                logger.error("Failed to delete record: \(error)")
-            }
-        }
-    }
-}
-
-// MARK: Initializers
-// ============================================================================
-
-extension RecordForm {
-    init(  // For create mode (when record is new)
-        _ title: String.LocalizationValue, creating record: R,
-        @ViewBuilder content: @escaping (R) -> Content
-    ) {
-        self.init(
-            title, record: record, isEditing: false,
-            content: content
-        )
-    }
-
-    init(  // For edit mode (when record exists)
-        _ title: String.LocalizationValue, editing record: R,
-        @ViewBuilder content: @escaping (R) -> Content
-    ) {
-        self.init(
-            title, record: record, isEditing: true,
-            content: content
-        )
     }
 }

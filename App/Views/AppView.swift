@@ -64,7 +64,7 @@ struct AppView: View {
         .sheet(item: $activeDataModel) { dataModel in
             NavigationStack {
                 dataModel.definition.formContent(
-                    activeDataModel!.dataType.init()
+                    dataModel.definition.createNew()
                 )
             }
         }

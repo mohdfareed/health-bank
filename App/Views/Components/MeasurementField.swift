@@ -27,14 +27,13 @@ struct MeasurementField<Unit: Dimension, Content: View>: View {
                 HStack(alignment: .center, spacing: 4) {
                     TextField("—", value: $measurement.value, format: format)
                         .focused($isActive)
-
+                        .disabled(!enabled)
+                        .foregroundStyle(enabled ? .primary : .tertiary)
                         .multilineTextAlignment(.trailing)
+
                         #if os(iOS)
                             .keyboardType(.decimalPad)
                         #endif
-
-                        .disabled(!enabled)
-                        .foregroundStyle(enabled ? .primary : .tertiary)
 
                         .toolbar(
                             content: {

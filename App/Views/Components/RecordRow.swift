@@ -1,7 +1,7 @@
 import SwiftUI
 
-struct RecordField<Unit: Dimension, DetailContent: View>: View {
-    let definition: RecordFieldDefinition<Unit>
+struct RecordRow<Unit: Dimension, DetailContent: View>: View {
+    let definition: RecordRowDefinition<Unit>
     @LocalizedMeasurement var measurement: Measurement<Unit>
 
     let isInternal: Bool
@@ -13,7 +13,7 @@ struct RecordField<Unit: Dimension, DetailContent: View>: View {
     @ViewBuilder let details: () -> DetailContent
 
     init(
-        _ definition: RecordFieldDefinition<Unit>,
+        _ definition: RecordRowDefinition<Unit>,
         value: Binding<Double?>,
         isInternal: Bool,
         showPicker: Bool = false,
@@ -86,9 +86,9 @@ struct RecordField<Unit: Dimension, DetailContent: View>: View {
 // MARK: Convenience Initializers
 // ============================================================================
 
-extension RecordField where DetailContent == EmptyView {
+extension RecordRow where DetailContent == EmptyView {
     init(
-        _ definition: RecordFieldDefinition<Unit>,
+        _ definition: RecordRowDefinition<Unit>,
         value: Binding<Double?>,
         isInternal: Bool,
         showPicker: Bool = false,

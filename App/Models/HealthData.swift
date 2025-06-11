@@ -5,10 +5,8 @@ import SwiftData
 // ============================================================================
 
 /// The health data model types.
-enum HealthDataModel: CaseIterable, Identifiable {
+enum HealthDataModel<T: HealthData>: CaseIterable, Identifiable {
     case calorie, weight
-
-    var id: Self { self }
     var dataType: any HealthData.Type {
         switch self {
         case .calorie:
@@ -18,6 +16,7 @@ enum HealthDataModel: CaseIterable, Identifiable {
         }
     }
 
+    var id: Self { self }
     static var allTypes: [any HealthData.Type] {
         allCases.map { $0.dataType }
     }
