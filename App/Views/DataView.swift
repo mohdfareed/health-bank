@@ -3,7 +3,6 @@ import SwiftUI
 
 struct HealthDataView: View {
     @Environment(\.modelContext) private var context: ModelContext
-    @State private var activeDataModel: HealthDataModel? = nil
     @State private var navigationPath = NavigationPath()
 
     var body: some View {
@@ -19,33 +18,14 @@ struct HealthDataView: View {
 
             .navigationTitle("Health Data")
             .navigationDestination(for: HealthDataModel.self) {
-                categoryView(for: $0)
+                RecordList($0)
             }
-        }
-
-        .sheet(item: $activeDataModel) { dataModel in
-            NavigationStack {
-                dataModel.createNewRecordForm()
-            }
-        }
-    }
-
-    // FIXME: Fix architecture
-    @ViewBuilder private func categoryView(
-        for dataModel: HealthDataModel
-    ) -> some View {
-        switch dataModel {
-        case .calorie:
-            RecordList<DietaryCalorie>(dataModel)
-        case .weight:
-            RecordList<Weight>(dataModel)
         }
     }
 }
 
 struct HealthDataCards: View {
     @Environment(\.modelContext) private var context: ModelContext
-    @State private var activeDataModel: HealthDataModel? = nil
     @Binding var navigationPath: NavigationPath
 
     var body: some View {
@@ -56,7 +36,7 @@ struct HealthDataCards: View {
                 VStack(spacing: 12) {
                     model.definition.icon
                         .font(.system(size: 60))
-                    Text(String(localized: model.uiDefinition.title))
+                    Text(String(localized: model.definition.title))
                         .multilineTextAlignment(.center)
                         .textScale(.secondary)
                 }
@@ -67,14 +47,14 @@ struct HealthDataCards: View {
             .transform {
                 if #available(iOS 26, macOS 26, watchOS 26, *) {
                     $0.glassEffect(
-                        .regular.tint(model.uiDefinition.color),
+                        .regular.tint(model.definition.color),
                         in: .buttonBorder
                     )
                     .buttonStyle(.glass)
                 } else {
                     $0
                         .buttonStyle(.bordered)
-                        .foregroundStyle(model.uiDefinition.color)
+                        .foregroundStyle(model.definition.color)
                 }
             }
             .buttonBorderShape(.roundedRectangle)

@@ -8,15 +8,15 @@ struct RecordList<T: HealthData>: View {
     @DataQuery var records: [T]
 
     @State private var isCreating = false
+    @State var binding: any HealthData = T.init()
 
-    private let dataModel: HealthDataModel<T>
-    private let definition: HealthRecordDefinition<T, AnyView, AnyView>
+    private let dataModel: HealthDataModel
+    private let definition: HealthRecordDefinition<T>
 
-    init(_ dataModel: HealthDataModel<T>) {
+    init(_ dataModel: HealthDataModel) where T == Weight {
         self.dataModel = dataModel
-        self.definition = dataModel.definition
+        self.definition = weightRecordDefinition
 
-        // Use the query method from HealthDataModel extension (no filtering at query level)
         let query: any HealthQuery<T> = dataModel.query()
         _records = DataQuery(
             query, from: .distantPast, to: .distantFuture
@@ -57,7 +57,7 @@ struct RecordList<T: HealthData>: View {
 
         .sheet(isPresented: $isCreating) {
             NavigationStack {
-                definition.formContent(T.init())
+                definition.formView(binding: $binding)
             }
         }
     }
@@ -89,12 +89,12 @@ struct RecordList<T: HealthData>: View {
 
 private struct RecordListRow<T: HealthData>: View {
     @AppLocale private var locale
-    var record: T
-    let definition: HealthRecordDefinition<T, AnyView, AnyView>
+    @State var record: any HealthData
+    let definition: HealthRecordDefinition<T>
 
     var body: some View {
         NavigationLink {
-            definition.formContent(record)
+            definition.formView(binding: $record)
                 .navigationTitle(String(localized: definition.title))
                 .scrollDismissesKeyboard(.immediately)
         } label: {
@@ -103,7 +103,7 @@ private struct RecordListRow<T: HealthData>: View {
                     .foregroundColor(Color.accent)
                     .font(.caption2)
             } label: {
-                definition.rowContent(record)
+                definition.rowView(for: record)
             }
         }
     }

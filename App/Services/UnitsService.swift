@@ -1,6 +1,19 @@
 import HealthKit
 import SwiftUI
 
+// Type erased unit definition that can be used in SwiftUI views.
+struct AnyUnitDefinition {
+    let unit: UnitDefinition<Dimension>
+    init<Unit: Dimension>(_ unit: UnitDefinition<Unit>) {
+        let newUnit = UnitDefinition<Dimension>(
+            unit.baseUnit, alts: unit.altUnits,
+            usage: unit.usage as! MeasurementFormatUnitUsage<Dimension>,
+            healthKitType: unit.healthKitType
+        )
+        self.unit = newUnit
+    }
+}
+
 // MARK: Localization
 // ============================================================================
 

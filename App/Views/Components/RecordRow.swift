@@ -1,8 +1,8 @@
 import SwiftUI
 
-struct RecordRow<Unit: Dimension, DetailContent: View>: View {
-    let definition: RecordRowDefinition<Unit>
-    @LocalizedMeasurement var measurement: Measurement<Unit>
+struct RecordRow<DetailContent: View>: View {
+    let definition: RecordRowDefined
+    @LocalizedMeasurement var measurement: Measurement<Dimension>
 
     let isInternal: Bool
     let showPicker: Bool
@@ -13,7 +13,7 @@ struct RecordRow<Unit: Dimension, DetailContent: View>: View {
     @ViewBuilder let details: () -> DetailContent
 
     init(
-        _ definition: RecordRowDefinition<Unit>,
+        _ definition: RecordRowDefined,
         value: Binding<Double?>,
         isInternal: Bool,
         showPicker: Bool = false,
@@ -33,7 +33,7 @@ struct RecordRow<Unit: Dimension, DetailContent: View>: View {
             validator: definition.validator, format: definition.formatter,
             showPicker: showPicker, measurement: $measurement,
         ) {
-            DetailedRow(image: definition.image, tint: definition.tint) {
+            DetailedRow(image: definition.icon, tint: definition.tint) {
                 Text(String(localized: definition.title))
             } subtitle: {
                 computedButton.textScale(.secondary)
@@ -88,7 +88,7 @@ struct RecordRow<Unit: Dimension, DetailContent: View>: View {
 
 extension RecordRow where DetailContent == EmptyView {
     init(
-        _ definition: RecordRowDefinition<Unit>,
+        _ definition: RecordRowDefined,
         value: Binding<Double?>,
         isInternal: Bool,
         showPicker: Bool = false,

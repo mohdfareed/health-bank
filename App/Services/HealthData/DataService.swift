@@ -4,7 +4,7 @@ import SwiftUI
 
 extension HealthDataModel {
     /// Gets the appropriate query for this data type
-    @MainActor func query() -> any HealthQuery<T> {
+    @MainActor func query<T: HealthData>() -> any HealthQuery<T> {
         switch self {
         case .weight:
             return WeightQuery() as! any HealthQuery<T>

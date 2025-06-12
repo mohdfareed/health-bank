@@ -1,281 +1,189 @@
 import Foundation
 import SwiftUI
 
-/// UI definition for DietaryCalorie health data type
-struct CalorieRecordUI: HealthRecordUIDefinition {
-    // MARK: Associated Types
+// MARK: - Field Definitions
 
-    typealias FormContent = AnyView
-    typealias RowSubtitle = AnyView
-    typealias MainValue = AnyView
+let calorieRowDefinition = RecordRowDefinition(
+    title: "Calories", icon: .calories, tint: .calories,
+    unitDefinition: .init(.calorie),
+    formatter: .number.precision(.fractionLength(0)),
+    validator: { $0 >= 0 }
+)
 
-    // MARK: Visual Identity
+// extension HealthRecordDefinition where T == DietaryCalorie {
+//     /// Returns the UI definition for DietaryCalorie health data type.
+//     static func calories() -> HealthRecordDefinition {
+//         .init(
+//             title: "Calories", icon: .calories, color: .calories,
+//             fields: [
+//                 .init(calorieRowDefinition),
+//                 .init(proteinRecordDefinition),
+//                 .init(carbsRecordDefinition),
+//                 .init(fatRecordDefinition),
+//                 .init(alcoholRecordDefinition),
+//             ],
+//             formContent: { calorie in
+//                 let calories = Bindable(calorie)
+//                 let macros = calories.macros.defaulted(to: .init())
 
-    var title: String.LocalizationValue { "Calories" }
-    var icon: Image { .calories }
-    var color: Color { .calories }
+//                 RecordRow(
+//                     calorieRowDefinition,
+//                     value: calories.calories.optional(0),
+//                     isInternal: calorie.source == .app,
+//                     computed: {
+//                         calorie.calculatedCalories()
+//                     }
+//                 )
+//             },
+//             rowContent: { calorie in
+//                 DetailedRow(image: nil, tint: nil) {
+//                     ValueView(
+//                         measurement: .init(
+//                             baseValue: .constant(calorie.calories),
+//                             definition: .calorie
+//                         ),
+//                         icon: nil, tint: nil,
+//                         format: calorieRowDefinition.formatter
+//                     )
+//                 } subtitle: {
+//                     Text(calorieRowDefinition.unitDefinition)
+//                 } details: {
+//                     HStack(spacing: 6) {
+//                         MacroValueView(
+//                             value: calorie.calculatedProtein(),
+//                             icon: .protein, tint: .protein
+//                         )
+//                         MacroValueView(
+//                             value: calorie.calculatedCarbs(),
+//                             icon: .carbs, tint: .carbs
+//                         )
+//                         MacroValueView(
+//                             value: calorie.calculatedFat(),
+//                             icon: .fat, tint: .fat
+//                         )
+//                         AlcoholValueView(
+//                             value: calorie.calculatedAlcohol(),
+//                             icon: .alcohol, tint: .alcohol
+//                         )
+//                     }
+//                 }
+//             }
+//         )
+//     }
+// }
 
-    // MARK: Chart Integration
+// // Helper view for macro values in row subtitle
+// struct MacroValueView: View {
+//     let value: Double
+//     let icon: Image
+//     let tint: Color
+//     @LocalizedMeasurement var measurement: Measurement<UnitMass>
 
-    var chartColor: Color { .calories }
-    var preferredFormatter: FloatingPointFormatStyle<Double> {
-        .number.precision(.fractionLength(0))
-    }
+//     init(value: Double, icon: Image, tint: Color) {
+//         self.value = value
+//         self.icon = icon
+//         self.tint = tint
+//         self._measurement = LocalizedMeasurement(.constant(value), definition: .macro)
+//     }
 
-    // MARK: Data Factory
+//     var body: some View {
+//         ValueView(
+//             measurement: $measurement,
+//             icon: icon, tint: tint,
+//             format: .number.precision(.fractionLength(0))
+//         )
+//         .textScale(.secondary)
+//         .imageScale(.small)
+//         .symbolVariant(.fill)
+//     }
+// }
 
-    func createNew() -> any HealthData {
-        DietaryCalorie(0)
-    }
+// // Helper view for alcohol values in row subtitle
+// struct AlcoholValueView: View {
+//     let value: Double
+//     let icon: Image
+//     let tint: Color
+//     @LocalizedMeasurement var measurement: Measurement<UnitVolume>
 
-    // MARK: Field Definitions
+//     init(value: Double, icon: Image, tint: Color) {
+//         self.value = value
+//         self.icon = icon
+//         self.tint = tint
+//         self._measurement = LocalizedMeasurement(.constant(value), definition: .alcohol)
+//     }
 
-    /// Field definitions specific to calorie records
-    enum Fields {
-        static let calorie = RecordFieldDefinition(
-            unitDefinition: .calorie,
-            validator: { $0 >= 0 },
-            formatter: .number.precision(.fractionLength(0)),
-            image: .calories,
-            tint: .calories,
-            title: "Calories"
-        )
+//     var body: some View {
+//         ValueView(
+//             measurement: $measurement,
+//             icon: icon, tint: tint,
+//             format: .number.precision(.fractionLength(0))
+//         )
+//         .textScale(.secondary)
+//         .imageScale(.small)
+//         .symbolVariant(.fill)
+//     }
+// }
 
-        static let protein = RecordFieldDefinition(
-            unitDefinition: .macro,
-            validator: { $0 >= 0 },
-            formatter: .number.precision(.fractionLength(0)),
-            image: .protein,
-            tint: .protein,
-            title: "Protein"
-        )
+// struct CalorieMeasurementField: View {
+//     @Bindable var calorie: DietaryCalorie
 
-        static let carbs = RecordFieldDefinition(
-            unitDefinition: .macro,
-            validator: { $0 >= 0 },
-            formatter: .number.precision(.fractionLength(0)),
-            image: .carbs,
-            tint: .carbs,
-            title: "Carbs"
-        )
+//     init(calorie: Bindable<DietaryCalorie>) {
+//         _calorie = calorie
+//     }
 
-        static let fat = RecordFieldDefinition(
-            unitDefinition: .macro,
-            validator: { $0 >= 0 },
-            formatter: .number.precision(.fractionLength(0)),
-            image: .fat,
-            tint: .fat,
-            title: "Fat"
-        )
+//     var body: some View {
+//         let macros = $calorie.macros.defaulted(to: .init())
+//         Group {
+//             // Calories field
+//             RecordRow(
+//                 calorieRowDefinition,
+//                 value: $calorie.calories.optional(0),
+//                 isInternal: calorie.source == .app,
+//                 computed: {
+//                     calorie.calculatedCalories()
+//                 }
+//             )
 
-        static let alcohol = RecordFieldDefinition(
-            unitDefinition: .alcohol,
-            validator: { $0 >= 0 },
-            formatter: .number.precision(.fractionLength(0)),
-            image: .alcohol,
-            tint: .alcohol,
-            title: "Alcohol"
-        )
-    }
+//             // Protein field
+//             RecordRow(
+//                 proteinRecordDefinition,
+//                 value: macros.protein,
+//                 isInternal: calorie.source == .app,
+//                 computed: {
+//                     calorie.calculatedProtein()
+//                 }
+//             )
 
-    // MARK: UI Component Builders
+//             // Carbs field
+//             RecordRow(
+//                 carbsRecordDefinition,
+//                 value: macros.carbs,
+//                 isInternal: calorie.source == .app,
+//                 computed: {
+//                     calorie.calculatedCarbs()
+//                 }
+//             )
 
-    @MainActor
-    func formContent<T: HealthData>(_ record: T) -> FormContent {
-        if let calorie = record as? DietaryCalorie {
-            let bindableCalorie = Bindable(calorie)
-            return AnyView(
-                CalorieMeasurementField(calorie: bindableCalorie, uiDefinition: self)
-            )
-        } else {
-            return AnyView(EmptyView())
-        }
-    }
+//             // Fat field
+//             RecordRow(
+//                 fatRecordDefinition,
+//                 value: macros.fat,
+//                 isInternal: calorie.source == .app,
+//                 computed: {
+//                     calorie.calculatedFat()
+//                 }
+//             )
 
-    @MainActor
-    func rowSubtitle<T: HealthData>(_ record: T) -> RowSubtitle {
-        if let calorie = record as? DietaryCalorie {
-            let macros = calorie.macros ?? .init()
-            return AnyView(
-                HStack(alignment: .bottom, spacing: 0) {
-                    if calorie.macros?.protein != nil {
-                        MacroValueView(
-                            value: macros.protein ?? 0,
-                            icon: .protein, tint: .protein
-                        )
-                        Spacer().frame(maxWidth: 8)
-                    }
-                    if calorie.macros?.carbs != nil {
-                        MacroValueView(
-                            value: macros.carbs ?? 0,
-                            icon: .carbs, tint: .carbs
-                        )
-                        Spacer().frame(maxWidth: 8)
-                    }
-                    if calorie.macros?.fat != nil {
-                        MacroValueView(
-                            value: macros.fat ?? 0,
-                            icon: .fat, tint: .fat
-                        )
-                        Spacer().frame(maxWidth: 8)
-                    }
-                    if calorie.alcohol != nil {
-                        AlcoholValueView(
-                            value: calorie.alcohol ?? 0,
-                            icon: .alcohol, tint: .alcohol
-                        )
-                        Spacer().frame(maxWidth: 8)
-                    }
-                }
-            )
-        } else {
-            return AnyView(EmptyView())
-        }
-    }
-
-    @MainActor
-    func mainValue<T: HealthData>(_ record: T) -> MainValue {
-        if let calorie = record as? DietaryCalorie {
-            return AnyView(
-                ValueView(
-                    measurement: .init(
-                        baseValue: .constant(calorie.calories),
-                        definition: .calorie
-                    ),
-                    icon: nil, tint: nil,
-                    format: preferredFormatter
-                )
-            )
-        } else {
-            return AnyView(EmptyView())
-        }
-    }
-}
-
-// Helper view for macro values in row subtitle
-struct MacroValueView: View {
-    let value: Double
-    let icon: Image
-    let tint: Color
-    @LocalizedMeasurement var measurement: Measurement<UnitMass>
-
-    init(value: Double, icon: Image, tint: Color) {
-        self.value = value
-        self.icon = icon
-        self.tint = tint
-        self._measurement = LocalizedMeasurement(.constant(value), definition: .macro)
-    }
-
-    var body: some View {
-        ValueView(
-            measurement: $measurement,
-            icon: icon, tint: tint,
-            format: .number.precision(.fractionLength(0))
-        )
-        .textScale(.secondary)
-        .imageScale(.small)
-        .symbolVariant(.fill)
-    }
-}
-
-// Helper view for macro values in row subtitle
-struct AlcoholValueView: View {
-    let value: Double
-    let icon: Image
-    let tint: Color
-    @LocalizedMeasurement var measurement: Measurement<UnitVolume>
-
-    init(value: Double, icon: Image, tint: Color) {
-        self.value = value
-        self.icon = icon
-        self.tint = tint
-        self._measurement = LocalizedMeasurement(.constant(value), definition: .alcohol)
-    }
-
-    var body: some View {
-        ValueView(
-            measurement: $measurement,
-            icon: icon, tint: tint,
-            format: .number.precision(.fractionLength(0))
-        )
-        .textScale(.secondary)
-        .imageScale(.small)
-        .symbolVariant(.fill)
-    }
-}
-
-struct CalorieMeasurementField: View {
-    @Bindable var calorie: DietaryCalorie
-    let uiDefinition: CalorieRecordUI
-
-    init(calorie: Bindable<DietaryCalorie>, uiDefinition: CalorieRecordUI) {
-        self.uiDefinition = uiDefinition
-        _calorie = calorie
-    }
-
-    var body: some View {
-        Group {
-            // Calories field
-            RecordField(
-                CalorieRecordUI.Fields.calorie,
-                value: $calorie.calories.optional(0),
-                isInternal: calorie.source == .app,
-                computed: {
-                    calorie.calculatedCalories()
-                }
-            )
-
-            // Protein field
-            RecordField(
-                CalorieRecordUI.Fields.protein,
-                value: macrosBinding.protein,
-                isInternal: calorie.source == .app,
-                computed: {
-                    calorie.calculatedProtein()
-                }
-            )
-
-            // Carbs field
-            RecordField(
-                CalorieRecordUI.Fields.carbs,
-                value: macrosBinding.carbs,
-                isInternal: calorie.source == .app,
-                computed: {
-                    calorie.calculatedCarbs()
-                }
-            )
-
-            // Fat field
-            RecordField(
-                CalorieRecordUI.Fields.fat,
-                value: macrosBinding.fat,
-                isInternal: calorie.source == .app,
-                computed: {
-                    calorie.calculatedFat()
-                }
-            )
-
-            // Alcohol field
-            RecordField(
-                CalorieRecordUI.Fields.alcohol,
-                value: $calorie.alcohol,
-                isInternal: calorie.source == .app,
-                showPicker: true,
-                computed: {
-                    calorie.calculatedAlcohol()
-                }
-            )
-        }
-    }
-
-    private var macrosBinding:
-        (protein: Binding<Double?>, carbs: Binding<Double?>, fat: Binding<Double?>)
-    {
-        let macros = $calorie.macros.defaulted(to: .init())
-        return (
-            protein: macros.protein,
-            carbs: macros.carbs,
-            fat: macros.fat
-        )
-    }
-}
+//             // Alcohol field
+//             RecordRow(
+//                 alcoholRecordDefinition,
+//                 value: $calorie.alcohol,
+//                 isInternal: calorie.source == .app,
+//                 showPicker: true,
+//                 computed: {
+//                     calorie.calculatedAlcohol()
+//                 }
+//             )
+//         }
+//     }
+// }
