@@ -1,7 +1,7 @@
 import SwiftUI
 
 struct RecordRow<DetailContent: View>: View {
-    let definition: RecordRowDefined
+    let definition: RecordRowDefinition
     @LocalizedMeasurement var measurement: Measurement<Dimension>
 
     let isInternal: Bool
@@ -13,7 +13,7 @@ struct RecordRow<DetailContent: View>: View {
     @ViewBuilder let details: () -> DetailContent
 
     init(
-        _ definition: RecordRowDefined,
+        _ definition: RecordRowDefinition,
         value: Binding<Double?>,
         isInternal: Bool,
         showPicker: Bool = false,
@@ -88,7 +88,7 @@ struct RecordRow<DetailContent: View>: View {
 
 extension RecordRow where DetailContent == EmptyView {
     init(
-        _ definition: RecordRowDefined,
+        _ definition: RecordRowDefinition,
         value: Binding<Double?>,
         isInternal: Bool,
         showPicker: Bool = false,

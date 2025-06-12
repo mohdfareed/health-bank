@@ -1,14 +1,21 @@
 import SwiftUI
 
 extension HealthDataModel {
-    /// Returns the UI definition for a specific health data type.
-    /// This is used to create the visual representation and form for the data.
-    @MainActor var definition: HealthRecordDefined {
+    @MainActor var definition: HealthRecordDefinition {
         switch self {
         case .weight:
             return weightRecordDefinition
         case .calorie:
-            return weightRecordDefinition
+            return calorieRecordDefinition
+        }
+    }
+
+    @MainActor @ViewBuilder var recordList: some View {
+        switch self {
+        case .weight:
+            RecordList(.weight, for: Weight.self)
+        case .calorie:
+            RecordList(.calorie, for: DietaryCalorie.self)
         }
     }
 }
@@ -16,22 +23,8 @@ extension HealthDataModel {
 // MARK: Record Row Definition
 // ============================================================================
 
-protocol RecordRowDefined: Sendable {
-    var title: String.LocalizationValue { get }
-    var icon: Image { get }
-    var tint: Color { get }
-
-    var unitDefinition: AnyUnitDefinition { get }
-    var formatter: FloatingPointFormatStyle<Double> { get }
-    var validator: (@Sendable (Double) -> Bool)? { get }
-
-    @MainActor func measurement(
-        _ binding: Binding<Double?>
-    ) -> LocalizedMeasurement<Dimension>
-}
-
 /// Definition for a record field in health data types.
-struct RecordRowDefinition: RecordRowDefined {
+struct RecordRowDefinition {
     let title: String.LocalizationValue
     let icon: Image
     let tint: Color
@@ -50,106 +43,52 @@ struct RecordRowDefinition: RecordRowDefined {
 // MARK: Health Record Definition
 // ============================================================================
 
-protocol HealthRecordDefined: Sendable {
-    var title: String.LocalizationValue { get }
-    var icon: Image { get }
-    var color: Color { get }
-    var fields: [AnyRecordRowDefinition] { get }
-
-    @MainActor func formView(binding: Binding<any HealthData>) -> AnyView
-    @MainActor func rowView(for record: any HealthData) -> AnyView
-}
-
 /// Definition of UI-specific behavior for health data types.
 /// Each health data type creates this to define its visual appearance,
 /// form configuration, and display behavior.
 @MainActor
-struct HealthRecordDefinition<Data: HealthData>: HealthRecordDefined {
-    // MARK: Visual Identity
+struct HealthRecordDefinition {
     let title: String.LocalizationValue
     let icon: Image
     let color: Color
-    let fields: [AnyRecordRowDefinition]
 
-    private let _form: (Binding<Data>) -> AnyView
-    private let _row: (Data) -> AnyView
+    let fields: [RecordRowDefinition]
+    let formView: (Binding<any HealthData>) -> AnyView
+    let rowView: (any HealthData) -> AnyView
 
-    init<FormContent: View, RowContent: View>(
+    init<Data: HealthData, FormContent: View, RowContent: View>(
         title: String.LocalizationValue, icon: Image, color: Color,
-        fields: [RecordRowDefined],
+        fields: [RecordRowDefinition],
         @ViewBuilder form: @escaping (Binding<Data>) -> FormContent,
         @ViewBuilder row: @escaping (Data) -> RowContent
     ) {
         self.title = title
         self.icon = icon
         self.color = color
-        self.fields = fields.map { AnyRecordRowDefinition($0) }
-        self._form = { binding in AnyView(form(binding)) }
-        self._row = { record in AnyView(row(record)) }
-    }
+        self.fields = fields
 
-    func formView(binding: Binding<any HealthData>) -> AnyView {
-        if let data = binding.wrappedValue as? Data {
-            return _form(Binding<Data>(get: { data }, set: { _ in }))
+        self.formView = { binding in
+            let typedBinding = Binding<Data>(
+                get: { binding.wrappedValue as! Data },
+                set: { binding.wrappedValue = $0 }
+            )
+            return AnyView(form(typedBinding))
         }
-        return AnyView(EmptyView())
-    }
-
-    func rowView(for record: any HealthData) -> AnyView {
-        if let data = record as? Data {
-            return _row(data)
-        }
-        return AnyView(EmptyView())
+        self.rowView = { record in AnyView(row(record as! Data)) }
     }
 }
 
 // MARK: Extensions
 // ============================================================================
 
-struct AnyRecordRowDefinition: RecordRowDefined {
-    let base: RecordRowDefined
-    var title: String.LocalizationValue
-    var icon: Image
-    var tint: Color
-    var unitDefinition: AnyUnitDefinition
-    var formatter: FloatingPointFormatStyle<Double>
-    var validator: (@Sendable (Double) -> Bool)?
-
-    init<R: RecordRowDefined>(_ base: R) {
-        self.base = base
-        self.title = base.title
-        self.icon = base.icon
-        self.tint = base.tint
-        self.unitDefinition = base.unitDefinition
-        self.formatter = base.formatter
-        self.validator = base.validator
-    }
-
-    @MainActor func measurement(
-        _ binding: Binding<Double?>
-    ) -> LocalizedMeasurement<Dimension> {
-        base.measurement(binding)
-    }
+protocol AnyUnitDefinitionProtocol {
+    var unit: UnitDefinition<Dimension> { get }
 }
 
-// struct AnyRecordDefinition: Sendable {
-//     let title: String.LocalizationValue
-//     let icon: Image
-//     let color: Color
-//     let fields: [AnyRecordRowDefinition]
-
-//     init<Data: HealthData>(_ base: HealthRecordDefinition<Data>) {
-//         self.title = base.title
-//         self.icon = base.icon
-//         self.color = base.color
-//         self.fields = base.fields.map { AnyRecordRowDefinition($0) }
-//     }
-
-//     func formView(binding: Binding<HealthDataModel>) -> AnyView {
-//         _form(binding)
-//     }
-
-//     func rowView(for record: HealthDataModel) -> AnyView {
-//         _row(record)
-//     }
-// }
+// Type erased unit definition that can be used in SwiftUI views.
+struct AnyUnitDefinition: AnyUnitDefinitionProtocol {
+    let unit: UnitDefinition<Dimension>
+    init<Unit: Dimension>(_ unit: UnitDefinition<Unit>) {
+        self.unit = unit as! UnitDefinition<Dimension>
+    }
+}

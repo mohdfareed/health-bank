@@ -53,3 +53,19 @@ extension Settings {
     var id: UUID
     required init(id: ID = .init()) { self.id = id }
 }
+
+// MARK: Resettable Settings
+// ============================================================================
+
+extension UserDefaults {
+    /// Resets the app's resettable settings to their default values.
+    func resetSettings() {
+        for settings in [
+            AnySettings(.theme),
+            .init(.unitSystem),
+            .init(.firstDayOfWeek),
+        ] {
+            self.removeObject(forKey: settings.id)
+        }
+    }
+}

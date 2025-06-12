@@ -10,6 +10,30 @@ let calorieRowDefinition = RecordRowDefinition(
     validator: { $0 >= 0 }
 )
 
+@MainActor
+let calorieRecordDefinition = HealthRecordDefinition(
+    title: "Calories", icon: .calories, color: .calories,
+    fields: [
+        calorieRowDefinition
+    ],
+) { calorie in
+    RecordRow(
+        calorieRowDefinition,
+        value: calorie.calories.optional(0),
+        isInternal: calorie.wrappedValue.source == .app,
+        showPicker: true
+    )
+} row: { (calorie: DietaryCalorie) in
+    ValueView(
+        measurement: .init(
+            baseValue: .constant(calorie.calories),
+            definition: .calorie
+        ),
+        icon: nil, tint: nil,
+        format: calorieRowDefinition.formatter
+    )
+}
+
 // extension HealthRecordDefinition where T == DietaryCalorie {
 //     /// Returns the UI definition for DietaryCalorie health data type.
 //     static func calories() -> HealthRecordDefinition {

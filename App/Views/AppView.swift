@@ -13,6 +13,7 @@ struct AppView: View {
     @AppLocale private var locale
 
     @State private var activeDataModel: HealthDataModel? = nil
+    @State private var record: (any HealthData)? = nil
 
     var body: some View {
         TabView {
@@ -64,10 +65,7 @@ struct AppView: View {
         .sheet(item: $activeDataModel) { dataModel in
             NavigationStack {
                 dataModel.definition.formView(
-                    binding: .init(
-                        get: { dataModel.dataType.init() },
-                        set: { _ in }
-                    )
+                    $record.defaulted(to: dataModel.dataType.init()),
                 )
             }
         }

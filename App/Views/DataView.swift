@@ -18,7 +18,7 @@ struct HealthDataView: View {
 
             .navigationTitle("Health Data")
             .navigationDestination(for: HealthDataModel.self) {
-                RecordList($0)
+                $0.recordList
             }
         }
     }

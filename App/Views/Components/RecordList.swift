@@ -11,11 +11,11 @@ struct RecordList<T: HealthData>: View {
     @State var binding: any HealthData = T.init()
 
     private let dataModel: HealthDataModel
-    private let definition: HealthRecordDefinition<T>
+    private let definition: HealthRecordDefinition
 
-    init(_ dataModel: HealthDataModel) where T == Weight {
+    init(_ dataModel: HealthDataModel, for: T.Type) {
         self.dataModel = dataModel
-        self.definition = weightRecordDefinition
+        self.definition = dataModel.definition
 
         let query: any HealthQuery<T> = dataModel.query()
         _records = DataQuery(
@@ -57,7 +57,7 @@ struct RecordList<T: HealthData>: View {
 
         .sheet(isPresented: $isCreating) {
             NavigationStack {
-                definition.formView(binding: $binding)
+                definition.formView($binding)
             }
         }
     }
@@ -87,14 +87,14 @@ struct RecordList<T: HealthData>: View {
     }
 }
 
-private struct RecordListRow<T: HealthData>: View {
+private struct RecordListRow: View {
     @AppLocale private var locale
     @State var record: any HealthData
-    let definition: HealthRecordDefinition<T>
+    let definition: HealthRecordDefinition
 
     var body: some View {
         NavigationLink {
-            definition.formView(binding: $record)
+            definition.formView($record)
                 .navigationTitle(String(localized: definition.title))
                 .scrollDismissesKeyboard(.immediately)
         } label: {
@@ -103,7 +103,7 @@ private struct RecordListRow<T: HealthData>: View {
                     .foregroundColor(Color.accent)
                     .font(.caption2)
             } label: {
-                definition.rowView(for: record)
+                definition.rowView(record)
             }
         }
     }

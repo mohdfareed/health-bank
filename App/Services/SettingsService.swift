@@ -33,22 +33,6 @@ extension UUID: SettingsValue, @retroactive RawRepresentable {
     public init?(rawValue: String) { self.init(uuidString: rawValue) }
 }
 
-// MARK: Reset Settings
-// ============================================================================
-
-extension UserDefaults {
-    /// Resets the app's resettable settings to their default values.
-    func resetSettings() {
-        for settings in [
-            AnySettings(.theme),
-            .init(.unitSystem),
-            .init(.firstDayOfWeek),
-        ] {
-            self.removeObject(forKey: settings.id)
-        }
-    }
-}
-
 // MARK: `AppStorage` Integration
 // ============================================================================
 

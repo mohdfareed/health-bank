@@ -7,7 +7,7 @@ let weightRowDefinition = RecordRowDefinition(
     validator: { $0 > 0 },
 )
 
-@MainActor let weightRecordDefinition = HealthRecordDefinition<Weight>(
+@MainActor let weightRecordDefinition = HealthRecordDefinition(
     title: "Weight", icon: .weight, color: .weight,
     fields: [
         weightRowDefinition
@@ -19,7 +19,7 @@ let weightRowDefinition = RecordRowDefinition(
         isInternal: weight.wrappedValue.source == .app,
         showPicker: true
     )
-} row: { weight in
+} row: { (weight: Weight) in
     ValueView(
         measurement: .init(
             baseValue: .constant(weight.weight),

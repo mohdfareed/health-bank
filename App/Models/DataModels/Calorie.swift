@@ -4,13 +4,6 @@ import SwiftData
 // MARK: - Calories
 // ============================================================================
 
-/// Protocol defining the basic properties for any calorie entry.
-/// All calorie values are stored in kilocalories (kcal).
-public protocol Calorie: HealthData {
-    /// Energy value in kilocalories.
-    var calories: Double { get set }
-}
-
 /// Represents macro-nutrient breakdown of calories.
 public struct CalorieMacros: Codable, Hashable, Sendable {
     /// Protein contents in grams.
@@ -27,15 +20,13 @@ public struct CalorieMacros: Codable, Hashable, Sendable {
     }
 }
 
-// MARK: - Dietary Calories
-// ============================================================================
-
 /// Represents dietary calorie intake.
-@Observable public final class DietaryCalorie: Calorie {
+@Observable public final class DietaryCalorie: HealthData {
     public var id: UUID
     public let source: DataSource
     public var date: Date
 
+    /// Energy value in kilocalories.
     public var calories: Double
     // Optional macro-nutrient breakdown
     public var macros: CalorieMacros?
