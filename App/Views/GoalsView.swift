@@ -36,42 +36,38 @@ struct GoalMeasurementField: View {
     var body: some View {
         // Calories field
         RecordRow(
-            calorieRowDefinition,
-            value: $goals.calories,
-            isInternal: true,
-            computed: {
+            field: CalorieFieldDefinition().withComputed {
                 goals.calorieGoal.calculatedCalories()
-            }
+            },
+            value: $goals.calories,
+            isInternal: true
         )
 
         // Protein field
         RecordRow(
-            proteinRowDefinition,
-            value: macrosBinding.protein,
-            isInternal: true,
-            computed: {
+            field: ProteinFieldDefinition().withComputed {
                 goals.calorieGoal.calculatedProtein()
-            }
+            },
+            value: macrosBinding.protein,
+            isInternal: true
         )
 
         // Carbs field
         RecordRow(
-            carbsRowDefinition,
-            value: macrosBinding.carbs,
-            isInternal: true,
-            computed: {
+            field: CarbsFieldDefinition().withComputed {
                 goals.calorieGoal.calculatedCarbs()
-            }
+            },
+            value: macrosBinding.carbs,
+            isInternal: true
         )
 
         // Fat field
         RecordRow(
-            fatRowDefinition,
-            value: macrosBinding.fat,
-            isInternal: true,
-            computed: {
+            field: FatFieldDefinition().withComputed {
                 goals.calorieGoal.calculatedFat()
-            }
+            },
+            value: macrosBinding.fat,
+            isInternal: true
         )
     }
 

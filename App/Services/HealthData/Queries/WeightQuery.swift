@@ -29,6 +29,8 @@ struct WeightQuery: HealthQuery {
     }
 
     func save(_ data: Weight, store: HealthKitService) async throws {
+        try await delete(data, store: store)
+
         let weightInKg = Measurement(
             value: data.weight, unit: UnitDefinition.weight.baseUnit
         ).converted(to: UnitMass.kilograms).value
@@ -40,7 +42,6 @@ struct WeightQuery: HealthQuery {
             start: data.date, end: data.date
         )
 
-        try await delete(data, store: store)
         try await store.save(sample, of: sample.sampleType)
     }
 

@@ -42,6 +42,7 @@ struct DietaryQuery: HealthQuery {
     }
 
     func save(_ data: DietaryCalorie, store: HealthKitService) async throws {
+        try await delete(data, store: store)
         var samples = [HKSample]()
 
         // create the calorie sample
@@ -121,7 +122,6 @@ struct DietaryQuery: HealthQuery {
             objects: Set(samples)
         )
 
-        try await delete(data, store: store)
         try await store.save(correlation, of: correlationType)
     }
 

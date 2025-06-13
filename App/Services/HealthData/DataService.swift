@@ -3,6 +3,13 @@ import SwiftData
 import SwiftUI
 
 extension HealthDataModel {
+    var id: Self { self }
+
+    /// All the health data types supported by the app.
+    static var allTypes: [any HealthData.Type] {
+        allCases.map { $0.dataType }
+    }
+
     /// Gets the appropriate query for this data type
     @MainActor func query<T: HealthData>() -> any HealthQuery<T> {
         switch self {

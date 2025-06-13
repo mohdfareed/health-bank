@@ -4,11 +4,8 @@ import SwiftUI
 
 /// A view that displays records of a specific type with source filtering.
 struct RecordList<T: HealthData>: View {
-    @Environment(\.healthKit) private var healthKit: HealthKitService
     @DataQuery var records: [T]
-
     @State private var isCreating = false
-    @State var binding: any HealthData = T.init()
 
     private let dataModel: HealthDataModel
     private let definition: HealthRecordDefinition
@@ -57,7 +54,7 @@ struct RecordList<T: HealthData>: View {
 
         .sheet(isPresented: $isCreating) {
             NavigationStack {
-                definition.formView($binding)
+                dataModel.createForm(formType: .create)
             }
         }
     }
@@ -94,14 +91,21 @@ private struct RecordListRow: View {
 
     var body: some View {
         NavigationLink {
-            definition.formView($record)
-                .navigationTitle(String(localized: definition.title))
-                .scrollDismissesKeyboard(.immediately)
+            let dataModel = HealthDataModel.from(record)
+            dataModel.createForm(
+                formType: record.source == .app ? .edit : .view,
+                record: record
+            )
         } label: {
             LabeledContent {
-                record.source.icon.asText
-                    .foregroundColor(Color.accent)
-                    .font(.caption2)
+                HStack(alignment: .center, spacing: 8) {
+                    Text(formatTime(record.date))
+                        .foregroundStyle(.secondary)
+                        .font(.caption2)
+                    record.source.icon.asText
+                        .foregroundColor(Color.accent)
+                        .font(.caption2)
+                }
             } label: {
                 definition.rowView(record)
             }

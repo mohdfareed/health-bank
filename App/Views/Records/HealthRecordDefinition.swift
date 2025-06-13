@@ -20,23 +20,58 @@ extension HealthDataModel {
     }
 }
 
-// MARK: Record Row Definition
+// MARK: Field Definition Protocol
 // ============================================================================
 
-/// Definition for a record field in health data types.
-struct RecordRowDefinition {
-    let title: String.LocalizationValue
-    let icon: Image
-    let tint: Color
+/// Protocol for type-safe field definitions that know their own unit type
+protocol FieldDefinition {
+    associatedtype Unit: Dimension
 
-    let unitDefinition: AnyUnitDefinition
-    let formatter: FloatingPointFormatStyle<Double>
-    let validator: (@Sendable (Double) -> Bool)?
+    var title: String.LocalizationValue { get }
+    var icon: Image { get }
+    var tint: Color { get }
+    var formatter: FloatingPointFormatStyle<Double> { get }
+    var validator: (@Sendable (Double) -> Bool)? { get }
 
-    @MainActor func measurement(
-        _ binding: Binding<Double?>
-    ) -> LocalizedMeasurement<Dimension> {
-        .init(binding, definition: unitDefinition.unit)
+    @MainActor
+    func measurement(_ binding: Binding<Double?>) -> LocalizedMeasurement<Unit>
+}
+
+// MARK: Computed Field Extension
+// ============================================================================
+
+/// Protocol for field definitions that can provide computed values
+protocol ComputedField {
+    var compute: (() -> Double?)? { get }
+}
+
+extension FieldDefinition {
+    func withComputed(_ computeFunc: @escaping () -> Double?) -> ComputedFieldDefinition<Self> {
+        ComputedFieldDefinition(base: self, compute: computeFunc)
+    }
+}
+
+/// Wrapper for field definitions with computed values
+struct ComputedFieldDefinition<Base: FieldDefinition>: FieldDefinition, ComputedField {
+    typealias Unit = Base.Unit
+
+    let base: Base
+    let compute: (() -> Double?)?
+
+    init(base: Base, compute: @escaping () -> Double?) {
+        self.base = base
+        self.compute = compute
+    }
+
+    var title: String.LocalizationValue { base.title }
+    var icon: Image { base.icon }
+    var tint: Color { base.tint }
+    var formatter: FloatingPointFormatStyle<Double> { base.formatter }
+    var validator: (@Sendable (Double) -> Bool)? { base.validator }
+
+    @MainActor
+    func measurement(_ binding: Binding<Double?>) -> LocalizedMeasurement<Unit> {
+        base.measurement(binding)
     }
 }
 
@@ -52,20 +87,17 @@ struct HealthRecordDefinition {
     let icon: Image
     let color: Color
 
-    let fields: [RecordRowDefinition]
     let formView: (Binding<any HealthData>) -> AnyView
     let rowView: (any HealthData) -> AnyView
 
     init<Data: HealthData, FormContent: View, RowContent: View>(
         title: String.LocalizationValue, icon: Image, color: Color,
-        fields: [RecordRowDefinition],
         @ViewBuilder form: @escaping (Binding<Data>) -> FormContent,
         @ViewBuilder row: @escaping (Data) -> RowContent
     ) {
         self.title = title
         self.icon = icon
         self.color = color
-        self.fields = fields
 
         self.formView = { binding in
             let typedBinding = Binding<Data>(
@@ -78,17 +110,26 @@ struct HealthRecordDefinition {
     }
 }
 
-// MARK: Extensions
+// MARK: Form Creation
 // ============================================================================
 
-protocol AnyUnitDefinitionProtocol {
-    var unit: UnitDefinition<Dimension> { get }
-}
-
-// Type erased unit definition that can be used in SwiftUI views.
-struct AnyUnitDefinition: AnyUnitDefinitionProtocol {
-    let unit: UnitDefinition<Dimension>
-    init<Unit: Dimension>(_ unit: UnitDefinition<Unit>) {
-        self.unit = unit as! UnitDefinition<Dimension>
+extension HealthDataModel {
+    /// Creates the appropriate form for this data model type
+    @MainActor @ViewBuilder
+    func createForm(formType: RecordFormType, record: (any HealthData)? = nil) -> some View {
+        switch self {
+        case .calorie:
+            CalorieFormView(
+                formType: formType,
+                initialRecord: (record as? DietaryCalorie) ?? DietaryCalorie(),
+                dataModel: self
+            )
+        case .weight:
+            WeightFormView(
+                formType: formType,
+                initialRecord: (record as? Weight) ?? Weight(),
+                dataModel: self
+            )
+        }
     }
 }

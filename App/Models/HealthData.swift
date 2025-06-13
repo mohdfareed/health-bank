@@ -7,6 +7,8 @@ import SwiftData
 /// The health data model types.
 enum HealthDataModel: CaseIterable, Identifiable {
     case calorie, weight
+
+    /// The data model's type.
     var dataType: any HealthData.Type {
         switch self {
         case .calorie:
@@ -16,9 +18,16 @@ enum HealthDataModel: CaseIterable, Identifiable {
         }
     }
 
-    var id: Self { self }
-    static var allTypes: [any HealthData.Type] {
-        allCases.map { $0.dataType }
+    /// Determine the data model from a data instance
+    static func from(_ data: any HealthData) -> HealthDataModel {
+        switch data {
+        case is DietaryCalorie:
+            return .calorie
+        case is Weight:
+            return .weight
+        default:
+            fatalError("Unknown health data type: \(type(of: data))")
+        }
     }
 }
 

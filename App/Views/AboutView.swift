@@ -158,7 +158,7 @@ struct HealthPermissionsManager: View {
         } label: {
             Label {
                 HStack {
-                    Text("Permissions")
+                    Text("Health Permissions")
                         .foregroundStyle(Color.primary)
                     Spacer()
                     switch authStatus {
@@ -166,21 +166,21 @@ struct HealthPermissionsManager: View {
                         Text("Request")
                             .foregroundStyle(Color.accent)
                         Image(systemName: "lock.shield.fill")
+                            .imageScale(.large)
                             .foregroundStyle(Color.accent)
                     case .authorized:
-                        Text("Authorized")
-                            .foregroundStyle(Color.secondary)
                         Image(systemName: "checkmark.shield.fill")
+                            .imageScale(.large)
                             .foregroundStyle(Color.green)
                     case .denied:
-                        Text("Denied")
-                            .foregroundStyle(Color.secondary)
                         Image(systemName: "xmark.shield.fill")
+                            .imageScale(.large)
                             .foregroundStyle(Color.red)
                     case .partiallyAuthorized:
-                        Text("Partially Authorized")
+                        Text("Partial")
                             .foregroundStyle(Color.secondary)
                         Image(systemName: "exclamationmark.shield.fill")
+                            .imageScale(.large)
                             .foregroundStyle(Color.yellow)
                     }
                 }

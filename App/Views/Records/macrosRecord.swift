@@ -3,82 +3,106 @@ import SwiftUI
 
 // MARK: - Field Definitions
 
-let proteinRowDefinition = RecordRowDefinition(
-    title: "Protein", icon: .protein, tint: .protein,
-    unitDefinition: .init(.macro),
-    formatter: .number.precision(.fractionLength(0)),
-    validator: { $0 >= 0 }
-)
+struct ProteinFieldDefinition: FieldDefinition {
+    typealias Unit = UnitMass
 
-let carbsRowDefinition = RecordRowDefinition(
-    title: "Carbs", icon: .carbs, tint: .carbs,
-    unitDefinition: .init(.macro),
-    formatter: .number.precision(.fractionLength(0)),
-    validator: { $0 >= 0 }
-)
+    let title: String.LocalizationValue = "Protein"
+    let icon = Image.protein
+    let tint = Color.protein
+    let formatter = FloatingPointFormatStyle<Double>.number.precision(.fractionLength(0))
+    let validator: (@Sendable (Double) -> Bool)? = { $0 >= 0 }
 
-let fatRowDefinition = RecordRowDefinition(
-    title: "Fat", icon: .fat, tint: .fat,
-    unitDefinition: .init(.macro),
-    formatter: .number.precision(.fractionLength(0)),
-    validator: { $0 >= 0 }
-)
+    @MainActor
+    func measurement(_ binding: Binding<Double?>) -> LocalizedMeasurement<UnitMass> {
+        LocalizedMeasurement(binding, definition: UnitDefinition.macro)
+    }
+}
 
-let alcoholRowDefinition = RecordRowDefinition(
-    title: "Alcohol", icon: .alcohol, tint: .alcohol,
-    unitDefinition: .init(.macro),
-    formatter: .number.precision(.fractionLength(0)),
-    validator: { $0 >= 0 }
-)
+struct CarbsFieldDefinition: FieldDefinition {
+    typealias Unit = UnitMass
 
-// // Helper view for macro values in row subtitle
-// struct MacroValueView: View {
-//     let value: Double
-//     let icon: Image
-//     let tint: Color
-//     @LocalizedMeasurement var measurement: Measurement
+    let title: String.LocalizationValue = "Carbs"
+    let icon = Image.carbs
+    let tint = Color.carbs
+    let formatter = FloatingPointFormatStyle<Double>.number.precision(.fractionLength(0))
+    let validator: (@Sendable (Double) -> Bool)? = { $0 >= 0 }
 
-//     init(value: Double, icon: Image, tint: Color) {
-//         self.value = value
-//         self.icon = icon
-//         self.tint = tint
-//         self._measurement = LocalizedMeasurement(.constant(value), definition: .init(.macro))
-//     }
+    @MainActor
+    func measurement(_ binding: Binding<Double?>) -> LocalizedMeasurement<UnitMass> {
+        LocalizedMeasurement(binding, definition: UnitDefinition.macro)
+    }
+}
 
-//     var body: some View {
-//         ValueView(
-//             measurement: $measurement,
-//             icon: icon, tint: tint,
-//             format: .number.precision(.fractionLength(0))
-//         )
-//         .textScale(.secondary)
-//         .imageScale(.small)
-//         .symbolVariant(.fill)
-//     }
-// }
+struct FatFieldDefinition: FieldDefinition {
+    typealias Unit = UnitMass
 
-// // Helper view for alcohol values in row subtitle
-// struct AlcoholValueView: View {
-//     let value: Double
-//     let icon: Image
-//     let tint: Color
-//     @LocalizedMeasurement var measurement: Measurement<UnitVolume>
+    let title: String.LocalizationValue = "Fat"
+    let icon = Image.fat
+    let tint = Color.fat
+    let formatter = FloatingPointFormatStyle<Double>.number.precision(.fractionLength(0))
+    let validator: (@Sendable (Double) -> Bool)? = { $0 >= 0 }
 
-//     init(value: Double, icon: Image, tint: Color) {
-//         self.value = value
-//         self.icon = icon
-//         self.tint = tint
-//         self._measurement = LocalizedMeasurement(.constant(value), definition: .alcohol)
-//     }
+    @MainActor
+    func measurement(_ binding: Binding<Double?>) -> LocalizedMeasurement<UnitMass> {
+        LocalizedMeasurement(binding, definition: UnitDefinition.macro)
+    }
+}
 
-//     var body: some View {
-//         ValueView(
-//             measurement: $measurement,
-//             icon: icon, tint: tint,
-//             format: .number.precision(.fractionLength(0))
-//         )
-//         .textScale(.secondary)
-//         .imageScale(.small)
-//         .symbolVariant(.fill)
-//     }
-// }
+struct AlcoholFieldDefinition: FieldDefinition {
+    typealias Unit = UnitVolume
+
+    let title: String.LocalizationValue = "Alcohol"
+    let icon = Image.alcohol
+    let tint = Color.alcohol
+    let formatter = FloatingPointFormatStyle<Double>.number.precision(.fractionLength(0))
+    let validator: (@Sendable (Double) -> Bool)? = { $0 >= 0 }
+
+    @MainActor
+    func measurement(_ binding: Binding<Double?>) -> LocalizedMeasurement<UnitVolume> {
+        LocalizedMeasurement(binding, definition: UnitDefinition.alcohol)
+    }
+}
+
+// MARK: - Helper Views for Row Subtitles
+
+struct MacroValueView: View {
+    let value: Double?
+    let field: any FieldDefinition
+
+    var body: some View {
+        if let value = value {
+            ValueView(
+                measurement: .init(
+                    baseValue: .constant(value),
+                    definition: UnitDefinition.macro
+                ),
+                icon: field.icon, tint: field.tint,
+                format: field.formatter
+            )
+            .textScale(.secondary)
+            .imageScale(.small)
+            .symbolVariant(.fill)
+        }
+    }
+}
+
+struct AlcoholValueView: View {
+    let value: Double?
+    let field: AlcoholFieldDefinition
+
+    var body: some View {
+        if let value = value {
+            ValueView(
+                measurement: .init(
+                    baseValue: .constant(value),
+                    definition: UnitDefinition.alcohol
+                ),
+                icon: field.icon, tint: field.tint,
+                format: field.formatter
+            )
+            .textScale(.secondary)
+            .imageScale(.small)
+            .symbolVariant(.fill)
+        }
+    }
+}

@@ -5,6 +5,9 @@ enum RecordFormType {
     case view, create, edit
 }
 
+// TODO: Show loading indicator when saving/deleting records
+// Indicator is shown by replacing button (or its icon) with a progress view
+
 struct RecordForm<R: HealthData, Content: View>: View {
     @Environment(\.healthKit) private var healthKit
     @Environment(\.dismiss) private var dismiss
@@ -51,17 +54,6 @@ struct RecordForm<R: HealthData, Content: View>: View {
                     }
                 }
             }
-
-            if formType == .edit {
-                Section {
-                    Button(role: .destructive) {
-                        showConfirmation = true
-                    } label: {
-                        Text("Delete Record")
-                    }
-                }
-
-            }
         }
         .navigationTitle(String(localized: title))
         .scrollDismissesKeyboard(.immediately)
@@ -69,31 +61,72 @@ struct RecordForm<R: HealthData, Content: View>: View {
         .toolbar {
             if formType == .view {  // HealthKit samples
                 ToolbarItem(placement: .confirmationAction) {
-                    Button("Done", systemImage: "checkmark") {
-                        dismiss()
+                    if #available(iOS 26, *) {
+                        Button(role: .close) {
+                            dismiss()
+                        } label: {
+                            Label("Done", systemImage: "checkmark")
+                        }
+                    } else {
+                        Button {
+                            dismiss()
+                        } label: {
+                            Label("Done", systemImage: "checkmark")
+                        }
+                        .buttonStyle(.bordered)
                     }
                 }
             } else if formType == .edit {  // App samples
                 ToolbarItem(placement: .confirmationAction) {
-                    Button("Done", systemImage: "checkmark") {
-                        saveFunc(record)
-                        dismiss()
+                    Button(role: .destructive) {
+                        showConfirmation = true
+                    } label: {
+                        Label("Delete", systemImage: "trash")
                     }
-                    .tint(.accent)
+                }
+                ToolbarItem(placement: .confirmationAction) {
+                    if #available(iOS 26, *) {
+                        Button(role: .confirm) {
+                            saveFunc(record)
+                            dismiss()
+                        } label: {
+                            Label("Save", systemImage: "checkmark")
+                        }
+                    } else {
+                        Button {
+                            saveFunc(record)
+                            dismiss()
+                        } label: {
+                            Label("Save", systemImage: "checkmark")
+                        }
+                        .buttonStyle(.borderedProminent)
+                    }
                 }
             } else {  // New (app) samples
                 ToolbarItem(placement: .cancellationAction) {
-                    Button("Cancel", systemImage: "xcross") {
+                    Button(role: .cancel) {
                         dismiss()
+                    } label: {
+                        Label("Cancel", systemImage: "xmark")
                     }
-                    .tint(.red)
                 }
                 ToolbarItem(placement: .confirmationAction) {
-                    Button("Add", systemImage: "plus") {
-                        saveFunc(record)
-                        dismiss()
+                    if #available(iOS 26, *) {
+                        Button(role: .confirm) {
+                            saveFunc(record)
+                            dismiss()
+                        } label: {
+                            Label("Add", systemImage: "plus")
+                        }
+                    } else {
+                        Button {
+                            saveFunc(record)
+                            dismiss()
+                        } label: {
+                            Label("Add", systemImage: "plus")
+                        }
+                        .buttonStyle(.borderedProminent)
                     }
-                    .tint(.green)
                 }
             }
         }.toolbarTitleDisplayMode(.inline)

@@ -1,8 +1,8 @@
 import SwiftUI
 
-struct RecordRow<DetailContent: View>: View {
-    let definition: RecordRowDefinition
-    @LocalizedMeasurement var measurement: Measurement<Dimension>
+struct RecordRow<Field: FieldDefinition, DetailContent: View>: View {
+    let field: Field
+    @LocalizedMeasurement var measurement: Measurement<Field.Unit>
 
     let isInternal: Bool
     let showPicker: Bool
@@ -13,28 +13,29 @@ struct RecordRow<DetailContent: View>: View {
     @ViewBuilder let details: () -> DetailContent
 
     init(
-        _ definition: RecordRowDefinition,
+        field: Field,
         value: Binding<Double?>,
         isInternal: Bool,
         showPicker: Bool = false,
-        computed: (() -> Double?)? = nil,
         @ViewBuilder details: @escaping () -> DetailContent = { EmptyView() }
     ) {
-        self.definition = definition
-        self._measurement = definition.measurement(value)
+        self.field = field
+        self._measurement = field.measurement(value)
         self.isInternal = isInternal
         self.showPicker = showPicker
-        self.computed = computed
+
+        // Extract computed function from ComputedField if available
+        self.computed = (field as? ComputedField)?.compute
         self.details = details
     }
 
     var body: some View {
         MeasurementField(
-            validator: definition.validator, format: definition.formatter,
+            validator: field.validator, format: field.formatter,
             showPicker: showPicker, measurement: $measurement,
         ) {
-            DetailedRow(image: definition.icon, tint: definition.tint) {
-                Text(String(localized: definition.title))
+            DetailedRow(image: field.icon, tint: field.tint) {
+                Text(String(localized: field.title))
             } subtitle: {
                 computedButton.textScale(.secondary)
                 Text(measurement.unit.symbol).textScale(.secondary)
@@ -64,12 +65,12 @@ struct RecordRow<DetailContent: View>: View {
         if let computed = computed?(), let baseValue = $measurement.baseValue,
             abs(baseValue - computed) > .ulpOfOne
         {
-            HStack(spacing: 2) {
+            HStack(alignment: .center, spacing: 2) {
                 let icon = Image(systemName: "function").asText
                 Text("\(icon):").foregroundStyle(.indigo.secondary)
 
                 $measurement.computedText(
-                    computed, format: definition.formatter
+                    computed, format: field.formatter
                 )
                 .foregroundStyle(.indigo)
                 .contentTransition(.numericText(value: computed))
@@ -88,18 +89,16 @@ struct RecordRow<DetailContent: View>: View {
 
 extension RecordRow where DetailContent == EmptyView {
     init(
-        _ definition: RecordRowDefinition,
+        field: Field,
         value: Binding<Double?>,
         isInternal: Bool,
         showPicker: Bool = false,
-        computed: (() -> Double?)? = nil
     ) {
         self.init(
-            definition,
+            field: field,
             value: value,
             isInternal: isInternal,
             showPicker: showPicker,
-            computed: computed,
             details: { EmptyView() }
         )
     }

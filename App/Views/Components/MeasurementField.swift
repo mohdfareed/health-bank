@@ -35,6 +35,8 @@ struct MeasurementField<Unit: Dimension, Content: View>: View {
                             .keyboardType(.decimalPad)
                         #endif
 
+                        // FIXME: throws debug errors (along with computedButton)
+                        // error: Invalid frame dimension (negative or non-finite).
                         .toolbar(
                             content: {
                                 ToolbarItemGroup(placement: .keyboard) {
@@ -43,7 +45,7 @@ struct MeasurementField<Unit: Dimension, Content: View>: View {
                                             withAnimation(.default) {
                                                 isActive = false
                                             }
-                                        }
+                                        }.tint(.accent)
                                     }
                                 }
                             }

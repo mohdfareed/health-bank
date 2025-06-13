@@ -4,6 +4,10 @@ import SwiftUI
 // TODO: Add dashboard view to track goals and progress
 // TODO: Add haptics and animations
 // TODO: Add welcome screen for new users
+// FIXME: Debug warning:
+// containerToPush is nil, will not push anything to candidate receiver for request token: BF2ABD30
+// FIXME: Debug info:
+// void * _Nullable NSMapGet(NSMapTable * _Nonnull, const void * _Nullable): map table argument is NULL
 
 struct AppView: View {
     @AppStorage(.theme)
@@ -64,9 +68,7 @@ struct AppView: View {
 
         .sheet(item: $activeDataModel) { dataModel in
             NavigationStack {
-                dataModel.definition.formView(
-                    $record.defaulted(to: dataModel.dataType.init()),
-                )
+                dataModel.createForm(formType: .create)
             }
         }
     }
