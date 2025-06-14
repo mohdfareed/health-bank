@@ -15,9 +15,10 @@ struct AppView: View {
     @Environment(\.colorScheme)
     private var colorScheme: ColorScheme
     @AppLocale private var locale
+    @Environment(\.healthKit)
+    private var healthKitService
 
     @State private var activeDataModel: HealthDataModel? = nil
-    @State private var record: (any HealthData)? = nil
 
     var body: some View {
         TabView {
@@ -42,96 +43,41 @@ struct AppView: View {
         .contentTransition(.numericText())
         .contentTransition(.opacity)
 
-        #if os(iOS)
-            .transform {
-                if #available(iOS 26, macOS 26, watchOS 26, *) {
+        .onAppear {
+            healthKitService.requestAuthorization()
+        }
+
+        .transform {
+            if #available(iOS 26, macOS 26, watchOS 26, *) {
+                #if os(iOS)
                     $0.tabViewBottomAccessory {
-                        HStack(spacing: 16) {
-                            AddButtons { dataModel in
-                                activeDataModel = dataModel
-                            }
-                            .labelStyle(.titleAndIcon)
-                            .buttonStyle(.glass)
-                        }
+                        // AddButton(HealthDataModel.calorie.definition) {
+                        //     activeDataModel = .calorie
+                        // }
+                        HealthDataModel.calorie.definition.icon
+                        // HStack(alignment: .center) {
+                        //     AddButton(HealthDataModel.weight.definition) {
+                        //         activeDataModel = .weight
+                        //     }
+                        // }
                     }
-                } else {
-                    $0.overlay(alignment: .bottom) {
-                        AddMenu { dataModel in
-                            activeDataModel = dataModel
-                        }
-                        .buttonStyle(.borderless)
-                        .padding(.bottom, 64)
+                    .tabBarMinimizeBehavior(.onScrollDown)
+                #endif
+            } else {
+                $0.overlay(alignment: .bottom) {
+                    AddMenu { dataModel in
+                        activeDataModel = dataModel
                     }
+                    .buttonStyle(.borderless)
+                    .padding(.bottom, 64)
                 }
             }
-        #endif
+        }
 
         .sheet(item: $activeDataModel) { dataModel in
             NavigationStack {
                 dataModel.createForm(formType: .create)
             }
         }
-    }
-}
-
-struct AddButtons: View {
-    let action: (HealthDataModel) -> Void
-    var body: some View {
-        ForEach(
-            HealthDataModel.allCases, id: \.self
-        ) { dataModel in
-            Button(action: { action(dataModel) }) {
-                Label {
-                    Text(String(localized: dataModel.definition.title))
-                } icon: {
-                    dataModel.definition.icon
-                }
-            }
-            .transform {
-                if #available(iOS 26, macOS 26, watchOS 26, *) {
-                    $0.glassEffect(
-                        .regular.tint(dataModel.definition.color)
-                    )
-                } else {
-                    $0.foregroundStyle(dataModel.definition.color)
-                }
-            }
-            .padding(.horizontal)
-        }
-    }
-}
-
-struct AddMenu: View {
-    let action: (HealthDataModel) -> Void
-    init(_ action: @escaping (HealthDataModel) -> Void) {
-        self.action = action
-    }
-
-    var body: some View {
-        Menu {
-            ForEach(
-                HealthDataModel.allCases, id: \.self
-            ) { dataModel in
-                Button(action: { action(dataModel) }) {
-                    Label {
-                        Text(
-                            String(
-                                localized: dataModel.definition.title
-                            )
-                        )
-                    } icon: {
-                        dataModel.definition.icon
-                    }
-                }
-            }
-        } label: {
-            Button {
-            } label: {
-                Label("Add Data", systemImage: "plus.circle.fill")
-                    .labelStyle(.iconOnly)
-                    .font(.system(size: 48))
-            }
-        }
-        .buttonBorderShape(.circle)
     }
 }

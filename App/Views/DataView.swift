@@ -36,6 +36,7 @@ struct HealthDataCards: View {
                 VStack(spacing: 12) {
                     model.definition.icon
                         .font(.system(size: 60))
+                        .foregroundStyle(model.definition.color)
                     Text(String(localized: model.definition.title))
                         .multilineTextAlignment(.center)
                         .textScale(.secondary)
@@ -47,7 +48,8 @@ struct HealthDataCards: View {
             .transform {
                 if #available(iOS 26, macOS 26, watchOS 26, *) {
                     $0.glassEffect(
-                        .regular.tint(model.definition.color),
+                        // .regular.tint(model.definition.color),
+                        .regular,
                         in: .buttonBorder
                     )
                     .buttonStyle(.glass)

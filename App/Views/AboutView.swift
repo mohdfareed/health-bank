@@ -169,17 +169,17 @@ struct HealthPermissionsManager: View {
                             .imageScale(.large)
                             .foregroundStyle(Color.accent)
                     case .authorized:
-                        Image(systemName: "checkmark.shield.fill")
+                        Image(systemName: "checkmark.circle.fill")
                             .imageScale(.large)
                             .foregroundStyle(Color.green)
                     case .denied:
-                        Image(systemName: "xmark.shield.fill")
+                        Image(systemName: "xmark.circle.fill")
                             .imageScale(.large)
                             .foregroundStyle(Color.red)
                     case .partiallyAuthorized:
                         Text("Partial")
                             .foregroundStyle(Color.secondary)
-                        Image(systemName: "exclamationmark.shield.fill")
+                        Image(systemName: "exclamationmark.circle.fill")
                             .imageScale(.large)
                             .foregroundStyle(Color.yellow)
                     }

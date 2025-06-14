@@ -122,3 +122,84 @@ private struct RecordListRow: View {
         return formatter.localizedString(for: date, relativeTo: Date())
     }
 }
+
+// MARK: Add Buttons
+// ============================================================================
+
+@available(iOS 26, macOS 26, watchOS 26, *)
+struct AddButton: View {
+    @Environment(\.tabViewBottomAccessoryPlacement) var placement
+
+    let definition: HealthRecordDefinition
+    let action: () -> Void
+
+    init(_ definition: HealthRecordDefinition, action: @escaping () -> Void) {
+        self.definition = definition
+        self.action = action
+    }
+
+    var body: some View {
+        Button(action: { action() }) {
+            switch placement {
+            case .inline:
+                Label {
+                } icon: {
+                }
+            default:  // expanded
+                Label {
+                    Text(String(localized: definition.title))
+                } icon: {
+                    definition.icon
+                }.padding(.horizontal)
+            }
+        }
+        .transform {
+            switch placement {
+            case .inline:
+                $0.buttonStyle(.borderless)
+                    .foregroundStyle(definition.color)
+            default:  // expanded
+                $0.glassEffect(
+                    .regular.tint(definition.color)
+                )
+            }
+        }
+        .labelStyle(.titleAndIcon)
+        .padding(.horizontal)
+    }
+}
+
+struct AddMenu: View {
+    let action: (HealthDataModel) -> Void
+    init(_ action: @escaping (HealthDataModel) -> Void) {
+        self.action = action
+    }
+
+    var body: some View {
+        Menu {
+            ForEach(
+                HealthDataModel.allCases, id: \.self
+            ) { dataModel in
+                Button(action: { action(dataModel) }) {
+                    Label {
+                        Text(
+                            String(
+                                localized: dataModel.definition.title
+                            )
+                        )
+                    } icon: {
+                        dataModel.definition.icon
+                    }
+                }
+            }
+        } label: {
+            Button {
+            } label: {
+                Label("Add Data", systemImage: "plus.circle.fill")
+                    .labelStyle(.iconOnly)
+                    .font(.system(size: 48))
+            }
+        }
+        .buttonBorderShape(.circle)
+    }
+}

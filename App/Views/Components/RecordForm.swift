@@ -83,6 +83,20 @@ struct RecordForm<R: HealthData, Content: View>: View {
                     } label: {
                         Label("Delete", systemImage: "trash")
                     }
+
+                    .confirmationDialog(
+                        "Delete \(String(localized: title)) Record",
+                        isPresented: $showConfirmation,
+                        titleVisibility: .visible
+                    ) {
+                        Button("Cancel", role: .cancel) {}
+                        Button("Delete", role: .destructive) {
+                            deleteFunc(record)
+                            dismiss()
+                        }
+                    } message: {
+                        Text("This action cannot be undone.")
+                    }
                 }
                 ToolbarItem(placement: .confirmationAction) {
                     if #available(iOS 26, *) {
@@ -130,19 +144,5 @@ struct RecordForm<R: HealthData, Content: View>: View {
                 }
             }
         }.toolbarTitleDisplayMode(.inline)
-
-        .confirmationDialog(
-            "Delete \(String(localized: title)) Record",
-            isPresented: $showConfirmation,
-            titleVisibility: .visible
-        ) {
-            Button("Cancel", role: .cancel) {}
-            Button("Delete", role: .destructive) {
-                deleteFunc(record)
-                dismiss()
-            }
-        } message: {
-            Text("This action cannot be undone.")
-        }
     }
 }

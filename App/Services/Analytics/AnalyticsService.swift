@@ -1,5 +1,56 @@
 import Foundation
 
+// MARK: Analytics Service
+// ============================================================================
+
+public struct AnalyticsService {
+    /// Calculates a running average for a set of date-value pairs.
+    /// - Parameters:
+    ///   - data: A dictionary of `[Date: Double]` representing the time series data.
+    ///   - windowSize: The number of data points to include in each average calculation (e.g., 7 for a 7-day average).
+    ///   - unit: The calendar unit that defines the spacing of the data points (e.g., `.day`).
+    /// - Returns: A dictionary `[Date: Double]` where the value is the running average ending on that date.
+    public func calculateRunningAverage(
+        data: [Date: Double], windowSize: Int,
+        unit: Calendar.Component, calendar: Calendar = .current
+    ) throws -> [Date: Double] {
+        guard windowSize > 0 else {
+            throw AppError.analytics("Window size must be greater than zero.")
+        }
+
+        let sortedDates = data.keys.sorted()
+        guard !sortedDates.isEmpty else { return [:] }
+
+        var runningAverages: [Date: Double] = [:]
+        var currentWindow: [Double] = []
+
+        // Iterate through all possible dates in the range to ensure consistent windowing
+        // This assumes data might be sparse.
+        var currentDate = sortedDates.first!
+        let endDate = sortedDates.last!
+
+        while currentDate <= endDate {
+            if let value = data[currentDate] {
+                currentWindow.append(value)
+            }
+
+            if currentWindow.count > windowSize {
+                currentWindow.removeFirst()
+            }
+
+            if !currentWindow.isEmpty {
+                runningAverages[currentDate] =
+                    currentWindow.reduce(0, +) / Double(currentWindow.count)
+            }
+
+            currentDate = calendar.date(
+                byAdding: unit, value: 1, to: currentDate
+            )!
+        }
+        return runningAverages
+    }
+}
+
 // MARK: Data Points
 // ============================================================================
 
@@ -63,5 +114,17 @@ extension Date {
             return interval.start
         }
         return self
+    }
+
+    /// The date of the next occurrence of a specific weekday.
+    func next(_ weekday: Int, using calendar: Calendar = .current) -> Date {
+        let weekday = weekday % 7  // Ensure it's within 0...6 if needed
+        let todayWeekday = calendar.component(.weekday, from: self)
+
+        var daysToAdd = weekday - todayWeekday
+        if daysToAdd <= 0 {
+            daysToAdd += 7
+        }
+        return calendar.date(byAdding: .day, value: daysToAdd, to: self)!
     }
 }
