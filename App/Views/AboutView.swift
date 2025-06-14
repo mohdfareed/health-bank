@@ -110,7 +110,7 @@ struct AboutView: View {
 // MARK: - Supporting Views
 
 struct AppInfoRow: View {
-    let title: String
+    let title: String.LocalizationValue
     let value: String
     let systemImage: String
 
@@ -119,7 +119,7 @@ struct AppInfoRow: View {
             Text(value)
         } label: {
             Label {
-                Text(title)
+                Text(String(localized: title))
             } icon: {
                 Image(systemName: systemImage)
             }

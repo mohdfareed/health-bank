@@ -54,6 +54,7 @@ struct RecordRow<Field: FieldDefinition, DetailContent: View>: View {
                         computedButton
                             .fixedSize()
                             .animation(.default, value: $measurement.baseValue)
+                        Spacer()
                     }
                 }
             }

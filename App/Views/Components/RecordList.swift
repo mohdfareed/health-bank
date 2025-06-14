@@ -37,20 +37,23 @@ struct RecordList<T: HealthData>: View {
         .refreshable {
             runTask($records.reload)
         }
-        .onChange(of: isCreating) {
-            if !isCreating {
-                runTask($records.reload)
-            }
-        }
 
         .toolbar {
             ToolbarItem {
-                Button("Add", systemImage: "plus") {
-                    isCreating = true
+                if #available(iOS 26, macOS 26, watchOS 26, *) {
+                    Button("Add", systemImage: "plus") {
+                        isCreating = true
+                    }
+                } else {
+                    Button("Add", systemImage: "plus") {
+                        isCreating = true
+                    }
+                    .buttonStyle(.bordered)
+                    .buttonBorderShape(.circle)
                 }
+
             }
         }
-        .toolbarTitleDisplayMode(.inline)
 
         .sheet(isPresented: $isCreating) {
             NavigationStack {
@@ -126,49 +129,6 @@ private struct RecordListRow: View {
 // MARK: Add Buttons
 // ============================================================================
 
-@available(iOS 26, macOS 26, watchOS 26, *)
-struct AddButton: View {
-    @Environment(\.tabViewBottomAccessoryPlacement) var placement
-
-    let definition: HealthRecordDefinition
-    let action: () -> Void
-
-    init(_ definition: HealthRecordDefinition, action: @escaping () -> Void) {
-        self.definition = definition
-        self.action = action
-    }
-
-    var body: some View {
-        Button(action: { action() }) {
-            switch placement {
-            case .inline:
-                Label {
-                } icon: {
-                }
-            default:  // expanded
-                Label {
-                    Text(String(localized: definition.title))
-                } icon: {
-                    definition.icon
-                }.padding(.horizontal)
-            }
-        }
-        .transform {
-            switch placement {
-            case .inline:
-                $0.buttonStyle(.borderless)
-                    .foregroundStyle(definition.color)
-            default:  // expanded
-                $0.glassEffect(
-                    .regular.tint(definition.color)
-                )
-            }
-        }
-        .labelStyle(.titleAndIcon)
-        .padding(.horizontal)
-    }
-}
-
 struct AddMenu: View {
     let action: (HealthDataModel) -> Void
     init(_ action: @escaping (HealthDataModel) -> Void) {
@@ -195,11 +155,64 @@ struct AddMenu: View {
         } label: {
             Button {
             } label: {
-                Label("Add Data", systemImage: "plus.circle.fill")
+                Label("Add Data", systemImage: "plus")
                     .labelStyle(.iconOnly)
-                    .font(.system(size: 48))
             }
         }
         .buttonBorderShape(.circle)
+        .buttonStyle(.borderedProminent)
+    }
+}
+
+@available(iOS 26, macOS 26, watchOS 26, *)
+struct AddButton: View {
+    @Environment(\.tabViewBottomAccessoryPlacement) var placement
+
+    let definition: HealthRecordDefinition
+    let action: () -> Void
+
+    init(_ definition: HealthRecordDefinition, action: @escaping () -> Void) {
+        self.definition = definition
+        self.action = action
+    }
+
+    var body: some View {
+        switch placement {
+        case .inline:
+            inlineButton
+        case .expanded:
+            expandedButton
+        default:  // expanded
+            let _ = AppLogger.new(for: self).warning(
+                "Unsupported button placement: \(placement.debugDescription)"
+            )
+            expandedButton
+        }
+    }
+
+    var inlineButton: some View {
+        Button(action: { action() }) {
+            definition.icon
+        }
+        .buttonStyle(.borderless)
+        .labelStyle(.titleAndIcon)
+        .foregroundStyle(definition.color)
+        .padding(.horizontal)
+    }
+
+    var expandedButton: some View {
+        Button(action: { action() }) {
+            Label {
+                Text(String(localized: definition.title))
+            } icon: {
+                definition.icon
+            }
+        }
+        .glassEffect(
+            .regular.tint(definition.color)
+        )
+        .buttonStyle(.glass)
+        .labelStyle(.titleAndIcon)
+        .padding(.horizontal)
     }
 }

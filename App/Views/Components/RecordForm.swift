@@ -61,7 +61,7 @@ struct RecordForm<R: HealthData, Content: View>: View {
         .toolbar {
             if formType == .view {  // HealthKit samples
                 ToolbarItem(placement: .confirmationAction) {
-                    if #available(iOS 26, *) {
+                    if #available(iOS 26, macOS 26, watchOS 26, *) {
                         Button(role: .close) {
                             dismiss()
                         } label: {
@@ -74,6 +74,7 @@ struct RecordForm<R: HealthData, Content: View>: View {
                             Label("Done", systemImage: "checkmark")
                         }
                         .buttonStyle(.bordered)
+                        .buttonBorderShape(.circle)
                     }
                 }
             } else if formType == .edit {  // App samples
@@ -99,7 +100,7 @@ struct RecordForm<R: HealthData, Content: View>: View {
                     }
                 }
                 ToolbarItem(placement: .confirmationAction) {
-                    if #available(iOS 26, *) {
+                    if #available(iOS 26, macOS 26, watchOS 26, *) {
                         Button(role: .confirm) {
                             saveFunc(record)
                             dismiss()
@@ -114,6 +115,7 @@ struct RecordForm<R: HealthData, Content: View>: View {
                             Label("Save", systemImage: "checkmark")
                         }
                         .buttonStyle(.borderedProminent)
+                        .buttonBorderShape(.circle)
                     }
                 }
             } else {  // New (app) samples
@@ -125,7 +127,7 @@ struct RecordForm<R: HealthData, Content: View>: View {
                     }
                 }
                 ToolbarItem(placement: .confirmationAction) {
-                    if #available(iOS 26, *) {
+                    if #available(iOS 26, macOS 26, watchOS 26, *) {
                         Button(role: .confirm) {
                             saveFunc(record)
                             dismiss()
@@ -140,6 +142,7 @@ struct RecordForm<R: HealthData, Content: View>: View {
                             Label("Add", systemImage: "plus")
                         }
                         .buttonStyle(.borderedProminent)
+                        .buttonBorderShape(.circle)
                     }
                 }
             }

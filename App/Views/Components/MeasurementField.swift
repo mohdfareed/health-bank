@@ -35,22 +35,6 @@ struct MeasurementField<Unit: Dimension, Content: View>: View {
                             .keyboardType(.decimalPad)
                         #endif
 
-                        // FIXME: throws debug errors (along with computedButton)
-                        // error: Invalid frame dimension (negative or non-finite).
-                        .toolbar(
-                            content: {
-                                ToolbarItemGroup(placement: .keyboard) {
-                                    if isActive {
-                                        Button("Done") {
-                                            withAnimation(.default) {
-                                                isActive = false
-                                            }
-                                        }.tint(.accent)
-                                    }
-                                }
-                            }
-                        )
-
                     if showPicker && $measurement.availableUnits().count > 1 {
                         picker.frame(maxWidth: 12, maxHeight: 8).fixedSize()
                     }
@@ -58,6 +42,23 @@ struct MeasurementField<Unit: Dimension, Content: View>: View {
             } label: {
                 label()
             }
+
+            // FIXME: throws debug errors (along with computedButton)
+            // error: Invalid frame dimension (negative or non-finite).
+            .toolbar(
+                content: {
+                    ToolbarItemGroup(placement: .keyboard) {
+                        if isActive {
+                            Spacer()
+                            Button("Done", systemImage: "checkmark") {
+                                withAnimation(.default) {
+                                    isActive = false
+                                }
+                            }.tint(.accent)
+                        }
+                    }
+                }
+            )
 
             // Trap all taps when not active
             Color.clear.contentShape(Rectangle())

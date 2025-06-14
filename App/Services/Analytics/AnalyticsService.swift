@@ -74,12 +74,23 @@ extension Sequence where Element: AdditiveArithmetic {
     func sum() -> Element { self.reduce(.zero, +) }
 }
 
-extension Sequence where Element: AdditiveArithmetic & DurationProtocol {
+extension Sequence where Element: BinaryFloatingPoint {
     /// The average of all data points.
     func average() -> Element? {
         guard self.first(where: { _ in true }) != nil else { return nil }
         let count = self.count(where: { _ in true })
-        return self.sum() / count
+        return self.sum() / Element(count)
+    }
+}
+
+extension Double {
+    static func / (lhs: Double, rhs: Int) -> Double {
+        return lhs / Double(rhs)
+    }
+}
+extension Int {
+    static func / (lhs: Int, rhs: Double) -> Double {
+        return Double(lhs) / rhs
     }
 }
 
