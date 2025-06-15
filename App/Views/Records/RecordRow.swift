@@ -60,6 +60,7 @@ struct RecordRow<Field: FieldDefinition, DetailContent: View>: View {
                             .padding(.horizontal)
                             .fixedSize()
                             .animation(.default, value: $measurement.baseValue)
+                            .fontDesign(.monospaced)
                         Spacer()
                     }
                 }
@@ -79,7 +80,6 @@ struct RecordRow<Field: FieldDefinition, DetailContent: View>: View {
             $measurement.computedText(
                 computed, format: field.formatter
             )
-            .fontDesign(.monospaced)
             .foregroundStyle(.indigo)
             .contentTransition(.numericText(value: computed))
         }

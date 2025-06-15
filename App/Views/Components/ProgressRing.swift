@@ -1,20 +1,23 @@
 import Foundation
 import SwiftUI
 
-/// A simple view that displays a measurement value with an icon and optional tint
+/// A progress ring that displays a circular progress indicator.
+/// The circle can be segmented into a tip section and a progress section.
 struct ProgressRing: View {
     let value: Double  // Total progress value
     let progress: Double  // Current progress value
     let color: Color
 
-    let tip: Double  // Progress value at which circle tip starts
-    let tipColor: Color
-
-    let width: CGFloat
+    let tip: Double?  // Progress value at which circle tip starts
+    let tipColor: Color?
 
     // Properties
 
     var totalProgress: Double {
+        guard let tip = tip else {
+            return value
+        }
+
         if tip < value {
             return value
         } else {
@@ -27,7 +30,7 @@ struct ProgressRing: View {
     }
 
     var circleTipStart: Double {
-        if tip < value {
+        if let tip = tip, tip < value {
             return max(0, min(1, tip / totalProgress))
         } else {
             return max(0, min(1, value / totalProgress))
@@ -37,32 +40,109 @@ struct ProgressRing: View {
     // Design
 
     var body: some View {
-        ZStack {
-            Circle()
-                .trim(from: 0, to: 1)
-                .stroke(
-                    .background.tertiary,
-                    style: StrokeStyle(lineWidth: width, lineCap: .round)
-                )
-                .transition(.opacity)
+        GeometryReader { geometry in
+            let size = min(geometry.size.width, geometry.size.height)
+            let lineWidth = size * 0.2
+            ZStack {
+                // Background ring
+                Circle()
+                    .trim(from: 0, to: 1)
+                    .stroke(
+                        .background.tertiary,
+                        style: StrokeStyle(lineWidth: lineWidth, lineCap: .round)
+                    )
+                    .transition(.opacity)
 
-            Circle()
-                .trim(from: circleTipStart, to: 1)
-                .stroke(
-                    tipColor,
-                    style: StrokeStyle(lineWidth: width, lineCap: .round)
-                )
-                .transition(.opacity)
-                .rotationEffect(.degrees(-90))
+                // Tip segment
+                Circle()
+                    .trim(from: circleTipStart, to: 1)
+                    .stroke(
+                        tipColor?.opacity(0.35) ?? .clear,
+                        style: StrokeStyle(lineWidth: lineWidth, lineCap: .butt)
+                    )
+                    .transition(.opacity)
+                    .rotationEffect(.degrees(-90))
 
-            Circle()
-                .trim(from: 0, to: circleProgress)
-                .stroke(
-                    color,
-                    style: StrokeStyle(lineWidth: width, lineCap: .round)
-                )
-                .animation(.spring, value: progress)
-                .rotationEffect(.degrees(-90))
+                // Progress segment
+                Circle()
+                    .trim(from: 0, to: circleProgress)
+                    .stroke(
+                        color, style: StrokeStyle(lineWidth: lineWidth, lineCap: .round)
+                    )
+                    .animation(.spring, value: progress)
+                    .rotationEffect(.degrees(-90))
+            }
         }
+        .aspectRatio(1, contentMode: .fit)
     }
+}
+
+// MARK: - Previews
+
+#Preview {
+    ProgressRing(
+        value: 1000,
+        progress: 750,
+        color: .calories,
+        tip: 1200,
+        tipColor: .green
+    )
+    .padding()
+
+    ProgressRing(
+        value: 1000,
+        progress: 750,
+        color: .calories,
+        tip: 800,
+        tipColor: .red
+    )
+    .padding()
+
+    ProgressRing(
+        value: 1000,
+        progress: 750,
+        color: .calories,
+        tip: nil, tipColor: nil
+    )
+    .padding()
+
+    ProgressRing(
+        value: 1000,
+        progress: 750,
+        color: .calories,
+        tip: nil, tipColor: nil
+    )
+    .padding()
+
+    ProgressRing(
+        value: 1000,
+        progress: 750,
+        color: .calories,
+        tip: nil, tipColor: nil
+    )
+    .padding()
+
+    ProgressRing(
+        value: 1000,
+        progress: 750,
+        color: .calories,
+        tip: nil, tipColor: nil
+    )
+    .padding()
+
+    ProgressRing(
+        value: 1000,
+        progress: 750,
+        color: .calories,
+        tip: nil, tipColor: nil
+    )
+    .padding()
+
+    ProgressRing(
+        value: 1000,
+        progress: 750,
+        color: .calories,
+        tip: nil, tipColor: nil
+    )
+    .padding()
 }

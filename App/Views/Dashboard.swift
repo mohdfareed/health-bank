@@ -7,6 +7,8 @@ struct DashboardView: View {
     @AppStorage(.userGoals) private var goalsID: UUID
     private let analyticsService = AnalyticsService()
 
+    @State private var refreshing = true
+
     var body: some View {
         NavigationView {
             ScrollView {
@@ -15,6 +17,7 @@ struct DashboardView: View {
                         goalsID,
                         healthKit: healthKitService,
                         analytics: analyticsService,
+                        refreshing: $refreshing
                     )
 
                     // MaintenanceWidget(
@@ -25,6 +28,16 @@ struct DashboardView: View {
                 .padding()
             }
             .navigationTitle("Dashboard")
+
+            .toolbar {
+                ToolbarItem(placement: .primaryAction) {
+                    Button(action: {
+                        refreshing.toggle()
+                    }) {
+                        Image(systemName: "arrow.clockwise")
+                    }
+                }
+            }
         }
     }
 }

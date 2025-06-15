@@ -26,7 +26,7 @@ struct DashboardCard<Content: View, Destination: View>: View {
                             .foregroundColor(color)
                     } icon: {
                         icon
-                            .font(.title2)
+                            .font(.headline)
                             .foregroundColor(color)
                     }
                 }

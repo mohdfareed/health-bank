@@ -11,8 +11,8 @@ public struct AnalyticsService {
     /// - Returns: Sₜ where
     ///   S₀ = C₀
     ///   Sᵢ = α·Cᵢ + (1−α)·Sᵢ₋₁
-    func computeEWMA(from values: [Double], alpha: Double) -> Double {
-        guard !values.isEmpty else { return 0 }
+    func computeEWMA(from values: [Double], alpha: Double) -> Double? {
+        guard !values.isEmpty else { return nil }
         // Seed with the first data point
         var smoothed = values[0]
         // Fold over the rest (last has highest weight)

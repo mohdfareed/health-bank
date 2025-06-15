@@ -33,7 +33,8 @@ struct MaintenanceService {
     }
 
     /// Raw maintenance estimate Mₜ = Sₜ - ΔEₜ (kcal/day)
-    var maintenance: Double {
-        budget.smoothedIntake - energyImbalance
+    var maintenance: Double? {
+        guard let smoothed = budget.smoothedIntake else { return nil }
+        return smoothed - energyImbalance
     }
 }

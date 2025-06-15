@@ -24,7 +24,10 @@ struct ValueView<Unit: Dimension>: View {
         HStack(alignment: .center, spacing: 2) {
             icon?.asText.foregroundStyle(tint ?? .primary)
             Text(measurement.value, format: format)
-            Text(measurement.unit.symbol).textScale(.secondary)
+                .animation(.default, value: measurement.value)
+                .contentTransition(.numericText(value: measurement.value))
+            Text(measurement.unit.symbol)
+                .textScale(.secondary)
                 .foregroundStyle(.secondary)
         }
     }
