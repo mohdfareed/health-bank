@@ -10,8 +10,8 @@ struct BudgetWidget: View {
     let analyticsService: AnalyticsService
     @Binding var refreshing: Bool
 
-    @Query.Singleton var goals: UserGoals
-
+    @Query.Singleton
+    private var goals: UserGoals
     @State private var budget: BudgetService?
     @State private var maintenance: MaintenanceService?
 
@@ -40,7 +40,8 @@ struct BudgetWidget: View {
                         MaintenanceContent(data: maintenance)
                     }
                     Spacer()
-                    ProgressIndicator(data: budget)
+                    budget.progress(color: .calories, icon: .calories)
+                        .font(.title)
                         .frame(maxWidth: 80)
                 }
             } else {
@@ -79,10 +80,10 @@ struct BudgetWidget: View {
                     icon: nil, tint: nil, format: .number
                 )
                 .fontWeight(.bold)
-                .font(.largeTitle)
+                .font(.title)
                 .foregroundColor(remaining >= 0 ? .primary : .red)
 
-                Text("left")
+                Text("remaining")
                     .font(.headline)
                     .foregroundColor(.secondary)
             } else {
@@ -94,7 +95,7 @@ struct BudgetWidget: View {
                     icon: nil, tint: nil, format: .number
                 )
                 .fontWeight(.bold)
-                .font(.largeTitle)
+                .font(.title)
                 .foregroundColor(.primary)
 
                 Text("consumed")
@@ -140,7 +141,7 @@ struct BudgetWidget: View {
                     .foregroundColor(.secondary)
                     .padding(.leading, 8)
             } else {
-                Text("No credit data available")
+                Text("No calorie credit")
                     .font(.headline)
                     .foregroundColor(.secondary)
             }
@@ -160,8 +161,9 @@ struct BudgetWidget: View {
                 )
                 .fontWeight(.bold)
                 .font(.title2)
+                .foregroundColor(.indigo)
 
-                Text("per day")
+                Text("maintenance")
                     .font(.headline)
                     .foregroundColor(.secondary)
             } else {
@@ -174,24 +176,13 @@ struct BudgetWidget: View {
                 )
                 .fontWeight(.bold)
                 .font(.title2)
-                .foregroundStyle(data.weeklyTrend >= 0 ? .accent : Color.red)
+                .foregroundStyle(data.weeklyTrend >= 0 ? .green : Color.red)
 
                 Text("per week")
                     .font(.headline)
                     .foregroundColor(.secondary)
             }
         }
-    }
-
-    @ViewBuilder
-    private func ProgressIndicator(data: BudgetService) -> some View {
-        ProgressRing(
-            value: data.budget ?? 1,
-            progress: (data.budget ?? 0) - (data.remaining ?? 0),
-            color: (data.remaining ?? 0) >= 0 ? .accent : .red,
-            tip: (data.budget ?? 1) + (data.credit ?? 0),
-            tipColor: (data.credit ?? 0) >= 0 ? .green : .red,
-        )
     }
 
     private func loadData() async {
@@ -220,7 +211,7 @@ struct BudgetWidget: View {
         // Create services
         let newBudget = BudgetService(
             analytics: analyticsService, intakes: calorieData, alpha: 0.25,
-            budget: goals.calories  // Default to 2000 if not set
+            budget: goals.calories
         )
         let newMaintenance = MaintenanceService(
             analytics: analyticsService, budget: newBudget,

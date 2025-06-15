@@ -2,138 +2,178 @@ import Charts
 import SwiftData
 import SwiftUI
 
-// // MARK: - Maintenance Discovery Widget
-// // ============================================================================
+// MARK: - Macros Overview Widget
+// ============================================================================
 
-// struct MaintenanceWidget: View {
-//     let healthKitService: HealthKitService
-//     let analyticsService: AnalyticsService
+struct MacrosWidget: View {
+    let healthKitService: HealthKitService
+    let analyticsService: AnalyticsService
+    @Binding var refreshing: Bool
 
-//     @State private var maintenanceData: MaintenanceData?
-//     @State private var isLoading = true
+    @Query.Singleton
+    private var goals: UserGoals
+    @State private var proteinBudget: BudgetService?
+    @State private var carbsBudget: BudgetService?
+    @State private var fatBudget: BudgetService?
 
-//     struct MaintenanceData {
-//         let estimatedMaintenance: Double
-//         let currentBudget: Double
-//         let deficitSurplus: Double
-//         let confidence: String
-//     }
+    init(
+        _ id: UUID,
+        healthKit: HealthKitService,
+        analytics: AnalyticsService,
+        refreshing: Binding<Bool> = .constant(false)
+    ) {
+        self._goals = .init(id)
+        self.healthKitService = healthKit
+        self.analyticsService = analytics
+        self._refreshing = refreshing
+    }
 
-//     var body: some View {
-//         DashboardCard(
-//             title: "Maintenance Discovery",
-//             icon: Image(systemName: "target"),
-//             color: .blue
-//         ) {
-//             if isLoading {
-//                 ProgressView()
-//                     .frame(maxWidth: .infinity, minHeight: 100)
-//             } else if let data = maintenanceData {
-//                 MaintenanceContent(data: data)
-//             } else {
-//                 Text("Insufficient data for maintenance estimation")
-//                     .foregroundColor(.secondary)
-//                     .multilineTextAlignment(.center)
-//             }
-//         } destination: {
-//         }
-//         .task {
-//             await loadMaintenanceData()
-//         }
-//     }
+    var body: some View {
+        DashboardCard(
+            title: "Macros Budget",
+            icon: .macros, color: .macros
+        ) {
+            if let protein = proteinBudget, let carbs = carbsBudget, let fat = fatBudget {
+                HStack {
+                    Spacer()
+                    BudgetContent(data: protein, color: .protein, icon: .protein)
+                    Spacer()
+                    Divider()
+                    Spacer()
+                    BudgetContent(data: carbs, color: .carbs, icon: .carbs)
+                    Spacer()
+                    Divider()
+                    Spacer()
+                    BudgetContent(data: fat, color: .fat, icon: .fat)
+                    Spacer()
+                }
+            } else {
+                ProgressView()
+                    .frame(maxWidth: .infinity, minHeight: 100)
+            }
+        } destination: {
+        }
 
-//     @ViewBuilder
-//     private func MaintenanceContent(data: MaintenanceData) -> some View {
-//         VStack(alignment: .leading, spacing: 12) {
-//             // Estimated maintenance
-//             HStack {
-//                 Text("\(Int(data.estimatedMaintenance))")
-//                     .font(.largeTitle)
-//                     .fontWeight(.bold)
-//                     .foregroundColor(.primary)
+        .animation(.default, value: goals)
+        .animation(.default, value: proteinBudget == nil)
+        .animation(.default, value: carbsBudget == nil)
+        .animation(.default, value: fatBudget == nil)
 
-//                 Text("kcal/day")
-//                     .font(.caption)
-//                     .foregroundColor(.secondary)
+        .onAppear {
+            Task {
+                await loadData()
+            }
+        }
 
-//                 Spacer()
-//             }
+        .onChange(of: refreshing) {
+            Task {
+                await loadData()
+            }
+        }
+    }
 
-//             // Deficit/Surplus
-//             HStack {
-//                 Image(systemName: data.deficitSurplus < 0 ? "arrow.down" : "arrow.up")
-//                     .foregroundColor(data.deficitSurplus < 0 ? .green : .red)
+    @ViewBuilder
+    private func BudgetContent(data: BudgetService, color: Color, icon: Image) -> some View {
+        VStack {
+            if let remaining = data.remaining {
+                ValueView(
+                    measurement: .init(
+                        baseValue: .constant(remaining),
+                        definition: UnitDefinition<UnitMass>.macro
+                    ),
+                    icon: nil, tint: nil, format: .number
+                )
+                .fontWeight(.bold)
+                .font(.title)
+                .foregroundColor(remaining >= 0 ? .primary : .red)
 
-//                 Text(
-//                     "\(abs(Int(data.deficitSurplus))) kcal \(data.deficitSurplus < 0 ? "deficit" : "surplus")"
-//                 )
-//                 .font(.headline)
-//                 .foregroundColor(data.deficitSurplus < 0 ? .green : .red)
+                if let credit = data.credit {
+                    ValueView(
+                        measurement: .init(
+                            baseValue: .constant(credit),
+                            definition: UnitDefinition<UnitMass>.macro
+                        ),
+                        icon: nil, tint: nil, format: .number
+                    )
+                    .fontWeight(.bold)
+                    .font(.subheadline)
+                    .foregroundColor(credit >= 0 ? .green : .red)
+                } else if let smoothed = data.smoothedIntake {
+                    ValueView(
+                        measurement: .init(
+                            baseValue: .constant(smoothed),
+                            definition: UnitDefinition<UnitMass>.macro
+                        ),
+                        icon: nil, tint: nil, format: .number
+                    )
+                    .fontWeight(.bold)
+                    .font(.subheadline)
+                    .foregroundColor(smoothed >= 0 ? .green : .red)
+                }
+            } else {
+                ValueView(
+                    measurement: .init(
+                        baseValue: .constant(data.intake),
+                        definition: UnitDefinition<UnitMass>.macro
+                    ),
+                    icon: nil, tint: nil, format: .number
+                )
+                .fontWeight(.bold)
+                .font(.title)
+                .foregroundColor(.primary)
+            }
 
-//                 Spacer()
-//             }
+            data.progress(color: color, icon: icon)
+                .font(.subheadline.bold())
+                .frame(maxWidth: 50)
+        }
+    }
 
-//             Text("Confidence: \(data.confidence)")
-//                 .font(.caption)
-//                 .foregroundColor(.secondary)
-//         }
-//     }
+    private func loadData() async {
+        let endDate = Date()
+        let startDate = Calendar.current.date(byAdding: .day, value: -7, to: endDate)!
 
-//     private func loadMaintenanceData() async {
-//         isLoading = true
-//         defer { isLoading = false }
+        // Get protein data for the past 7 days
+        let proteinData = await healthKitService.fetchStatistics(
+            for: .protein,
+            from: startDate, to: endDate,
+            interval: .daily, options: .cumulativeSum
+        )
 
-//         let analytics = AnalyticsService()
+        // Get carbs data for the past 7 days
+        let carbsData = await healthKitService.fetchStatistics(
+            for: .carbs,
+            from: startDate, to: endDate,
+            interval: .daily, options: .cumulativeSum
+        )
 
-//         let endDate = Date()
-//         let startDate = Calendar.current.date(byAdding: .day, value: -30, to: endDate)!
+        // Get fat data for the past 7 days
+        let fatData = await healthKitService.fetchStatistics(
+            for: .fat,
+            from: startDate, to: endDate,
+            interval: .daily, options: .cumulativeSum
+        )
 
-//         // Get weight and calorie data
-//         let weightData = await healthKitService.fetchStatistics(
-//             for: .bodyMass,
-//             from: startDate,
-//             to: endDate,
-//             interval: .daily,
-//             options: .discreteAverage
-//         )
+        // Create services
+        let protein = BudgetService(
+            analytics: analyticsService, intakes: proteinData, alpha: 0.25,
+            budget: goals.macros?.protein
+        )
+        let carbs = BudgetService(
+            analytics: analyticsService, intakes: carbsData, alpha: 0.25,
+            budget: goals.macros?.carbs
+        )
+        let fat = BudgetService(
+            analytics: analyticsService, intakes: fatData, alpha: 0.25,
+            budget: goals.macros?.fat
+        )
 
-//         let calorieData = await healthKitService.fetchStatistics(
-//             for: .dietaryCalories,
-//             from: startDate,
-//             to: endDate,
-//             interval: .daily,
-//             options: .cumulativeSum
-//         )
-
-//         guard
-//             let estimatedMaintenance = await analytics.estimateMaintenanceCalories(
-//                 weightData: weightData,
-//                 calorieData: calorieData,
-//                 weightWindowDays: 14,
-//                 calorieWindowDays: 7
-//             )
-//         else {
-//             return
-//         }
-
-//         let currentBudget = 2000.0  // This should come from settings
-//         let deficitSurplus = currentBudget - estimatedMaintenance
-
-//         // Calculate confidence based on data availability
-//         let confidence: String
-//         if calorieData.count >= 7 && weightData.count >= 14 {
-//             confidence = "High"
-//         } else if calorieData.count >= 5 && weightData.count >= 10 {
-//             confidence = "Medium"
-//         } else {
-//             confidence = "Low"
-//         }
-
-//         maintenanceData = MaintenanceData(
-//             estimatedMaintenance: estimatedMaintenance,
-//             currentBudget: currentBudget,
-//             deficitSurplus: deficitSurplus,
-//             confidence: confidence
-//         )
-//     }
-// }
+        await MainActor.run {
+            withAnimation(.default) {
+                self.proteinBudget = protein
+                self.carbsBudget = carbs
+                self.fatBudget = fat
+            }
+        }
+    }
+}

@@ -20,10 +20,12 @@ struct DashboardView: View {
                         refreshing: $refreshing
                     )
 
-                    // MaintenanceWidget(
-                    //     healthKitService: healthKitService,
-                    //     analyticsService: analyticsService
-                    // )
+                    MacrosWidget(
+                        goalsID,
+                        healthKit: healthKitService,
+                        analytics: analyticsService,
+                        refreshing: $refreshing
+                    )
                 }
                 .padding()
             }

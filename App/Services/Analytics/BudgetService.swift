@@ -1,4 +1,5 @@
 import Foundation
+import SwiftUI
 
 // MARK: Budget Service
 // ============================================================================
@@ -46,5 +47,19 @@ struct BudgetService {
     var remaining: Double? {
         guard let budget = budget else { return nil }
         return budget - intake
+    }
+}
+
+extension BudgetService {
+    @ViewBuilder
+    func progress(color: Color = .accent, icon: Image?) -> ProgressRing {
+        ProgressRing(
+            value: self.budget ?? 1,
+            progress: (self.budget ?? 0) - (self.remaining ?? 0),
+            color: (self.remaining ?? 0) >= 0 ? color : .red,
+            tip: (self.budget ?? 1) + (self.credit ?? 0),
+            tipColor: (self.credit ?? 0) >= 0 ? .green : .red,
+            icon: icon
+        )
     }
 }
