@@ -33,6 +33,20 @@ struct MeasurementField<Unit: Dimension, Content: View>: View {
 
                         #if os(iOS)
                             .keyboardType(.decimalPad)
+                            .onReceive(
+                                NotificationCenter.default.publisher(
+                                    for: UITextField.textDidBeginEditingNotification
+                                )
+                            ) { notification in
+                                guard let textField = notification.object as? UITextField else {
+                                    return
+                                }
+
+                                textField.selectedTextRange = textField.textRange(
+                                    from: textField.beginningOfDocument,
+                                    to: textField.endOfDocument
+                                )
+                            }
                         #endif
 
                     if showPicker && $measurement.availableUnits().count > 1 {

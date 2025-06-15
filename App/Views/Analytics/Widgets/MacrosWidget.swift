@@ -74,6 +74,7 @@ struct MacrosWidget: View {
 
     @ViewBuilder
     private func BudgetContent(data: BudgetService, color: Color, icon: Image) -> some View {
+        let formatter = ProteinFieldDefinition().formatter
         VStack {
             if let remaining = data.remaining {
                 ValueView(
@@ -81,7 +82,7 @@ struct MacrosWidget: View {
                         baseValue: .constant(remaining),
                         definition: UnitDefinition<UnitMass>.macro
                     ),
-                    icon: nil, tint: nil, format: .number
+                    icon: nil, tint: nil, format: formatter
                 )
                 .fontWeight(.bold)
                 .font(.title)
@@ -93,7 +94,7 @@ struct MacrosWidget: View {
                             baseValue: .constant(credit),
                             definition: UnitDefinition<UnitMass>.macro
                         ),
-                        icon: nil, tint: nil, format: .number
+                        icon: nil, tint: nil, format: formatter
                     )
                     .fontWeight(.bold)
                     .font(.subheadline)
@@ -104,7 +105,7 @@ struct MacrosWidget: View {
                             baseValue: .constant(smoothed),
                             definition: UnitDefinition<UnitMass>.macro
                         ),
-                        icon: nil, tint: nil, format: .number
+                        icon: nil, tint: nil, format: formatter
                     )
                     .fontWeight(.bold)
                     .font(.subheadline)
@@ -116,7 +117,7 @@ struct MacrosWidget: View {
                         baseValue: .constant(data.intake),
                         definition: UnitDefinition<UnitMass>.macro
                     ),
-                    icon: nil, tint: nil, format: .number
+                    icon: nil, tint: nil, format: formatter
                 )
                 .fontWeight(.bold)
                 .font(.title)

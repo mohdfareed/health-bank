@@ -30,15 +30,8 @@ struct DashboardView: View {
                 .padding()
             }
             .navigationTitle("Dashboard")
-
-            .toolbar {
-                ToolbarItem(placement: .primaryAction) {
-                    Button(action: {
-                        refreshing.toggle()
-                    }) {
-                        Image(systemName: "arrow.clockwise")
-                    }
-                }
+            .refreshable {
+                refreshing.toggle()
             }
         }
     }

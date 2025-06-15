@@ -70,6 +70,7 @@ struct BudgetWidget: View {
 
     @ViewBuilder
     private func BudgetContent(data: BudgetService) -> some View {
+        let formatter = CalorieFieldDefinition().formatter
         HStack(alignment: .firstTextBaseline) {
             if let remaining = data.remaining {
                 ValueView(
@@ -77,22 +78,18 @@ struct BudgetWidget: View {
                         baseValue: .constant(remaining),
                         definition: UnitDefinition<UnitEnergy>.calorie
                     ),
-                    icon: nil, tint: nil, format: .number
+                    icon: nil, tint: nil, format: formatter
                 )
                 .fontWeight(.bold)
                 .font(.title)
                 .foregroundColor(remaining >= 0 ? .primary : .red)
-
-                Text("remaining")
-                    .font(.headline)
-                    .foregroundColor(.secondary)
             } else {
                 ValueView(
                     measurement: .init(
                         baseValue: .constant(data.intake),
                         definition: UnitDefinition<UnitEnergy>.calorie
                     ),
-                    icon: nil, tint: nil, format: .number
+                    icon: nil, tint: nil, format: formatter
                 )
                 .fontWeight(.bold)
                 .font(.title)
@@ -107,6 +104,7 @@ struct BudgetWidget: View {
 
     @ViewBuilder
     private func CreditContent(data: BudgetService) -> some View {
+        let formatter = CalorieFieldDefinition().formatter
         HStack(alignment: .firstTextBaseline, spacing: 0) {
             if let credit = data.credit {
                 ValueView(
@@ -114,23 +112,18 @@ struct BudgetWidget: View {
                         baseValue: .constant(credit),
                         definition: UnitDefinition<UnitEnergy>.calorie
                     ),
-                    icon: nil, tint: nil, format: .number
+                    icon: nil, tint: nil, format: formatter
                 )
                 .fontWeight(.bold)
                 .font(.title2)
                 .foregroundColor(credit >= 0 ? .green : .red)
-
-                Text("credit")
-                    .font(.headline)
-                    .foregroundColor(.secondary)
-                    .padding(.leading, 8)
             } else if let smoothed = data.smoothedIntake {
                 ValueView(
                     measurement: .init(
                         baseValue: .constant(smoothed),
                         definition: UnitDefinition<UnitEnergy>.calorie
                     ),
-                    icon: nil, tint: nil, format: .number
+                    icon: nil, tint: nil, format: formatter
                 )
                 .fontWeight(.bold)
                 .font(.title2)
@@ -150,6 +143,7 @@ struct BudgetWidget: View {
 
     @ViewBuilder
     private func MaintenanceContent(data: MaintenanceService) -> some View {
+        let formatter = CalorieFieldDefinition().formatter
         HStack(alignment: .firstTextBaseline) {
             if let maintenance = data.maintenance {
                 ValueView(
@@ -157,22 +151,18 @@ struct BudgetWidget: View {
                         baseValue: .constant(maintenance),
                         definition: UnitDefinition<UnitEnergy>.calorie
                     ),
-                    icon: nil, tint: nil, format: .number
+                    icon: nil, tint: nil, format: formatter
                 )
                 .fontWeight(.bold)
                 .font(.title2)
                 .foregroundColor(.indigo)
-
-                Text("maintenance")
-                    .font(.headline)
-                    .foregroundColor(.secondary)
             } else {
                 ValueView(
                     measurement: .init(
                         baseValue: .constant(data.weeklyTrend),
                         definition: UnitDefinition<UnitMass>.weight
                     ),
-                    icon: nil, tint: nil, format: .number
+                    icon: nil, tint: nil, format: formatter
                 )
                 .fontWeight(.bold)
                 .font(.title2)
@@ -181,6 +171,7 @@ struct BudgetWidget: View {
                 Text("per week")
                     .font(.headline)
                     .foregroundColor(.secondary)
+                    .padding(.leading, 8)
             }
         }
     }
