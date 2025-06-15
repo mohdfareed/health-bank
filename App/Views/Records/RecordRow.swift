@@ -37,7 +37,12 @@ struct RecordRow<Field: FieldDefinition, DetailContent: View>: View {
             DetailedRow(image: field.icon, tint: field.tint) {
                 Text(String(localized: field.title))
             } subtitle: {
-                computedButton.textScale(.secondary)
+                if let computed = computed?(),
+                    let baseValue = $measurement.baseValue,
+                    abs(baseValue - computed) > .ulpOfOne
+                {
+                    computedButton.textScale(.secondary)
+                }
                 Text(measurement.unit.symbol).textScale(.secondary)
             } details: {
                 details().textScale(.secondary)
@@ -52,6 +57,7 @@ struct RecordRow<Field: FieldDefinition, DetailContent: View>: View {
                 ToolbarItemGroup(placement: .keyboard) {
                     if isActive {
                         computedButton
+                            .padding(.horizontal)
                             .fixedSize()
                             .animation(.default, value: $measurement.baseValue)
                         Spacer()
@@ -63,25 +69,25 @@ struct RecordRow<Field: FieldDefinition, DetailContent: View>: View {
 
     @ViewBuilder
     private var computedButton: some View {
-        if let computed = computed?(), let baseValue = $measurement.baseValue,
-            abs(baseValue - computed) > .ulpOfOne
-        {
-            HStack(alignment: .center, spacing: 2) {
-                let icon = Image(systemName: "function").asText
-                Text("\(icon):").foregroundStyle(.indigo.secondary)
+        let baseValue = $measurement.baseValue ?? 0.0
+        let computed = computed?() ?? baseValue
 
-                $measurement.computedText(
-                    computed, format: field.formatter
-                )
-                .foregroundStyle(.indigo)
-                .contentTransition(.numericText(value: computed))
-            }
-            .simultaneousGesture(
-                TapGesture().onEnded {
-                    withAnimation { $measurement.baseValue = computed }
-                }
+        HStack(alignment: .center, spacing: 2) {
+            let icon = Image(systemName: "function").asText
+            Text("\(icon):").foregroundStyle(.indigo.secondary)
+
+            $measurement.computedText(
+                computed, format: field.formatter
             )
+            .fontDesign(.monospaced)
+            .foregroundStyle(.indigo)
+            .contentTransition(.numericText(value: computed))
         }
+        .simultaneousGesture(
+            TapGesture().onEnded {
+                withAnimation { $measurement.baseValue = computed }
+            }
+        )
     }
 }
 

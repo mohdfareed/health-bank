@@ -90,7 +90,9 @@ extension HealthKitService {
 
                 var results: [Date: Double] = [:]
                 // Enumerate through the statistics, ensuring the range matches the query.
-                collection.enumerateStatistics(from: startDate, to: endDate) { statistics, stop in
+                collection.enumerateStatistics(
+                    from: startDate, to: endDate
+                ) { statistics, stop in
                     var value: Double?
 
                     // Extract value based on the primary HKStatisticsOptions

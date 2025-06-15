@@ -1,7 +1,7 @@
 import SwiftUI
 
 extension HealthDataModel {
-    @MainActor var definition: HealthRecordDefinition {
+    @MainActor var definition: RecordDefinition {
         switch self {
         case .weight:
             return weightRecordDefinition
@@ -82,7 +82,7 @@ struct ComputedFieldDefinition<Base: FieldDefinition>: FieldDefinition, Computed
 /// Each health data type creates this to define its visual appearance,
 /// form configuration, and display behavior.
 @MainActor
-struct HealthRecordDefinition {
+struct RecordDefinition {
     let title: String.LocalizationValue
     let icon: Image
     let color: Color

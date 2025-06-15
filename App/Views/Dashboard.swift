@@ -4,26 +4,23 @@ import SwiftUI
 struct DashboardView: View {
     @Environment(\.modelContext) private var context: ModelContext
     @Environment(\.healthKit) private var healthKitService
-
+    @AppStorage(.userGoals) private var goalsID: UUID
     private let analyticsService = AnalyticsService()
-    private let budgetService = BudgetService()
 
     var body: some View {
         NavigationView {
             ScrollView {
                 LazyVStack(spacing: 16) {
-                    // Budget Overview Widget
-                    BudgetOverviewWidget(
-                        healthKitService: healthKitService,
-                        analyticsService: analyticsService,
-                        budgetService: budgetService
+                    BudgetWidget(
+                        goalsID,
+                        healthKit: healthKitService,
+                        analytics: analyticsService,
                     )
 
-                    // Maintenance Discovery Widget
-                    MaintenanceDiscoveryWidget(
-                        healthKitService: healthKitService,
-                        analyticsService: analyticsService
-                    )
+                    // MaintenanceWidget(
+                    //     healthKitService: healthKitService,
+                    //     analyticsService: analyticsService
+                    // )
                 }
                 .padding()
             }

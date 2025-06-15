@@ -4,37 +4,37 @@ import Foundation
 // ============================================================================
 
 struct BudgetService {
+    let analytics: AnalyticsService
 
-    /// Calculates the effective daily budget including running average adjustment.
-    /// - Parameters:
-    ///   - baseBudget: The user's base daily calorie budget (kcal).
-    ///   - averageIntake: The user's running average calorie intake (kcal).
-    /// - Returns: The adjusted daily budget.
-    public func calculateAdjustedBudget(
-        baseBudget: Double,  // 1800
-        averageIntake: Double  // 2000
-    ) -> Double {
-        let surplus = averageIntake - baseBudget  // 200 = 2000 - 1800
-        return baseBudget - surplus  // 1600 = 1800 - 200
+    /// Historical daily intakes (kcal), oldest first
+    let intakes: [Date: Double]
+    /// EWMA smoothing factor (e.g. 0.25 for 7-day smoothing [α = 2/(7+1)])
+    let alpha: Double
+    /// User-defined daily calorie budget (kcal)
+    let budget: Double
+
+    /// Daily intake buckets.
+    var dailyIntakes: [Date: Double] {
+        return intakes.bucketed(by: .day).mapValues { $0.sum() }
     }
 
-    /// Distributes a budget adjustment over the remaining days until the next first weekday (including today).
-    /// - Parameters:
-    ///   - adjustment: The total adjustment amount to distribute (kcal).
-    ///   - calendar: The calendar to use for date calculations.
-    ///   - currentDate: The current date (defaults to now).
-    /// - Returns: The daily adjustment amount to apply to each remaining day.
-    public func distributeBudgetAdjustment(
-        adjustment: Double,
-        calendar: Calendar,
-        currentDate: Date = Date()
-    ) -> Double {
-        let firstWeekDay = currentDate.next(
-            calendar.firstWeekday, using: calendar
-        )
-        let days = currentDate.distance(to: firstWeekDay, in: .day) ?? 0
+    /// EWMA-smoothed intake Sₜ (kcal)
+    var smoothedIntake: Double {
+        return analytics.computeEWMA(from: dailyIntakes.points, alpha: alpha)
+    }
 
-        guard days > 0 else { return adjustment }
-        return adjustment / Double(days)
+    /// Today's calorie intake ICₜ (kcal)
+    var intake: Double {
+        dailyIntakes[Date().floored(to: .day)] ?? 0
+    }
+
+    /// Daily calorie credit: Cₜ = B - Sₜ (kcal)
+    var credit: Double {
+        budget - smoothedIntake
+    }
+
+    /// Remaining budget for today: Rₜ = B - ICₜ (kcal)
+    var remaining: Double {
+        budget - intake
     }
 }

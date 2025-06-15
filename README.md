@@ -1,55 +1,99 @@
 # HealthBank
 
-HealthBank is an iOS application that takes a flexible, insight-driven approach to health tracking. Unlike traditional calorie counting apps that reset daily budgets, HealthBank uses **7-day running average budgeting** to provide a more realistic and sustainable approach to nutrition management.
+HealthBank is an application that takes a flexible, insight-driven approach to health tracking. Unlike traditional calorie counting apps that reset daily budgets, HealthBank uses **7-day running average budgeting** to provide a more realistic and sustainable approach to nutrition management.
 
-## Core Philosophy
+## Calorie Budget & Maintenance Tracking
 
-**7-Day Running Average Budgeting**: Your daily budget adjusts based on your 7-day average intake compared to your target. This transparent approach reflects how your body actually processes energy while giving you full agency over your choices.
+This document presents the **mathematical specification** of two core systems:
 
-**Maintenance Discovery & Deficit-Based Budgeting**: The app determines your actual calorie maintenance by analyzing the correlation between intake and weight changes. Users directly control their calorie deficit by adjusting their budget.
+1. Calorie Credit System
+2. Maintenance Estimation System
 
-## Dashboard Card Design
+## Symbols & Parameters
 
-**Card 1 - Budget Management:**
-- Progress bar: Today's intake with two segments (base budget + adjustment)
-- Display: Base remaining calories AND 7-day adjustment separately
-- Action: Quick add calorie entry
+| Symbol               | Description                                                            |
+| -------------------- | ---------------------------------------------------------------------- |
+| $t$                  | Current day index                                                      |
+| $C_t$                | Calorie intake on day $t$ (kcal)                                       |
+| $B$                  | User’s daily calorie budget (kcal/day)                                 |
+| $S_t$                | EWMA‑smoothed intake at day $t$ (kcal)                                 |
+| $\alpha$             | EWMA smoothing factor $(0 < \alpha < 1)$                               |
+| $N$                  | Regression window length for weight trend (days)                       |
+| $W_t$                | Body weight on day $t$ (lbs)                                           |
+| $m$                  | Estimated weight‑change rate (lbs/day)                                 |
+| $\rho$               | Energy equivalent of weight change $(3500\ \mathrm{kcal}/\mathrm{lb})$ |
+| $M_{\mathrm{raw},t}$ | Raw maintenance estimate on day $t$ (kcal/day)                         |
 
-**Card 2 - Maintenance Discovery:**
-- Display: Budget vs estimated maintenance gap (e.g., "-300 cal deficit")
-- Action: Quick add weight entry
+## 1. Calorie Credit System
 
-## External Interactivity Framework Strategy
+### 1.1 EWMA Smoothing of Intake
 
-**App Intents (Core Interactive Framework):**
-- "Log Calories" intent with calorie amount parameter
-- "Log Weight" intent with weight parameter
-- Automatically provides: Siri, Shortcuts, Spotlight, contextual suggestions
-- Custom parameter validation and smart suggestions
+Smooth the intake series to filter day‑to‑day noise while weighting recent days more heavily:
 
-**Interactive Widgets (Visual Interface):**
+$$
+S_t = \alpha\,C_{t-1} + (1 - \alpha)\,S_{t-1},\quad S_0 = C_0.
+$$
 
-**Widget 1 - Budget Management:**
-- Small: Adjusted remaining calories (e.g., "847 remaining")
-- Medium: Base remaining + adjustment breakdown (e.g., "600 base + 247 surplus = 847 remaining")
-- Large: Progress bar + interactive quick-add buttons (100, 200, 500 cal)
+* **Interpretation**: $S_t$ is the smoothed estimate of intake for day $t$.
 
-**Widget 2 - Maintenance Discovery:**
-- Small: Budget vs maintenance gap (e.g., "-300 cal deficit")
-- Medium: Gap + maintenance context (e.g., "-300 deficit (maintenance: 2200)")
-- Large: Gap trend over recent days + quick weight log button
+### 1.2 Credit Calculation
 
-**Lock Screen Widgets:**
-- Circular: Just remaining calories number
-- Rectangular: Remaining calories + deficit/surplus indicator
+Compute the difference (error) between the user’s budget and the smoothed intake:
 
-**Future: Control Center Controls (iOS 18+):**
-- Quick calorie logging from Control Center
-- Toggle between preset amounts
+$$
+\mathrm{Credit}_t = B - S_t.
+$$
 
-**Philosophy:** Seamless means invisible until needed. Each widget mirrors its dashboard card functionality with quick logging capabilities.
+* **Interpretation**: Positive $\mathrm{Credit}_t$ = under budget; negative = over budget.
 
-## Design Decisions Needed
-- Maintenance calculation algorithm
-- Chart system for detailed historical views
-- Widget update frequency and data freshness strategy
+## 2. Maintenance Estimation System
+
+### 2.1 Weight Trend via Linear Regression
+
+Fit a least‑squares line to the last $N$ days of weight to estimate the daily change rate.
+Let
+
+* $i = 0,1,\dots,N-1$
+* $w_i = W_{t-N+1+i}$
+
+Compute means:
+
+$$
+\bar i = \frac{1}{N}\sum_{i=0}^{N-1} i,
+\quad
+\bar w = \frac{1}{N}\sum_{i=0}^{N-1} w_i.
+$$
+
+Slope (weight‑change rate $m$):
+
+$$
+ m = \frac{\sum_{i=0}^{N-1}(i - \bar i)(w_i - \bar w)}{\sum_{i=0}^{N-1}(i - \bar i)^2}.
+$$
+
+### 2.2 Energy Imbalance
+
+Convert the weight‑change rate into daily calorie imbalance:
+
+$$
+\Delta E_t = m \times \rho.
+$$
+
+* Positive $\Delta E_t$ indicates net gain (intake > expenditure).
+
+### 2.3 Raw Maintenance Estimate
+
+Subtract the energy imbalance from smoothed intake:
+
+$$
+M_{\mathrm{raw},t} = S_t - \Delta E_t.
+$$
+
+---
+
+**Minimal Inputs Required**:
+
+* Intake history: $C_{t-1}$ and previous $S_{t-1}$
+* Weight history: $\{W_{t-N+1},\dots,W_t\}$
+* Constants: $\alpha, B, N, \rho$
+
+This specification defines all intermediate computations using only daily calories and weights, yielding noise‑resistant estimates for calorie credit and maintenance needs.

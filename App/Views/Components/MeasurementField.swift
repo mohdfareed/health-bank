@@ -54,7 +54,8 @@ struct MeasurementField<Unit: Dimension, Content: View>: View {
                                 withAnimation(.default) {
                                     isActive = false
                                 }
-                            }.tint(.accent)
+                            }
+                            .foregroundColor(.accent)
                         }
                     }
                 }

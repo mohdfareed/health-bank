@@ -17,7 +17,7 @@ struct WeightFieldDefinition: FieldDefinition {
     }
 }
 
-@MainActor let weightRecordDefinition = HealthRecordDefinition(
+@MainActor let weightRecordDefinition = RecordDefinition(
     title: "Weight", icon: .weight, color: .weight
 ) { weight in
     WeightFields(weight: weight)

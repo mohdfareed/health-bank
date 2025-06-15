@@ -14,7 +14,7 @@ struct DashboardCard<Content: View, Destination: View>: View {
 
     var body: some View {
         NavigationLink(destination: destination) {
-            LazyVStack(spacing: 16) {
+            LazyVStack(spacing: 8) {
                 LabeledContent {
                     Image(systemName: "chevron.right")
                         .foregroundStyle(.secondary)
@@ -23,12 +23,11 @@ struct DashboardCard<Content: View, Destination: View>: View {
                     Label {
                         Text(String(localized: title))
                             .font(.headline)
+                            .foregroundColor(color)
                     } icon: {
                         icon
-                            .imageScale(.large)
-                            .font(.headline)
+                            .font(.title2)
                             .foregroundColor(color)
-                            .symbolEffect(.variableColor, options: .repeat(1))
                     }
                 }
 
@@ -39,6 +38,7 @@ struct DashboardCard<Content: View, Destination: View>: View {
         }
         .buttonBorderShape(.roundedRectangle)
         .buttonStyle(.bordered)
+        .fontDesign(.rounded)
     }
 }
 

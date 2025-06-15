@@ -4,138 +4,47 @@ import Foundation
 // ============================================================================
 
 public struct AnalyticsService {
-    /// Calculates a running average for a set of date-value pairs.
+    /// Computes the EWMA of a series of values.
     /// - Parameters:
-    ///   - data: A dictionary of `[Date: Double]` representing the time series data.
-    ///   - windowSize: The number of data points to include in each average calculation (e.g., 7 for a 7-day average).
-    ///   - unit: The calendar unit that defines the spacing of the data points (e.g., `.day`).
-    /// - Returns: A dictionary `[Date: Double]` where the value is the running average ending on that date.
-    public func calculateRunningAverage(
-        data: [Date: Double], windowSize: Int,
-        unit: Calendar.Component, calendar: Calendar = .current
-    ) throws -> [Date: Double] {
-        guard windowSize > 0 else {
-            throw AppError.analytics("Window size must be greater than zero.")
+    ///   - values: historical values [C₀, C₁, …, Cₜ₋₁] (oldest first)
+    ///   - alpha: EWMA smoothing factor (0 < α < 1)
+    /// - Returns: Sₜ where
+    ///   S₀ = C₀
+    ///   Sᵢ = α·Cᵢ + (1−α)·Sᵢ₋₁
+    func computeEWMA(from values: [Double], alpha: Double) -> Double {
+        guard !values.isEmpty else { return 0 }
+        // Seed with the first data point
+        var smoothed = values[0]
+        // Fold over the rest (last has highest weight)
+        for value in values.dropFirst() {
+            smoothed = alpha * value + (1 - alpha) * smoothed
         }
+        return smoothed
+    }
 
-        let sortedDates = data.keys.sorted()
-        guard !sortedDates.isEmpty else { return [:] }
+    /// Computes the slope (Δy/Δx) of a series of equally-spaced samples using
+    /// least-squares linear regression.
+    /// - Parameters:
+    ///   - values: an array of measurements [y₀, y₁, …, yₙ₋₁] (oldest first)
+    /// - Returns: the slope (units of y per index, e.g. lbs/day)
+    func computeSlope(from values: [Double]) -> Double {
+        let n = values.count
+        guard n > 1 else { return 0 }
 
-        var runningAverages: [Date: Double] = [:]
-        var currentWindow: [Double] = []
+        // x = 0, 1, …, n-1
+        let times = (0..<n).map(Double.init)
+        let meanX = times.reduce(0, +) / Double(n)
+        let meanY = values.reduce(0, +) / Double(n)
 
-        // Iterate through all possible dates in the range to ensure consistent windowing
-        // This assumes data might be sparse.
-        var currentDate = sortedDates.first!
-        let endDate = sortedDates.last!
-
-        while currentDate <= endDate {
-            if let value = data[currentDate] {
-                currentWindow.append(value)
-            }
-
-            if currentWindow.count > windowSize {
-                currentWindow.removeFirst()
-            }
-
-            if !currentWindow.isEmpty {
-                runningAverages[currentDate] =
-                    currentWindow.reduce(0, +) / Double(currentWindow.count)
-            }
-
-            currentDate = calendar.date(
-                byAdding: unit, value: 1, to: currentDate
-            )!
+        // numerator and denominator
+        let numerator = zip(times, values).reduce(0) { acc, pair in
+            let (x, y) = pair
+            return acc + (x - meanX) * (y - meanY)
         }
-        return runningAverages
-    }
-}
-
-// MARK: Data Points
-// ============================================================================
-
-extension Sequence {
-    /// Create data points from a sequence of elements.
-    func points<T>(_ keyPath: KeyPath<Element, T>) -> [T] {
-        return map { $0[keyPath: keyPath] }
-    }
-
-    /// Create data points from a sequence of elements.
-    func points<X, Y>(
-        x: KeyPath<Element, X>, y: KeyPath<Element, Y>
-    ) -> [(x: X, y: Y)] { map { ($0[keyPath: x], $0[keyPath: y]) } }
-}
-
-// MARK: Statistics
-// ============================================================================
-
-extension Sequence where Element: AdditiveArithmetic {
-    /// The sum of all data points.
-    func sum() -> Element { self.reduce(.zero, +) }
-}
-
-extension Sequence where Element: BinaryFloatingPoint {
-    /// The average of all data points.
-    func average() -> Element? {
-        guard self.first(where: { _ in true }) != nil else { return nil }
-        let count = self.count(where: { _ in true })
-        return self.sum() / Element(count)
-    }
-}
-
-extension Double {
-    static func / (lhs: Double, rhs: Int) -> Double {
-        return lhs / Double(rhs)
-    }
-}
-extension Int {
-    static func / (lhs: Int, rhs: Double) -> Double {
-        return Double(lhs) / rhs
-    }
-}
-
-// MARK: Time
-// ============================================================================
-
-extension Date {
-    /// Get the difference between two dates in a unit.
-    func distance(
-        to date: Date, in unit: Calendar.Component,
-        using calendar: Calendar = .current
-    ) -> Int? {
-        let dateComponents = calendar.dateComponents(
-            [unit], from: self, to: date
-        )
-        return dateComponents.value(for: unit)
-    }
-
-    /// Add an amount of a calendar component.
-    func adding(
-        _ value: Int, _ component: Calendar.Component,
-        using calendar: Calendar = .current
-    ) -> Date {
-        calendar.date(byAdding: component, value: value, to: self)!
-    }
-
-    /// Floors the date to the beginning of a specific time unit.
-    func floored(
-        to unit: Calendar.Component, using calendar: Calendar = .current
-    ) -> Date {
-        if let interval = calendar.dateInterval(of: unit, for: self) {
-            return interval.start
+        let denominator = times.reduce(0) { acc, x in
+            let dx = x - meanX
+            return acc + dx * dx
         }
-        return self
-    }
-
-    /// The date of the next occurrence of a specific weekday.
-    func next(_ weekday: Int, using calendar: Calendar = .current) -> Date {
-        let weekday = weekday % 7  // Ensure it's within 0...6 if needed
-        let todayWeekday = calendar.component(.weekday, from: self)
-
-        var daysToAdd = weekday - todayWeekday
-        if daysToAdd <= 0 {
-            daysToAdd += 7
-        }
-        return calendar.date(byAdding: .day, value: daysToAdd, to: self)!
+        return denominator != 0 ? numerator / denominator : 0
     }
 }

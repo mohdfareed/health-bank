@@ -8,7 +8,7 @@ struct RecordList<T: HealthData>: View {
     @State private var isCreating = false
 
     private let dataModel: HealthDataModel
-    private let definition: HealthRecordDefinition
+    private let definition: RecordDefinition
 
     init(_ dataModel: HealthDataModel, for: T.Type) {
         self.dataModel = dataModel
@@ -90,7 +90,7 @@ struct RecordList<T: HealthData>: View {
 private struct RecordListRow: View {
     @AppLocale private var locale
     @State var record: any HealthData
-    let definition: HealthRecordDefinition
+    let definition: RecordDefinition
 
     var body: some View {
         NavigationLink {
@@ -168,10 +168,10 @@ struct AddMenu: View {
 struct AddButton: View {
     @Environment(\.tabViewBottomAccessoryPlacement) var placement
 
-    let definition: HealthRecordDefinition
+    let definition: RecordDefinition
     let action: () -> Void
 
-    init(_ definition: HealthRecordDefinition, action: @escaping () -> Void) {
+    init(_ definition: RecordDefinition, action: @escaping () -> Void) {
         self.definition = definition
         self.action = action
     }

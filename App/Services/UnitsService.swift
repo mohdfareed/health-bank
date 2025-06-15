@@ -1,6 +1,28 @@
 import HealthKit
 import SwiftUI
 
+extension Measurement<UnitEnergy> {
+    /// Convert the energy as calories to body mass as 1 kg = 7700 kcal.
+    static let caloriesToMassFactor: Double = 7700.0
+
+    func asMass() -> Measurement<UnitMass> {
+        let calories = self.converted(to: .kilocalories).value
+        let mass = calories / Self.caloriesToMassFactor
+        return .init(value: mass, unit: .kilograms)
+    }
+}
+
+extension Measurement<UnitMass> {
+    /// Convert the energy as calories to body mass as 1 kg = 7700 kcal.
+    static let caloriesToMassFactor: Double = 7700.0
+
+    func asEnergy() -> Measurement<UnitEnergy> {
+        let mass = self.converted(to: .kilograms).value
+        let calories = mass * Self.caloriesToMassFactor
+        return .init(value: calories, unit: .kilocalories)
+    }
+}
+
 // MARK: Localization
 // ============================================================================
 

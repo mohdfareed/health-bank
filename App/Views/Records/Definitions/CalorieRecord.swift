@@ -20,7 +20,7 @@ struct CalorieFieldDefinition: FieldDefinition {
 }
 
 @MainActor
-let calorieRecordDefinition = HealthRecordDefinition(
+let calorieRecordDefinition = RecordDefinition(
     title: "Calories", icon: .calories, color: .calories
 ) { calorie in
     CalorieFields(calorie: calorie)
