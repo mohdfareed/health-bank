@@ -23,8 +23,8 @@ public struct CalorieMacros: Codable, Hashable, Sendable {
 }
 
 /// Represents dietary calorie intake.
-@Observable public final class DietaryCalorie: HealthData {
-    public var id: UUID
+@Observable public final class DietaryCalorie: HealthData, @unchecked Sendable {
+    public let id: UUID
     public let source: DataSource
     public var date: Date
 

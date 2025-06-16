@@ -2,7 +2,7 @@ import Foundation
 import HealthKit
 
 /// SwiftData model for weight data.
-@Observable public final class Weight: HealthData {
+@Observable public final class Weight: HealthData, @unchecked Sendable {
     public let id: UUID
     public let source: DataSource
     public var date: Date

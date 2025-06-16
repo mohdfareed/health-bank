@@ -75,29 +75,21 @@ struct BudgetWidget: View {
             Text("remaining")
                 .font(.headline)
                 .foregroundColor(.secondary)
-                .padding(.leading, 8)
         }
     }
 
     @ViewBuilder
     private func BudgetContent(data: BudgetService) -> some View {
         let formatter = CalorieFieldDefinition().formatter
-        HStack(alignment: .firstTextBaseline) {
-            ValueView(
-                measurement: .init(
-                    baseValue: .constant(data.calories.currentIntake),
-                    definition: UnitDefinition<UnitEnergy>.calorie
-                ),
-                icon: nil, tint: nil, format: formatter
-            )
-            .fontWeight(.bold)
-            .font(.headline)
-            .foregroundColor(.secondary)
+        HStack(alignment: .firstTextBaseline, spacing: 0) {
+            Text(data.calories.currentIntake ?? 0, format: formatter)
+                .fontWeight(.bold)
+                .font(.headline)
+                .foregroundColor(.secondary)
 
             Text("/")
                 .font(.headline)
                 .foregroundColor(.secondary)
-                .padding(.leading, 8)
 
             ValueView(
                 measurement: .init(

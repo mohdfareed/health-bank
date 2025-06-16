@@ -37,7 +37,6 @@ struct BudgetService {
     /// The remaining budget for today
     var remaining: Double? {
         guard let budget = budget else { return nil }
-        guard let intake = calories.currentIntake else { return nil }
-        return budget - intake
+        return budget - (calories.currentIntake ?? 0)
     }
 }

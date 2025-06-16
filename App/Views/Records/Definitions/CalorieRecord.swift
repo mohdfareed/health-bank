@@ -169,28 +169,12 @@ struct CalorieFormView: View {
             title: "Calories",
             formType: formType,
             saveFunc: { (record: DietaryCalorie) in
-                Task {
-                    do {
-                        let query: any HealthQuery<DietaryCalorie> = dataModel.query()
-                        try await query.save(record, store: HealthKitService.shared)
-                    } catch {
-                        AppLogger.new(for: dataModel).error(
-                            "Failed to save record: \(error)"
-                        )
-                    }
-                }
+                let query: any HealthQuery<DietaryCalorie> = dataModel.query()
+                try await query.save(record, store: HealthKitService.shared)
             },
             deleteFunc: { (record: DietaryCalorie) in
-                Task {
-                    do {
-                        let query: any HealthQuery<DietaryCalorie> = dataModel.query()
-                        try await query.delete(record, store: HealthKitService.shared)
-                    } catch {
-                        AppLogger.new(for: dataModel).error(
-                            "Failed to delete record: \(error)"
-                        )
-                    }
-                }
+                let query: any HealthQuery<DietaryCalorie> = dataModel.query()
+                try await query.delete(record, store: HealthKitService.shared)
             },
             record: $record
         ) { binding in

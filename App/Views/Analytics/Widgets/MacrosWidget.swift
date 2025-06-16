@@ -97,16 +97,10 @@ struct MacrosWidget: View {
     ) -> some View {
         let formatter = ProteinFieldDefinition().formatter
         HStack(alignment: .firstTextBaseline, spacing: 0) {
-            ValueView(
-                measurement: .init(
-                    baseValue: .constant(intake(ring: ring)),
-                    definition: UnitDefinition<UnitMass>.macro
-                ),
-                icon: nil, tint: nil, format: formatter
-            )
-            .fontWeight(.bold)
-            .font(.headline)
-            .foregroundColor(.secondary)
+            Text(intake(ring: ring) ?? 0, format: formatter)
+                .fontWeight(.bold)
+                .font(.headline)
+                .foregroundColor(.secondary)
 
             Text("/")
                 .font(.headline)
