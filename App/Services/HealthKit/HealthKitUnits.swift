@@ -6,8 +6,9 @@ import HealthKit
 extension HealthKitService {
     /// Returns the preferred unit for a single quantity type.
     @MainActor
-    public func preferredUnit(for quantityType: HKQuantityType) -> Unit? {
-        Self.unitsCache[quantityType]
+    public func preferredUnit(for quantityType: HKQuantityType?) -> Unit? {
+        guard let quantityType = quantityType else { return nil }
+        return Self.unitsCache[quantityType]
     }
 
     /// Sets up the HealthKit units. Must be called once on initialization.

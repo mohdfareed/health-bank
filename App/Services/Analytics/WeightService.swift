@@ -1,9 +1,11 @@
 import Foundation
+import SwiftData
+import SwiftUI
 
 /// Encapsulates maintenance estimation calculations for display in widgets.
-struct MaintenanceService {
+struct WeightAnalyticsService {
     let analytics: AnalyticsService
-    let budget: BudgetService
+    let calories: DataAnalyticsService
 
     /// Recent daily weights (lbs), oldest first
     let weights: [Date: Double]
@@ -22,19 +24,14 @@ struct MaintenanceService {
         analytics.computeSlope(from: dailyWeights.points)
     }
 
-    /// Projected weekly trend from weight data (lbs/week)
-    var weeklyTrend: Double {
-        weightSlope * 7
-    }
-
-    /// Daily energy imbalance ΔEₜ = m * rho (kcal/day)
+    /// Daily energy imbalance ΔE = m * rho (kcal/day)
     var energyImbalance: Double {
         weightSlope * rho
     }
 
-    /// Raw maintenance estimate Mₜ = Sₜ - ΔEₜ (kcal/day)
+    /// Raw maintenance estimate M = S - ΔE (kcal/day)
     var maintenance: Double? {
-        guard let smoothed = budget.smoothedIntake else { return nil }
+        guard let smoothed = calories.smoothedIntake else { return nil }
         return smoothed - energyImbalance
     }
 }

@@ -2,32 +2,13 @@ import SwiftData
 import SwiftUI
 
 struct DashboardView: View {
-    @Environment(\.modelContext) private var context: ModelContext
-    @Environment(\.healthKit) private var healthKitService
     @AppStorage(.userGoals) private var goalsID: UUID
-    private let analyticsService = AnalyticsService()
-
-    @State private var refreshing = true
+    @State private var refreshing: Bool = false
 
     var body: some View {
         NavigationView {
             ScrollView {
-                LazyVStack(spacing: 16) {
-                    BudgetWidget(
-                        goalsID,
-                        healthKit: healthKitService,
-                        analytics: analyticsService,
-                        refreshing: $refreshing
-                    )
-
-                    MacrosWidget(
-                        goalsID,
-                        healthKit: healthKitService,
-                        analytics: analyticsService,
-                        refreshing: $refreshing
-                    )
-                }
-                .padding()
+                DashboardWidgets(goalsID, refreshing: $refreshing)
             }
             .navigationTitle("Dashboard")
             .refreshable {
@@ -35,4 +16,40 @@ struct DashboardView: View {
             }
         }
     }
+}
+
+struct DashboardWidgets: View {
+    @Query.Singleton var goals: UserGoals
+    @Binding private var refreshing: Bool
+
+    init(
+        _ goalsID: UUID,
+        refreshing: Binding<Bool> = .constant(false)
+    ) {
+        self._refreshing = refreshing
+        self._goals = .init(goalsID)
+    }
+
+    var body: some View {
+        LazyVStack(spacing: 16) {
+            let budget = BudgetWidget(
+                goals.adjustment,
+                refreshing: $refreshing
+            )
+            budget
+
+            MacrosWidget(
+                goals.macros,
+                budgetAnalytics: budget.$budget,
+                refreshing: $refreshing
+            )
+
+            OverviewWidget(
+                goals.adjustment, goals.macros,
+                refreshing: $refreshing
+            )
+        }
+        .padding()
+    }
+
 }

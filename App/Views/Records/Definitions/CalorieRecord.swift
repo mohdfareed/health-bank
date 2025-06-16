@@ -19,6 +19,38 @@ struct CalorieFieldDefinition: FieldDefinition {
     }
 }
 
+/// Calorie adjustment field definition
+struct CalorieAdjustmentFieldDefinition: FieldDefinition {
+    typealias Unit = UnitEnergy
+
+    let title: String.LocalizationValue = "Adjustment"
+    let icon = Image(systemName: "plus.forwardslash.minus")
+    let tint = Color.indigo
+    let formatter = FloatingPointFormatStyle<Double>.number.precision(.fractionLength(0))
+    let validator: (@Sendable (Double) -> Bool)? = { _ in true }
+
+    @MainActor
+    func measurement(_ binding: Binding<Double?>) -> LocalizedMeasurement<UnitEnergy> {
+        LocalizedMeasurement(binding, definition: UnitDefinition.calorie)
+    }
+}
+
+/// Calorie maintenance field definition
+struct MaintenanceFieldDefinition: FieldDefinition {
+    typealias Unit = UnitEnergy
+
+    let title: String.LocalizationValue = "Maintenance"
+    let icon = Image(systemName: "flame.gauge.open").symbolRenderingMode(.hierarchical)
+    let tint = Color.calories
+    let formatter = FloatingPointFormatStyle<Double>.number.precision(.fractionLength(0))
+    let validator: (@Sendable (Double) -> Bool)? = { _ in true }
+
+    @MainActor
+    func measurement(_ binding: Binding<Double?>) -> LocalizedMeasurement<UnitEnergy> {
+        LocalizedMeasurement(binding, definition: UnitDefinition.calorie)
+    }
+}
+
 @MainActor
 let calorieRecordDefinition = RecordDefinition(
     title: "Calories", icon: .calories, color: .calories
@@ -78,32 +110,34 @@ struct CalorieFields: View {
             showPicker: true
         )
 
-        // Protein field
-        RecordRow(
-            field: ProteinFieldDefinition().withComputed {
-                calorie.calculatedProtein()
-            },
-            value: macros.protein,
-            isInternal: calorie.source == .app
-        )
+        Section {
+            // Protein field
+            RecordRow(
+                field: ProteinFieldDefinition().withComputed {
+                    calorie.calculatedProtein()
+                },
+                value: macros.protein,
+                isInternal: calorie.source == .app
+            )
 
-        // Carbs field
-        RecordRow(
-            field: CarbsFieldDefinition().withComputed {
-                calorie.calculatedCarbs()
-            },
-            value: macros.carbs,
-            isInternal: calorie.source == .app
-        )
+            // Carbs field
+            RecordRow(
+                field: CarbsFieldDefinition().withComputed {
+                    calorie.calculatedCarbs()
+                },
+                value: macros.carbs,
+                isInternal: calorie.source == .app
+            )
 
-        // Fat field
-        RecordRow(
-            field: FatFieldDefinition().withComputed {
-                calorie.calculatedFat()
-            },
-            value: macros.fat,
-            isInternal: calorie.source == .app
-        )
+            // Fat field
+            RecordRow(
+                field: FatFieldDefinition().withComputed {
+                    calorie.calculatedFat()
+                },
+                value: macros.fat,
+                isInternal: calorie.source == .app
+            )
+        }
 
         // Alcohol field
         RecordRow(

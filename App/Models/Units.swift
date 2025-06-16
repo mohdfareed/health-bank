@@ -1,5 +1,8 @@
 import Foundation
 
+// MARK: Definitions
+// ============================================================================
+
 extension UnitDefinition where D == UnitEnergy {
     /// Generic calorie unit definition (kilocalories as base).
     static let calorie = UnitDefinition<UnitEnergy>(
@@ -23,6 +26,12 @@ extension UnitDefinition where D == UnitMass {
         usage: .personWeight,
         healthKitType: .bodyMass,
     )
+
+    /// Percentage unit definition (percent as base).
+    static let percentage = UnitDefinition<UnitMass>(
+        .percent,
+        usage: .asProvided,
+    )
 }
 
 extension UnitDefinition where D == UnitVolume {
@@ -33,6 +42,20 @@ extension UnitDefinition where D == UnitVolume {
         usage: .asProvided,
         healthKitType: .alcohol,
     )
+}
+
+// MARK: Units
+// ============================================================================
+
+extension UnitMass {
+    /// A unit for representing percentages, based on grams.
+    static var percent: UnitMass {
+        return UnitMass(
+            symbol: "%",
+            // 100 percent = 1 gram
+            converter: UnitConverterLinear(coefficient: 0.01)
+        )
+    }
 }
 
 extension UnitMass {

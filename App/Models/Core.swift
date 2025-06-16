@@ -28,12 +28,12 @@ struct UnitDefinition<D: Dimension>: Sendable {
     /// The unit formatting usage.
     let usage: MeasurementFormatUnitUsage<D>
     // The HealthKit unit type.
-    let healthKitType: HealthKitDataType
+    let healthKitType: HealthKitDataType?
 
     init(
         _ unit: D = .baseUnit(), alts: [D] = [],
         usage: MeasurementFormatUnitUsage<D> = .general,
-        healthKitType: HealthKitDataType,
+        healthKitType: HealthKitDataType? = nil,
     ) {
         self.baseUnit = unit
         self.altUnits = alts

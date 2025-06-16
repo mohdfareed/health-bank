@@ -46,8 +46,8 @@ extension Settings {
     var date: Date = Date()
 
     // goals
-    var calories: Double? = nil
-    var macros: CalorieMacros? = nil
+    var adjustment: Double? = nil  // in kcal
+    var macros: CalorieMacros? = nil  // in percent
 
     // singleton
     var id: UUID

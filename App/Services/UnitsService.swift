@@ -117,16 +117,19 @@ struct LocalizedMeasurement<D: Dimension>: DynamicProperty {
                 if let override = displayUnit {
                     return override
                 }
+
                 // 2) App Settings preferred unit
                 if $locale.units.wrappedValue != nil {
                     return definition.unit(for: locale)
                 }
+
                 // 3) HealthKit preferred unit
-                if let hkUnit = healthKitService.preferredUnit(
-                    for: definition.healthKitType.quantityType
-                ) as? D {
+                let type = definition.healthKitType?.quantityType
+                let unitOf = healthKitService.preferredUnit
+                if let hkUnit = unitOf(type) as? D {
                     return hkUnit
                 }
+
                 // 4) Default localization
                 return definition.unit(for: locale)
             },

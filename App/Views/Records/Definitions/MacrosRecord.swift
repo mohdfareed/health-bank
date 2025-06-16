@@ -18,6 +18,21 @@ struct ProteinFieldDefinition: FieldDefinition {
     }
 }
 
+struct ProteinPercentDefinition: FieldDefinition {
+    typealias Unit = UnitMass
+
+    let title: String.LocalizationValue = "Protein"
+    let icon = Image.protein
+    let tint = Color.protein
+    let formatter = FloatingPointFormatStyle<Double>.number.precision(.fractionLength(0))
+    let validator: (@Sendable (Double) -> Bool)? = { $0 >= 0 && $0 <= 100 }
+
+    @MainActor
+    func measurement(_ binding: Binding<Double?>) -> LocalizedMeasurement<UnitMass> {
+        LocalizedMeasurement(binding, definition: UnitDefinition.percentage)
+    }
+}
+
 struct CarbsFieldDefinition: FieldDefinition {
     typealias Unit = UnitMass
 
@@ -33,6 +48,21 @@ struct CarbsFieldDefinition: FieldDefinition {
     }
 }
 
+struct CarbsPercentDefinition: FieldDefinition {
+    typealias Unit = UnitMass
+
+    let title: String.LocalizationValue = "Carbs"
+    let icon = Image.carbs
+    let tint = Color.carbs
+    let formatter = FloatingPointFormatStyle<Double>.number.precision(.fractionLength(0))
+    let validator: (@Sendable (Double) -> Bool)? = { $0 >= 0 && $0 <= 100 }
+
+    @MainActor
+    func measurement(_ binding: Binding<Double?>) -> LocalizedMeasurement<UnitMass> {
+        LocalizedMeasurement(binding, definition: UnitDefinition.percentage)
+    }
+}
+
 struct FatFieldDefinition: FieldDefinition {
     typealias Unit = UnitMass
 
@@ -45,6 +75,21 @@ struct FatFieldDefinition: FieldDefinition {
     @MainActor
     func measurement(_ binding: Binding<Double?>) -> LocalizedMeasurement<UnitMass> {
         LocalizedMeasurement(binding, definition: UnitDefinition.macro)
+    }
+}
+
+struct FatPercentDefinition: FieldDefinition {
+    typealias Unit = UnitMass
+
+    let title: String.LocalizationValue = "Fat"
+    let icon = Image.fat
+    let tint = Color.fat
+    let formatter = FloatingPointFormatStyle<Double>.number.precision(.fractionLength(0))
+    let validator: (@Sendable (Double) -> Bool)? = { $0 >= 0 && $0 <= 100 }
+
+    @MainActor
+    func measurement(_ binding: Binding<Double?>) -> LocalizedMeasurement<UnitMass> {
+        LocalizedMeasurement(binding, definition: UnitDefinition.percentage)
     }
 }
 

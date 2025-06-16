@@ -44,7 +44,7 @@ struct ProgressRing: View {
     var body: some View {
         GeometryReader { geometry in
             let size = min(geometry.size.width, geometry.size.height)
-            let lineWidth = size * 0.2
+            let lineWidth = size * 0.15
 
             ZStack {
                 // Background ring

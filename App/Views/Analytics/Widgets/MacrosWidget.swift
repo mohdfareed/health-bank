@@ -6,26 +6,19 @@ import SwiftUI
 // ============================================================================
 
 struct MacrosWidget: View {
-    let healthKitService: HealthKitService
-    let analyticsService: AnalyticsService
+    @MacrosAnalytics private var macrosBudget: MacrosAnalyticsService?
     @Binding var refreshing: Bool
 
-    @Query.Singleton
-    private var goals: UserGoals
-    @State private var proteinBudget: BudgetService?
-    @State private var carbsBudget: BudgetService?
-    @State private var fatBudget: BudgetService?
-
     init(
-        _ id: UUID,
-        healthKit: HealthKitService,
-        analytics: AnalyticsService,
+        _ adjustments: CalorieMacros? = nil,
+        budgetAnalytics: BudgetAnalytics,
         refreshing: Binding<Bool> = .constant(false)
     ) {
-        self._goals = .init(id)
-        self.healthKitService = healthKit
-        self.analyticsService = analytics
         self._refreshing = refreshing
+        self._macrosBudget = .init(
+            budgetAnalytics: budgetAnalytics,
+            adjustments: adjustments
+        )
     }
 
     var body: some View {
@@ -33,18 +26,18 @@ struct MacrosWidget: View {
             title: "Macros Budget",
             icon: .macros, color: .macros
         ) {
-            if let protein = proteinBudget, let carbs = carbsBudget, let fat = fatBudget {
+            if macrosBudget != nil {
                 HStack {
                     Spacer()
-                    BudgetContent(data: protein, color: .protein, icon: .protein)
+                    BudgetContent(ring: .protein)
                     Spacer()
                     Divider()
                     Spacer()
-                    BudgetContent(data: carbs, color: .carbs, icon: .carbs)
+                    BudgetContent(ring: .carbs)
                     Spacer()
                     Divider()
                     Spacer()
-                    BudgetContent(data: fat, color: .fat, icon: .fat)
+                    BudgetContent(ring: .fat)
                     Spacer()
                 }
             } else {
@@ -54,10 +47,11 @@ struct MacrosWidget: View {
         } destination: {
         }
 
-        .animation(.default, value: goals)
-        .animation(.default, value: proteinBudget == nil)
-        .animation(.default, value: carbsBudget == nil)
-        .animation(.default, value: fatBudget == nil)
+        .animation(.default, value: refreshing)
+        .animation(.default, value: macrosBudget == nil)
+        .animation(.default, value: macrosBudget?.protein == nil)
+        .animation(.default, value: macrosBudget?.carbs == nil)
+        .animation(.default, value: macrosBudget?.fat == nil)
 
         .onAppear {
             Task {
@@ -73,108 +67,143 @@ struct MacrosWidget: View {
     }
 
     @ViewBuilder
-    private func BudgetContent(data: BudgetService, color: Color, icon: Image) -> some View {
+    private func BudgetContent(
+        ring: MacrosAnalyticsService.MacroRing
+    ) -> some View {
         let formatter = ProteinFieldDefinition().formatter
         VStack {
-            if let remaining = data.remaining {
-                ValueView(
-                    measurement: .init(
-                        baseValue: .constant(remaining),
-                        definition: UnitDefinition<UnitMass>.macro
-                    ),
-                    icon: nil, tint: nil, format: formatter
-                )
-                .fontWeight(.bold)
-                .font(.title)
-                .foregroundColor(remaining >= 0 ? .primary : .red)
+            ValueView(
+                measurement: .init(
+                    baseValue: .constant(remaining(ring: ring)),
+                    definition: UnitDefinition<UnitMass>.macro
+                ),
+                icon: nil, tint: nil, format: formatter
+            )
+            .fontWeight(.bold)
+            .font(.title)
+            .foregroundColor(remaining(ring: ring) ?? 0 >= 0 ? .primary : .red)
 
-                if let credit = data.credit {
-                    ValueView(
-                        measurement: .init(
-                            baseValue: .constant(credit),
-                            definition: UnitDefinition<UnitMass>.macro
-                        ),
-                        icon: nil, tint: nil, format: formatter
-                    )
-                    .fontWeight(.bold)
-                    .font(.subheadline)
-                    .foregroundColor(credit >= 0 ? .green : .red)
-                } else if let smoothed = data.smoothedIntake {
-                    ValueView(
-                        measurement: .init(
-                            baseValue: .constant(smoothed),
-                            definition: UnitDefinition<UnitMass>.macro
-                        ),
-                        icon: nil, tint: nil, format: formatter
-                    )
-                    .fontWeight(.bold)
-                    .font(.subheadline)
-                    .foregroundColor(smoothed >= 0 ? .green : .red)
-                }
-            } else {
-                ValueView(
-                    measurement: .init(
-                        baseValue: .constant(data.intake),
-                        definition: UnitDefinition<UnitMass>.macro
-                    ),
-                    icon: nil, tint: nil, format: formatter
-                )
-                .fontWeight(.bold)
-                .font(.title)
-                .foregroundColor(.primary)
-            }
+            MacroContent(ring: ring)
 
-            data.progress(color: color, icon: icon)
-                .font(.subheadline.bold())
+            ValueView(
+                measurement: .init(
+                    baseValue: .constant(credit(ring: ring)),
+                    definition: UnitDefinition<UnitMass>.macro
+                ),
+                icon: nil, tint: nil, format: formatter
+            )
+            .fontWeight(.bold)
+            .font(.subheadline)
+            .foregroundColor(credit(ring: ring) ?? 0 >= 0 ? .green : .red)
+
+            macrosBudget?.progress(ring)
+                .font(.subheadline)
                 .frame(maxWidth: 50)
         }
     }
 
-    private func loadData() async {
-        let endDate = Date()
-        let startDate = Calendar.current.date(byAdding: .day, value: -7, to: endDate)!
+    @ViewBuilder
+    private func MacroContent(
+        ring: MacrosAnalyticsService.MacroRing,
+    ) -> some View {
+        let formatter = ProteinFieldDefinition().formatter
+        HStack(alignment: .firstTextBaseline, spacing: 0) {
+            ValueView(
+                measurement: .init(
+                    baseValue: .constant(intake(ring: ring)),
+                    definition: UnitDefinition<UnitMass>.macro
+                ),
+                icon: nil, tint: nil, format: formatter
+            )
+            .fontWeight(.bold)
+            .font(.headline)
+            .foregroundColor(.secondary)
 
-        // Get protein data for the past 7 days
-        let proteinData = await healthKitService.fetchStatistics(
-            for: .protein,
-            from: startDate, to: endDate,
-            interval: .daily, options: .cumulativeSum
-        )
+            Text("/")
+                .font(.headline)
+                .foregroundColor(.secondary)
+                .padding(.leading, 8)
 
-        // Get carbs data for the past 7 days
-        let carbsData = await healthKitService.fetchStatistics(
-            for: .carbs,
-            from: startDate, to: endDate,
-            interval: .daily, options: .cumulativeSum
-        )
-
-        // Get fat data for the past 7 days
-        let fatData = await healthKitService.fetchStatistics(
-            for: .fat,
-            from: startDate, to: endDate,
-            interval: .daily, options: .cumulativeSum
-        )
-
-        // Create services
-        let protein = BudgetService(
-            analytics: analyticsService, intakes: proteinData, alpha: 0.25,
-            budget: goals.macros?.protein
-        )
-        let carbs = BudgetService(
-            analytics: analyticsService, intakes: carbsData, alpha: 0.25,
-            budget: goals.macros?.carbs
-        )
-        let fat = BudgetService(
-            analytics: analyticsService, intakes: fatData, alpha: 0.25,
-            budget: goals.macros?.fat
-        )
-
-        await MainActor.run {
-            withAnimation(.default) {
-                self.proteinBudget = protein
-                self.carbsBudget = carbs
-                self.fatBudget = fat
-            }
+            ValueView(
+                measurement: .init(
+                    baseValue: .constant(budget(ring: ring)),
+                    definition: UnitDefinition<UnitMass>.macro
+                ),
+                icon: nil, tint: nil, format: formatter
+            )
+            .fontWeight(.bold)
+            .font(.headline)
+            .foregroundColor(.secondary)
         }
+    }
+
+    private func intake(ring: MacrosAnalyticsService.MacroRing) -> Double? {
+        switch ring {
+        case .protein:
+            return macrosBudget?.protein.currentIntake
+        case .carbs:
+            return macrosBudget?.carbs.currentIntake
+        case .fat:
+            return macrosBudget?.fat.currentIntake
+        }
+    }
+
+    private func budget(ring: MacrosAnalyticsService.MacroRing) -> Double? {
+        switch ring {
+        case .protein:
+            return macrosBudget?.budgets?.protein
+        case .carbs:
+            return macrosBudget?.budgets?.carbs
+        case .fat:
+            return macrosBudget?.budgets?.fat
+        }
+    }
+
+    private func remaining(ring: MacrosAnalyticsService.MacroRing) -> Double? {
+        switch ring {
+        case .protein:
+            return macrosBudget?.remaining?.protein
+        case .carbs:
+            return macrosBudget?.remaining?.carbs
+        case .fat:
+            return macrosBudget?.remaining?.fat
+        }
+    }
+
+    private func credit(ring: MacrosAnalyticsService.MacroRing) -> Double? {
+        switch ring {
+        case .protein:
+            return macrosBudget?.credits?.protein
+        case .carbs:
+            return macrosBudget?.credits?.carbs
+        case .fat:
+            return macrosBudget?.credits?.fat
+        }
+    }
+
+    private func icon(ring: MacrosAnalyticsService.MacroRing) -> Image? {
+        switch ring {
+        case .protein:
+            return .protein
+        case .carbs:
+            return .carbs
+        case .fat:
+            return .fat
+        }
+    }
+
+    private func color(ring: MacrosAnalyticsService.MacroRing) -> Color {
+        switch ring {
+        case .protein:
+            return .protein
+        case .carbs:
+            return .carbs
+        case .fat:
+            return .fat
+        }
+    }
+
+    private func loadData() async {
+        await $macrosBudget.reload(at: Date())
     }
 }

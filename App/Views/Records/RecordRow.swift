@@ -6,6 +6,7 @@ struct RecordRow<Field: FieldDefinition, DetailContent: View>: View {
 
     let isInternal: Bool
     let showPicker: Bool
+    let showSign: Bool
     let computed: (() -> Double?)?
 
     @FocusState
@@ -17,12 +18,14 @@ struct RecordRow<Field: FieldDefinition, DetailContent: View>: View {
         value: Binding<Double?>,
         isInternal: Bool,
         showPicker: Bool = false,
+        showSign: Bool = false,
         @ViewBuilder details: @escaping () -> DetailContent = { EmptyView() }
     ) {
         self.field = field
         self._measurement = field.measurement(value)
         self.isInternal = isInternal
         self.showPicker = showPicker
+        self.showSign = showSign
 
         // Extract computed function from ComputedField if available
         self.computed = (field as? ComputedField)?.compute
@@ -41,8 +44,11 @@ struct RecordRow<Field: FieldDefinition, DetailContent: View>: View {
                     let baseValue = $measurement.baseValue,
                     abs(baseValue - computed) > .ulpOfOne
                 {
-                    computedButton.textScale(.secondary)
+                    computedButton
+                        .textScale(.secondary)
+                        .disabled(!isInternal)
                 }
+
                 Text(measurement.unit.symbol).textScale(.secondary)
             } details: {
                 details().textScale(.secondary)
@@ -55,7 +61,15 @@ struct RecordRow<Field: FieldDefinition, DetailContent: View>: View {
         .toolbar(
             content: {
                 ToolbarItemGroup(placement: .keyboard) {
-                    if isActive {
+                    if isActive && showSign {
+                        Button("Invert", systemImage: "plusminus") {
+                            measurement.value = -measurement.value
+                        }
+                        .disabled(!isInternal)
+                    }
+                }
+                ToolbarItemGroup(placement: .keyboard) {
+                    if isActive && computed != nil {
                         computedButton
                             .padding(.horizontal)
                             .fixedSize()
@@ -100,12 +114,14 @@ extension RecordRow where DetailContent == EmptyView {
         value: Binding<Double?>,
         isInternal: Bool,
         showPicker: Bool = false,
+        showSign: Bool = false
     ) {
         self.init(
             field: field,
             value: value,
             isInternal: isInternal,
             showPicker: showPicker,
+            showSign: showSign,
             details: { EmptyView() }
         )
     }

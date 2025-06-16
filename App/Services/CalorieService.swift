@@ -1,22 +1,5 @@
 import Foundation
 
-// MARK: Budgets and Goals
-// ============================================================================
-
-extension UserGoals {
-    /// The calories daily goal.
-    var calorieGoal: DietaryCalorie {
-        get {
-            .init(self.calories ?? 0, macros: self.macros, date: self.date)
-        }
-        set {
-            self.date = newValue.date
-            self.calories = newValue.calories
-            self.macros = newValue.macros
-        }
-    }
-}
-
 // MARK: Macro Calculations
 // ============================================================================
 
