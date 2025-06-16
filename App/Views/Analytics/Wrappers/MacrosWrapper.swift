@@ -20,6 +20,7 @@ struct MacrosAnalytics: DynamicProperty {
     var projectedValue: Self { self }
 
     func reload(at date: Date) async {
+        await $budgetAnalytics.reload(at: date)
         let newAnalytics = MacrosAnalyticsService(
             budget: budgetAnalytics,
             protein: await reloadProtein(at: date),

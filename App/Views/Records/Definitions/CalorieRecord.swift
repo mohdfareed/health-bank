@@ -174,7 +174,9 @@ struct CalorieFormView: View {
                         let query: any HealthQuery<DietaryCalorie> = dataModel.query()
                         try await query.save(record, store: HealthKitService.shared)
                     } catch {
-                        print("Failed to save record: \(error)")
+                        AppLogger.new(for: dataModel).error(
+                            "Failed to save record: \(error)"
+                        )
                     }
                 }
             },
@@ -184,7 +186,9 @@ struct CalorieFormView: View {
                         let query: any HealthQuery<DietaryCalorie> = dataModel.query()
                         try await query.delete(record, store: HealthKitService.shared)
                     } catch {
-                        print("Failed to delete record: \(error)")
+                        AppLogger.new(for: dataModel).error(
+                            "Failed to delete record: \(error)"
+                        )
                     }
                 }
             },

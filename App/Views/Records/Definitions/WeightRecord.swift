@@ -72,8 +72,10 @@ struct WeightFormView: View {
                         let query: any HealthQuery<Weight> = dataModel.query()
                         try await query.save(record, store: HealthKitService.shared)
                     } catch {
-                        print("Failed to save record: \(error)")
-                    }
+                        AppLogger.new(for: dataModel).error(
+                            "Failed to save record: \(error)"
+                        )
+                    }  // FIXME: Handle in form instead of definition
                 }
             },
             deleteFunc: { (record: Weight) in
@@ -82,7 +84,9 @@ struct WeightFormView: View {
                         let query: any HealthQuery<Weight> = dataModel.query()
                         try await query.delete(record, store: HealthKitService.shared)
                     } catch {
-                        print("Failed to delete record: \(error)")
+                        AppLogger.new(for: dataModel).error(
+                            "Failed to delete record: \(error)"
+                        )
                     }
                 }
             },

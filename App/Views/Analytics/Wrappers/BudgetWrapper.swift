@@ -22,10 +22,7 @@ extension BudgetService {
 @MainActor @propertyWrapper
 struct BudgetAnalytics: DynamicProperty {
     @AppLocale var locale: Locale
-
-    @CalorieAnalytics var calorieAnalytics: DataAnalyticsService?
     @WeightAnalytics var weightAnalytics: WeightAnalyticsService?
-
     @State var budgetAnalytics: BudgetService? = nil
 
     let adjustment: Double?
@@ -36,7 +33,6 @@ struct BudgetAnalytics: DynamicProperty {
 
     func reload(at date: Date) async {
         await $weightAnalytics.reload(at: date)
-        guard let calorieAnalytics = calorieAnalytics else { return }
         guard let weightAnalytics = weightAnalytics else { return }
 
         let nextWeek = date.next(locale.calendar.firstWeekday)
@@ -45,7 +41,7 @@ struct BudgetAnalytics: DynamicProperty {
         await MainActor.run {
             withAnimation(.default) {
                 budgetAnalytics = .init(
-                    calories: calorieAnalytics,
+                    calories: weightAnalytics.calories,
                     weight: weightAnalytics,
                     adjustment: adjustment,
                     daysLeft: daysLeft

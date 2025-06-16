@@ -1,6 +1,8 @@
 import Foundation
 import SwiftData
 
+// TODO: Add food name
+
 // MARK: - Calories
 // ============================================================================
 

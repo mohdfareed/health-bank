@@ -64,11 +64,10 @@ struct RecordList<T: HealthData>: View {
 
     @ViewBuilder private func loadMoreButton() -> some View {
         if !$records.isLoading && !$records.isExhausted {
-            Button("Load More", systemImage: "arrow.down") {
+            Button("Load More") {
                 runTask($records.loadNextPage)
             }
             .frame(maxWidth: .infinity)
-            .listRowSeparator(.hidden)
         }
 
         if $records.isLoading {

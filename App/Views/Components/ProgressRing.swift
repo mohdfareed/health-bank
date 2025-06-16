@@ -75,7 +75,9 @@ struct ProgressRing: View {
 
             }
             .overlay(
-                icon?.foregroundColor(color)
+                icon?
+                    .symbolVariant(.fill)
+                    .foregroundColor(color)
             )
         }
         .aspectRatio(1, contentMode: .fit)

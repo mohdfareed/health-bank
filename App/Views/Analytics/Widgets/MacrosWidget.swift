@@ -85,17 +85,6 @@ struct MacrosWidget: View {
 
             MacroContent(ring: ring)
 
-            ValueView(
-                measurement: .init(
-                    baseValue: .constant(credit(ring: ring)),
-                    definition: UnitDefinition<UnitMass>.macro
-                ),
-                icon: nil, tint: nil, format: formatter
-            )
-            .fontWeight(.bold)
-            .font(.subheadline)
-            .foregroundColor(credit(ring: ring) ?? 0 >= 0 ? .green : .red)
-
             macrosBudget?.progress(ring)
                 .font(.subheadline)
                 .frame(maxWidth: 50)
@@ -122,7 +111,6 @@ struct MacrosWidget: View {
             Text("/")
                 .font(.headline)
                 .foregroundColor(.secondary)
-                .padding(.leading, 8)
 
             ValueView(
                 measurement: .init(
@@ -167,17 +155,6 @@ struct MacrosWidget: View {
             return macrosBudget?.remaining?.carbs
         case .fat:
             return macrosBudget?.remaining?.fat
-        }
-    }
-
-    private func credit(ring: MacrosAnalyticsService.MacroRing) -> Double? {
-        switch ring {
-        case .protein:
-            return macrosBudget?.credits?.protein
-        case .carbs:
-            return macrosBudget?.credits?.carbs
-        case .fat:
-            return macrosBudget?.credits?.fat
         }
     }
 

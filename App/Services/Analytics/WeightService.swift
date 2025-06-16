@@ -7,7 +7,7 @@ struct WeightAnalyticsService {
     let analytics: AnalyticsService
     let calories: DataAnalyticsService
 
-    /// Recent daily weights (lbs), oldest first
+    /// Recent daily weights (kg), oldest first
     let weights: [Date: Double]
     /// Energy per unit weight change (kcal per kg, default is 7700)
     let rho: Double
@@ -19,7 +19,7 @@ struct WeightAnalyticsService {
             .filter { !$0.value.isNaN }
     }
 
-    /// Estimated weight-change rate m (lbs/day)
+    /// Estimated weight-change rate m (kg/day)
     var weightSlope: Double {
         analytics.computeSlope(from: dailyWeights.points)
     }

@@ -17,7 +17,7 @@ struct MacrosAnalyticsService {
 
     /// The base daily budget: B = M + A (kcal)
     var baseBudgets: CalorieMacros? {
-        guard let budget = budget?.budget else { return nil }
+        guard let budget = budget?.baseBudget else { return nil }
         guard let adjustments = adjustments else { return nil }
         let macroCalories = CalorieMacros(
             p: adjustments.protein == nil ? nil : budget * (adjustments.protein ?? 0) / 100,
