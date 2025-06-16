@@ -13,32 +13,11 @@ struct DashboardCard<Content: View, Destination: View>: View {
     @ViewBuilder let destination: Destination
 
     var body: some View {
-        NavigationLink(destination: destination) {
-            LazyVStack(spacing: 8) {
-                // LabeledContent {
-                //     Image(systemName: "chevron.right")
-                //         .foregroundStyle(.secondary)
-                //         .font(.footnote.bold())
-                // } label: {
-                //     Label {
-                //         Text(String(localized: title))
-                //             .font(.headline)
-                //             .foregroundColor(color)
-                //     } icon: {
-                //         icon
-                //             .font(.headline)
-                //             .foregroundColor(color)
-                //     }
-                // }
-
-                // Content
-                content
-            }
-            .padding()
+        Section(String(localized: title)) {
+            content.padding()
+            // NavigationLink(destination: destination) {
+            // }
         }
-        .backgroundStyle(.tertiary)
-        .buttonBorderShape(.roundedRectangle)
-        .buttonStyle(.bordered)
         .fontDesign(.rounded)
     }
 }

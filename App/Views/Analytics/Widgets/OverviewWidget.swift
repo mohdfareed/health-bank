@@ -22,23 +22,31 @@ struct OverviewWidget: View {
     }
 
     var body: some View {
-        DashboardCard(
-            title: "Overview",
-            icon: .appleHealth, color: .healthKit
+        NavigationLink(
+            destination: overviewPage
         ) {
-            if analytics != nil {
-                VStack {
-                    caloriesSection
-                    budgetSection
-                    weightSection
-                    proteinSection
-                }
-                .padding()
-            } else {
-                ProgressView()
-                    .frame(maxWidth: .infinity, minHeight: 100)
+            Label {
+                Text("Overview")
+            } icon: {
+                Image(systemName: "chart.line.text.clipboard.fill")
             }
-        } destination: {
+        }
+    }
+
+    @ViewBuilder var overviewPage: some View {
+        NavigationStack {
+            List {
+                if analytics != nil {
+                    overviewSections
+                } else {
+                    ProgressView()
+                        .frame(maxWidth: .infinity, minHeight: 100)
+                }
+            }
+            .navigationTitle("Overview")
+            .refreshable {
+                refreshing.toggle()
+            }
         }
 
         .animation(.default, value: refreshing)
@@ -57,247 +65,165 @@ struct OverviewWidget: View {
         }
     }
 
-    var caloriesSection: some View {
+    @ViewBuilder var overviewSections: some View {
         Section("Calories") {
-            LabeledContent {
-                ValueView(
-                    measurement: .init(
-                        baseValue: .constant(analytics?.budget?.calories.currentIntake),
-                        definition: UnitDefinition<UnitEnergy>.calorie
-                    ),
-                    icon: nil, tint: nil,
-                    format: .number.precision(.fractionLength(0))
-                )
-            } label: {
-                Label {
-                    Text("Current Intake")
-                } icon: {
-                    Image.calories
-                }
-            }
-            LabeledContent {
-                ValueView(
-                    measurement: .init(
-                        baseValue: .constant(analytics?.budget?.calories.smoothedIntake),
-                        definition: UnitDefinition<UnitEnergy>.calorie
-                    ),
-                    icon: nil, tint: nil,
-                    format: .number.precision(.fractionLength(0))
-                )
-            } label: {
-                Label {
-                    Text("EWMA Intake")
-                } icon: {
-                    Image.calories
-                }
-            }
+            calorieValue(
+                analytics?.budget?.calories.currentIntake,
+                title: "Intake",
+                icon: Image.calories
+            )
+            calorieValue(
+                analytics?.budget?.calories.smoothedIntake,
+                title: "EWMA",
+                icon: Image.calories
+            )
         }
-    }
 
-    var proteinSection: some View {
-        Section("Protein") {
-            LabeledContent {
-                ValueView(
-                    measurement: .init(
-                        baseValue: .constant(analytics?.protein.currentIntake),
-                        definition: UnitDefinition<UnitMass>.macro
-                    ),
-                    icon: nil, tint: nil,
-                    format: .number.precision(.fractionLength(0))
-                )
-            } label: {
-                Label {
-                    Text("Current Intake")
-                } icon: {
-                    Image.calories
-                }
-            }
-            LabeledContent {
-                ValueView(
-                    measurement: .init(
-                        baseValue: .constant(analytics?.protein.smoothedIntake),
-                        definition: UnitDefinition<UnitMass>.macro
-                    ),
-                    icon: nil, tint: nil,
-                    format: .number.precision(.fractionLength(0))
-                )
-            } label: {
-                Label {
-                    Text("EWMA Intake")
-                } icon: {
-                    Image.calories
-                }
-            }
-            LabeledContent {
-                ValueView(
-                    measurement: .init(
-                        baseValue: .constant(analytics?.remaining?.protein),
-                        definition: UnitDefinition<UnitMass>.macro
-                    ),
-                    icon: nil, tint: nil,
-                    format: .number.precision(.fractionLength(0))
-                )
-            } label: {
-                Label {
-                    Text("Remaining")
-                } icon: {
-                    Image.calories
-                }
-            }
-            LabeledContent {
-                ValueView(
-                    measurement: .init(
-                        baseValue: .constant(analytics?.baseBudgets?.protein),
-                        definition: UnitDefinition<UnitMass>.macro
-                    ),
-                    icon: nil, tint: nil,
-                    format: .number.precision(.fractionLength(0))
-                )
-            } label: {
-                Label {
-                    Text("Base Budget")
-                } icon: {
-                    Image.calories
-                }
-            }
-            LabeledContent {
-                ValueView(
-                    measurement: .init(
-                        baseValue: .constant(analytics?.budgets?.protein),
-                        definition: UnitDefinition<UnitMass>.macro
-                    ),
-                    icon: nil, tint: nil,
-                    format: .number.precision(.fractionLength(0))
-                )
-            } label: {
-                Label {
-                    Text("Adjusted Budget")
-                } icon: {
-                    Image.calories
-                }
-            }
-            LabeledContent {
-                ValueView(
-                    measurement: .init(
-                        baseValue: .constant(analytics?.credits?.protein),
-                        definition: UnitDefinition<UnitMass>.macro
-                    ),
-                    icon: nil, tint: nil,
-                    format: .number.precision(.fractionLength(0))
-                )
-            } label: {
-                Label {
-                    Text("Credit")
-                } icon: {
-                    Image.calories
-                }
-            }
-        }
-    }
-
-    var budgetSection: some View {
-        Section("Budget") {
-            LabeledContent {
-                ValueView(
-                    measurement: .init(
-                        baseValue: .constant(analytics?.budget?.remaining),
-                        definition: UnitDefinition<UnitEnergy>.calorie
-                    ),
-                    icon: nil, tint: nil,
-                    format: .number.precision(.fractionLength(0))
-                )
-            } label: {
-                Label {
-                    Text("Remaining")
-                } icon: {
-                    Image.calories
-                }
-            }
-            LabeledContent {
-                ValueView(
-                    measurement: .init(
-                        baseValue: .constant(analytics?.budget?.baseBudget),
-                        definition: UnitDefinition<UnitEnergy>.calorie
-                    ),
-                    icon: nil, tint: nil,
-                    format: .number.precision(.fractionLength(0))
-                )
-            } label: {
-                Label {
-                    Text("Base Budget")
-                } icon: {
-                    Image.calories
-                }
-            }
-            LabeledContent {
-                ValueView(
-                    measurement: .init(
-                        baseValue: .constant(analytics?.budget?.budget),
-                        definition: UnitDefinition<UnitEnergy>.calorie
-                    ),
-                    icon: nil, tint: nil,
-                    format: .number.precision(.fractionLength(0))
-                )
-            } label: {
-                Label {
-                    Text("Adjusted Budget")
-                } icon: {
-                    Image.calories
-                }
-            }
-            LabeledContent {
-                ValueView(
-                    measurement: .init(
-                        baseValue: .constant(analytics?.budget?.credit),
-                        definition: UnitDefinition<UnitEnergy>.calorie
-                    ),
-                    icon: nil, tint: nil,
-                    format: .number.precision(.fractionLength(0))
-                )
-            } label: {
-                Label {
-                    Text("Credit")
-                } icon: {
-                    Image.calories
-                }
-            }
-        }
-    }
-
-    var weightSection: some View {
         Section("Maintenance") {
-            LabeledContent {
-                ValueView(
-                    measurement: .init(
-                        baseValue: .constant(analytics?.budget?.weight.maintenance),
-                        definition: UnitDefinition<UnitEnergy>.calorie
-                    ),
-                    icon: nil, tint: nil,
-                    format: .number.precision(.fractionLength(0))
-                )
-            } label: {
-                Label {
-                    Text("Maintenance")
-                } icon: {
-                    Image.calories
-                }
-            }
-            LabeledContent {
-                ValueView(
-                    measurement: .init(
-                        baseValue: .constant(analytics?.budget?.weight.weightSlope),
-                        definition: UnitDefinition<UnitMass>.weight
-                    ),
-                    icon: nil, tint: nil,
-                    format: .number.precision(.fractionLength(2))
-                )
-            } label: {
-                Label {
-                    Text("Weight Change")
-                } icon: {
-                    Image.calories
-                }
+            calorieValue(
+                analytics?.budget?.weight.maintenance,
+                title: "Maintenance",
+                icon: Image.calories
+            )
+            weightValue(
+                analytics?.budget?.weight.weightSlope,
+                title: "Change",
+                icon: Image.weight
+            )
+        }
+
+        Section("Budget") {
+            calorieValue(
+                analytics?.budget?.remaining,
+                title: "Remaining",
+                icon: Image.calories
+            )
+
+            calorieValue(
+                analytics?.budget?.baseBudget,
+                title: "Base",
+                icon: Image.calories
+            )
+
+            calorieValue(
+                analytics?.budget?.budget,
+                title: "Adjusted",
+                icon: Image.calories
+            )
+
+            calorieValue(
+                analytics?.budget?.credit,
+                title: "Credit",
+                icon: Image.calories
+            )
+        }
+
+        Section("Protein") {
+            proteinSection
+        }
+    }
+
+    @ViewBuilder var proteinSection: some View {
+        macroValue(
+            analytics?.protein.currentIntake,
+            title: "Intake",
+            icon: Image.protein, tint: .protein
+        )
+
+        macroValue(
+            analytics?.protein.smoothedIntake,
+            title: "EWMA",
+            icon: Image.protein, tint: .protein
+        )
+
+        macroValue(
+            analytics?.remaining?.protein,
+            title: "Remaining",
+            icon: Image.protein, tint: .protein
+        )
+
+        macroValue(
+            analytics?.baseBudgets?.protein,
+            title: "Base",
+            icon: Image.protein, tint: .protein
+        )
+
+        macroValue(
+            analytics?.budgets?.protein,
+            title: "Adjusted",
+            icon: Image.protein, tint: .protein
+        )
+
+        macroValue(
+            analytics?.credits?.protein,
+            title: "Credit",
+            icon: Image.protein, tint: .protein
+        )
+    }
+
+    private func calorieValue(
+        _ value: Double?,
+        title: String.LocalizationValue,
+        icon: Image? = nil
+    ) -> some View {
+        MeasurementField(
+            validator: nil, format: CalorieFieldDefinition().formatter,
+            showPicker: true,
+            measurement: .init(
+                baseValue: .constant(value),
+                definition: UnitDefinition<UnitEnergy>.calorie
+            ),
+        ) {
+            DetailedRow(image: icon, tint: .calories) {
+                Text(String(localized: title))
+            } subtitle: {
+            } details: {
             }
         }
+        .disabled(true)
+    }
+
+    private func macroValue(
+        _ value: Double?,
+        title: String.LocalizationValue,
+        icon: Image? = nil, tint: Color? = nil
+    ) -> some View {
+        MeasurementField(
+            validator: nil, format: ProteinFieldDefinition().formatter,
+            showPicker: true,
+            measurement: .init(
+                baseValue: .constant(value),
+                definition: UnitDefinition<UnitMass>.macro
+            ),
+        ) {
+            DetailedRow(image: icon, tint: tint) {
+                Text(String(localized: title))
+            } subtitle: {
+            } details: {
+            }
+        }
+        .disabled(true)
+    }
+
+    @ViewBuilder private func weightValue(
+        _ value: Double?,
+        title: String.LocalizationValue,
+        icon: Image? = nil
+    ) -> some View {
+        MeasurementField(
+            validator: nil, format: WeightFieldDefinition().formatter,
+            showPicker: true,
+            measurement: .init(
+                baseValue: .constant(value),
+                definition: UnitDefinition<UnitMass>.weight
+            ),
+        ) {
+            DetailedRow(image: icon, tint: .weight) {
+                Text(String(localized: title))
+            } subtitle: {
+            } details: {
+            }
+        }
+        .disabled(true)
     }
 }

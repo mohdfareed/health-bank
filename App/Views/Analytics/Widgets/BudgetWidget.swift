@@ -19,12 +19,12 @@ struct BudgetWidget: View {
 
     var body: some View {
         DashboardCard(
-            title: "Calorie Budget",
+            title: "Calories",
             icon: .calories, color: .calories
         ) {
             if let budget = budget {
                 HStack {
-                    VStack(alignment: .leading, spacing: 4) {
+                    VStack(alignment: .leading, spacing: 8) {
                         CalorieContent(data: budget)
                         BudgetContent(data: budget)
                         CreditContent(data: budget)
@@ -71,43 +71,46 @@ struct BudgetWidget: View {
             .fontWeight(.bold)
             .font(.title)
             .foregroundColor(data.remaining ?? 0 >= 0 ? .primary : .red)
-
-            Text("remaining")
-                .font(.headline)
-                .foregroundColor(.secondary)
         }
     }
 
     @ViewBuilder
     private func BudgetContent(data: BudgetService) -> some View {
         let formatter = CalorieFieldDefinition().formatter
-        HStack(alignment: .firstTextBaseline, spacing: 0) {
-            Text(data.calories.currentIntake ?? 0, format: formatter)
+        Label {
+            HStack(alignment: .firstTextBaseline, spacing: 0) {
+                Text(data.calories.currentIntake ?? 0, format: formatter)
+                    .fontWeight(.bold)
+                    .font(.headline)
+                    .foregroundColor(.secondary)
+
+                Text("/")
+                    .font(.headline)
+                    .foregroundColor(.secondary)
+
+                ValueView(
+                    measurement: .init(
+                        baseValue: .constant(data.budget),
+                        definition: UnitDefinition<UnitEnergy>.calorie
+                    ),
+                    icon: nil, tint: nil, format: formatter
+                )
                 .fontWeight(.bold)
                 .font(.headline)
                 .foregroundColor(.secondary)
-
-            Text("/")
+            }
+        } icon: {
+            Image(systemName: "flame.gauge.open")
+                .symbolRenderingMode(.hierarchical)
+                .foregroundColor(.calories)
                 .font(.headline)
-                .foregroundColor(.secondary)
-
-            ValueView(
-                measurement: .init(
-                    baseValue: .constant(data.budget),
-                    definition: UnitDefinition<UnitEnergy>.calorie
-                ),
-                icon: nil, tint: nil, format: formatter
-            )
-            .fontWeight(.bold)
-            .font(.headline)
-            .foregroundColor(.secondary)
         }
     }
 
     @ViewBuilder
     private func CreditContent(data: BudgetService) -> some View {
         let formatter = CalorieFieldDefinition().formatter
-        HStack(alignment: .firstTextBaseline, spacing: 0) {
+        Label {
             if let credit = data.credit {
                 ValueView(
                     measurement: .init(
@@ -117,16 +120,17 @@ struct BudgetWidget: View {
                     icon: nil, tint: nil, format: formatter
                 )
                 .fontWeight(.bold)
-                .font(.title2)
+                .font(.headline)
                 .foregroundColor(credit >= 0 ? .green : .red)
-                Text("credit")
-                    .font(.headline)
-                    .foregroundColor(.secondary)
-                    .padding(.leading, 8)
             } else {
-                Text("No data for credit")
+                Text("No data available")
+                    .fontWeight(.bold)
                     .foregroundColor(.secondary)
             }
+        } icon: {
+            Image(systemName: "creditcard.circle")
+                .foregroundColor(data.credit ?? 0 >= 0 ? .green : .red)
+                .font(.headline)
         }
     }
 }

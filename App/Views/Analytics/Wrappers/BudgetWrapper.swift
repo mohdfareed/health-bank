@@ -4,14 +4,10 @@ import SwiftUI
 extension BudgetService {
     @ViewBuilder
     func progress(color: Color = .accent, icon: Image?) -> ProgressRing {
-        let remaining =
-            (self.budget ?? .infinity)
-            - (calories.currentIntake ?? 0)
-
         ProgressRing(
             value: self.baseBudget ?? 1,
             progress: calories.currentIntake ?? 0,
-            color: remaining >= 0 ? color : .red,
+            color: color,
             tip: (self.budget ?? 1),
             tipColor: (self.credit ?? 0) >= 0 ? .green : .red,
             icon: icon

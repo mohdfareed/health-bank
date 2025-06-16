@@ -6,8 +6,8 @@ struct DashboardView: View {
     @State private var refreshing: Bool = false
 
     var body: some View {
-        NavigationView {
-            ScrollView {
+        NavigationStack {
+            List {
                 DashboardWidgets(goalsID, refreshing: $refreshing)
             }
             .navigationTitle("Dashboard")
@@ -31,25 +31,21 @@ struct DashboardWidgets: View {
     }
 
     var body: some View {
-        LazyVStack(spacing: 16) {
-            let budget = BudgetWidget(
-                goals.adjustment,
-                refreshing: $refreshing
-            )
-            budget
+        let budget = BudgetWidget(
+            goals.adjustment,
+            refreshing: $refreshing
+        )
+        budget
 
-            MacrosWidget(
-                goals.macros,
-                budgetAnalytics: budget.$budget,
-                refreshing: $refreshing
-            )
+        MacrosWidget(
+            goals.macros,
+            budgetAnalytics: budget.$budget,
+            refreshing: $refreshing
+        )
 
-            OverviewWidget(
-                goals.adjustment, goals.macros,
-                refreshing: $refreshing
-            )
-        }
-        .padding()
+        OverviewWidget(
+            goals.adjustment, goals.macros,
+            refreshing: $refreshing
+        )
     }
-
 }

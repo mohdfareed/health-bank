@@ -25,7 +25,7 @@ struct AppView: View {
 
     var body: some View {
         TabView {
-            Tab("Dashboard", systemImage: "chart.xyaxis.line") {
+            Tab("Dashboard", systemImage: "chart.bar.xaxis") {
                 DashboardView()
             }
 

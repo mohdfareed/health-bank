@@ -128,7 +128,7 @@ extension MacrosAnalyticsService {
             ProgressRing(
                 value: self.baseBudgets?.protein ?? 1,
                 progress: protein.currentIntake ?? 0,
-                color: remaining?.protein ?? 0 >= 0 ? .protein : .red,
+                color: .protein,
                 tip: (self.budgets?.protein ?? 1),
                 tipColor: (self.credits?.protein ?? 0) >= 0 ? .green : .red,
                 icon: Image.protein
@@ -137,7 +137,7 @@ extension MacrosAnalyticsService {
             ProgressRing(
                 value: self.baseBudgets?.carbs ?? 1,
                 progress: carbs.currentIntake ?? 0,
-                color: remaining?.carbs ?? 0 >= 0 ? .carbs : .red,
+                color: .carbs,
                 tip: (self.budgets?.carbs ?? 1),
                 tipColor: (self.credits?.carbs ?? 0) >= 0 ? .green : .red,
                 icon: Image.carbs
@@ -146,7 +146,7 @@ extension MacrosAnalyticsService {
             ProgressRing(
                 value: self.baseBudgets?.fat ?? 1,
                 progress: fat.currentIntake ?? 0,
-                color: remaining?.fat ?? 0 >= 0 ? .fat : .red,
+                color: .fat,
                 tip: (self.budgets?.fat ?? 1),
                 tipColor: (self.credits?.fat ?? 0) >= 0 ? .green : .red,
                 icon: Image.fat

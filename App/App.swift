@@ -63,4 +63,10 @@ let RepoURL: String = "https://github.com/mohdfareed/health-bank"
 #Preview {
     // TODO: use mock health kit service
     AppView()
+        .modelContainer(
+            try! .init(
+                for: MainApp.schema,
+                configurations: .init(isStoredInMemoryOnly: true)
+            )
+        )
 }

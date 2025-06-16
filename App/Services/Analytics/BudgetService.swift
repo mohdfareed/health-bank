@@ -15,23 +15,24 @@ struct BudgetService {
 
     /// The base daily budget: B = M + A (kcal)
     var baseBudget: Double? {
-        guard let maintenance = weight.maintenance else { return nil }
-        return maintenance + (adjustment ?? 0)
+        guard let weight = weight.maintenance else { return adjustment }
+        guard let adjustment = adjustment else { return weight }
+        return weight + adjustment
     }
 
     /// Daily calorie credit: C = B - S (kcal)
     var credit: Double? {
+        guard let baseBudget = baseBudget else { return nil }
         guard let smoothed = calories.smoothedIntake else { return nil }
-        guard let budget = baseBudget else { return nil }
-        return budget - smoothed
+        return baseBudget - smoothed
     }
 
     /// The adjusted budget for
     /// Adjusted budget: B' = B + C/D (kcal), where D = days until next week
     var budget: Double? {
-        guard let budget = baseBudget else { return nil }
-        guard let credit = credit else { return nil }
-        return budget + (credit / Double(daysLeft))
+        guard let baseBudget = baseBudget else { return nil }
+        guard let credit = credit else { return baseBudget }
+        return baseBudget + (credit / Double(daysLeft))
     }
 
     /// The remaining budget for today

@@ -13,7 +13,9 @@ extension Color {
 
     // Dietary Energy
     static var macros: Color { .indigo }
-    static var protein: Color { .red }
+    static var protein: Color {
+        Color.red.mix(with: .brown, by: 0.1).mix(with: .black, by: 0.2)
+    }
     static var carbs: Color { .orange }
     static var fat: Color { .green }
     static var alcohol: Color { .indigo }

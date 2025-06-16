@@ -23,12 +23,11 @@ struct MacrosWidget: View {
 
     var body: some View {
         DashboardCard(
-            title: "Macros Budget",
+            title: "Macros",
             icon: .macros, color: .macros
         ) {
             if macrosBudget != nil {
                 HStack {
-                    Spacer()
                     BudgetContent(ring: .protein)
                     Spacer()
                     Divider()
@@ -38,7 +37,6 @@ struct MacrosWidget: View {
                     Divider()
                     Spacer()
                     BudgetContent(ring: .fat)
-                    Spacer()
                 }
             } else {
                 ProgressView()
@@ -71,7 +69,7 @@ struct MacrosWidget: View {
         ring: MacrosAnalyticsService.MacroRing
     ) -> some View {
         let formatter = ProteinFieldDefinition().formatter
-        VStack {
+        VStack(alignment: .center) {
             ValueView(
                 measurement: .init(
                     baseValue: .constant(remaining(ring: ring)),

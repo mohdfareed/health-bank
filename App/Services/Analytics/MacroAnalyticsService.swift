@@ -17,12 +17,14 @@ struct MacrosAnalyticsService {
 
     /// The base daily budget: B = M + A (kcal)
     var baseBudgets: CalorieMacros? {
-        guard let budget = budget?.baseBudget else { return nil }
         guard let adjustments = adjustments else { return nil }
+        guard let budget = budget?.baseBudget else { return nil }
+
+        // Calculate the macro budgets based on the adjustments
         let macroCalories = CalorieMacros(
-            p: adjustments.protein == nil ? nil : budget * (adjustments.protein ?? 0) / 100,
-            f: adjustments.fat == nil ? nil : budget * (adjustments.fat ?? 0) / 100,
-            c: adjustments.carbs == nil ? nil : budget * (adjustments.carbs ?? 0) / 100,
+            p: adjustments.protein == nil ? nil : budget * adjustments.protein! / 100,
+            f: adjustments.fat == nil ? nil : budget * adjustments.fat! / 100,
+            c: adjustments.carbs == nil ? nil : budget * adjustments.carbs! / 100,
         )
 
         // convert calories to grams
@@ -35,15 +37,11 @@ struct MacrosAnalyticsService {
 
     /// Daily calorie credit: C = B - S (kcal)
     var credits: CalorieMacros? {
-        guard let protein = protein.smoothedIntake else { return nil }
-        guard let carbs = carbs.smoothedIntake else { return nil }
-        guard let fat = fat.smoothedIntake else { return nil }
         guard let budget = baseBudgets else { return nil }
-
         return CalorieMacros(
-            p: budget.protein.map { $0 - protein },
-            f: budget.fat.map { $0 - fat },
-            c: budget.carbs.map { $0 - carbs }
+            p: budget.protein.map { $0 - (protein.smoothedIntake ?? 0) },
+            f: budget.fat.map { $0 - (fat.smoothedIntake ?? 0) },
+            c: budget.carbs.map { $0 - (carbs.smoothedIntake ?? 0) }
         )
     }
 
@@ -51,26 +49,20 @@ struct MacrosAnalyticsService {
     /// Adjusted budget: B' = B + C/D (kcal), where D = days until next week
     var budgets: CalorieMacros? {
         guard let budget = baseBudgets else { return nil }
-        guard let credits = credits else { return nil }
-
         return CalorieMacros(
-            p: budget.protein.map { $0 + (credits.protein ?? 0) / Double(daysLeft) },
-            f: budget.fat.map { $0 + (credits.fat ?? 0) / Double(daysLeft) },
-            c: budget.carbs.map { $0 + (credits.carbs ?? 0) / Double(daysLeft) }
+            p: budget.protein.map { $0 + (credits?.protein ?? 0) / Double(daysLeft) },
+            f: budget.fat.map { $0 + (credits?.fat ?? 0) / Double(daysLeft) },
+            c: budget.carbs.map { $0 + (credits?.carbs ?? 0) / Double(daysLeft) }
         )
     }
 
     /// The remaining budget for today
     var remaining: CalorieMacros? {
         guard let budget = budgets else { return nil }
-        guard let protein = protein.currentIntake else { return nil }
-        guard let carbs = carbs.currentIntake else { return nil }
-        guard let fat = fat.currentIntake else { return nil }
-
         return CalorieMacros(
-            p: budget.protein.map { $0 - protein },
-            f: budget.fat.map { $0 - fat },
-            c: budget.carbs.map { $0 - carbs }
+            p: budget.protein.map { $0 - (protein.currentIntake ?? 0) },
+            f: budget.fat.map { $0 - (fat.currentIntake ?? 0) },
+            c: budget.carbs.map { $0 - (carbs.currentIntake ?? 0) }
         )
     }
 }
