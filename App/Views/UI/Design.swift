@@ -42,8 +42,13 @@ extension Image {
     static var calories: Image { .init(systemName: "flame.fill") }
     static var weight: Image { .init(systemName: "figure") }
     static var maintenance: Image {
-        .init(systemName: "flame.gauge.open")
-            .symbolRenderingMode(.hierarchical)
+        if #available(iOS 26, macOS 26, watchOS 26, *) {
+            return .init(systemName: "flame.gauge.open")
+                .symbolRenderingMode(.hierarchical)
+        } else {
+            return .init(systemName: "gauge.with.needle")
+                .symbolRenderingMode(.hierarchical)
+        }
     }
     static var credit: Image {
         .init(systemName: "creditcard.circle")

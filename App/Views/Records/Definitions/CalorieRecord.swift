@@ -41,7 +41,7 @@ struct MaintenanceFieldDefinition: FieldDefinition {
     typealias Unit = UnitEnergy
 
     let title: String.LocalizationValue = "Maintenance"
-    let icon = Image(systemName: "flame.gauge.open").symbolRenderingMode(.hierarchical)
+    let icon = Image.maintenance
     let tint = Color.calories
     let formatter = FloatingPointFormatStyle<Double>.number.precision(.fractionLength(0))
     let validator: (@Sendable (Double) -> Bool)? = { _ in true }

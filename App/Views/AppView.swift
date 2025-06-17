@@ -64,7 +64,7 @@ struct AppView: View {
                             }
                         }
                     }
-                    .tabBarMinimizeBehavior(.onScrollDown)
+                // .tabBarMinimizeBehavior(.onScrollDown) // REVIEW: Buggy
                 #endif
             } else {
                 $0.overlay(alignment: .bottomTrailing) {

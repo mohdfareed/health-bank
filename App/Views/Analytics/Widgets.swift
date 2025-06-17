@@ -15,8 +15,6 @@ struct DashboardCard<Content: View, Destination: View>: View {
     var body: some View {
         Section(String(localized: title)) {
             content.padding()
-            // NavigationLink(destination: destination) {
-            // }
         }
         .fontDesign(.rounded)
     }

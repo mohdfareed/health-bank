@@ -31,7 +31,7 @@ struct OverviewWidget: View {
                         Image.maintenance.foregroundStyle(Color.calories)
                             .symbolEffect(
                                 .rotate.byLayer,
-                                options: .repeat(.periodic(delay: 2.5))
+                                options: .repeat(.continuous)
                             )
                     }
                 }
@@ -120,7 +120,7 @@ struct OverviewWidget: View {
                         Image.maintenance.foregroundStyle(Color.calories)
                             .symbolEffect(
                                 .rotate.byLayer,
-                                options: .repeat(.periodic(delay: 2.5))
+                                options: .repeat(.continuous)
                             )
                         Text("Maintenance calibration in progress...")
                     }

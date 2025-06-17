@@ -60,7 +60,7 @@ struct BudgetWidget: View {
     @ViewBuilder
     private func CalorieContent(data: BudgetService) -> some View {
         let formatter = CalorieFieldDefinition().formatter
-        HStack(alignment: .firstTextBaseline) {
+        HStack(alignment: .firstTextBaseline, spacing: 0) {
             ValueView(
                 measurement: .init(
                     baseValue: .constant(data.remaining),
@@ -77,45 +77,49 @@ struct BudgetWidget: View {
     @ViewBuilder
     private func BudgetContent(data: BudgetService) -> some View {
         let formatter = CalorieFieldDefinition().formatter
-        Label {
-            HStack(alignment: .firstTextBaseline, spacing: 0) {
-                Text(data.calories.currentIntake ?? 0, format: formatter)
-                    .fontWeight(.bold)
-                    .font(.headline)
-                    .foregroundColor(.secondary)
-
-                Text("/")
-                    .font(.headline)
-                    .foregroundColor(.secondary)
-
-                ValueView(
-                    measurement: .init(
-                        baseValue: .constant(data.budget),
-                        definition: UnitDefinition<UnitEnergy>.calorie
-                    ),
-                    icon: nil, tint: nil, format: formatter
-                )
-                .fontWeight(.bold)
-                .font(.headline)
-                .foregroundColor(.secondary)
-            }
-        } icon: {
+        HStack(alignment: .firstTextBaseline, spacing: 0) {
             Image.maintenance
                 .symbolEffect(
                     .rotate.byLayer,
                     options: data.calories.isValid
                         ? .nonRepeating
-                        : .repeat(.periodic(delay: 2.5))
+                        : .repeat(.periodic(delay: 5))
                 )
                 .foregroundColor(.calories)
+                .font(.subheadline)
+                .frame(width: 24, height: 24, alignment: .leading)
+
+            Text(data.calories.currentIntake ?? 0, format: formatter)
+                .fontWeight(.bold)
                 .font(.headline)
+                .foregroundColor(.secondary)
+
+            Text("/")
+                .font(.headline)
+                .foregroundColor(.secondary)
+
+            ValueView(
+                measurement: .init(
+                    baseValue: .constant(data.budget),
+                    definition: UnitDefinition<UnitEnergy>.calorie
+                ),
+                icon: nil, tint: nil, format: formatter
+            )
+            .fontWeight(.bold)
+            .font(.headline)
+            .foregroundColor(.secondary)
         }
     }
 
     @ViewBuilder
     private func CreditContent(data: BudgetService) -> some View {
         let formatter = CalorieFieldDefinition().formatter
-        Label {
+        HStack(alignment: .firstTextBaseline, spacing: 0) {
+            Image.credit
+                .foregroundColor(.accent)
+                .font(.headline)
+                .frame(width: 24, height: 24, alignment: .leading)
+
             if let credit = data.credit {
                 ValueView(
                     measurement: .init(
@@ -132,10 +136,6 @@ struct BudgetWidget: View {
                     .fontWeight(.bold)
                     .foregroundColor(.secondary)
             }
-        } icon: {
-            Image.credit
-                .foregroundColor(.accent)
-                .font(.headline)
         }
     }
 }
