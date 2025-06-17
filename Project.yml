@@ -83,6 +83,7 @@ targets:
     info: # App Metadata
       path: HealthVaults.xcodeproj/Info.plist
       properties:
+        CFBundleIconName: AppIcon
         UILaunchScreen:
           UIColorName: LaunchScreenBG
           UIImageName: LaunchScreenLogo
