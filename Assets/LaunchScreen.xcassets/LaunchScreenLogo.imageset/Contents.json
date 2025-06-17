@@ -1,18 +1,8 @@
 {
   "images": [
     {
-      "filename": "launchScreen.logo.svg",
+      "filename": "LaunchScreenLogo.svg",
       "idiom": "universal"
-    },
-    {
-      "filename": "launchScreen.logo.dark.svg",
-      "idiom": "universal",
-      "appearances": [
-        {
-          "appearance": "luminosity",
-          "value": "dark"
-        }
-      ]
     }
   ],
   "info": {

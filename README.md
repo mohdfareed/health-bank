@@ -1,6 +1,6 @@
-# HealthBank
+# HealthVaults
 
-HealthBank is an application that takes a flexible, insight-driven approach to health tracking. Unlike traditional calorie counting apps that reset daily budgets, HealthBank uses **7-day running average budgeting** to provide a more realistic and sustainable approach to nutrition management.
+HealthVaults is an application that takes a flexible, insight-driven approach to health tracking. Unlike traditional calorie counting apps that reset daily budgets, HealthVaults uses **7-day running average budgeting** to provide a more realistic and sustainable approach to nutrition management.
 
 ## Calorie Budget & Maintenance Tracking
 

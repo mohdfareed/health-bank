@@ -1,11 +1,11 @@
 #!/usr/bin/env sh
 
 if [[ -f ".env" ]]; then source .env; fi
-if [[ ! -n $HEALTH_BANK_TEAM_ID ]]; then
-    echo "HEALTH_BANK_TEAM_ID is not set"
+if [[ ! -n $HEALTH_VAULTS_TEAM_ID ]]; then
+    echo "HEALTH_VAULTS_TEAM_ID is not set"
     exit 1
 fi
-export HEALTH_BANK_TEAM_ID
+export HEALTH_VAULTS_TEAM_ID
 
 if [[ $1 == "-b" || $1 == "--beta"  ]]; then
     echo "Generating for Beta..."

@@ -179,7 +179,7 @@ Widgets automatically refresh when:
 
 ## Integration with Existing Architecture
 
-The analytics dashboard seamlessly integrates with the existing HealthBank architecture:
+The analytics dashboard seamlessly integrates with the existing HealthVaults architecture:
 - Uses shared HealthKit service instance
 - Leverages existing measurement system
 - Follows established error handling patterns

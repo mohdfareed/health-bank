@@ -4,19 +4,19 @@
       "type": "swift",
       "request": "launch",
       "args": [],
-      "cwd": "${workspaceFolder:health-bank}",
-      "name": "Debug HealthBank",
-      "program": "${workspaceFolder:health-bank}/.build/debug/HealthBank",
-      "preLaunchTask": "swift: Build Debug HealthBank"
+      "cwd": "${workspaceFolder:health-vaults}",
+      "name": "Debug HealthVaults",
+      "program": "${workspaceFolder:health-vaults}/.build/debug/HealthVaults",
+      "preLaunchTask": "swift: Build Debug HealthVaults"
     },
     {
       "type": "swift",
       "request": "launch",
       "args": [],
-      "cwd": "${workspaceFolder:health-bank}",
-      "name": "Release HealthBank",
-      "program": "${workspaceFolder:health-bank}/.build/release/HealthBank",
-      "preLaunchTask": "swift: Build Release HealthBank"
+      "cwd": "${workspaceFolder:health-vaults}",
+      "name": "Release HealthVaults",
+      "program": "${workspaceFolder:health-vaults}/.build/release/HealthVaults",
+      "preLaunchTask": "swift: Build Release HealthVaults"
     }
   ]
 }
