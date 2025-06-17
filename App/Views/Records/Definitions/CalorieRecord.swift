@@ -24,7 +24,8 @@ struct CalorieAdjustmentFieldDefinition: FieldDefinition {
     typealias Unit = UnitEnergy
 
     let title: String.LocalizationValue = "Adjustment"
-    let icon = Image(systemName: "plus.forwardslash.minus")
+    let icon = Image(systemName: "plusminus.circle")
+        .symbolRenderingMode(.hierarchical)
     let tint = Color.indigo
     let formatter = FloatingPointFormatStyle<Double>.number.precision(.fractionLength(0))
     let validator: (@Sendable (Double) -> Bool)? = { _ in true }

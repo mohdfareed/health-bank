@@ -38,11 +38,13 @@ struct MacrosAnalytics: DynamicProperty {
     }
 
     private func reloadProtein(at date: Date) async -> DataAnalyticsService {
+        let ewmaRange = DataAnalyticsService.ewmaDateRange(from: date)
+        let currentRange = DataAnalyticsService.currentDateRange(from: date)
+
         // Get calorie data for the past 7 days
         let calorieData = await healthKitService.fetchStatistics(
             for: .protein,
-            from: date.floored(to: .day).adding(-7, .day),
-            to: date.floored(to: .day),
+            from: ewmaRange.from, to: ewmaRange.to,
             interval: .daily,
             options: .cumulativeSum
         )
@@ -50,7 +52,7 @@ struct MacrosAnalytics: DynamicProperty {
         // Get calorie data for the past 7 days
         let currentData = await healthKitService.fetchStatistics(
             for: .protein,
-            from: date.floored(to: .day), to: date,
+            from: currentRange.from, to: currentRange.to,
             interval: .daily,
             options: .cumulativeSum
         )
@@ -64,11 +66,13 @@ struct MacrosAnalytics: DynamicProperty {
     }
 
     private func reloadCarbs(at date: Date) async -> DataAnalyticsService {
+        let ewmaRange = DataAnalyticsService.ewmaDateRange(from: date)
+        let currentRange = DataAnalyticsService.currentDateRange(from: date)
+
         // Get calorie data for the past 7 days
         let calorieData = await healthKitService.fetchStatistics(
             for: .carbs,
-            from: date.floored(to: .day).adding(-7, .day),
-            to: date.floored(to: .day),
+            from: ewmaRange.from, to: ewmaRange.to,
             interval: .daily,
             options: .cumulativeSum
         )
@@ -76,7 +80,7 @@ struct MacrosAnalytics: DynamicProperty {
         // Get calorie data for the past 7 days
         let currentData = await healthKitService.fetchStatistics(
             for: .carbs,
-            from: date.floored(to: .day), to: date,
+            from: currentRange.from, to: currentRange.to,
             interval: .daily,
             options: .cumulativeSum
         )
@@ -90,11 +94,13 @@ struct MacrosAnalytics: DynamicProperty {
     }
 
     private func reloadFat(at date: Date) async -> DataAnalyticsService {
+        let ewmaRange = DataAnalyticsService.ewmaDateRange(from: date)
+        let currentRange = DataAnalyticsService.currentDateRange(from: date)
+
         // Get calorie data for the past 7 days
         let calorieData = await healthKitService.fetchStatistics(
             for: .fat,
-            from: date.floored(to: .day).adding(-7, .day),
-            to: date.floored(to: .day),
+            from: ewmaRange.from, to: ewmaRange.to,
             interval: .daily,
             options: .cumulativeSum
         )
@@ -102,7 +108,7 @@ struct MacrosAnalytics: DynamicProperty {
         // Get calorie data for the past 7 days
         let currentData = await healthKitService.fetchStatistics(
             for: .fat,
-            from: date.floored(to: .day), to: date,
+            from: currentRange.from, to: currentRange.to,
             interval: .daily,
             options: .cumulativeSum
         )

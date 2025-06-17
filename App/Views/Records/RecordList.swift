@@ -37,6 +37,9 @@ struct RecordList<T: HealthData>: View {
         .refreshable {
             runTask($records.reload)
         }
+        .onChange(of: isCreating) {
+            runTask($records.reload)
+        }
 
         .toolbar {
             ToolbarItem {

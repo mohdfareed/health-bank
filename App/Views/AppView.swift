@@ -1,7 +1,6 @@
 import SwiftData
 import SwiftUI
 
-// TODO: Add dashboard view to track goals and progress
 // TODO: Add haptics and animations
 // TODO: Add welcome screen for new users
 

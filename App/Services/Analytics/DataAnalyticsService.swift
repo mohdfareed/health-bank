@@ -33,4 +33,31 @@ struct DataAnalyticsService {
             .mapValues { $0.sum() }
             .values.first
     }
+
+    /// Whether the maintenance estimate has enough data to be valid.
+    var isValid: Bool {
+        let max = dailyIntakes.keys.sorted().max()
+        let min = dailyIntakes.keys.sorted().min()
+        guard let max: Date = max, let min: Date = min else { return false }
+
+        // Data points must span at least 1 week
+        return min.distance(to: max, in: .weekOfYear) ?? 0 >= 1
+    }
+
+    /// Get the date range of the EWMA calculation.
+    static func ewmaDateRange(
+        from date: Date
+    ) -> (from: Date, to: Date) {
+        return (
+            from: date.floored(to: .day).adding(-7, .day),
+            to: date.floored(to: .day).adding(-1, .second),
+        )
+    }
+
+    /// Get the date range of the current calculations.
+    static func currentDateRange(
+        from date: Date
+    ) -> (from: Date, to: Date) {
+        return (from: date.floored(to: .day), to: date)
+    }
 }

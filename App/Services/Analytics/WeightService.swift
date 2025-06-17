@@ -34,4 +34,14 @@ struct WeightAnalyticsService {
         guard let smoothed = calories.smoothedIntake else { return nil }
         return smoothed - energyImbalance
     }
+
+    /// Whether the maintenance estimate has enough data to be valid.
+    var isValid: Bool {
+        let max = dailyWeights.keys.sorted().max()
+        let min = dailyWeights.keys.sorted().min()
+        guard let max: Date = max, let min: Date = min else { return false }
+
+        // Data points must span at least 2 weeks
+        return min.distance(to: max, in: .weekOfYear) ?? 0 >= 2
+    }
 }

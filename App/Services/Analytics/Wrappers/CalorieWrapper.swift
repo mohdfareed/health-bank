@@ -15,11 +15,13 @@ struct CalorieAnalytics: DynamicProperty {
     var projectedValue: Self { self }
 
     func reload(at date: Date) async {
+        let ewmaRange = DataAnalyticsService.ewmaDateRange(from: date)
+        let currentRange = DataAnalyticsService.currentDateRange(from: date)
+
         // Get calorie data for the past 7 days
         let calorieData = await healthKitService.fetchStatistics(
             for: .dietaryCalories,
-            from: date.floored(to: .day).adding(-7, .day),
-            to: date.floored(to: .day),
+            from: ewmaRange.from, to: ewmaRange.to,
             interval: .daily,
             options: .cumulativeSum
         )
@@ -27,7 +29,7 @@ struct CalorieAnalytics: DynamicProperty {
         // Get calorie data for the past 7 days
         let currentData = await healthKitService.fetchStatistics(
             for: .dietaryCalories,
-            from: date.floored(to: .day), to: date,
+            from: currentRange.from, to: currentRange.to,
             interval: .daily,
             options: .cumulativeSum
         )

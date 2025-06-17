@@ -53,9 +53,6 @@ public enum HealthKitDataType: CaseIterable, Sendable {
     }
 }
 
-// TODO: Support statistics queries for charts:
-// https://developer.apple.com/documentation/healthkit/executing-statistics-collection-queries
-
 // MARK: Service
 // ============================================================================
 

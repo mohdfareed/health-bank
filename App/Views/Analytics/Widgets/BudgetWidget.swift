@@ -100,8 +100,13 @@ struct BudgetWidget: View {
                 .foregroundColor(.secondary)
             }
         } icon: {
-            Image(systemName: "flame.gauge.open")
-                .symbolRenderingMode(.hierarchical)
+            Image.maintenance
+                .symbolEffect(
+                    .rotate.byLayer,
+                    options: data.calories.isValid
+                        ? .nonRepeating
+                        : .repeat(.periodic(delay: 2.5))
+                )
                 .foregroundColor(.calories)
                 .font(.headline)
         }
@@ -128,8 +133,8 @@ struct BudgetWidget: View {
                     .foregroundColor(.secondary)
             }
         } icon: {
-            Image(systemName: "creditcard.circle")
-                .foregroundColor(data.credit ?? 0 >= 0 ? .green : .red)
+            Image.credit
+                .foregroundColor(.accent)
                 .font(.headline)
         }
     }

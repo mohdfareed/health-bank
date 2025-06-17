@@ -200,13 +200,20 @@ struct LoadingButton<Label: View>: View {
             ProgressView()
         } else {
             Button(role: role) {
-                let buttonAction = {
+                withAnimation(.default) {
                     isLoading = true
+                }
+
+                let buttonAction = {
                     await action()
+                    try? await Task.sleep(nanoseconds: 2 * 1_000_000_000)
                     await MainActor.run {
-                        isLoading = false
+                        withAnimation(.default) {
+                            isLoading = false
+                        }
                     }
                 }
+
                 Task { await buttonAction() }
             } label: {
                 label()

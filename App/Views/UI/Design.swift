@@ -25,7 +25,7 @@ extension Color {
 // ============================================================================
 
 extension Image {
-    static var logo: Image { .init("logo") }
+    static var logo: Image { .init("logo.fill") }
 
     // Apple Health
     static var appleHealth: Image { .init("AppleHealth") }
@@ -41,12 +41,20 @@ extension Image {
     // Data Records
     static var calories: Image { .init(systemName: "flame.fill") }
     static var weight: Image { .init(systemName: "figure") }
+    static var maintenance: Image {
+        .init(systemName: "flame.gauge.open")
+            .symbolRenderingMode(.hierarchical)
+    }
+    static var credit: Image {
+        .init(systemName: "creditcard.circle")
+            .symbolRenderingMode(.hierarchical)
+    }
 
     // Dietary Energy
     static var macros: Image { .init(systemName: "chart.pie") }
-    static var protein: Image { .init("meat") }
-    static var fat: Image { .init("avocado") }
-    static var carbs: Image { .init("bread") }
+    static var protein: Image { .init("meat").symbolRenderingMode(.hierarchical) }
+    static var fat: Image { .init("avocado").symbolRenderingMode(.hierarchical) }
+    static var carbs: Image { .init("bread").symbolRenderingMode(.hierarchical) }
     static var alcohol: Image { .init(systemName: "wineglass") }
 }
 

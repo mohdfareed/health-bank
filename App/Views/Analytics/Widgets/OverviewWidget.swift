@@ -25,10 +25,31 @@ struct OverviewWidget: View {
         NavigationLink(
             destination: overviewPage
         ) {
-            Label {
-                Text("Overview")
-            } icon: {
-                Image(systemName: "chart.line.text.clipboard.fill")
+            LabeledContent {
+                HStack {
+                    if analytics?.budget?.weight.isValid != true {
+                        Image.maintenance.foregroundStyle(Color.calories)
+                            .symbolEffect(
+                                .rotate.byLayer,
+                                options: .repeat(.periodic(delay: 2.5))
+                            )
+                    }
+                }
+            } label: {
+                Label {
+                    HStack {
+                        Text("Overview")
+                        if analytics?.budget?.weight.isValid != true
+                            || analytics?.budget?.calories.isValid != true
+                        {
+                            Text("Calibrating...")
+                                .textScale(.secondary)
+                                .foregroundStyle(.secondary)
+                        }
+                    }
+                } icon: {
+                    Image(systemName: "chart.line.text.clipboard.fill")
+                }
             }
         }
     }
@@ -79,7 +100,7 @@ struct OverviewWidget: View {
             )
         }
 
-        Section("Maintenance") {
+        Section {
             calorieValue(
                 analytics?.budget?.weight.maintenance,
                 title: "Maintenance",
@@ -90,6 +111,22 @@ struct OverviewWidget: View {
                 title: "Change",
                 icon: Image.weight
             )
+        } header: {
+            Text("Maintenance")
+        } footer: {
+            if analytics?.budget?.weight.isValid != true {
+                VStack(alignment: .leading) {
+                    HStack(alignment: .firstTextBaseline) {
+                        Image.maintenance.foregroundStyle(Color.calories)
+                            .symbolEffect(
+                                .rotate.byLayer,
+                                options: .repeat(.periodic(delay: 2.5))
+                            )
+                        Text("Maintenance calibration in progress...")
+                    }
+                    Text("At least 14 days of weight and calorie data is required.")
+                }
+            }
         }
 
         Section("Budget") {

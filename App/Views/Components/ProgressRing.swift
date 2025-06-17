@@ -51,7 +51,7 @@ struct ProgressRing: View {
                 Circle()
                     .trim(from: 0, to: 1)
                     .stroke(
-                        .background.opacity(0.2),
+                        .secondary.opacity(0.1),
                         style: StrokeStyle(
                             lineWidth: lineWidth, lineCap: .round
                         )
