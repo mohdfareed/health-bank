@@ -59,6 +59,7 @@ struct OverviewWidget: View {
             List {
                 if analytics != nil {
                     overviewSections
+                    proteinSection
                 } else {
                     ProgressView()
                         .frame(maxWidth: .infinity, minHeight: 100)
@@ -155,47 +156,46 @@ struct OverviewWidget: View {
             )
         }
 
-        Section("Protein") {
-            proteinSection
-        }
     }
 
     @ViewBuilder var proteinSection: some View {
-        macroValue(
-            analytics?.protein.currentIntake,
-            title: "Intake",
-            icon: Image.protein, tint: .protein
-        )
+        Section("Protein") {
+            macroValue(
+                analytics?.protein.currentIntake,
+                title: "Intake",
+                icon: Image.protein, tint: .protein
+            )
 
-        macroValue(
-            analytics?.protein.smoothedIntake,
-            title: "EWMA",
-            icon: Image.protein, tint: .protein
-        )
+            macroValue(
+                analytics?.protein.smoothedIntake,
+                title: "EWMA",
+                icon: Image.protein, tint: .protein
+            )
 
-        macroValue(
-            analytics?.remaining?.protein,
-            title: "Remaining",
-            icon: Image.protein, tint: .protein
-        )
+            macroValue(
+                analytics?.remaining?.protein,
+                title: "Remaining",
+                icon: Image.protein, tint: .protein
+            )
 
-        macroValue(
-            analytics?.baseBudgets?.protein,
-            title: "Base",
-            icon: Image.protein, tint: .protein
-        )
+            macroValue(
+                analytics?.baseBudgets?.protein,
+                title: "Base",
+                icon: Image.protein, tint: .protein
+            )
 
-        macroValue(
-            analytics?.budgets?.protein,
-            title: "Adjusted",
-            icon: Image.protein, tint: .protein
-        )
+            macroValue(
+                analytics?.budgets?.protein,
+                title: "Adjusted",
+                icon: Image.protein, tint: .protein
+            )
 
-        macroValue(
-            analytics?.credits?.protein,
-            title: "Credit",
-            icon: Image.protein, tint: .protein
-        )
+            macroValue(
+                analytics?.credits?.protein,
+                title: "Credit",
+                icon: Image.protein, tint: .protein
+            )
+        }
     }
 
     private func calorieValue(

@@ -59,10 +59,6 @@ public enum HealthKitDataType: CaseIterable, Sendable {
 /// Service for querying HealthKit data with model-specific query methods.
 public class HealthKitService: @unchecked Sendable {
     internal static let shared = HealthKitService()
-
-    public static let AppSource = AppName
-    public static let AppSourceID = AppID
-
     internal let logger = AppLogger.new(for: HealthKitService.self)
     internal let store = HKHealthStore()
 
@@ -138,17 +134,25 @@ extension HKSource {
     /// Returns the data source of the HealthKit source.
     var dataSource: DataSource {
         switch bundleIdentifier.lowercased() {
-        case HealthKitService.AppSourceID.lowercased():
+        case let id where id.hasSuffix(AppID.lowercased()):
             return .app
         case let id where id.hasPrefix("com.apple.health"):
             return .healthKit
+        case let id where id.hasPrefix("com.apple.shortcuts"):
+            return .shortcuts
+        case let id where id.hasSuffix("FoodNoms".lowercased()):
+            return .foodNoms
 
         default:
             switch name.lowercased() {
-            case HealthKitService.AppSource.lowercased():
+            case AppID.lowercased():
                 return .app
-            case "health":
+            case "Health".lowercased():
                 return .healthKit
+            case "Shortcuts".lowercased():
+                return .shortcuts
+            case "FoodNoms".lowercased():
+                return .foodNoms
             default:
                 return .other(name)
             }

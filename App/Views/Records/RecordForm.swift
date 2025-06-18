@@ -48,7 +48,7 @@ struct RecordForm<R: HealthData & Sendable, Content: View>: View {
                         Text("Source")
                     } icon: {
                         record.source.icon
-                            .foregroundStyle(Color.accent)
+                            .foregroundStyle(record.source.color)
                     }
                 }
             }

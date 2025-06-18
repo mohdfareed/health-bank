@@ -6,6 +6,9 @@ import SwiftUI
 extension Color {
     static var accent: Color { .init("Accent") }
     static var healthKit: Color { .pink }
+    static var shortcuts: Color { .purple }
+    static var foodNoms: Color { .calories }
+    static var unknown: Color { .gray }
 
     // Data Records
     static var calories: Color { .init("Calorie") }
@@ -33,6 +36,11 @@ extension Image {
 
     // Data Sources
     static var healthKit: Image { .init(systemName: "heart.fill") }
+    static var shortcuts: Image {
+        .init(systemName: "app.connected.to.app.below.fill")
+            .symbolRenderingMode(.hierarchical)
+    }
+    static var foodNoms: Image { .init(systemName: "fork.knife") }
     static var unknownApp: Image {
         .init(systemName: "questionmark.app.dashed")
             .symbolRenderingMode(.hierarchical)
@@ -83,8 +91,27 @@ extension DataSource {
             return .logo
         case .healthKit:
             return .healthKit
+        case .shortcuts:
+            return .shortcuts
+        case .foodNoms:
+            return .foodNoms
         case .other:
             return .unknownApp
+        }
+    }
+
+    var color: Color {
+        switch self {
+        case .app:
+            return .accent
+        case .healthKit:
+            return .healthKit
+        case .shortcuts:
+            return .shortcuts
+        case .foodNoms:
+            return .foodNoms
+        case .other:
+            return .unknown
         }
     }
 }

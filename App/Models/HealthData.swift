@@ -36,7 +36,7 @@ enum HealthDataModel: CaseIterable, Identifiable {
 
 /// The health data source.
 public enum DataSource: Codable, CaseIterable, Equatable, Sendable {
-    case app, healthKit
+    case app, healthKit, shortcuts, foodNoms
     case other(String)
 
     static public var allCases: [DataSource] {

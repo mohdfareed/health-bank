@@ -14,6 +14,10 @@ struct DashboardView: View {
             .refreshable {
                 refreshing.toggle()
             }
+            .onAppear {
+                refreshing.toggle()
+            }
+
         }
     }
 }

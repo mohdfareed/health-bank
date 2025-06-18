@@ -4,9 +4,9 @@
       "type": "swift",
       "request": "launch",
       "args": [],
-      "cwd": "${workspaceFolder:health-bank}",
+      "cwd": "${workspaceFolder:health-vaults}",
       "name": "Debug HealthVaults",
-      "program": "${workspaceFolder:health-bank}/.build/debug/HealthVaults",
+      "program": "${workspaceFolder:health-vaults}/.build/debug/HealthVaults",
       "preLaunchTask": "swift: Build Debug HealthVaults"
     },
     {

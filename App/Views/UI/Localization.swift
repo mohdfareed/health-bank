@@ -13,6 +13,10 @@ extension DataSource {
             return AppName
         case .healthKit:
             return String(localized: "apple health").localizedCapitalized
+        case .shortcuts:
+            return String(localized: "shortcuts").localizedCapitalized
+        case .foodNoms:
+            return String(localized: "foodNoms").localizedCapitalized
         case .other(let name):
             return name
         }

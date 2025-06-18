@@ -108,7 +108,7 @@ private struct RecordListRow: View {
                         .foregroundStyle(.secondary)
                         .font(.caption2)
                     record.source.icon.asText
-                        .foregroundColor(Color.accent)
+                        .foregroundColor(record.source.color)
                         .font(.caption2)
                 }
             } label: {
