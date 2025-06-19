@@ -155,20 +155,18 @@ struct AddMenu: View {
                 }
             }
         } label: {
-            Button {
-            } label: {
-                Label("Add Data", systemImage: "plus")
-                    .labelStyle(.iconOnly)
-                    .imageScale(.large)
-                    .padding(4)
-            }
-            .transform {
-                if #available(iOS 26, macOS 26, watchOS 26, *) {
-                    $0.glassEffect(.regular.interactive(), in: .buttonBorder)
-                        .buttonStyle(.glass)
-                } else {
-                    $0.buttonStyle(.borderedProminent)
-                }
+            Label("Add Data", systemImage: "plus")
+                .labelStyle(.iconOnly)
+                .imageScale(.large)
+                .padding(4)
+        }
+        .transform {
+            if #available(iOS 26, macOS 26, watchOS 26, *) {
+                $0.padding(8)
+                    .glassEffect(.regular, in: .buttonBorder)
+                    .buttonStyle(.glass)
+            } else {
+                $0.buttonStyle(.borderedProminent)
             }
         }
         .buttonBorderShape(.circle)

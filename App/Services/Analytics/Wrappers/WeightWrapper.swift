@@ -19,11 +19,12 @@ struct WeightAnalytics: DynamicProperty {
     func reload(at date: Date) async {
         await $calorieAnalytics.reload(at: date)
         guard let calorieAnalytics = calorieAnalytics else { return }
+        let fittingRange = DataAnalyticsService.fittingDateRange(from: date)
 
         // Get calorie data for the past 14 days
         let weightData = await healthKitService.fetchStatistics(
             for: .bodyMass,
-            from: date.adding(-14, .day), to: date,
+            from: fittingRange.from, to: fittingRange.to,
             interval: .daily,
             options: .discreteAverage
         )

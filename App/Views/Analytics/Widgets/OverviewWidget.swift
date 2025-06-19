@@ -161,7 +161,6 @@ struct OverviewWidget: View {
                     Text("Protein")
                 } subtitle: {
                 } details: {
-                    Text("Overview of protein intake and budget.")
                 }
             }
 
@@ -185,7 +184,6 @@ struct OverviewWidget: View {
                     Text("Carbs")
                 } subtitle: {
                 } details: {
-                    Text("Overview of carbohydrate intake and budget.")
                 }
             }
 
@@ -209,7 +207,6 @@ struct OverviewWidget: View {
                     Text("Fat")
                 } subtitle: {
                 } details: {
-                    Text("Overview of fat intake and budget.")
                 }
             }
         } header: {

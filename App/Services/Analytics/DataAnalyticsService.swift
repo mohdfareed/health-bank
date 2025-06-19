@@ -60,4 +60,13 @@ struct DataAnalyticsService {
     ) -> (from: Date, to: Date) {
         return (from: date.floored(to: .day), to: date)
     }
+
+    /// Get the date range of the maintenance calculations.
+    static func fittingDateRange(
+        from date: Date
+    ) -> (from: Date, to: Date) {
+        return (
+            from: date.floored(to: .day).adding(-14, .day), to: date,
+        )
+    }
 }
