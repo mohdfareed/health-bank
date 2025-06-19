@@ -7,48 +7,37 @@ import SwiftUI
 
 struct OverviewWidget: View {
     @MacrosAnalytics var analytics: MacrosAnalyticsService?
-    @Binding var refreshing: Bool
-
-    init(
-        _ adjustment: Double? = nil,
-        _ macroAdjustments: CalorieMacros? = nil,
-        refreshing: Binding<Bool> = .constant(false)
-    ) {
-        self._refreshing = refreshing
-        self._analytics = .init(
-            budgetAnalytics: .init(adjustment: adjustment),
-            adjustments: macroAdjustments
-        )
-    }
 
     var body: some View {
-        NavigationLink(
-            destination: overviewPage
-        ) {
-            LabeledContent {
-                HStack {
-                    if analytics?.budget?.weight.isValid != true {
-                        Image.maintenance.foregroundStyle(Color.calories)
-                            .symbolEffect(
-                                .rotate.byLayer,
-                                options: .repeat(.continuous)
-                            )
-                    }
-                }
-            } label: {
-                Label {
+        Section("Data") {
+            NavigationLink(
+                destination: overviewPage
+            ) {
+                LabeledContent {
                     HStack {
-                        Text("Overview")
-                        if analytics?.budget?.weight.isValid != true
-                            || analytics?.budget?.calories.isValid != true
-                        {
-                            Text("Calibrating...")
-                                .textScale(.secondary)
-                                .foregroundStyle(.secondary)
+                        if analytics?.budget?.weight.isValid != true {
+                            Image.maintenance.foregroundStyle(Color.calories)
+                                .symbolEffect(
+                                    .rotate.byLayer,
+                                    options: .repeat(.continuous)
+                                )
                         }
                     }
-                } icon: {
-                    Image(systemName: "chart.line.text.clipboard.fill")
+                } label: {
+                    Label {
+                        HStack {
+                            Text("Overview")
+                            if analytics?.budget?.weight.isValid != true
+                                || analytics?.budget?.calories.isValid != true
+                            {
+                                Text("Calibrating...")
+                                    .textScale(.secondary)
+                                    .foregroundStyle(.secondary)
+                            }
+                        }
+                    } icon: {
+                        Image(systemName: "chart.line.text.clipboard.fill")
+                    }
                 }
             }
         }
@@ -59,32 +48,24 @@ struct OverviewWidget: View {
             List {
                 if analytics != nil {
                     overviewSections
-                    proteinSection
+                    macrosPage
                 } else {
                     ProgressView()
                         .frame(maxWidth: .infinity, minHeight: 100)
                 }
             }
             .navigationTitle("Overview")
+
             .refreshable {
-                refreshing.toggle()
+                await refresh()
+            }
+            .onAppear {
+                Task {
+                    await refresh()
+                }
             }
         }
-
-        .animation(.default, value: refreshing)
         .animation(.default, value: analytics == nil)
-
-        .onAppear {
-            Task {
-                await $analytics.reload(at: Date())
-            }
-        }
-
-        .onChange(of: refreshing) {
-            Task {
-                await $analytics.reload(at: Date())
-            }
-        }
     }
 
     @ViewBuilder var overviewSections: some View {
@@ -102,15 +83,15 @@ struct OverviewWidget: View {
         }
 
         Section {
-            calorieValue(
-                analytics?.budget?.weight.maintenance,
-                title: "Maintenance",
-                icon: Image.calories
-            )
             weightValue(
                 analytics?.budget?.weight.weightSlope,
                 title: "Change",
                 icon: Image.weight
+            )
+            calorieValue(
+                analytics?.budget?.weight.maintenance,
+                title: "Maintenance",
+                icon: Image.calories
             )
         } header: {
             Text("Maintenance")
@@ -158,6 +139,88 @@ struct OverviewWidget: View {
 
     }
 
+    @ViewBuilder var macrosPage: some View {
+        Section {
+            NavigationLink(
+                destination: NavigationStack {
+                    List {
+                        proteinSection
+                    }
+                    .refreshable {
+                        await refresh()
+                    }
+                    .onAppear {
+                        Task {
+                            await refresh()
+                        }
+                    }
+                }
+                .navigationTitle("Protein")
+            ) {
+                DetailedRow(image: Image.protein, tint: .protein) {
+                    Text("Protein")
+                } subtitle: {
+                } details: {
+                    Text("Overview of protein intake and budget.")
+                }
+            }
+
+            NavigationLink(
+                destination: NavigationStack {
+                    List {
+                        carbsSection
+                    }
+                    .refreshable {
+                        await refresh()
+                    }
+                    .onAppear {
+                        Task {
+                            await refresh()
+                        }
+                    }
+                }
+                .navigationTitle("Carbohydrates")
+            ) {
+                DetailedRow(image: Image.carbs, tint: .carbs) {
+                    Text("Carbs")
+                } subtitle: {
+                } details: {
+                    Text("Overview of carbohydrate intake and budget.")
+                }
+            }
+
+            NavigationLink(
+                destination: NavigationStack {
+                    List {
+                        fatSection
+                    }
+                    .refreshable {
+                        await refresh()
+                    }
+                    .onAppear {
+                        Task {
+                            await refresh()
+                        }
+                    }
+                }
+                .navigationTitle("Fat")
+            ) {
+                DetailedRow(image: Image.fat, tint: .fat) {
+                    Text("Fat")
+                } subtitle: {
+                } details: {
+                    Text("Overview of fat intake and budget.")
+                }
+            }
+        } header: {
+            Text("Macros")
+        } footer: {
+            Text(
+                "Macros are calculated based on the calorie budget."
+            )
+        }
+    }
+
     @ViewBuilder var proteinSection: some View {
         Section("Protein") {
             macroValue(
@@ -171,7 +234,9 @@ struct OverviewWidget: View {
                 title: "EWMA",
                 icon: Image.protein, tint: .protein
             )
+        }
 
+        Section("Budget") {
             macroValue(
                 analytics?.remaining?.protein,
                 title: "Remaining",
@@ -194,6 +259,90 @@ struct OverviewWidget: View {
                 analytics?.credits?.protein,
                 title: "Credit",
                 icon: Image.protein, tint: .protein
+            )
+        }
+    }
+
+    @ViewBuilder var carbsSection: some View {
+        Section("Carbs") {
+            macroValue(
+                analytics?.carbs.currentIntake,
+                title: "Intake",
+                icon: Image.carbs, tint: .carbs
+            )
+
+            macroValue(
+                analytics?.carbs.smoothedIntake,
+                title: "EWMA",
+                icon: Image.carbs, tint: .carbs
+            )
+        }
+
+        Section("Budget") {
+            macroValue(
+                analytics?.remaining?.carbs,
+                title: "Remaining",
+                icon: Image.carbs, tint: .carbs
+            )
+
+            macroValue(
+                analytics?.baseBudgets?.carbs,
+                title: "Base",
+                icon: Image.carbs, tint: .carbs
+            )
+
+            macroValue(
+                analytics?.budgets?.carbs,
+                title: "Adjusted",
+                icon: Image.carbs, tint: .carbs
+            )
+
+            macroValue(
+                analytics?.credits?.carbs,
+                title: "Credit",
+                icon: Image.carbs, tint: .carbs
+            )
+        }
+    }
+
+    @ViewBuilder var fatSection: some View {
+        Section("Fat") {
+            macroValue(
+                analytics?.fat.currentIntake,
+                title: "Intake",
+                icon: Image.fat, tint: .fat
+            )
+
+            macroValue(
+                analytics?.fat.smoothedIntake,
+                title: "EWMA",
+                icon: Image.fat, tint: .fat
+            )
+        }
+
+        Section("Budget") {
+            macroValue(
+                analytics?.remaining?.fat,
+                title: "Remaining",
+                icon: Image.fat, tint: .fat
+            )
+
+            macroValue(
+                analytics?.baseBudgets?.fat,
+                title: "Base",
+                icon: Image.fat, tint: .fat
+            )
+
+            macroValue(
+                analytics?.budgets?.fat,
+                title: "Adjusted",
+                icon: Image.fat, tint: .fat
+            )
+
+            macroValue(
+                analytics?.credits?.fat,
+                title: "Credit",
+                icon: Image.fat, tint: .fat
             )
         }
     }
@@ -262,5 +411,9 @@ struct OverviewWidget: View {
             }
         }
         .disabled(true)
+    }
+
+    func refresh() async {
+        await $analytics.reload(at: Date())
     }
 }

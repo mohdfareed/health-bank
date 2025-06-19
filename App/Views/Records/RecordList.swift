@@ -35,7 +35,7 @@ struct RecordList<T: HealthData>: View {
             runTask($records.reload)
         }
         .refreshable {
-            runTask($records.reload)
+            await $records.reload()
         }
         .onChange(of: isCreating) {
             runTask($records.reload)
@@ -159,10 +159,19 @@ struct AddMenu: View {
             } label: {
                 Label("Add Data", systemImage: "plus")
                     .labelStyle(.iconOnly)
+                    .imageScale(.large)
+                    .padding(4)
+            }
+            .transform {
+                if #available(iOS 26, macOS 26, watchOS 26, *) {
+                    $0.glassEffect(.regular.interactive(), in: .buttonBorder)
+                        .buttonStyle(.glass)
+                } else {
+                    $0.buttonStyle(.borderedProminent)
+                }
             }
         }
         .buttonBorderShape(.circle)
-        .buttonStyle(.borderedProminent)
     }
 }
 

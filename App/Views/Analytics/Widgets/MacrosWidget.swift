@@ -6,27 +6,14 @@ import SwiftUI
 // ============================================================================
 
 struct MacrosWidget: View {
-    @MacrosAnalytics private var macrosBudget: MacrosAnalyticsService?
-    @Binding var refreshing: Bool
-
-    init(
-        _ adjustments: CalorieMacros? = nil,
-        budgetAnalytics: BudgetAnalytics,
-        refreshing: Binding<Bool> = .constant(false)
-    ) {
-        self._refreshing = refreshing
-        self._macrosBudget = .init(
-            budgetAnalytics: budgetAnalytics,
-            adjustments: adjustments
-        )
-    }
+    @MacrosAnalytics var analytics: MacrosAnalyticsService?
 
     var body: some View {
         DashboardCard(
             title: "Macros",
             icon: .macros, color: .macros
         ) {
-            if macrosBudget != nil {
+            if analytics != nil {
                 HStack {
                     BudgetContent(ring: .protein)
                     Spacer()
@@ -45,23 +32,10 @@ struct MacrosWidget: View {
         } destination: {
         }
 
-        .animation(.default, value: refreshing)
-        .animation(.default, value: macrosBudget == nil)
-        .animation(.default, value: macrosBudget?.protein == nil)
-        .animation(.default, value: macrosBudget?.carbs == nil)
-        .animation(.default, value: macrosBudget?.fat == nil)
-
-        .onAppear {
-            Task {
-                await loadData()
-            }
-        }
-
-        .onChange(of: refreshing) {
-            Task {
-                await loadData()
-            }
-        }
+        .animation(.default, value: analytics == nil)
+        .animation(.default, value: analytics?.protein == nil)
+        .animation(.default, value: analytics?.carbs == nil)
+        .animation(.default, value: analytics?.fat == nil)
     }
 
     @ViewBuilder
@@ -83,7 +57,7 @@ struct MacrosWidget: View {
 
             MacroContent(ring: ring)
 
-            macrosBudget?.progress(ring)
+            analytics?.progress(ring)
                 .font(.subheadline)
                 .frame(maxWidth: 50)
         }
@@ -120,33 +94,33 @@ struct MacrosWidget: View {
     private func intake(ring: MacrosAnalyticsService.MacroRing) -> Double? {
         switch ring {
         case .protein:
-            return macrosBudget?.protein.currentIntake
+            return analytics?.protein.currentIntake
         case .carbs:
-            return macrosBudget?.carbs.currentIntake
+            return analytics?.carbs.currentIntake
         case .fat:
-            return macrosBudget?.fat.currentIntake
+            return analytics?.fat.currentIntake
         }
     }
 
     private func budget(ring: MacrosAnalyticsService.MacroRing) -> Double? {
         switch ring {
         case .protein:
-            return macrosBudget?.budgets?.protein
+            return analytics?.budgets?.protein
         case .carbs:
-            return macrosBudget?.budgets?.carbs
+            return analytics?.budgets?.carbs
         case .fat:
-            return macrosBudget?.budgets?.fat
+            return analytics?.budgets?.fat
         }
     }
 
     private func remaining(ring: MacrosAnalyticsService.MacroRing) -> Double? {
         switch ring {
         case .protein:
-            return macrosBudget?.remaining?.protein
+            return analytics?.remaining?.protein
         case .carbs:
-            return macrosBudget?.remaining?.carbs
+            return analytics?.remaining?.carbs
         case .fat:
-            return macrosBudget?.remaining?.fat
+            return analytics?.remaining?.fat
         }
     }
 
@@ -170,9 +144,5 @@ struct MacrosWidget: View {
         case .fat:
             return .fat
         }
-    }
-
-    private func loadData() async {
-        await $macrosBudget.reload(at: Date())
     }
 }

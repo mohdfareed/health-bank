@@ -6,23 +6,14 @@ import SwiftUI
 // ============================================================================
 
 struct BudgetWidget: View {
-    @BudgetAnalytics var budget: BudgetService?
-    @Binding var refreshing: Bool
-
-    init(
-        _ adjustment: Double? = nil,
-        refreshing: Binding<Bool> = .constant(false)
-    ) {
-        self._refreshing = refreshing
-        self._budget = .init(adjustment: adjustment)
-    }
+    @BudgetAnalytics var analytics: BudgetService?
 
     var body: some View {
         DashboardCard(
             title: "Calories",
             icon: .calories, color: .calories
         ) {
-            if let budget = budget {
+            if let budget = analytics {
                 HStack {
                     VStack(alignment: .leading, spacing: 8) {
                         CalorieContent(data: budget)
@@ -40,21 +31,7 @@ struct BudgetWidget: View {
             }
         } destination: {
         }
-
-        .animation(.default, value: refreshing)
-        .animation(.default, value: budget == nil)
-
-        .onAppear {
-            Task {
-                await $budget.reload(at: Date())
-            }
-        }
-
-        .onChange(of: refreshing) {
-            Task {
-                await $budget.reload(at: Date())
-            }
-        }
+        .animation(.default, value: analytics == nil)
     }
 
     @ViewBuilder

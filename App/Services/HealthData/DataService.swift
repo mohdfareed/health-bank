@@ -64,15 +64,21 @@ extension DataQuery {
         guard !isLoading else { return }
 
         // Reset pagination state
-        items = []
-        isExhausted = false
-        cursorDate = nil  // Start from the top of the date range
-
-        await loadNextPage()
+        cursorDate = nil
+        // Load first page
+        let page = await loadPage([])
+        items = page
     }
 
     func loadNextPage() async {
         guard !isLoading, !isExhausted else { return }
+
+        // Append the next page of items
+        let page = await loadPage(items)
+        items.append(contentsOf: page)
+    }
+
+    func loadPage(_ current: [T]) async -> [T] {
         defer { isLoading = false }
         isLoading = true
 
@@ -92,7 +98,7 @@ extension DataQuery {
         }
 
         // 3) Filter out items we already have and sort by date descending
-        let existingDates = Set(items.map { $0.date })
+        let existingDates = Set(current.map { $0.date })
         let filteredChunk =
             remoteChunk
             .filter { !existingDates.contains($0.date) }
@@ -106,13 +112,12 @@ extension DataQuery {
             isExhausted = true
         }
 
-        // 6) Add the new items
-        items.append(contentsOf: page)
-
         // 7) Update cursor to just before the oldest item in this page
         if let oldest = page.last {
             cursorDate = oldest.date.addingTimeInterval(-0.001)
         }
+
+        return page
     }
 }
 

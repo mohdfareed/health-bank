@@ -12,7 +12,10 @@ import SwiftUI
 
 struct AppView: View {
     @AppStorage(.theme)
-    internal var theme: AppTheme
+    private var theme: AppTheme
+    @AppStorage(.userGoals)
+    private var goalsID: UUID
+
     @Environment(\.colorScheme)
     private var colorScheme: ColorScheme
     @AppLocale private var locale
@@ -25,7 +28,7 @@ struct AppView: View {
     var body: some View {
         TabView {
             Tab("Dashboard", systemImage: "chart.bar.xaxis") {
-                DashboardView()
+                DashboardView(goalsID: goalsID)
             }
 
             Tab("Data", systemImage: "heart.text.clipboard.fill") {
@@ -51,29 +54,33 @@ struct AppView: View {
             healthKitService.requestAuthorization()
         }
 
-        .transform {
-            if #available(iOS 26, macOS 26, watchOS 26, *) {
-                #if os(iOS)
-                    $0.tabViewBottomAccessory {
-                        HStack(alignment: .bottom, spacing: 0) {
-                            AddButton(HealthDataModel.calorie.definition) {
-                                activeDataModel = .calorie
-                            }
-                            AddButton(HealthDataModel.weight.definition) {
-                                activeDataModel = .weight
-                            }
-                        }
-                    }
-                // .tabBarMinimizeBehavior(.onScrollDown) // REVIEW: Buggy
-                #endif
-            } else {
-                $0.overlay(alignment: .bottomTrailing) {
-                    AddMenu { dataModel in
-                        activeDataModel = dataModel
-                    }
-                    .padding(.bottom, 64)
-                }
+        .overlay(alignment: .bottomTrailing) {
+            AddMenu { dataModel in
+                activeDataModel = dataModel
             }
+            // .transform {
+            //     if #available(iOS 26, macOS 26, watchOS 26, *) {
+            //         $0.glassEffect()
+            //             .buttonStyle(.glass)
+            //         // #if os(iOS)
+            //         //     $0.tabViewBottomAccessory {
+            //         //         HStack(alignment: .bottom, spacing: 0) {
+            //         //             AddButton(HealthDataModel.calorie.definition) {
+            //         //                 activeDataModel = .calorie
+            //         //             }
+            //         //             AddButton(HealthDataModel.weight.definition) {
+            //         //                 activeDataModel = .weight
+            //         //             }
+            //         //         }
+            //         //     }
+            //         //     .tabBarMinimizeBehavior(.onScrollDown)  // REVIEW: Buggy
+            //         // #endif
+            //     } else {
+            //         $0.buttonStyle(.borderedProminent)
+            //     }
+            // }
+            .padding(.bottom, 64)
+            .padding(.trailing, 8)
         }
 
         .sheet(item: $activeDataModel) { dataModel in
