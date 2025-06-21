@@ -1,7 +1,6 @@
 .build/
 .swiftpm/
-build/
 
-.env
-Package.resolved
+*xcuserdata/
+
 REVIEW.md
