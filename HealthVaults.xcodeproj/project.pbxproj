@@ -7,9 +7,9 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		007EA9652E07157200002170 /* WidgetsExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 007EA9642E0714FA00002170 /* WidgetsExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		00F4455D2E0633F0006965F0 /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 00F4455C2E0633F0006965F0 /* WidgetKit.framework */; };
 		00F4455F2E0633F0006965F0 /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 00F4455E2E0633F0006965F0 /* SwiftUI.framework */; };
-		00F4456E2E0633F1006965F0 /* WidgetsExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 00F4455A2E0633F0006965F0 /* WidgetsExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -28,21 +28,44 @@
 			dstPath = "";
 			dstSubfolder = PlugIns;
 			files = (
-				00F4456E2E0633F1006965F0 /* WidgetsExtension.appex in Embed Foundation Extensions */,
+				007EA9652E07157200002170 /* WidgetsExtension.appex in Embed Foundation Extensions */,
 			);
 			name = "Embed Foundation Extensions";
 		};
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		00F4455A2E0633F0006965F0 /* WidgetsExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = WidgetsExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		007EA9622E0714FA00002170 /* HealthVaults.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = HealthVaults.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		007EA9642E0714FA00002170 /* WidgetsExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = WidgetsExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		00F4455C2E0633F0006965F0 /* WidgetKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WidgetKit.framework; path = System/Library/Frameworks/WidgetKit.framework; sourceTree = SDKROOT; };
 		00F4455E2E0633F0006965F0 /* SwiftUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SwiftUI.framework; path = System/Library/Frameworks/SwiftUI.framework; sourceTree = SDKROOT; };
 		129AFCECF9B43755EDDFF306 /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
-		195D963384C08DBD695ED99E /* health-vaults */ = {isa = PBXFileReference; lastKnownFileType = folder; name = "health-vaults"; path = .; sourceTree = SOURCE_ROOT; };
-		22E66E6CB0DCCEF73D8BF7A9 /* HealthVaults.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = HealthVaults.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		3880958F05D30BD1F8C84246 /* .gitignore */ = {isa = PBXFileReference; lastKnownFileType = text; path = .gitignore; sourceTree = "<group>"; };
 /* End PBXFileReference section */
+
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		007EA96A2E071DF100002170 /* Exceptions for "Assets" folder in "HealthVaults" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Licenses/AppleHealth/LICENSE_BADGE.pdf,
+				Licenses/AppleHealth/LICENSE_ICON.rtf,
+				Licenses/Icons8/LICENSE.pdf,
+				Licenses/Icons8/Requirements.png,
+			);
+			target = 73A6ABB94F5170F06A130A21 /* HealthVaults */;
+		};
+		007EA9702E071E1100002170 /* Exceptions for "Assets" folder in "WidgetsExtension" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				AppIcon.icon,
+				AppleHealth.xcassets,
+				Colors.xcassets,
+				LaunchScreen.xcassets,
+				Symbols.xcassets,
+			);
+			target = 00F445592E0633F0006965F0 /* WidgetsExtension */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		00F445052E06330B006965F0 /* App */ = {
@@ -57,6 +80,10 @@
 		};
 		00F4454C2E06332A006965F0 /* Assets */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				007EA96A2E071DF100002170 /* Exceptions for "Assets" folder in "HealthVaults" target */,
+				007EA9702E071E1100002170 /* Exceptions for "Assets" folder in "WidgetsExtension" target */,
+			);
 			path = Assets;
 			sourceTree = "<group>";
 		};
@@ -78,6 +105,15 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		007EA9632E0714FA00002170 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				007EA9622E0714FA00002170 /* HealthVaults.app */,
+				007EA9642E0714FA00002170 /* WidgetsExtension.appex */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
 		00F4455B2E0633F0006965F0 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
@@ -85,23 +121,6 @@
 				00F4455E2E0633F0006965F0 /* SwiftUI.framework */,
 			);
 			name = Frameworks;
-			sourceTree = "<group>";
-		};
-		0BFC0E57C246197FBB8B35BE /* Products */ = {
-			isa = PBXGroup;
-			children = (
-				22E66E6CB0DCCEF73D8BF7A9 /* HealthVaults.app */,
-				00F4455A2E0633F0006965F0 /* WidgetsExtension.appex */,
-			);
-			name = Products;
-			sourceTree = "<group>";
-		};
-		42CA481A9ABE2483013FE2D1 /* Packages */ = {
-			isa = PBXGroup;
-			children = (
-				195D963384C08DBD695ED99E /* health-vaults */,
-			);
-			name = Packages;
 			sourceTree = "<group>";
 		};
 		B59F62ED490864E400F5EB03 = {
@@ -113,9 +132,8 @@
 				00F445602E0633F0006965F0 /* Widgets */,
 				3880958F05D30BD1F8C84246 /* .gitignore */,
 				129AFCECF9B43755EDDFF306 /* README.md */,
-				42CA481A9ABE2483013FE2D1 /* Packages */,
 				00F4455B2E0633F0006965F0 /* Frameworks */,
-				0BFC0E57C246197FBB8B35BE /* Products */,
+				007EA9632E0714FA00002170 /* Products */,
 			);
 			sourceTree = "<group>";
 		};
@@ -137,7 +155,7 @@
 			);
 			name = WidgetsExtension;
 			productName = WidgetsExtension;
-			productReference = 00F4455A2E0633F0006965F0 /* WidgetsExtension.appex */;
+			productReference = 007EA9642E0714FA00002170 /* WidgetsExtension.appex */;
 			productType = "com.apple.product-type.app-extension";
 		};
 		73A6ABB94F5170F06A130A21 /* HealthVaults */ = {
@@ -159,7 +177,7 @@
 			);
 			name = HealthVaults;
 			productName = HealthVaults;
-			productReference = 22E66E6CB0DCCEF73D8BF7A9 /* HealthVaults.app */;
+			productReference = 007EA9622E0714FA00002170 /* HealthVaults.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
@@ -170,7 +188,7 @@
 			attributes = {
 				BuildIndependentTargetsInParallel = YES;
 				LastSwiftUpdateCheck = 2600;
-				LastUpgradeCheck = 1430;
+				LastUpgradeCheck = 2600;
 				TargetAttributes = {
 					00F445592E0633F0006965F0 = {
 						CreatedOnToolsVersion = 26.0;
@@ -190,9 +208,9 @@
 			mainGroup = B59F62ED490864E400F5EB03;
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
-				4E28ECF0008A433675B8F6B3 /* XCLocalSwiftPackageReference "." */,
 			);
 			preferredProjectObjectVersion = 90;
+			productRefGroup = 007EA9632E0714FA00002170 /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
@@ -240,7 +258,6 @@
 		00F445712E0633F1006965F0 /* Debug configuration for PBXNativeTarget "WidgetsExtension" */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
 				INFOPLIST_FILE = HealthVaults.xcodeproj/WidgetsInfo.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "HealthVaults Widgets";
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -258,7 +275,6 @@
 		00F445722E0633F1006965F0 /* Release configuration for PBXNativeTarget "WidgetsExtension" */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
 				INFOPLIST_FILE = HealthVaults.xcodeproj/WidgetsInfo.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "HealthVaults Widgets";
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -277,8 +293,10 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
-				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = NO;
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = Accent;
+				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = YES;
+				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_CXX_LANGUAGE_STANDARD = "c++20";
@@ -312,6 +330,7 @@
 				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_TEAM = B67CHZC3GP;
 				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_PREVIEWS = YES;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_USER_SCRIPT_SANDBOXING = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu17;
@@ -323,7 +342,6 @@
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_KEY_CFBundleDisplayName = HealthVaults;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.healthcare-fitness";
 				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
@@ -333,7 +351,6 @@
 				SDKROOT = iphoneos;
 				SWIFT_COMPILATION_MODE = wholemodule;
 				SWIFT_EMIT_LOC_STRINGS = YES;
-				SWIFT_OPTIMIZATION_LEVEL = "-O";
 				SWIFT_VERSION = 6.0;
 				VALIDATE_PRODUCT = YES;
 			};
@@ -343,8 +360,10 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
-				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = NO;
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = Accent;
+				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = YES;
+				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_CXX_LANGUAGE_STANDARD = "c++20";
@@ -378,6 +397,7 @@
 				DEAD_CODE_STRIPPING = YES;
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				DEVELOPMENT_TEAM = B67CHZC3GP;
+				ENABLE_PREVIEWS = YES;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
 				ENABLE_USER_SCRIPT_SANDBOXING = YES;
@@ -396,7 +416,6 @@
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_KEY_CFBundleDisplayName = HealthVaults;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.healthcare-fitness";
 				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
@@ -416,14 +435,26 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CODE_SIGN_ENTITLEMENTS = HealthVaults.xcodeproj/App.entitlements;
-				INFOPLIST_FILE = HealthVaults.xcodeproj/Info.plist;
+				ENABLE_PREVIEWS = "";
+				INFOPLIST_FILE = HealthVaults.xcodeproj/AppInfo.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = HealthVaults;
 				INFOPLIST_KEY_NSHealthClinicalHealthRecordsShareUsageDescription = "Enable the app to read health data from other apps using Apple Health.";
 				INFOPLIST_KEY_NSHealthShareUsageDescription = "Enable the app to share its data with other apps using Apple Health.";
 				INFOPLIST_KEY_NSHealthUpdateUsageDescription = "Enable the app to update health data created by the app in Apple Health.\n";
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.MohdFareed.HealthVaults;
 				PRODUCT_NAME = HealthVaults;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Release;
@@ -432,14 +463,26 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CODE_SIGN_ENTITLEMENTS = HealthVaults.xcodeproj/App.entitlements;
-				INFOPLIST_FILE = HealthVaults.xcodeproj/Info.plist;
+				ENABLE_PREVIEWS = "";
+				INFOPLIST_FILE = HealthVaults.xcodeproj/AppInfo.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = HealthVaults;
 				INFOPLIST_KEY_NSHealthClinicalHealthRecordsShareUsageDescription = "Enable the app to read health data from other apps using Apple Health.";
 				INFOPLIST_KEY_NSHealthShareUsageDescription = "Enable the app to share its data with other apps using Apple Health.";
 				INFOPLIST_KEY_NSHealthUpdateUsageDescription = "Enable the app to update health data created by the app in Apple Health.\n";
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.MohdFareed.HealthVaults;
 				PRODUCT_NAME = HealthVaults;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Debug;
@@ -453,7 +496,7 @@
 				00F445712E0633F1006965F0 /* Debug configuration for PBXNativeTarget "WidgetsExtension" */,
 				00F445722E0633F1006965F0 /* Release configuration for PBXNativeTarget "WidgetsExtension" */,
 			);
-			defaultConfigurationName = Debug;
+			defaultConfigurationName = Release;
 		};
 		5AA6211D2EF68453E1C8A500 /* Build configuration list for PBXProject "HealthVaults" */ = {
 			isa = XCConfigurationList;
@@ -461,7 +504,7 @@
 				C93DA12F58F5072763C99728 /* Debug configuration for PBXProject "HealthVaults" */,
 				4C8FA003AB13B2A364E92AF2 /* Release configuration for PBXProject "HealthVaults" */,
 			);
-			defaultConfigurationName = Debug;
+			defaultConfigurationName = Release;
 		};
 		E64043FA51E8E4C1BD7B05E5 /* Build configuration list for PBXNativeTarget "HealthVaults" */ = {
 			isa = XCConfigurationList;
@@ -469,16 +512,9 @@
 				EA75B97BE52E905FB580AA81 /* Debug configuration for PBXNativeTarget "HealthVaults" */,
 				DBEA588AD83A663DC0B4BE95 /* Release configuration for PBXNativeTarget "HealthVaults" */,
 			);
-			defaultConfigurationName = Debug;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
-
-/* Begin XCLocalSwiftPackageReference section */
-		4E28ECF0008A433675B8F6B3 /* XCLocalSwiftPackageReference "." */ = {
-			isa = XCLocalSwiftPackageReference;
-			relativePath = .;
-		};
-/* End XCLocalSwiftPackageReference section */
 	};
 	rootObject = B8E4B4E8F12D5C40114FEED0 /* Project object */;
 }
