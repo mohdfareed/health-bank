@@ -13,10 +13,28 @@
       "type": "swift",
       "request": "launch",
       "args": [],
-      "cwd": "${workspaceFolder:health-bank}",
+      "cwd": "${workspaceFolder:health-vaults}",
       "name": "Release HealthVaults",
-      "program": "${workspaceFolder:health-bank}/.build/release/HealthVaults",
+      "program": "${workspaceFolder:health-vaults}/.build/release/HealthVaults",
       "preLaunchTask": "swift: Build Release HealthVaults"
+    },
+    {
+      "type": "swift",
+      "request": "launch",
+      "args": [],
+      "cwd": "${workspaceFolder:health-vaults}",
+      "name": "Debug HealthVaultsWidgets",
+      "program": "${workspaceFolder:health-vaults}/.build/debug/HealthVaultsWidgets",
+      "preLaunchTask": "swift: Build Debug HealthVaultsWidgets"
+    },
+    {
+      "type": "swift",
+      "request": "launch",
+      "args": [],
+      "cwd": "${workspaceFolder:health-vaults}",
+      "name": "Release HealthVaultsWidgets",
+      "program": "${workspaceFolder:health-vaults}/.build/release/HealthVaultsWidgets",
+      "preLaunchTask": "swift: Build Release HealthVaultsWidgets"
     }
   ]
 }
