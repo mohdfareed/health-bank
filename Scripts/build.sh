@@ -1,10 +1,10 @@
 #!/usr/bin/env sh
 
 if [[ $1 == "-b" || $1 == "--beta"  ]]; then
-    echo "Building Beta..."
+    echo "Building beta..."
     export DEVELOPER_DIR="/Applications/Xcode-beta.app/Contents/Developer"
 else
-    echo "Building Release..."
+    echo "Building release..."
     export DEVELOPER_DIR="/Applications/Xcode.app/Contents/Developer"
 fi
 

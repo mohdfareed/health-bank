@@ -1,13 +1,6 @@
+import HealthVaultsShared
 import SwiftData
 import SwiftUI
-
-// TODO: Create reusable goals the user can choose from.
-// TODO: Create calorie entries preset system.
-
-/// The app's bundle identifier.
-let AppID: String = Bundle.main.bundleIdentifier ?? "Debug.App"
-/// The source code repository URL.
-let RepoURL: String = "https://github.com/mohdfareed/health-vaults"
 
 @main struct MainApp: App {
     internal let logger = AppLogger.new(for: Self.self)
@@ -63,7 +56,7 @@ let RepoURL: String = "https://github.com/mohdfareed/health-vaults"
 #Preview {
     AppView()
         .modelContainer(
-            try! .init(
+            try! ModelContainer(
                 for: MainApp.schema,
                 configurations: .init(isStoredInMemoryOnly: true)
             )

@@ -8,6 +8,8 @@
 
 /* Begin PBXBuildFile section */
 		007EA9652E07157200002170 /* WidgetsExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 007EA9642E0714FA00002170 /* WidgetsExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		007EB16D2E074B3800002170 /* HealthVaultsShared in Frameworks */ = {isa = PBXBuildFile; productRef = 007EB16C2E074B3800002170 /* HealthVaultsShared */; };
+		007EB1712E074B4600002170 /* HealthVaultsShared in Frameworks */ = {isa = PBXBuildFile; productRef = 007EB1702E074B4600002170 /* HealthVaultsShared */; };
 		00F4455D2E0633F0006965F0 /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 00F4455C2E0633F0006965F0 /* WidgetKit.framework */; };
 		00F4455F2E0633F0006965F0 /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 00F4455E2E0633F0006965F0 /* SwiftUI.framework */; };
 /* End PBXBuildFile section */
@@ -39,7 +41,6 @@
 		007EA9642E0714FA00002170 /* WidgetsExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = WidgetsExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		00F4455C2E0633F0006965F0 /* WidgetKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WidgetKit.framework; path = System/Library/Frameworks/WidgetKit.framework; sourceTree = SDKROOT; };
 		00F4455E2E0633F0006965F0 /* SwiftUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SwiftUI.framework; path = System/Library/Frameworks/SwiftUI.framework; sourceTree = SDKROOT; };
-		129AFCECF9B43755EDDFF306 /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 		3880958F05D30BD1F8C84246 /* .gitignore */ = {isa = PBXFileReference; lastKnownFileType = text; path = .gitignore; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -65,9 +66,135 @@
 			);
 			target = 00F445592E0633F0006965F0 /* WidgetsExtension */;
 		};
+		007EAB262E073C0100002170 /* Exceptions for "Shared" folder in "WidgetsExtension" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Config.swift,
+				Models/Core.swift,
+				Models/DataModels/Calorie.swift,
+				Models/DataModels/Weight.swift,
+				Models/HealthData.swift,
+				Models/Settings.swift,
+				Models/Units.swift,
+				Services/Analytics/AnalyticsService.swift,
+				Services/Analytics/BudgetService.swift,
+				Services/Analytics/DataAnalyticsService.swift,
+				Services/Analytics/MacroAnalyticsService.swift,
+				Services/Analytics/StatisticsService.swift,
+				Services/Analytics/WeightService.swift,
+				Services/Analytics/Wrappers/BudgetWrapper.swift,
+				Services/Analytics/Wrappers/CalorieWrapper.swift,
+				Services/Analytics/Wrappers/MacrosWrapper.swift,
+				Services/Analytics/Wrappers/WeightWrapper.swift,
+				Services/AppLocale.swift,
+				Services/CalorieService.swift,
+				Services/CoreService.swift,
+				Services/HealthData/DataService.swift,
+				Services/HealthData/Queries/CalorieQuery.swift,
+				Services/HealthData/Queries/WeightQuery.swift,
+				Services/HealthKit/Authentication.swift,
+				Services/HealthKit/HealthKitQueries.swift,
+				Services/HealthKit/HealthKitService.swift,
+				Services/HealthKit/HealthKitStatistics.swift,
+				Services/HealthKit/HealthKitUnits.swift,
+				Services/SettingsService.swift,
+				Services/SingletonService.swift,
+				Services/UnitsService.swift,
+				Views/AboutView.swift,
+				Views/Analytics/Widgets.swift,
+				Views/Analytics/Widgets/BudgetWidget.swift,
+				Views/Analytics/Widgets/MacrosWidget.swift,
+				Views/Analytics/Widgets/OverviewWidget.swift,
+				Views/Components/DetailedRow.swift,
+				Views/Components/MeasurementField.swift,
+				Views/Components/ProgressRing.swift,
+				Views/Components/ValueView.swift,
+				Views/GoalsView.swift,
+				Views/Records/Definitions/CalorieRecord.swift,
+				Views/Records/Definitions/MacrosRecord.swift,
+				Views/Records/Definitions/WeightRecord.swift,
+				Views/Records/RecordDefinition.swift,
+				Views/Records/RecordForm.swift,
+				Views/Records/RecordList.swift,
+				Views/Records/RecordRow.swift,
+				Views/UI/Design.swift,
+				Views/UI/Localization.swift,
+			);
+			target = 00F445592E0633F0006965F0 /* WidgetsExtension */;
+		};
+		007EB03C2E07490D00002170 /* Exceptions for "Shared" folder in "HealthVaults" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Config.swift,
+				Models/Core.swift,
+				Models/DataModels/Calorie.swift,
+				Models/DataModels/Weight.swift,
+				Models/HealthData.swift,
+				Models/Settings.swift,
+				Models/Units.swift,
+				Services/Analytics/AnalyticsService.swift,
+				Services/Analytics/BudgetService.swift,
+				Services/Analytics/DataAnalyticsService.swift,
+				Services/Analytics/MacroAnalyticsService.swift,
+				Services/Analytics/StatisticsService.swift,
+				Services/Analytics/WeightService.swift,
+				Services/Analytics/Wrappers/BudgetWrapper.swift,
+				Services/Analytics/Wrappers/CalorieWrapper.swift,
+				Services/Analytics/Wrappers/MacrosWrapper.swift,
+				Services/Analytics/Wrappers/WeightWrapper.swift,
+				Services/AppLocale.swift,
+				Services/CalorieService.swift,
+				Services/CoreService.swift,
+				Services/HealthData/DataService.swift,
+				Services/HealthData/Queries/CalorieQuery.swift,
+				Services/HealthData/Queries/WeightQuery.swift,
+				Services/HealthKit/Authentication.swift,
+				Services/HealthKit/HealthKitQueries.swift,
+				Services/HealthKit/HealthKitService.swift,
+				Services/HealthKit/HealthKitStatistics.swift,
+				Services/HealthKit/HealthKitUnits.swift,
+				Services/SettingsService.swift,
+				Services/SingletonService.swift,
+				Services/UnitsService.swift,
+				Views/AboutView.swift,
+				Views/Analytics/Widgets.swift,
+				Views/Analytics/Widgets/BudgetWidget.swift,
+				Views/Analytics/Widgets/MacrosWidget.swift,
+				Views/Analytics/Widgets/OverviewWidget.swift,
+				Views/Components/DetailedRow.swift,
+				Views/Components/MeasurementField.swift,
+				Views/Components/ProgressRing.swift,
+				Views/Components/ValueView.swift,
+				Views/GoalsView.swift,
+				Views/Records/Definitions/CalorieRecord.swift,
+				Views/Records/Definitions/MacrosRecord.swift,
+				Views/Records/Definitions/WeightRecord.swift,
+				Views/Records/RecordDefinition.swift,
+				Views/Records/RecordForm.swift,
+				Views/Records/RecordList.swift,
+				Views/Records/RecordRow.swift,
+				Views/UI/Design.swift,
+				Views/UI/Localization.swift,
+			);
+			target = 73A6ABB94F5170F06A130A21 /* HealthVaults */;
+		};
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
+		007EA9DF2E0736AC00002170 /* Shared */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				007EB03C2E07490D00002170 /* Exceptions for "Shared" folder in "HealthVaults" target */,
+				007EAB262E073C0100002170 /* Exceptions for "Shared" folder in "WidgetsExtension" target */,
+			);
+			path = Shared;
+			sourceTree = "<group>";
+		};
+		007EAC632E0745AF00002170 /* Shared */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = Shared;
+			sourceTree = "<group>";
+		};
 		00F445052E06330B006965F0 /* App */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			path = App;
@@ -95,11 +222,18 @@
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
+		007EAC6F2E0745AF00002170 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			files = (
+				007EB16D2E074B3800002170 /* HealthVaultsShared in Frameworks */,
+			);
+		};
 		00F445572E0633F0006965F0 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			files = (
 				00F4455F2E0633F0006965F0 /* SwiftUI.framework in Frameworks */,
 				00F4455D2E0633F0006965F0 /* WidgetKit.framework in Frameworks */,
+				007EB1712E074B4600002170 /* HealthVaultsShared in Frameworks */,
 			);
 		};
 /* End PBXFrameworksBuildPhase section */
@@ -129,9 +263,10 @@
 				00F445052E06330B006965F0 /* App */,
 				00F4454C2E06332A006965F0 /* Assets */,
 				00F4453D2E06330B006965F0 /* Scripts */,
+				007EA9DF2E0736AC00002170 /* Shared */,
 				00F445602E0633F0006965F0 /* Widgets */,
+				007EAC632E0745AF00002170 /* Shared */,
 				3880958F05D30BD1F8C84246 /* .gitignore */,
-				129AFCECF9B43755EDDFF306 /* README.md */,
 				00F4455B2E0633F0006965F0 /* Frameworks */,
 				007EA9632E0714FA00002170 /* Products */,
 			);
@@ -150,10 +285,18 @@
 			);
 			buildRules = (
 			);
+			dependencies = (
+				007EB16F2E074B4000002170 /* PBXTargetDependency */,
+			);
 			fileSystemSynchronizedGroups = (
+				007EA9DF2E0736AC00002170 /* Shared */,
 				00F445602E0633F0006965F0 /* Widgets */,
 			);
 			name = WidgetsExtension;
+			packageProductDependencies = (
+				007EAC572E0744F000002170 /* HealthVaults */,
+				007EB1702E074B4600002170 /* HealthVaultsShared */,
+			);
 			productName = WidgetsExtension;
 			productReference = 007EA9642E0714FA00002170 /* WidgetsExtension.appex */;
 			productType = "com.apple.product-type.app-extension";
@@ -163,19 +306,28 @@
 			buildConfigurationList = E64043FA51E8E4C1BD7B05E5 /* Build configuration list for PBXNativeTarget "HealthVaults" */;
 			buildPhases = (
 				0AE79B4981CBA30DC0C864A6 /* Sources */,
+				007EAC6F2E0745AF00002170 /* Frameworks */,
 				CED828E9F6D4D6B92B04EC10 /* Resources */,
 				00F445732E0633F1006965F0 /* Embed Foundation Extensions */,
 			);
 			buildRules = (
 			);
 			dependencies = (
+				007EB16B2E074B3300002170 /* PBXTargetDependency */,
 				00F4456D2E0633F1006965F0 /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
+				007EA9DF2E0736AC00002170 /* Shared */,
 				00F445052E06330B006965F0 /* App */,
 				00F4454C2E06332A006965F0 /* Assets */,
 			);
 			name = HealthVaults;
+			packageProductDependencies = (
+				007EAA452E0736F100002170 /* HealthVaults */,
+				007EAB3B2E073DE300002170 /* HealthVaults */,
+				007EAB3D2E073E3800002170 /* HealthVaults */,
+				007EB16C2E074B3800002170 /* HealthVaultsShared */,
+			);
 			productName = HealthVaults;
 			productReference = 007EA9622E0714FA00002170 /* HealthVaults.app */;
 			productType = "com.apple.product-type.application";
@@ -208,6 +360,7 @@
 			mainGroup = B59F62ED490864E400F5EB03;
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
+				007EB1692E074B2800002170 /* XCLocalSwiftPackageReference "../health-vaults" */,
 			);
 			preferredProjectObjectVersion = 90;
 			productRefGroup = 007EA9632E0714FA00002170 /* Products */;
@@ -247,6 +400,14 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
+		007EB16B2E074B3300002170 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			productRef = 007EB16A2E074B3300002170 /* HealthVaultsShared */;
+		};
+		007EB16F2E074B4000002170 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			productRef = 007EB16E2E074B4000002170 /* HealthVaultsShared */;
+		};
 		00F4456D2E0633F1006965F0 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = 00F445592E0633F0006965F0 /* WidgetsExtension */;
@@ -515,6 +676,52 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCLocalSwiftPackageReference section */
+		007EB1692E074B2800002170 /* XCLocalSwiftPackageReference "../health-vaults" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = "../health-vaults";
+		};
+/* End XCLocalSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		007EAA452E0736F100002170 /* HealthVaults */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = HealthVaults;
+		};
+		007EAB3B2E073DE300002170 /* HealthVaults */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = HealthVaults;
+		};
+		007EAB3D2E073E3800002170 /* HealthVaults */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = HealthVaults;
+		};
+		007EAC572E0744F000002170 /* HealthVaults */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = HealthVaults;
+		};
+		007EB16A2E074B3300002170 /* HealthVaultsShared */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 007EB1692E074B2800002170 /* XCLocalSwiftPackageReference "../health-vaults" */;
+			productName = HealthVaultsShared;
+		};
+		007EB16C2E074B3800002170 /* HealthVaultsShared */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 007EB1692E074B2800002170 /* XCLocalSwiftPackageReference "../health-vaults" */;
+			productName = HealthVaultsShared;
+		};
+		007EB16E2E074B4000002170 /* HealthVaultsShared */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 007EB1692E074B2800002170 /* XCLocalSwiftPackageReference "../health-vaults" */;
+			productName = HealthVaultsShared;
+		};
+		007EB1702E074B4600002170 /* HealthVaultsShared */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 007EB1692E074B2800002170 /* XCLocalSwiftPackageReference "../health-vaults" */;
+			productName = HealthVaultsShared;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = B8E4B4E8F12D5C40114FEED0 /* Project object */;
 }

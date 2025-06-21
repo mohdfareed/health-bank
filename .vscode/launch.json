@@ -35,6 +35,24 @@
       "name": "Release HealthVaultsWidgets",
       "program": "${workspaceFolder:health-vaults}/.build/release/HealthVaultsWidgets",
       "preLaunchTask": "swift: Build Release HealthVaultsWidgets"
+    },
+    {
+      "type": "swift",
+      "request": "launch",
+      "args": [],
+      "cwd": "${workspaceFolder:health-vaults}",
+      "name": "Debug HealthVaultsApp",
+      "program": "${workspaceFolder:health-vaults}/.build/debug/HealthVaultsApp",
+      "preLaunchTask": "swift: Build Debug HealthVaultsApp"
+    },
+    {
+      "type": "swift",
+      "request": "launch",
+      "args": [],
+      "cwd": "${workspaceFolder:health-vaults}",
+      "name": "Release HealthVaultsApp",
+      "program": "${workspaceFolder:health-vaults}/.build/release/HealthVaultsApp",
+      "preLaunchTask": "swift: Build Release HealthVaultsApp"
     }
   ]
 }
