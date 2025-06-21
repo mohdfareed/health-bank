@@ -62,7 +62,8 @@ extension UnitMass {
     /// Standard drink unit definition (14 grams of alcohol).
     static let standardDrink = UnitMass(
         symbol: "drinks",
-        converter: UnitConverterLinear(coefficient: 14)
+        converter: UnitConverterLinear(coefficient: 0.014) // kg
+
     )
 }
 
@@ -70,7 +71,7 @@ extension UnitVolume {
     /// Standard drink unit definition (17.7 milliliters of pure alcohol).
     static let standardDrink = UnitVolume(
         symbol: "drinks",
-        converter: UnitConverterLinear(coefficient: 17.7)
+        converter: UnitConverterLinear(coefficient: 0.0177) // liters
     )
 }
 
