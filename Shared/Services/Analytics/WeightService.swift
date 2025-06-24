@@ -3,7 +3,7 @@ import SwiftData
 import SwiftUI
 
 /// Encapsulates maintenance estimation calculations for display in widgets.
-public struct WeightAnalyticsService {
+public struct WeightAnalyticsService: Sendable {
     let analytics: AnalyticsService
     let calories: DataAnalyticsService
 
@@ -20,7 +20,7 @@ public struct WeightAnalyticsService {
     }
 
     /// Estimated weight-change rate m (kg/day)
-    var weightSlope: Double {
+    public var weightSlope: Double {
         analytics.computeSlope(from: dailyWeights.points)
     }
 

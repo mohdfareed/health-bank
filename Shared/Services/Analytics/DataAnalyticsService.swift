@@ -5,7 +5,7 @@ import SwiftUI
 // MARK: Calorie Analytics Service
 // ============================================================================
 
-public struct DataAnalyticsService {
+public struct DataAnalyticsService: Sendable {
     let analytics: AnalyticsService
 
     /// Current intakes (kcal), oldest first
@@ -21,14 +21,14 @@ public struct DataAnalyticsService {
     }
 
     /// EWMA-smoothed intake S (kcal)
-    var smoothedIntake: Double? {
+    public var smoothedIntake: Double? {
         return analytics.computeEWMA(
             from: dailyIntakes.points, alpha: alpha
         )
     }
 
     /// Total current intake (kcal)
-    var currentIntake: Double? {
+    public var currentIntake: Double? {
         return currentIntakes.bucketed(by: .day)
             .mapValues { $0.sum() }
             .values.first

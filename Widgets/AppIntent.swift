@@ -1,12 +1,6 @@
-//
-//  AppIntent.swift
-//  Widgets
-//
-//  Created by Mohammed Fareed on 6/20/25.
-//
-
-import WidgetKit
 import AppIntents
+import HealthVaultsShared
+import WidgetKit
 
 struct ConfigurationAppIntent: WidgetConfigurationIntent {
     static var title: LocalizedStringResource { "Configuration" }

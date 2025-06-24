@@ -4,19 +4,19 @@ import SwiftUI
 // MARK: Budget Service
 // ============================================================================
 
-public struct MacrosAnalyticsService {
-    let budget: BudgetService?
-    let protein: DataAnalyticsService
-    let carbs: DataAnalyticsService
-    let fat: DataAnalyticsService
+public struct MacrosAnalyticsService: Sendable {
+    public let budget: BudgetService?
+    public let protein: DataAnalyticsService
+    public let carbs: DataAnalyticsService
+    public let fat: DataAnalyticsService
 
     /// User-defined budget adjustment (kcal)
-    let adjustments: CalorieMacros?
+    public let adjustments: CalorieMacros?
     /// The days until the next week starts
-    let daysLeft: Int
+    public let daysLeft: Int
 
     /// The base daily budget: B = M + A (kcal)
-    var baseBudgets: CalorieMacros? {
+    public var baseBudgets: CalorieMacros? {
         guard let adjustments = adjustments else { return nil }
         guard let budget = budget?.baseBudget else { return nil }
 
@@ -36,7 +36,7 @@ public struct MacrosAnalyticsService {
     }
 
     /// Daily calorie credit: C = B - S (kcal)
-    var credits: CalorieMacros? {
+    public var credits: CalorieMacros? {
         guard let budget = baseBudgets else { return nil }
         return CalorieMacros(
             p: budget.protein.map { $0 - (protein.smoothedIntake ?? 0) },
@@ -47,7 +47,7 @@ public struct MacrosAnalyticsService {
 
     /// The adjusted budget for
     /// Adjusted budget: B' = B + C/D (kcal), where D = days until next week
-    var budgets: CalorieMacros? {
+    public var budgets: CalorieMacros? {
         guard let budget = baseBudgets else { return nil }
         return CalorieMacros(
             p: budget.protein.map { $0 + (credits?.protein ?? 0) / Double(daysLeft) },
@@ -57,7 +57,7 @@ public struct MacrosAnalyticsService {
     }
 
     /// The remaining budget for today
-    var remaining: CalorieMacros? {
+    public var remaining: CalorieMacros? {
         guard let budget = budgets else { return nil }
         return CalorieMacros(
             p: budget.protein.map { $0 - (protein.currentIntake ?? 0) },

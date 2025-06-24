@@ -294,7 +294,6 @@
 			);
 			name = WidgetsExtension;
 			packageProductDependencies = (
-				007EAC572E0744F000002170 /* HealthVaults */,
 				007EB1702E074B4600002170 /* HealthVaultsShared */,
 			);
 			productName = WidgetsExtension;
@@ -323,9 +322,6 @@
 			);
 			name = HealthVaults;
 			packageProductDependencies = (
-				007EAA452E0736F100002170 /* HealthVaults */,
-				007EAB3B2E073DE300002170 /* HealthVaults */,
-				007EAB3D2E073E3800002170 /* HealthVaults */,
 				007EB16C2E074B3800002170 /* HealthVaultsShared */,
 			);
 			productName = HealthVaults;
@@ -685,22 +681,6 @@
 /* End XCLocalSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
-		007EAA452E0736F100002170 /* HealthVaults */ = {
-			isa = XCSwiftPackageProductDependency;
-			productName = HealthVaults;
-		};
-		007EAB3B2E073DE300002170 /* HealthVaults */ = {
-			isa = XCSwiftPackageProductDependency;
-			productName = HealthVaults;
-		};
-		007EAB3D2E073E3800002170 /* HealthVaults */ = {
-			isa = XCSwiftPackageProductDependency;
-			productName = HealthVaults;
-		};
-		007EAC572E0744F000002170 /* HealthVaults */ = {
-			isa = XCSwiftPackageProductDependency;
-			productName = HealthVaults;
-		};
 		007EB16A2E074B3300002170 /* HealthVaultsShared */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = 007EB1692E074B2800002170 /* XCLocalSwiftPackageReference "../health-vaults" */;

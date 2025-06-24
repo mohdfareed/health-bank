@@ -42,6 +42,12 @@ struct DashboardWidgets: View {
                 await refresh()
             }
         }
+        // Modern SwiftUI auto-refresh when HealthKit data changes
+        .refreshOnHealthDataChange(
+            for: [.dietaryCalories, .protein, .carbs, .fat, .bodyMass]
+        ) {
+            await refresh()
+        }
     }
 
     func refresh() async {

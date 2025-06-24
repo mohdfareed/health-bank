@@ -3,7 +3,7 @@ import Foundation
 // MARK: Analytics Service
 // ============================================================================
 
-public struct AnalyticsService {
+public struct AnalyticsService: Sendable {
     /// Computes the EWMA of a series of values.
     /// - Parameters:
     ///   - values: historical values [C₀, C₁, …, Cₜ₋₁] (oldest first)

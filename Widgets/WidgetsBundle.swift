@@ -1,17 +1,11 @@
-//
-//  WidgetsBundle.swift
-//  Widgets
-//
-//  Created by Mohammed Fareed on 6/20/25.
-//
-
-import WidgetKit
 import SwiftUI
+import WidgetKit
 
 @main
 struct WidgetsBundle: WidgetBundle {
     var body: some Widget {
-        Widgets()
-        WidgetsControl()
+        BudgetWidgetKit()
+        MacrosWidgetKit()
+        OverviewWidgetKit()
     }
 }

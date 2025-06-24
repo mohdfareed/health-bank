@@ -36,6 +36,10 @@ public struct BudgetWidget: View {
         } destination: {
         }
         .animation(.default, value: analytics == nil)
+        // Auto-refresh when budget-related data changes
+        .refreshOnHealthDataChange(for: [.dietaryCalories, .bodyMass]) {
+            await $analytics.reload(at: Date())
+        }
     }
 
     @ViewBuilder

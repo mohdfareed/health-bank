@@ -4,8 +4,6 @@ import SwiftUI
 // MARK: Settings
 // ============================================================================
 
-public let AppName = String(localized: "HealthVaults")
-
 extension DataSource {
     public var localized: String {
         switch self {

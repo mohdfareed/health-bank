@@ -45,6 +45,10 @@ public struct OverviewWidget: View {
                 }
             }
         }
+        // Auto-refresh when any nutrition data changes
+        .refreshOnHealthDataChange(for: [.dietaryCalories, .protein, .carbs, .fat, .bodyMass]) {
+            await $analytics.reload(at: Date())
+        }
     }
 
     @ViewBuilder var overviewPage: some View {

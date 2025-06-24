@@ -7,8 +7,9 @@ import SwiftUI
 
 public enum HealthKitDataType: CaseIterable, Sendable {
     case bodyMass
-    case dietaryCalories, activeCalories, basalCalories
+    case dietaryCalories
     case protein, carbs, fat, alcohol
+    // case activeCalories, basalCalories
 
     var sampleType: HKSampleType {
         switch self {
@@ -16,10 +17,10 @@ public enum HealthKitDataType: CaseIterable, Sendable {
             return HKQuantityType(.bodyMass)
         case .dietaryCalories:
             return HKQuantityType(.dietaryEnergyConsumed)
-        case .activeCalories:
-            return HKQuantityType(.activeEnergyBurned)
-        case .basalCalories:
-            return HKQuantityType(.basalEnergyBurned)
+        // case .activeCalories:
+        //     return HKQuantityType(.activeEnergyBurned)
+        // case .basalCalories:
+        //     return HKQuantityType(.basalEnergyBurned)
         case .protein:
             return HKQuantityType(.dietaryProtein)
         case .carbs:
@@ -37,10 +38,10 @@ public enum HealthKitDataType: CaseIterable, Sendable {
             return HKQuantityType(.bodyMass)
         case .dietaryCalories:
             return HKQuantityType(.dietaryEnergyConsumed)
-        case .activeCalories:
-            return HKQuantityType(.activeEnergyBurned)
-        case .basalCalories:
-            return HKQuantityType(.basalEnergyBurned)
+        // case .activeCalories:
+        //     return HKQuantityType(.activeEnergyBurned)
+        // case .basalCalories:
+        //     return HKQuantityType(.basalEnergyBurned)
         case .protein:
             return HKQuantityType(.dietaryProtein)
         case .carbs:

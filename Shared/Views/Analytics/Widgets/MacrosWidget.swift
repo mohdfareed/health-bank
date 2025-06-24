@@ -40,6 +40,10 @@ public struct MacrosWidget: View {
         .animation(.default, value: analytics?.protein == nil)
         .animation(.default, value: analytics?.carbs == nil)
         .animation(.default, value: analytics?.fat == nil)
+        // Auto-refresh when macro-related data changes
+        .refreshOnHealthDataChange(for: [.protein, .carbs, .fat, .dietaryCalories, .bodyMass]) {
+            await $analytics.reload(at: Date())
+        }
     }
 
     @ViewBuilder

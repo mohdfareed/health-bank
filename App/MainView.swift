@@ -49,37 +49,22 @@ struct AppView: View {
 
         .contentTransition(.symbolEffect(.replace))
         .contentTransition(.numericText())
-        .contentTransition(.opacity)
-
-        .onAppear {
+        .contentTransition(.opacity).onAppear {
             healthKitService.requestAuthorization()
+
+            // Start widget observers after a brief delay to ensure HealthKit authorization
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+                AppLogger.new(for: AppView.self).info(
+                    "Starting HealthKit observers for all widgets and dashboard")
+                HealthKitObservers.shared.startAllWidgetObservers()
+                HealthKitObservers.shared.startDashboardDataObserver()
+            }
         }
 
         .overlay(alignment: .bottomTrailing) {
             AddMenu { dataModel in
                 activeDataModel = dataModel
             }
-            // .transform {
-            //     if #available(iOS 26, macOS 26, watchOS 26, *) {
-            //         $0.glassEffect()
-            //             .buttonStyle(.glass)
-            //         // #if os(iOS)
-            //         //     $0.tabViewBottomAccessory {
-            //         //         HStack(alignment: .bottom, spacing: 0) {
-            //         //             AddButton(HealthDataModel.calorie.definition) {
-            //         //                 activeDataModel = .calorie
-            //         //             }
-            //         //             AddButton(HealthDataModel.weight.definition) {
-            //         //                 activeDataModel = .weight
-            //         //             }
-            //         //         }
-            //         //     }
-            //         //     .tabBarMinimizeBehavior(.onScrollDown)  // REVIEW: Buggy
-            //         // #endif
-            //     } else {
-            //         $0.buttonStyle(.borderedProminent)
-            //     }
-            // }
             .padding(.bottom, 64)
             .padding(.trailing, 8)
         }
