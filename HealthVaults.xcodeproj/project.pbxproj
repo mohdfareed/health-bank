@@ -66,7 +66,7 @@
 			);
 			target = 00F445592E0633F0006965F0 /* WidgetsExtension */;
 		};
-		007EAB262E073C0100002170 /* Exceptions for "Shared" folder in "WidgetsExtension" target */ = {
+		00FDEC032E0B7176003EF72B /* Exceptions for "Shared" folder in "WidgetsExtension" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				Config.swift,
@@ -76,23 +76,22 @@
 				Models/HealthData.swift,
 				Models/Settings.swift,
 				Models/Units.swift,
+				Models/WidgetDataModels.swift,
 				Services/Analytics/AnalyticsService.swift,
 				Services/Analytics/BudgetService.swift,
 				Services/Analytics/DataAnalyticsService.swift,
 				Services/Analytics/MacroAnalyticsService.swift,
 				Services/Analytics/StatisticsService.swift,
 				Services/Analytics/WeightService.swift,
-				Services/Analytics/Wrappers/BudgetWrapper.swift,
-				Services/Analytics/Wrappers/CalorieWrapper.swift,
-				Services/Analytics/Wrappers/MacrosWrapper.swift,
-				Services/Analytics/Wrappers/WeightWrapper.swift,
 				Services/AppLocale.swift,
 				Services/CalorieService.swift,
 				Services/CoreService.swift,
 				Services/HealthData/DataService.swift,
+				Services/HealthData/HealthDataNotifications.swift,
 				Services/HealthData/Queries/CalorieQuery.swift,
 				Services/HealthData/Queries/WeightQuery.swift,
 				Services/HealthKit/Authentication.swift,
+				Services/HealthKit/HealthKitObservers.swift,
 				Services/HealthKit/HealthKitQueries.swift,
 				Services/HealthKit/HealthKitService.swift,
 				Services/HealthKit/HealthKitStatistics.swift,
@@ -100,13 +99,15 @@
 				Services/SettingsService.swift,
 				Services/SingletonService.swift,
 				Services/UnitsService.swift,
+				Services/WidgetDataRepository.swift,
+				Services/WidgetDataService.swift,
 				Views/AboutView.swift,
 				Views/Analytics/Widgets.swift,
-				Views/Analytics/Widgets/BudgetWidget.swift,
-				Views/Analytics/Widgets/MacrosWidget.swift,
-				Views/Analytics/Widgets/OverviewWidget.swift,
+				Views/Components/BudgetComponent.swift,
 				Views/Components/DetailedRow.swift,
+				Views/Components/MacrosComponent.swift,
 				Views/Components/MeasurementField.swift,
+				Views/Components/OverviewComponent.swift,
 				Views/Components/ProgressRing.swift,
 				Views/Components/ValueView.swift,
 				Views/GoalsView.swift,
@@ -122,7 +123,7 @@
 			);
 			target = 00F445592E0633F0006965F0 /* WidgetsExtension */;
 		};
-		007EB03C2E07490D00002170 /* Exceptions for "Shared" folder in "HealthVaults" target */ = {
+		00FDEC092E0B7186003EF72B /* Exceptions for "Shared" folder in "HealthVaults" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				Config.swift,
@@ -132,23 +133,22 @@
 				Models/HealthData.swift,
 				Models/Settings.swift,
 				Models/Units.swift,
+				Models/WidgetDataModels.swift,
 				Services/Analytics/AnalyticsService.swift,
 				Services/Analytics/BudgetService.swift,
 				Services/Analytics/DataAnalyticsService.swift,
 				Services/Analytics/MacroAnalyticsService.swift,
 				Services/Analytics/StatisticsService.swift,
 				Services/Analytics/WeightService.swift,
-				Services/Analytics/Wrappers/BudgetWrapper.swift,
-				Services/Analytics/Wrappers/CalorieWrapper.swift,
-				Services/Analytics/Wrappers/MacrosWrapper.swift,
-				Services/Analytics/Wrappers/WeightWrapper.swift,
 				Services/AppLocale.swift,
 				Services/CalorieService.swift,
 				Services/CoreService.swift,
 				Services/HealthData/DataService.swift,
+				Services/HealthData/HealthDataNotifications.swift,
 				Services/HealthData/Queries/CalorieQuery.swift,
 				Services/HealthData/Queries/WeightQuery.swift,
 				Services/HealthKit/Authentication.swift,
+				Services/HealthKit/HealthKitObservers.swift,
 				Services/HealthKit/HealthKitQueries.swift,
 				Services/HealthKit/HealthKitService.swift,
 				Services/HealthKit/HealthKitStatistics.swift,
@@ -156,13 +156,15 @@
 				Services/SettingsService.swift,
 				Services/SingletonService.swift,
 				Services/UnitsService.swift,
+				Services/WidgetDataRepository.swift,
+				Services/WidgetDataService.swift,
 				Views/AboutView.swift,
 				Views/Analytics/Widgets.swift,
-				Views/Analytics/Widgets/BudgetWidget.swift,
-				Views/Analytics/Widgets/MacrosWidget.swift,
-				Views/Analytics/Widgets/OverviewWidget.swift,
+				Views/Components/BudgetComponent.swift,
 				Views/Components/DetailedRow.swift,
+				Views/Components/MacrosComponent.swift,
 				Views/Components/MeasurementField.swift,
+				Views/Components/OverviewComponent.swift,
 				Views/Components/ProgressRing.swift,
 				Views/Components/ValueView.swift,
 				Views/GoalsView.swift,
@@ -184,8 +186,8 @@
 		007EA9DF2E0736AC00002170 /* Shared */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
-				007EB03C2E07490D00002170 /* Exceptions for "Shared" folder in "HealthVaults" target */,
-				007EAB262E073C0100002170 /* Exceptions for "Shared" folder in "WidgetsExtension" target */,
+				00FDEC092E0B7186003EF72B /* Exceptions for "Shared" folder in "HealthVaults" target */,
+				00FDEC032E0B7176003EF72B /* Exceptions for "Shared" folder in "WidgetsExtension" target */,
 			);
 			path = Shared;
 			sourceTree = "<group>";

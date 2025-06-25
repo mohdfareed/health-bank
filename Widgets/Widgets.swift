@@ -4,7 +4,7 @@ import WidgetKit
 
 struct BudgetTimelineProvider: AppIntentTimelineProvider {
     func placeholder(in context: Context) -> BudgetEntry {
-        BudgetEntry(date: Date(), budgetService: nil, configuration: ConfigurationAppIntent())
+        BudgetEntry(date: Date(), budgetData: nil, configuration: ConfigurationAppIntent())
     }
 
     func snapshot(for configuration: ConfigurationAppIntent, in context: Context) async
@@ -30,15 +30,13 @@ struct BudgetTimelineProvider: AppIntentTimelineProvider {
     private func generateEntry(for date: Date, configuration: ConfigurationAppIntent) async
         -> BudgetEntry
     {
-        // Create the analytics wrapper
-        let budgetAnalytics = BudgetAnalytics()
-
-        // Load the data
-        await budgetAnalytics.reload(at: date)
+        // Use the new unified data service
+        let dataService = WidgetDataService()
+        let budgetData = await dataService.fetchBudgetData(for: date)
 
         return BudgetEntry(
             date: date,
-            budgetService: budgetAnalytics.wrappedValue,
+            budgetData: budgetData,
             configuration: configuration
         )
     }
@@ -46,7 +44,7 @@ struct BudgetTimelineProvider: AppIntentTimelineProvider {
 
 struct BudgetEntry: TimelineEntry, Sendable {
     let date: Date
-    let budgetService: BudgetService?
+    let budgetData: BudgetData?
     let configuration: ConfigurationAppIntent
 }
 
@@ -54,50 +52,15 @@ struct BudgetWidgetEntryView: View {
     var entry: BudgetTimelineProvider.Entry
 
     var body: some View {
-        if let budgetService = entry.budgetService {
-            // Create a simplified budget widget view for the widget extension
-            VStack(alignment: .leading, spacing: 8) {
-                HStack {
-                    Image(systemName: "chart.pie.fill")
-                        .foregroundColor(.orange)
-                    Text("Calories")
-                        .font(.headline)
-                        .fontWeight(.medium)
-                    Spacer()
-                }
-
-                // Remaining calories
-                HStack(alignment: .firstTextBaseline) {
-                    if let remaining = budgetService.remaining {
-                        Text("\(Int(remaining))")
-                            .font(.title)
-                            .fontWeight(.bold)
-                            .foregroundColor(remaining >= 0 ? .primary : .red)
-                        Text("remaining")
-                            .font(.caption)
-                            .foregroundColor(.secondary)
-                    } else {
-                        Text("---")
-                            .font(.title)
-                            .fontWeight(.bold)
-                            .foregroundColor(.secondary)
+        if let budgetData = entry.budgetData {
+            // Use the unified BudgetComponent for widget
+            BudgetComponent(style: .widgetSmall)
+                .onAppear {
+                    // Populate the shared repository with widget data
+                    Task { @MainActor in
+                        WidgetDataRepository.shared.updateBudgetData(budgetData)
                     }
-                    Spacer()
                 }
-
-                // Progress info
-                HStack {
-                    if let currentIntake = budgetService.calories.currentIntake,
-                        let budget = budgetService.budget
-                    {
-                        Text("\(Int(currentIntake)) / \(Int(budget))")
-                            .font(.caption)
-                            .foregroundColor(.secondary)
-                    }
-                    Spacer()
-                }
-            }
-            .padding()
         } else {
             VStack {
                 Image(systemName: "chart.pie.fill")
@@ -139,7 +102,7 @@ extension ConfigurationAppIntent {
 #Preview(as: .systemSmall) {
     BudgetWidgetKit()
 } timeline: {
-    BudgetEntry(date: .now, budgetService: nil, configuration: .smiley)
+    BudgetEntry(date: .now, budgetData: nil, configuration: .smiley)
 }
 
 // MARK: - Macros Widget
@@ -147,7 +110,7 @@ extension ConfigurationAppIntent {
 
 struct MacrosTimelineProvider: AppIntentTimelineProvider {
     func placeholder(in context: Context) -> MacrosEntry {
-        MacrosEntry(date: Date(), macrosService: nil, configuration: ConfigurationAppIntent())
+        MacrosEntry(date: Date(), macrosData: nil, configuration: ConfigurationAppIntent())
     }
 
     func snapshot(for configuration: ConfigurationAppIntent, in context: Context) async
@@ -173,16 +136,13 @@ struct MacrosTimelineProvider: AppIntentTimelineProvider {
     private func generateEntry(for date: Date, configuration: ConfigurationAppIntent) async
         -> MacrosEntry
     {
-        // Create the analytics wrapper with default budget adjustment
-        let budgetAnalytics = BudgetAnalytics()
-        let macrosAnalytics = MacrosAnalytics(budgetAnalytics: budgetAnalytics)
-
-        // Load the data
-        await macrosAnalytics.reload(at: date)
+        // Use the new unified data service
+        let dataService = WidgetDataService()
+        let macrosData = await dataService.fetchMacrosData(for: date)
 
         return MacrosEntry(
             date: date,
-            macrosService: macrosAnalytics.wrappedValue,
+            macrosData: macrosData,
             configuration: configuration
         )
     }
@@ -190,7 +150,7 @@ struct MacrosTimelineProvider: AppIntentTimelineProvider {
 
 struct MacrosEntry: TimelineEntry, Sendable {
     let date: Date
-    let macrosService: MacrosAnalyticsService?
+    let macrosData: MacrosData?
     let configuration: ConfigurationAppIntent
 }
 
@@ -198,41 +158,15 @@ struct MacrosWidgetEntryView: View {
     var entry: MacrosTimelineProvider.Entry
 
     var body: some View {
-        if let macrosService = entry.macrosService {
-            // Create a simplified macros widget view for the widget extension
-            VStack(alignment: .leading, spacing: 8) {
-                HStack {
-                    Image(systemName: "chart.bar.fill")
-                        .foregroundColor(.green)
-                    Text("Macros")
-                        .font(.headline)
-                        .fontWeight(.medium)
-                    Spacer()
+        if let macrosData = entry.macrosData {
+            // Use the unified MacrosComponent for widget
+            MacrosComponent(style: .widgetSmall)
+                .onAppear {
+                    // Populate the shared repository with widget data
+                    Task { @MainActor in
+                        WidgetDataRepository.shared.updateMacrosData(macrosData)
+                    }
                 }
-
-                // Macro breakdown
-                HStack(spacing: 12) {
-                    MacroColumn(
-                        name: "Protein",
-                        current: macrosService.protein.currentIntake ?? 0,
-                        budget: macrosService.budgets?.protein ?? 0,
-                        color: .blue
-                    )
-                    MacroColumn(
-                        name: "Carbs",
-                        current: macrosService.carbs.currentIntake ?? 0,
-                        budget: macrosService.budgets?.carbs ?? 0,
-                        color: .orange
-                    )
-                    MacroColumn(
-                        name: "Fat",
-                        current: macrosService.fat.currentIntake ?? 0,
-                        budget: macrosService.budgets?.fat ?? 0,
-                        color: .red
-                    )
-                }
-            }
-            .padding()
         } else {
             VStack {
                 Image(systemName: "chart.bar.fill")
@@ -292,7 +226,7 @@ struct MacrosWidgetKit: Widget {
 #Preview(as: .systemMedium) {
     MacrosWidgetKit()
 } timeline: {
-    MacrosEntry(date: .now, macrosService: nil, configuration: .smiley)
+    MacrosEntry(date: .now, macrosData: nil, configuration: .smiley)
 }
 
 // MARK: - Overview Widget
@@ -300,7 +234,7 @@ struct MacrosWidgetKit: Widget {
 
 struct OverviewTimelineProvider: AppIntentTimelineProvider {
     func placeholder(in context: Context) -> OverviewEntry {
-        OverviewEntry(date: Date(), macrosService: nil, configuration: ConfigurationAppIntent())
+        OverviewEntry(date: Date(), overviewData: nil, configuration: ConfigurationAppIntent())
     }
 
     func snapshot(for configuration: ConfigurationAppIntent, in context: Context) async
@@ -326,16 +260,13 @@ struct OverviewTimelineProvider: AppIntentTimelineProvider {
     private func generateEntry(for date: Date, configuration: ConfigurationAppIntent) async
         -> OverviewEntry
     {
-        // Create the analytics wrapper with default budget adjustment
-        let budgetAnalytics = BudgetAnalytics()
-        let macrosAnalytics = MacrosAnalytics(budgetAnalytics: budgetAnalytics)
-
-        // Load the data
-        await macrosAnalytics.reload(at: date)
+        // Use the new unified data service
+        let dataService = WidgetDataService()
+        let overviewData = await dataService.fetchOverviewData(for: date)
 
         return OverviewEntry(
             date: date,
-            macrosService: macrosAnalytics.wrappedValue,
+            overviewData: overviewData,
             configuration: configuration
         )
     }
@@ -343,7 +274,7 @@ struct OverviewTimelineProvider: AppIntentTimelineProvider {
 
 struct OverviewEntry: TimelineEntry, Sendable {
     let date: Date
-    let macrosService: MacrosAnalyticsService?
+    let overviewData: OverviewData?
     let configuration: ConfigurationAppIntent
 }
 
@@ -351,7 +282,7 @@ struct OverviewWidgetEntryView: View {
     var entry: OverviewTimelineProvider.Entry
 
     var body: some View {
-        if let macrosService = entry.macrosService {
+        if let overviewData = entry.overviewData {
             VStack(alignment: .leading, spacing: 12) {
                 HStack {
                     Image(systemName: "chart.line.text.clipboard.fill")
@@ -362,64 +293,39 @@ struct OverviewWidgetEntryView: View {
                     Spacer()
                 }
 
-                // Calories section
-                if let budget = macrosService.budget {
-                    HStack {
-                        VStack(alignment: .leading, spacing: 4) {
-                            Text("Calories")
-                                .font(.caption)
+                // Budget info
+                HStack {
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text("Calories")
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+
+                        if let remaining = overviewData.budget.remaining {
+                            Text("\(Int(remaining))")
+                                .font(.title2)
+                                .fontWeight(.bold)
+                                .foregroundColor(remaining >= 0 ? .primary : .red)
+                        } else {
+                            Text("---")
+                                .font(.title2)
+                                .fontWeight(.bold)
                                 .foregroundColor(.secondary)
-
-                            if let remaining = budget.remaining {
-                                Text("\(Int(remaining))")
-                                    .font(.title2)
-                                    .fontWeight(.bold)
-                                    .foregroundColor(remaining >= 0 ? .primary : .red)
-                            } else {
-                                Text("---")
-                                    .font(.title2)
-                                    .fontWeight(.bold)
-                                    .foregroundColor(.secondary)
-                            }
-                        }
-
-                        Spacer()
-
-                        // Weight trend
-                        VStack(alignment: .trailing, spacing: 4) {
-                            Text("Weight Trend")
-                                .font(.caption)
-                                .foregroundColor(.secondary)
-
-                            let slope = budget.weight.weightSlope
-                            Text("\(slope >= 0 ? "+" : "")\(slope, specifier: "%.1f") kg/wk")
-                                .font(.caption)
-                                .fontWeight(.medium)
-                                .foregroundColor(slope > 0 ? .red : slope < 0 ? .green : .blue)
                         }
                     }
-                }
 
-                // Quick macro summary
-                HStack(spacing: 16) {
-                    MacroSummary(
-                        name: "P",
-                        current: macrosService.protein.currentIntake ?? 0,
-                        budget: macrosService.budgets?.protein ?? 0,
-                        color: .blue
-                    )
-                    MacroSummary(
-                        name: "C",
-                        current: macrosService.carbs.currentIntake ?? 0,
-                        budget: macrosService.budgets?.carbs ?? 0,
-                        color: .orange
-                    )
-                    MacroSummary(
-                        name: "F",
-                        current: macrosService.fat.currentIntake ?? 0,
-                        budget: macrosService.budgets?.fat ?? 0,
-                        color: .red
-                    )
+                    Spacer()
+
+                    // Simple macros summary
+                    VStack(alignment: .trailing, spacing: 4) {
+                        Text("Macros")
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+
+                        Text("P•C•F")
+                            .font(.caption)
+                            .fontWeight(.medium)
+                            .foregroundColor(.secondary)
+                    }
                 }
             }
             .padding()
@@ -434,32 +340,6 @@ struct OverviewWidgetEntryView: View {
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
         }
-    }
-}
-
-struct MacroSummary: View {
-    let name: String
-    let current: Double
-    let budget: Double
-    let color: Color
-
-    var body: some View {
-        VStack(alignment: .center, spacing: 2) {
-            Text(name)
-                .font(.caption2)
-                .fontWeight(.medium)
-                .foregroundColor(color)
-
-            Text("\(Int(current))")
-                .font(.caption)
-                .fontWeight(.bold)
-                .foregroundColor(.primary)
-
-            Text("/\(Int(budget))")
-                .font(.caption2)
-                .foregroundColor(.secondary)
-        }
-        .frame(maxWidth: .infinity)
     }
 }
 
@@ -482,5 +362,5 @@ struct OverviewWidgetKit: Widget {
 #Preview(as: .systemLarge) {
     OverviewWidgetKit()
 } timeline: {
-    OverviewEntry(date: .now, macrosService: nil, configuration: .smiley)
+    OverviewEntry(date: .now, overviewData: nil, configuration: .smiley)
 }
