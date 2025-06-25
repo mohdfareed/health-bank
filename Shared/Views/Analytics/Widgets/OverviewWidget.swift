@@ -6,10 +6,10 @@ import SwiftUI
 // ============================================================================
 
 public struct OverviewWidget: View {
-    @MacrosAnalytics var analytics: MacrosAnalyticsService?
+    @MacrosAnalytics private var analytics: MacrosAnalyticsService?
 
-    public init(analytics: MacrosAnalytics) {
-        self._analytics = analytics
+    public init() {
+        self._analytics = MacrosAnalytics(budgetAnalytics: BudgetAnalytics(), adjustments: nil)
     }
 
     public var body: some View {

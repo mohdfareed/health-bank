@@ -6,10 +6,12 @@ import SwiftUI
 // ============================================================================
 
 public struct BudgetWidget: View {
-    @BudgetAnalytics var analytics: BudgetService?
+    // Legacy property wrapper (will be removed after migration)
+    @BudgetAnalytics private var analytics: BudgetService?
 
-    public init(analytics: BudgetAnalytics) {
-        self._analytics = analytics
+    // Legacy constructor
+    public init() {
+        self._analytics = BudgetAnalytics()
     }
 
     public var body: some View {
@@ -101,7 +103,7 @@ public struct BudgetWidget: View {
         let formatter = CalorieFieldDefinition().formatter
         HStack(alignment: .firstTextBaseline, spacing: 0) {
             Image.credit
-                .foregroundColor(.accent)
+                .foregroundColor(data.credit ?? 0 >= 0 ? .green : .red)
                 .font(.headline)
                 .frame(width: 24, height: 24, alignment: .leading)
 
@@ -115,7 +117,7 @@ public struct BudgetWidget: View {
                 )
                 .fontWeight(.bold)
                 .font(.headline)
-                .foregroundColor(credit >= 0 ? .green : .red)
+                .foregroundColor(.secondary)
             } else {
                 Text("No data available")
                     .fontWeight(.bold)

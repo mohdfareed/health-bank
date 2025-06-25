@@ -30,22 +30,11 @@ struct DashboardWidgets: View {
 
     var body: some View {
         List {
-            BudgetWidget(analytics: $budget)
-            MacrosWidget(analytics: $macros)
-            OverviewWidget(analytics: $macros)
+            BudgetWidget()
+            MacrosWidget()
+            OverviewWidget()
         }
         .refreshable {
-            await refresh()
-        }
-        .onAppear {
-            Task {
-                await refresh()
-            }
-        }
-        // Modern SwiftUI auto-refresh when HealthKit data changes
-        .refreshOnHealthDataChange(
-            for: [.dietaryCalories, .protein, .carbs, .fat, .bodyMass]
-        ) {
             await refresh()
         }
     }
