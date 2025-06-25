@@ -18,18 +18,21 @@ struct DashboardView: View {
 }
 
 struct DashboardWidgets: View {
-    @Environment(\.widgetDataRepository) private var widgetData
-    let goals: UserGoals
+    @BudgetAnalytics private var budget: BudgetService?
+    @MacrosAnalytics private var macros: MacrosAnalyticsService?
 
     init(_ goals: UserGoals) {
-        self.goals = goals
+        _budget = BudgetAnalytics(adjustment: goals.adjustment)
+        _macros = MacrosAnalytics(
+            budgetAnalytics: _budget, adjustments: goals.macros
+        )
     }
 
     var body: some View {
         List {
-            BudgetComponent(style: .dashboard)
-            MacrosComponent(style: .dashboard)
-            OverviewComponent()
+            BudgetWidget(analytics: $budget)
+            MacrosWidget(analytics: $macros)
+            OverviewWidget(analytics: $macros)
         }
         .refreshable {
             await refresh()
@@ -48,7 +51,7 @@ struct DashboardWidgets: View {
     }
 
     func refresh() async {
-        // Pass goals configuration to the repository for adjustment calculations
-        await widgetData.refreshAllData(with: goals)
+        await $budget.reload(at: Date())
+        await $macros.reload(at: Date())
     }
 }

@@ -49,7 +49,6 @@ import SwiftUI
         WindowGroup {
             AppView()
                 .modelContainer(self.container)
-                .environment(WidgetDataRepository.shared)
         }
     }
 }

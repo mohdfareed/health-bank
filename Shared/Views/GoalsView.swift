@@ -89,25 +89,25 @@ struct GoalMeasurementField: View {
 }
 
 struct CalorieMaintenanceField: View {
-    @Environment(\.widgetDataRepository)
-    private var repository
-
-    private let adjustment: Double?
+    @BudgetAnalytics var budget: BudgetService?
 
     init(_ adjustment: Double?) {
-        self.adjustment = adjustment
+        _budget = .init(adjustment: adjustment)
     }
 
     var body: some View {
         RecordRow(
             field: MaintenanceFieldDefinition(),
-            value: .constant(repository.budgetData?.weight.maintenance),
+            value: .constant(budget?.weight.maintenance),
             isInternal: false
         )
-        .onAppear {
-            Task {
-                await repository.refreshBudgetData()
+
+        .onAppear(
+            perform: {
+                Task {
+                    await $budget.reload(at: Date())
+                }
             }
-        }
+        )
     }
 }
