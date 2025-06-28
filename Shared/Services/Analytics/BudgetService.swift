@@ -11,8 +11,17 @@ public struct BudgetService: Sendable {
 
     /// User-defined budget adjustment (kcal)
     let adjustment: Double?
-    /// The days until the next week starts
-    let daysLeft: Int
+    /// The first day of the week, e.g. Sunday or Monday
+    let firstWeekday: Int
+
+    /// The days until the next budget cycle starts
+    var daysLeft: Int {
+        let cal = Calendar.autoupdatingCurrent
+        let date = calories.currentIntakeDateRange?.from ?? Date()
+        let nextWeek = date.next(firstWeekday, using: cal)!
+        let daysLeft = date.distance(to: nextWeek, in: .day, using: cal)!
+        return daysLeft
+    }
 
     /// The base daily budget: B = M + A (kcal)
     var baseBudget: Double? {

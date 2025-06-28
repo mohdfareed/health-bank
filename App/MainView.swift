@@ -51,14 +51,6 @@ struct AppView: View {
         .contentTransition(.numericText())
         .contentTransition(.opacity).onAppear {
             healthKitService.requestAuthorization()
-
-            // Start widget observers after a brief delay to ensure HealthKit authorization
-            DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
-                AppLogger.new(for: AppView.self).info(
-                    "Starting HealthKit observers for all widgets and dashboard")
-                HealthKitObservers.shared.startAllWidgetObservers()
-                HealthKitObservers.shared.startDashboardDataObserver()
-            }
         }
 
         .overlay(alignment: .bottomTrailing) {
