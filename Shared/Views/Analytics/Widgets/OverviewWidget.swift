@@ -9,7 +9,9 @@ public struct OverviewWidget: View {
     @MacrosAnalytics private var analytics: MacrosAnalyticsService?
 
     public init() {
-        self._analytics = MacrosAnalytics(budgetAnalytics: BudgetAnalytics(), adjustments: nil)
+        self._analytics = MacrosAnalytics(
+            budgetAnalytics: BudgetAnalytics(), adjustments: nil
+        )
     }
 
     public var body: some View {
@@ -19,7 +21,7 @@ public struct OverviewWidget: View {
             ) {
                 LabeledContent {
                     HStack {
-                        if analytics?.budget?.weight.isValid != true {
+                        if analytics?.calories?.weight.isValid != true {
                             Image.maintenance.foregroundStyle(Color.calories)
                                 .symbolEffect(
                                     .rotate.byLayer,
@@ -31,8 +33,8 @@ public struct OverviewWidget: View {
                     Label {
                         HStack {
                             Text("Overview")
-                            if analytics?.budget?.weight.isValid != true
-                                || analytics?.budget?.calories.isValid != true
+                            if analytics?.calories?.weight.isValid != true
+                                || analytics?.calories?.isValid != true
                             {
                                 Text("Calibrating...")
                                     .textScale(.secondary)
@@ -79,12 +81,12 @@ public struct OverviewWidget: View {
     @ViewBuilder var overviewSections: some View {
         Section("Calories") {
             calorieValue(
-                analytics?.budget?.calories.currentIntake,
+                analytics?.calories?.calories.currentIntake,
                 title: "Intake",
                 icon: Image.calories
             )
             calorieValue(
-                analytics?.budget?.calories.smoothedIntake,
+                analytics?.calories?.calories.smoothedIntake,
                 title: "EWMA",
                 icon: Image.calories
             )
@@ -92,19 +94,19 @@ public struct OverviewWidget: View {
 
         Section {
             weightValue(
-                analytics?.budget?.weight.weightSlope,
+                analytics?.calories?.weight.weightSlope,
                 title: "Change",
                 icon: Image.weight
             )
             calorieValue(
-                analytics?.budget?.weight.maintenance,
+                analytics?.calories?.weight.maintenance,
                 title: "Maintenance",
                 icon: Image.calories
             )
         } header: {
             Text("Maintenance")
         } footer: {
-            if analytics?.budget?.weight.isValid != true {
+            if analytics?.calories?.weight.isValid != true {
                 VStack(alignment: .leading) {
                     HStack(alignment: .firstTextBaseline) {
                         Image.maintenance.foregroundStyle(Color.calories)
@@ -121,25 +123,25 @@ public struct OverviewWidget: View {
 
         Section("Budget") {
             calorieValue(
-                analytics?.budget?.remaining,
+                analytics?.calories?.remaining,
                 title: "Remaining",
                 icon: Image.calories
             )
 
             calorieValue(
-                analytics?.budget?.baseBudget,
+                analytics?.calories?.baseBudget,
                 title: "Base",
                 icon: Image.calories
             )
 
             calorieValue(
-                analytics?.budget?.budget,
+                analytics?.calories?.budget,
                 title: "Adjusted",
                 icon: Image.calories
             )
 
             calorieValue(
-                analytics?.budget?.credit,
+                analytics?.calories?.credit,
                 title: "Credit",
                 icon: Image.calories
             )

@@ -68,7 +68,7 @@ public struct BudgetWidget: View {
             Image.maintenance
                 .symbolEffect(
                     .rotate.byLayer,
-                    options: data.calories.isValid
+                    options: data.isValid
                         ? .nonRepeating
                         : .repeat(.periodic(delay: 5))
                 )

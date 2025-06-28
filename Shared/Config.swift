@@ -11,7 +11,6 @@ public let AppID = Bundle.main.bundleIdentifier ?? "Debug.App"
 // Widget IDs - Each widget type has its own unique identifier
 public let BudgetWidgetID = "\(AppID).BudgetWidget"
 public let MacrosWidgetID = "\(AppID).MacrosWidget"
-public let OverviewWidgetID = "\(AppID).OverviewWidget"
 
 /// The widgets bundle identifier (legacy - for compatibility).
 public let WidgetsID = "\(AppID).Widgets"

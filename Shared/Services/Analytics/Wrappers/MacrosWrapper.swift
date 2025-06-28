@@ -8,7 +8,6 @@ import SwiftUI
 public struct MacrosAnalytics: DynamicProperty {
     @Environment(\.healthKit)
     var healthKitService: HealthKitService
-    let analyticsService: AnalyticsService = .init()
 
     @BudgetAnalytics var budgetAnalytics: BudgetService?
     @State var analytics: MacrosAnalyticsService?
@@ -29,13 +28,14 @@ public struct MacrosAnalytics: DynamicProperty {
 
     public func reload(at date: Date) async {
         await $budgetAnalytics.reload(at: date)
+        guard let protein = await dataService(for: .protein, at: date) else { return }
+        guard let carbs = await dataService(for: .carbs, at: date) else { return }
+        guard let fat = await dataService(for: .fat, at: date) else { return }
+
         let newAnalytics = MacrosAnalyticsService(
-            budget: budgetAnalytics,
-            protein: await reloadProtein(at: date),
-            carbs: await reloadCarbs(at: date),
-            fat: await reloadFat(at: date),
-            adjustments: adjustments,
-            daysLeft: budgetAnalytics?.daysLeft ?? 0
+            calories: budgetAnalytics,
+            protein: protein, carbs: carbs, fat: fat,
+            adjustments: adjustments, daysLeft: budgetAnalytics?.daysLeft ?? 0
         )
 
         await MainActor.run {
@@ -45,88 +45,49 @@ public struct MacrosAnalytics: DynamicProperty {
         }
     }
 
-    private func reloadProtein(at date: Date) async -> DataAnalyticsService {
-        let ewmaRange = DataAnalyticsService.ewmaDateRange(from: date)
-        let currentRange = DataAnalyticsService.currentDateRange(from: date)
+    private func dataService(
+        for: HealthKitDataType, at date: Date
+    ) async -> DataAnalyticsService? {
+        guard let ranges = dateRanges(from: date) else { return nil }
 
-        // Get calorie data for the past 7 days
-        let calorieData = await healthKitService.fetchStatistics(
-            for: .protein,
-            from: ewmaRange.from, to: ewmaRange.to,
+        // Get data for the EWMA average
+        let ewmaData = await healthKitService.fetchStatistics(
+            for: `for`,
+            from: ranges.ewma.from, to: ranges.ewma.to,
             interval: .daily,
             options: .cumulativeSum
         )
 
-        // Get calorie data for the past 7 days
+        // Get data for the current intake
         let currentData = await healthKitService.fetchStatistics(
-            for: .protein,
-            from: currentRange.from, to: currentRange.to,
+            for: `for`,
+            from: ranges.current.from, to: ranges.current.to,
             interval: .daily,
             options: .cumulativeSum
         )
 
         // Create services
         return DataAnalyticsService(
-            analytics: analyticsService,
             currentIntakes: currentData,
-            intakes: calorieData, alpha: 0.25,
+            intakes: ewmaData, alpha: 0.25,
         )
     }
 
-    private func reloadCarbs(at date: Date) async -> DataAnalyticsService {
-        let ewmaRange = DataAnalyticsService.ewmaDateRange(from: date)
-        let currentRange = DataAnalyticsService.currentDateRange(from: date)
+    private func dateRanges(from date: Date) -> (
+        ewma: (from: Date, to: Date), current: (from: Date, to: Date)
+    )? {
+        // REVIEW: Add a setting to control the range
+        let yesterday = date.adding(-1, .day, using: .autoupdatingCurrent)
+        let ewmaRange = yesterday?.dateRange(by: 7, using: .autoupdatingCurrent)
+        let currentRange = date.dateRange(using: .autoupdatingCurrent)
 
-        // Get calorie data for the past 7 days
-        let calorieData = await healthKitService.fetchStatistics(
-            for: .carbs,
-            from: ewmaRange.from, to: ewmaRange.to,
-            interval: .daily,
-            options: .cumulativeSum
-        )
-
-        // Get calorie data for the past 7 days
-        let currentData = await healthKitService.fetchStatistics(
-            for: .carbs,
-            from: currentRange.from, to: currentRange.to,
-            interval: .daily,
-            options: .cumulativeSum
-        )
-
-        // Create services
-        return DataAnalyticsService(
-            analytics: analyticsService,
-            currentIntakes: currentData,
-            intakes: calorieData, alpha: 0.25,
-        )
-    }
-
-    private func reloadFat(at date: Date) async -> DataAnalyticsService {
-        let ewmaRange = DataAnalyticsService.ewmaDateRange(from: date)
-        let currentRange = DataAnalyticsService.currentDateRange(from: date)
-
-        // Get calorie data for the past 7 days
-        let calorieData = await healthKitService.fetchStatistics(
-            for: .fat,
-            from: ewmaRange.from, to: ewmaRange.to,
-            interval: .daily,
-            options: .cumulativeSum
-        )
-
-        // Get calorie data for the past 7 days
-        let currentData = await healthKitService.fetchStatistics(
-            for: .fat,
-            from: currentRange.from, to: currentRange.to,
-            interval: .daily,
-            options: .cumulativeSum
-        )
-
-        // Create services
-        return DataAnalyticsService(
-            analytics: analyticsService,
-            currentIntakes: currentData,
-            intakes: calorieData, alpha: 0.25,
-        )
+        guard let ewmaRange, let currentRange else {
+            AppLogger.new(for: self).error(
+                "Failed to calculate date ranges for macros EWMA at: \(date)"
+            )
+            return nil
+        }
+        return (ewma: ewmaRange, current: currentRange)
     }
 }
 

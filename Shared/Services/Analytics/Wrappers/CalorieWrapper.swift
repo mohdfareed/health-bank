@@ -6,7 +6,6 @@ import SwiftUI
 public struct CalorieAnalytics: DynamicProperty {
     @Environment(\.healthKit)
     var healthKitService: HealthKitService
-    let analyticsService: AnalyticsService = .init()
     @State var calorieAnalytics: DataAnalyticsService? = nil
 
     public init() {}
@@ -17,8 +16,16 @@ public struct CalorieAnalytics: DynamicProperty {
     public var projectedValue: Self { self }
 
     public func reload(at date: Date) async {
-        let ewmaRange = DataAnalyticsService.ewmaDateRange(from: date)
-        let currentRange = DataAnalyticsService.currentDateRange(from: date)
+        // REVIEW: Add a setting to control the range
+        let yesterday = date.adding(-1, .day, using: .autoupdatingCurrent)
+        let ewmaRange = yesterday?.dateRange(by: 7, using: .autoupdatingCurrent)
+        let currentRange = date.dateRange(using: .autoupdatingCurrent)
+        guard let ewmaRange, let currentRange else {
+            AppLogger.new(for: self).error(
+                "Failed to calculate date ranges for EWMA at: \(date)"
+            )
+            return
+        }
 
         // Get calorie data for the past 7 days
         let calorieData = await healthKitService.fetchStatistics(
@@ -38,7 +45,6 @@ public struct CalorieAnalytics: DynamicProperty {
 
         // Create services
         let newAnalytics = DataAnalyticsService(
-            analytics: analyticsService,
             currentIntakes: currentData,
             intakes: calorieData, alpha: 0.25,
         )

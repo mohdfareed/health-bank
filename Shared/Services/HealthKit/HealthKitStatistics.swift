@@ -38,7 +38,7 @@ public enum StatisticsInterval: CaseIterable, Sendable {
         case .monthly:
             component = .month
         }
-        return referenceDate.floored(to: component, using: calendar)
+        return referenceDate.floored(to: component, using: calendar)!
     }
 }
 

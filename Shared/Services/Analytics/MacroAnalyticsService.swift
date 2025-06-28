@@ -1,24 +1,25 @@
 import Foundation
 import SwiftUI
+import WidgetKit
 
 // MARK: Budget Service
 // ============================================================================
 
 public struct MacrosAnalyticsService: Sendable {
-    public let budget: BudgetService?
-    public let protein: DataAnalyticsService
-    public let carbs: DataAnalyticsService
-    public let fat: DataAnalyticsService
+    let calories: BudgetService?
+    let protein: DataAnalyticsService
+    let carbs: DataAnalyticsService
+    let fat: DataAnalyticsService
 
     /// User-defined budget adjustment (kcal)
-    public let adjustments: CalorieMacros?
+    let adjustments: CalorieMacros?
     /// The days until the next week starts
-    public let daysLeft: Int
+    let daysLeft: Int
 
     /// The base daily budget: B = M + A (kcal)
-    public var baseBudgets: CalorieMacros? {
+    var baseBudgets: CalorieMacros? {
         guard let adjustments = adjustments else { return nil }
-        guard let budget = budget?.baseBudget else { return nil }
+        guard let budget = calories?.baseBudget else { return nil }
 
         // Calculate the macro budgets based on the adjustments
         let macroCalories = CalorieMacros(
@@ -64,5 +65,45 @@ public struct MacrosAnalyticsService: Sendable {
             f: budget.fat.map { $0 - (fat.currentIntake ?? 0) },
             c: budget.carbs.map { $0 - (carbs.currentIntake ?? 0) }
         )
+    }
+}
+
+// MARK: Macros Observation
+// ============================================================================
+
+extension MacrosAnalyticsService {
+    /// Start observing for calories and weight data updates
+    public func startObserver(
+        _ healthKit: HealthKitService, callback: @escaping @Sendable () -> Void
+    ) {
+        if let intakeRange = protein.intakeDateRange,
+            let currentRange = protein.currentIntakeDateRange
+        {
+            healthKit.startObserving(
+                for: MacrosWidgetID, dataTypes: [.protein],
+                from: intakeRange.from, to: currentRange.to,
+                onUpdate: { callback() }
+            )
+        }
+
+        if let intakeRange = carbs.intakeDateRange,
+            let currentRange = carbs.currentIntakeDateRange
+        {
+            healthKit.startObserving(
+                for: MacrosWidgetID, dataTypes: [.carbs],
+                from: intakeRange.from, to: currentRange.to,
+                onUpdate: { callback() }
+            )
+        }
+
+        if let intakeRange = fat.intakeDateRange,
+            let currentRange = fat.currentIntakeDateRange
+        {
+            healthKit.startObserving(
+                for: MacrosWidgetID, dataTypes: [.fat],
+                from: intakeRange.from, to: currentRange.to,
+                onUpdate: { callback() }
+            )
+        }
     }
 }

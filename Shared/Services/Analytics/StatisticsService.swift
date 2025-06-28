@@ -6,11 +6,11 @@ import Foundation
 extension [Date: Double] {
     /// Bucket the data by a specific time unit.
     func bucketed(
-        by unit: Calendar.Component, using calendar: Calendar = .current
+        by unit: Calendar.Component, using calendar: Calendar
     ) -> [Date: [Double]] {
         var buckets = [Date: [Double]]()
         for (date, value) in self {
-            let flooredDate = date.floored(to: unit, using: calendar)
+            let flooredDate = date.floored(to: unit, using: calendar) ?? date
             buckets[flooredDate, default: []].append(value)
         }
         return buckets
@@ -71,44 +71,62 @@ extension Int {
 // ============================================================================
 
 extension Date {
-    /// Get the difference between two dates in a unit.
-    func distance(
-        to date: Date, in unit: Calendar.Component,
-        using calendar: Calendar = .current
-    ) -> Int? {
-        let dateComponents = calendar.dateComponents(
-            [unit], from: self, to: date
-        )
-        return dateComponents.value(for: unit)
-    }
-
     /// Add an amount of a calendar component.
     func adding(
-        _ value: Int, _ component: Calendar.Component,
-        using calendar: Calendar = .current
-    ) -> Date {
-        calendar.date(byAdding: component, value: value, to: self)!
+        _ value: Int, _ component: Calendar.Component, using calendar: Calendar
+    ) -> Date? {
+        calendar.date(byAdding: component, value: value, to: self)
     }
 
-    /// Floors the date to the beginning of a specific time unit.
-    func floored(
-        to unit: Calendar.Component, using calendar: Calendar = .current
-    ) -> Date {
-        if let interval = calendar.dateInterval(of: unit, for: self) {
-            return interval.start
-        }
-        return self
+    /// Floor: the start of the unit.
+    func floored(to unit: Calendar.Component, using cal: Calendar) -> Date? {
+        interval(of: unit, using: cal)?.start
     }
 
-    /// The date of the next occurrence of a specific weekday.
-    func next(_ weekday: Int, using calendar: Calendar = .current) -> Date {
-        let weekday = weekday % 7  // Ensure it's within 0...6 if needed
-        let todayWeekday = calendar.component(.weekday, from: self)
+    /// Ceiling: the last instant of the unit.
+    func ceiled(to unit: Calendar.Component, using cal: Calendar) -> Date? {
+        guard let interval = interval(of: unit, using: cal) else { return nil }
+        return interval.end.adding(-1, .nanosecond, using: cal)
+    }
 
-        var daysToAdd = weekday - todayWeekday
-        if daysToAdd <= 0 {
-            daysToAdd += 7
-        }
-        return calendar.date(byAdding: .day, value: daysToAdd, to: self)!
+    /// A date range ending at the unit’s ceiling and
+    /// going back `duration` units.
+    func dateRange(
+        by duration: UInt = 1, _ unit: Calendar.Component = .day,
+        using cal: Calendar
+    ) -> (from: Date, to: Date)? {
+        guard
+            let end = ceiled(to: unit, using: cal),
+            let start = end.adding(-Int(duration), unit, using: cal)
+        else { return nil }
+        return (start, end)
+    }
+
+    /// Distance in whole units.
+    func distance(
+        to other: Date, in unit: Calendar.Component,
+        using cal: Calendar
+    ) -> Int? {
+        cal.dateComponents([unit], from: self, to: other)
+            .value(for: unit)
+    }
+
+    /// Next weekday occurrence.
+    func next(_ weekday: Int, using cal: Calendar) -> Date? {
+        let components = cal.dateComponents(
+            [.year, .month, .day, .weekday], from: self
+        )
+
+        let today = components.weekday!
+        let offset = (weekday - today + 7) % 7
+        return cal.date(
+            byAdding: .day, value: offset == 0 ? 7 : offset, to: self
+        )
+    }
+
+    private func interval(
+        of unit: Calendar.Component, using cal: Calendar
+    ) -> DateInterval? {
+        cal.dateInterval(of: unit, for: self)
     }
 }

@@ -6,7 +6,6 @@ import SwiftUI
 public struct WeightAnalytics: DynamicProperty {
     @Environment(\.healthKit)
     var healthKitService: HealthKitService
-    let analyticsService: AnalyticsService = .init()
 
     @CalorieAnalytics var calorieAnalytics: DataAnalyticsService?
     @State var analytics: WeightAnalyticsService? = nil
@@ -20,7 +19,15 @@ public struct WeightAnalytics: DynamicProperty {
     public func reload(at date: Date) async {
         await $calorieAnalytics.reload(at: date)
         guard let calorieAnalytics = calorieAnalytics else { return }
-        let fittingRange = DataAnalyticsService.fittingDateRange(from: date)
+
+        // REVIEW: Add a setting to control the range
+        let fittingRange = date.dateRange(by: 14, using: .autoupdatingCurrent)
+        guard let fittingRange else {
+            AppLogger.new(for: self).error(
+                "Failed to calculate date range for weight fitting at: \(date)"
+            )
+            return
+        }
 
         // Get calorie data for the past 14 days
         let weightData = await healthKitService.fetchStatistics(
@@ -32,7 +39,6 @@ public struct WeightAnalytics: DynamicProperty {
 
         // Create services
         let newAnalytics = WeightAnalyticsService(
-            analytics: analyticsService,
             calories: calorieAnalytics,
             weights: weightData, rho: 7700
         )

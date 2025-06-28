@@ -2,6 +2,40 @@ import Foundation
 import HealthKit
 import SwiftUI
 
+// MARK: Data Access
+// ============================================================================
+
+extension HealthKitService {
+    /// Save a quantity sample to HealthKit,
+    ///replacing any existing entry with the same UUID.
+    public func save(_ sample: HKObject, of type: HKObjectType) async throws {
+        guard Self.isAvailable else { return }
+        // Save the new sample
+        return try await withCheckedThrowingContinuation { continuation in
+            store.save(sample) { success, error in
+                if let error = error {
+                    self.logger.error("Failed to save sample: \(error)")
+                    continuation.resume(throwing: error)
+                } else if success {
+                    continuation.resume(returning: ())
+                } else {
+                    let error = HealthKitError.saveFailed("Unknown save error")
+                    continuation.resume(throwing: error)
+                }
+            }
+        }
+    }
+
+    /// Delete a sample from HealthKit.
+    public func delete(_ id: UUID, of type: HKObjectType) async throws {
+        guard Self.isAvailable else { return }
+        let predicate = HKQuery.predicateForObject(with: id)
+        try await store.deleteObjects(
+            of: type, predicate: predicate
+        )
+    }
+}
+
 // MARK: Sample Query
 // ============================================================================
 

@@ -35,8 +35,9 @@ public struct BudgetAnalytics: DynamicProperty {
         await $weightAnalytics.reload(at: date)
         guard let weightAnalytics = weightAnalytics else { return }
 
-        let nextWeek = date.next(locale.calendar.firstWeekday)
-        let daysLeft = date.distance(to: nextWeek, in: .day)!
+        let cal = Calendar.autoupdatingCurrent
+        let nextWeek = date.next(locale.calendar.firstWeekday, using: cal)!
+        let daysLeft = date.distance(to: nextWeek, in: .day, using: cal)!
 
         await MainActor.run {
             withAnimation(.default) {

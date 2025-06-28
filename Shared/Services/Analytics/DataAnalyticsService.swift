@@ -6,67 +6,62 @@ import SwiftUI
 // ============================================================================
 
 public struct DataAnalyticsService: Sendable {
-    let analytics: AnalyticsService
-
-    /// Current intakes (kcal), oldest first
+    /// Current intakes (kcal)
     let currentIntakes: [Date: Double]
-    /// Historical daily intakes (kcal), oldest first
+    /// Historical daily intakes (kcal)
     let intakes: [Date: Double]
     /// EWMA smoothing factor (e.g. 0.25 for 7-day smoothing [α = 2/(7+1)])
     let alpha: Double
 
     /// Daily intake buckets.
     var dailyIntakes: [Date: Double] {
-        return intakes.bucketed(by: .day).mapValues { $0.sum() }
+        return intakes.bucketed(by: .day, using: .autoupdatingCurrent)
+            .mapValues { $0.sum() }
     }
 
-    /// EWMA-smoothed intake S (kcal)
+    /// The date range for intake data.
+    var intakeDateRange: (from: Date, to: Date)? {
+        let max = dailyIntakes.keys.sorted().max()
+        let min = dailyIntakes.keys.sorted().min()
+        guard let max: Date = max, let min: Date = min else { return nil }
+        return (from: min, to: max)
+    }
+
+    /// The date range for current intake data.
+    var currentIntakeDateRange: (from: Date, to: Date)? {
+        let max = currentIntakes.keys.sorted().max()
+        let min = currentIntakes.keys.sorted().min()
+        guard let max: Date = max, let min: Date = min else { return nil }
+        return (from: min, to: max)
+    }
+
+    /// EWMA-smoothed intake S
     public var smoothedIntake: Double? {
-        return analytics.computeEWMA(
+        return computeEWMA(
             from: dailyIntakes.points, alpha: alpha
         )
     }
 
-    /// Total current intake (kcal)
+    /// Total current intake
     public var currentIntake: Double? {
-        return currentIntakes.bucketed(by: .day)
-            .mapValues { $0.sum() }
-            .values.first
+        return currentIntakes.values.sum()
     }
 
-    /// Whether the maintenance estimate has enough data to be valid.
-    var isValid: Bool {
-        let max = dailyIntakes.keys.sorted().max()
-        let min = dailyIntakes.keys.sorted().min()
-        guard let max: Date = max, let min: Date = min else { return false }
-
-        // Data points must span at least 1 week
-        return min.distance(to: max, in: .weekOfYear) ?? 0 >= 1
-    }
-
-    /// Get the date range of the EWMA calculation.
-    static func ewmaDateRange(
-        from date: Date
-    ) -> (from: Date, to: Date) {
-        return (
-            from: date.floored(to: .day).adding(-7, .day),
-            to: date.floored(to: .day).adding(-1, .second),
-        )
-    }
-
-    /// Get the date range of the current calculations.
-    static func currentDateRange(
-        from date: Date
-    ) -> (from: Date, to: Date) {
-        return (from: date.floored(to: .day), to: date)
-    }
-
-    /// Get the date range of the maintenance calculations.
-    static func fittingDateRange(
-        from date: Date
-    ) -> (from: Date, to: Date) {
-        return (
-            from: date.floored(to: .day).adding(-14, .day), to: date,
-        )
+    /// Computes the EWMA of a series of values.
+    /// - Parameters:
+    ///   - values: historical values [C₀, C₁, …, Cₜ₋₁] (oldest first)
+    ///   - alpha: EWMA smoothing factor (0 < α < 1)
+    /// - Returns: Sₜ where
+    ///   S₀ = C₀
+    ///   Sᵢ = α·Cᵢ + (1−α)·Sᵢ₋₁
+    func computeEWMA(from values: [Double], alpha: Double) -> Double? {
+        guard !values.isEmpty else { return nil }
+        // Seed with the first data point
+        var smoothed = values[0]
+        // Fold over the rest (last has highest weight)
+        for value in values.dropFirst() {
+            smoothed = alpha * value + (1 - alpha) * smoothed
+        }
+        return smoothed
     }
 }
