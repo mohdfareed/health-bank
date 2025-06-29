@@ -2,18 +2,35 @@ import Charts
 import SwiftData
 import SwiftUI
 
-// MARK: - Budget Overview Widget
+// MARK: - Overview Component
 // ============================================================================
 
-public struct OverviewWidget: View {
-    @MacrosAnalytics private var analytics: MacrosAnalyticsService?
+/// Reusable overview component for dashboard detailed analytics
+public struct OverviewComponent: View {
+    @State private var budgetDataService: BudgetDataService
+    @State private var macrosDataService: MacrosDataService
 
-    public init() {
-        self._analytics = MacrosAnalytics(
-            budgetAnalytics: BudgetAnalytics(), adjustments: nil
-        )
+    private let logger = AppLogger.new(for: OverviewComponent.self)
+
+    public init(
+        adjustment: Double? = nil,
+        macroAdjustments: CalorieMacros? = nil,
+        date: Date = Date()
+    ) {
+        self._budgetDataService = State(
+            initialValue: BudgetDataService(
+                adjustment: adjustment,
+                date: date
+            ))
+
+        self._macrosDataService = State(
+            initialValue: MacrosDataService(
+                adjustments: macroAdjustments,
+                date: date
+            ))
     }
 
+    // Keep body exactly the same as OverviewWidget
     public var body: some View {
         Section("Data") {
             NavigationLink(
@@ -21,7 +38,7 @@ public struct OverviewWidget: View {
             ) {
                 LabeledContent {
                     HStack {
-                        if analytics?.calories?.weight.isValid != true {
+                        if macrosDataService.macrosService?.calories?.weight.isValid != true {
                             Image.maintenance.foregroundStyle(Color.calories)
                                 .symbolEffect(
                                     .rotate.byLayer,
@@ -33,8 +50,8 @@ public struct OverviewWidget: View {
                     Label {
                         HStack {
                             Text("Overview")
-                            if analytics?.calories?.weight.isValid != true
-                                || analytics?.calories?.isValid != true
+                            if macrosDataService.macrosService?.calories?.weight.isValid != true
+                                || macrosDataService.macrosService?.calories?.isValid != true
                             {
                                 Text("Calibrating...")
                                     .textScale(.secondary)
@@ -47,16 +64,39 @@ public struct OverviewWidget: View {
                 }
             }
         }
-        // Auto-refresh when any nutrition data changes
-        .refreshOnHealthDataChange(for: [.dietaryCalories, .protein, .carbs, .fat, .bodyMass]) {
-            await $analytics.reload(at: Date())
+        .animation(.default, value: macrosDataService.macrosService != nil)
+        .animation(.default, value: macrosDataService.isLoading)
+        .animation(.default, value: budgetDataService.isLoading)
+        .onAppear {
+            let budgetWidgetId = "OverviewBudget-dashboard"
+            let macrosWidgetId = "Overview-dashboard"
+
+            budgetDataService.startObserving(widgetId: budgetWidgetId)
+            macrosDataService.startObserving(widgetId: macrosWidgetId)
+            logger.debug(
+                "OverviewComponent appeared, started observing with IDs: \(budgetWidgetId), \(macrosWidgetId)"
+            )
+        }
+        .onDisappear {
+            budgetDataService.stopObserving()
+            macrosDataService.stopObserving()
+            logger.debug("OverviewComponent disappeared, stopped observing")
+        }
+        .task {
+            await refresh()
+        }
+        .onChange(of: budgetDataService.budgetService != nil) { _, _ in
+            // When budget data changes, refresh macros with the new budget data
+            Task {
+                await macrosDataService.refresh()
+            }
         }
     }
 
     @ViewBuilder var overviewPage: some View {
         NavigationStack {
             List {
-                if analytics != nil {
+                if macrosDataService.macrosService != nil {
                     overviewSections
                     macrosPage
                 } else {
@@ -75,18 +115,18 @@ public struct OverviewWidget: View {
                 }
             }
         }
-        .animation(.default, value: analytics == nil)
+        .animation(.default, value: macrosDataService.macrosService == nil)
     }
 
     @ViewBuilder var overviewSections: some View {
         Section("Calories") {
             calorieValue(
-                analytics?.calories?.calories.currentIntake,
+                macrosDataService.macrosService?.calories?.calories.currentIntake,
                 title: "Intake",
                 icon: Image.calories
             )
             calorieValue(
-                analytics?.calories?.calories.smoothedIntake,
+                macrosDataService.macrosService?.calories?.calories.smoothedIntake,
                 title: "EWMA",
                 icon: Image.calories
             )
@@ -94,19 +134,19 @@ public struct OverviewWidget: View {
 
         Section {
             weightValue(
-                analytics?.calories?.weight.weightSlope,
+                macrosDataService.macrosService?.calories?.weight.weightSlope,
                 title: "Change",
                 icon: Image.weight
             )
             calorieValue(
-                analytics?.calories?.weight.maintenance,
+                macrosDataService.macrosService?.calories?.weight.maintenance,
                 title: "Maintenance",
                 icon: Image.calories
             )
         } header: {
             Text("Maintenance")
         } footer: {
-            if analytics?.calories?.weight.isValid != true {
+            if macrosDataService.macrosService?.calories?.weight.isValid != true {
                 VStack(alignment: .leading) {
                     HStack(alignment: .firstTextBaseline) {
                         Image.maintenance.foregroundStyle(Color.calories)
@@ -123,25 +163,25 @@ public struct OverviewWidget: View {
 
         Section("Budget") {
             calorieValue(
-                analytics?.calories?.remaining,
+                macrosDataService.macrosService?.calories?.remaining,
                 title: "Remaining",
                 icon: Image.calories
             )
 
             calorieValue(
-                analytics?.calories?.baseBudget,
+                macrosDataService.macrosService?.calories?.baseBudget,
                 title: "Base",
                 icon: Image.calories
             )
 
             calorieValue(
-                analytics?.calories?.budget,
+                macrosDataService.macrosService?.calories?.budget,
                 title: "Adjusted",
                 icon: Image.calories
             )
 
             calorieValue(
-                analytics?.calories?.credit,
+                macrosDataService.macrosService?.calories?.credit,
                 title: "Credit",
                 icon: Image.calories
             )
@@ -231,13 +271,13 @@ public struct OverviewWidget: View {
     @ViewBuilder var proteinSection: some View {
         Section("Protein") {
             macroValue(
-                analytics?.protein.currentIntake,
+                macrosDataService.macrosService?.protein.currentIntake,
                 title: "Intake",
                 icon: Image.protein, tint: .protein
             )
 
             macroValue(
-                analytics?.protein.smoothedIntake,
+                macrosDataService.macrosService?.protein.smoothedIntake,
                 title: "EWMA",
                 icon: Image.protein, tint: .protein
             )
@@ -245,25 +285,25 @@ public struct OverviewWidget: View {
 
         Section("Budget") {
             macroValue(
-                analytics?.remaining?.protein,
+                macrosDataService.macrosService?.remaining?.protein,
                 title: "Remaining",
                 icon: Image.protein, tint: .protein
             )
 
             macroValue(
-                analytics?.baseBudgets?.protein,
+                macrosDataService.macrosService?.baseBudgets?.protein,
                 title: "Base",
                 icon: Image.protein, tint: .protein
             )
 
             macroValue(
-                analytics?.budgets?.protein,
+                macrosDataService.macrosService?.budgets?.protein,
                 title: "Adjusted",
                 icon: Image.protein, tint: .protein
             )
 
             macroValue(
-                analytics?.credits?.protein,
+                macrosDataService.macrosService?.credits?.protein,
                 title: "Credit",
                 icon: Image.protein, tint: .protein
             )
@@ -273,13 +313,13 @@ public struct OverviewWidget: View {
     @ViewBuilder var carbsSection: some View {
         Section("Carbs") {
             macroValue(
-                analytics?.carbs.currentIntake,
+                macrosDataService.macrosService?.carbs.currentIntake,
                 title: "Intake",
                 icon: Image.carbs, tint: .carbs
             )
 
             macroValue(
-                analytics?.carbs.smoothedIntake,
+                macrosDataService.macrosService?.carbs.smoothedIntake,
                 title: "EWMA",
                 icon: Image.carbs, tint: .carbs
             )
@@ -287,25 +327,25 @@ public struct OverviewWidget: View {
 
         Section("Budget") {
             macroValue(
-                analytics?.remaining?.carbs,
+                macrosDataService.macrosService?.remaining?.carbs,
                 title: "Remaining",
                 icon: Image.carbs, tint: .carbs
             )
 
             macroValue(
-                analytics?.baseBudgets?.carbs,
+                macrosDataService.macrosService?.baseBudgets?.carbs,
                 title: "Base",
                 icon: Image.carbs, tint: .carbs
             )
 
             macroValue(
-                analytics?.budgets?.carbs,
+                macrosDataService.macrosService?.budgets?.carbs,
                 title: "Adjusted",
                 icon: Image.carbs, tint: .carbs
             )
 
             macroValue(
-                analytics?.credits?.carbs,
+                macrosDataService.macrosService?.credits?.carbs,
                 title: "Credit",
                 icon: Image.carbs, tint: .carbs
             )
@@ -315,13 +355,13 @@ public struct OverviewWidget: View {
     @ViewBuilder var fatSection: some View {
         Section("Fat") {
             macroValue(
-                analytics?.fat.currentIntake,
+                macrosDataService.macrosService?.fat.currentIntake,
                 title: "Intake",
                 icon: Image.fat, tint: .fat
             )
 
             macroValue(
-                analytics?.fat.smoothedIntake,
+                macrosDataService.macrosService?.fat.smoothedIntake,
                 title: "EWMA",
                 icon: Image.fat, tint: .fat
             )
@@ -329,25 +369,25 @@ public struct OverviewWidget: View {
 
         Section("Budget") {
             macroValue(
-                analytics?.remaining?.fat,
+                macrosDataService.macrosService?.remaining?.fat,
                 title: "Remaining",
                 icon: Image.fat, tint: .fat
             )
 
             macroValue(
-                analytics?.baseBudgets?.fat,
+                macrosDataService.macrosService?.baseBudgets?.fat,
                 title: "Base",
                 icon: Image.fat, tint: .fat
             )
 
             macroValue(
-                analytics?.budgets?.fat,
+                macrosDataService.macrosService?.budgets?.fat,
                 title: "Adjusted",
                 icon: Image.fat, tint: .fat
             )
 
             macroValue(
-                analytics?.credits?.fat,
+                macrosDataService.macrosService?.credits?.fat,
                 title: "Credit",
                 icon: Image.fat, tint: .fat
             )
@@ -421,6 +461,9 @@ public struct OverviewWidget: View {
     }
 
     func refresh() async {
-        await $analytics.reload(at: Date())
+        // First refresh budget data
+        await budgetDataService.refresh()
+        // Then refresh macros data
+        await macrosDataService.refresh()
     }
 }

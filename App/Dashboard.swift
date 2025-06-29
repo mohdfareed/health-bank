@@ -18,29 +18,40 @@ struct DashboardView: View {
 }
 
 struct DashboardWidgets: View {
-    @BudgetAnalytics private var budget: BudgetService?
-    @MacrosAnalytics private var macros: MacrosAnalyticsService?
+    private let goals: UserGoals
 
     init(_ goals: UserGoals) {
-        _budget = BudgetAnalytics(adjustment: goals.adjustment)
-        _macros = MacrosAnalytics(
-            budgetAnalytics: _budget, adjustments: goals.macros
-        )
+        self.goals = goals
     }
 
     var body: some View {
         List {
-            BudgetWidget()
-            MacrosWidget()
-            OverviewWidget()
-        }
-        .refreshable {
-            await refresh()
-        }
-    }
+            DashboardCard(
+                title: "Calories", icon: .calories, color: .calories
+            ) {
+                BudgetComponent(
+                    adjustment: goals.adjustment,
+                    date: Date()
+                )
+            } destination: {
+            }
 
-    func refresh() async {
-        await $budget.reload(at: Date())
-        await $macros.reload(at: Date())
+            DashboardCard(
+                title: "macros", icon: .macros, color: .macros
+            ) {
+                MacrosComponent(
+                    adjustment: goals.adjustment,
+                    macroAdjustments: goals.macros,
+                    date: Date()
+                )
+            } destination: {
+            }
+
+            OverviewComponent(
+                adjustment: goals.adjustment,
+                macroAdjustments: goals.macros,
+                date: Date()
+            )
+        }
     }
 }

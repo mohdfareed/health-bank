@@ -1,3 +1,4 @@
+import SwiftData
 import SwiftUI
 
 // TODO: Create reusable goals the user can choose from.
@@ -16,5 +17,24 @@ public let MacrosWidgetID = "\(AppID).MacrosWidget"
 public let WidgetsID = "\(AppID).Widgets"
 /// The HealthKit observers bundle identifier.
 public let ObserversID = "\(AppID).Observers"
+/// The App Groups identifier for sharing data between app and widgets.
+public let AppGroupID = "group.\(AppID).shared"
 /// The source code repository URL.
 public let RepoURL = "https://github.com/mohdfareed/health-vaults"
+
+// MARK: Shared Schema
+// ============================================================================
+
+/// The app's schema for SwiftData.
+public enum AppSchema {
+    @MainActor public static let schema = Schema([UserGoals.self])
+
+    /// Creates a ModelContainer configured for App Groups sharing.
+    @MainActor public static func createContainer() throws -> ModelContainer {
+        let configuration = ModelConfiguration(
+            schema: schema,
+            groupContainer: .identifier(AppGroupID)
+        )
+        return try ModelContainer(for: schema, configurations: [configuration])
+    }
+}

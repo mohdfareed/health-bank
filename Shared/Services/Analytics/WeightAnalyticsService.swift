@@ -12,6 +12,9 @@ public struct WeightAnalyticsService: Sendable {
     /// Energy per unit weight change (kcal per kg, default is 7700)
     let rho: Double
 
+    /// Smoothing window length for weight EWMA (days)
+    let alpha: Double
+
     /// Daily weight buckets.
     var dailyWeights: [Date: Double] {
         return weights.bucketed(by: .day, using: .autoupdatingCurrent)
@@ -29,12 +32,12 @@ public struct WeightAnalyticsService: Sendable {
 
     /// Daily energy imbalance ΔE = m * rho (kcal/day)
     var energyImbalance: Double {
-        weightSlope * rho
+        return weightSlope * rho
     }
 
     /// Estimated weight-change rate m (kg/day)
     public var weightSlope: Double {
-        computeSlope(from: dailyWeights.points)
+        computeSlope(from: dailyWeights)
     }
 
     /// Raw maintenance estimate M = S - ΔE (kcal/day)
@@ -50,29 +53,48 @@ public struct WeightAnalyticsService: Sendable {
         // Data points must span at least 2 weeks
         return range.from.distance(
             to: range.to, in: .weekOfYear, using: .autoupdatingCurrent
-        ) ?? 0 >= 2
+        ) ?? 0 >= 14
     }
 
-    /// Computes the slope (Δy/Δx) of a series of equally-spaced samples using
-    /// least-squares linear regression.
+    /// EWMA-smoothed weight series (oldest first)
+    private var smoothedWeightsSeries: [(date: Date, value: Double)] {
+        let sorted = dailyWeights.sorted { $0.key < $1.key }
+        guard !sorted.isEmpty else { return [] }
+
+        var series: [(Date, Double)] = []
+        var smoothed = sorted[0].value
+        series.append((sorted[0].key, smoothed))
+
+        for (date, value) in sorted.dropFirst() {
+            smoothed = alpha * value + (1 - alpha) * smoothed
+            series.append((date, smoothed))
+        }
+        return series
+    }
+
+    /// Computes the slope (Δy/Δx) of time-series data using least-squares linear regression.
     /// - Parameters:
-    ///   - values: an array of measurements [y₀, y₁, …, yₙ₋₁] (oldest first)
-    /// - Returns: the slope (units of y per index, e.g. lbs/day)
-    func computeSlope(from values: [Double]) -> Double {
-        let n = values.count
-        guard n > 1 else { return 0 }
+    ///   - values: a dictionary of date-value pairs representing weight measurements
+    /// - Returns: the slope in units per day (e.g., kg/day)
+    func computeSlope(from values: [Date: Double]) -> Double {
+        // Use smoothed weight series
+        let series = smoothedWeightsSeries
+        guard series.count > 1 else { return 0 }
 
-        // x = 0, 1, …, n-1
-        let times = (0..<n).map(Double.init)
-        let meanX = times.reduce(0, +) / Double(n)
-        let meanY = values.reduce(0, +) / Double(n)
+        // Convert to (t, w) arrays
+        let t = series.map { $0.date.timeIntervalSince(series.first!.date) / 86_400 }
+        let w = series.map { $0.value }
+        let n = t.count
 
-        // numerator and denominator
-        let numerator = zip(times, values).reduce(0) { acc, pair in
+        let meanX = t.reduce(0, +) / Double(n)
+        let meanY = w.reduce(0, +) / Double(n)
+
+        let numerator = zip(t, w).reduce(0) { acc, pair in
             let (x, y) = pair
             return acc + (x - meanX) * (y - meanY)
         }
-        let denominator = times.reduce(0) { acc, x in
+
+        let denominator = t.reduce(0) { acc, x in
             let dx = x - meanX
             return acc + dx * dx
         }

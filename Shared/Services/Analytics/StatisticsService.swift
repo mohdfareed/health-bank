@@ -85,19 +85,20 @@ extension Date {
 
     /// Ceiling: the last instant of the unit.
     func ceiled(to unit: Calendar.Component, using cal: Calendar) -> Date? {
-        guard let interval = interval(of: unit, using: cal) else { return nil }
-        return interval.end.adding(-1, .nanosecond, using: cal)
+        interval(of: unit, using: cal)?.end
+            .adding(-1, .second, using: cal)
     }
 
     /// A date range ending at the unit’s ceiling and
-    /// going back `duration` units.
+    /// going back `amount` units.
     func dateRange(
-        by duration: UInt = 1, _ unit: Calendar.Component = .day,
+        by amount: UInt = 1, _ unit: Calendar.Component = .day,
         using cal: Calendar
     ) -> (from: Date, to: Date)? {
         guard
             let end = ceiled(to: unit, using: cal),
-            let start = end.adding(-Int(duration), unit, using: cal)
+            let start = floored(to: unit, using: cal)?
+                .adding(-Int(amount - 1), unit, using: cal)
         else { return nil }
         return (start, end)
     }

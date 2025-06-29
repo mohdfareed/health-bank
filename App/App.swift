@@ -6,18 +6,12 @@ import SwiftUI
     internal let logger = AppLogger.new(for: Self.self)
     let container: ModelContainer
 
-    static var schema: Schema {
-        .init([
-            UserGoals.self
-        ])
-    }
-
     init() {
         // MARK: Model Container Initialization
         // ====================================================================
         do {
             self.logger.debug("Initializing model container for \(AppID)")
-            self.container = try .init(for: MainApp.schema)
+            self.container = try AppSchema.createContainer()
         } catch {
             #if !DEBUG  // Production migration logic
                 fatalError("Failed to initialize model container: \(error)")
@@ -27,7 +21,7 @@ import SwiftUI
             do {  // Attempt to replace existing container
                 self.logger.warning("Replacing existing model container...")
                 try ModelContainer().erase()
-                self.container = try .init(for: MainApp.schema)
+                self.container = try AppSchema.createContainer()
             } catch {
                 self.logger.error(
                     "Failed to initialize replacement container: \(error)"
@@ -36,7 +30,7 @@ import SwiftUI
                 // Fallback to in-memory container
                 logger.warning("Falling back to in-memory container.")
                 self.container = try! .init(
-                    for: MainApp.schema,
+                    for: AppSchema.schema,
                     configurations: .init(isStoredInMemoryOnly: true)
                 )
             }
@@ -57,7 +51,7 @@ import SwiftUI
     AppView()
         .modelContainer(
             try! ModelContainer(
-                for: MainApp.schema,
+                for: AppSchema.schema,
                 configurations: .init(isStoredInMemoryOnly: true)
             )
         )

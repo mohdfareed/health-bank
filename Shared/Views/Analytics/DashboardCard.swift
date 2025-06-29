@@ -4,7 +4,7 @@ import SwiftUI
 // MARK: - Dashboard Card
 // ============================================================================
 
-struct DashboardCard<Content: View, Destination: View>: View {
+public struct DashboardCard<Content: View, Destination: View>: View {
     let title: String.LocalizationValue
     let icon: Image
     let color: Color
@@ -12,7 +12,21 @@ struct DashboardCard<Content: View, Destination: View>: View {
     @ViewBuilder let content: Content
     @ViewBuilder let destination: Destination
 
-    var body: some View {
+    public init(
+        title: String.LocalizationValue,
+        icon: Image,
+        color: Color,
+        @ViewBuilder content: () -> Content,
+        @ViewBuilder destination: () -> Destination
+    ) {
+        self.title = title
+        self.icon = icon
+        self.color = color
+        self.content = content()
+        self.destination = destination()
+    }
+
+    public var body: some View {
         Section(String(localized: title)) {
             content.padding()
         }

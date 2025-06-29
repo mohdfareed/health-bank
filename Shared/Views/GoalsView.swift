@@ -89,25 +89,30 @@ struct GoalMeasurementField: View {
 }
 
 struct CalorieMaintenanceField: View {
-    @BudgetAnalytics var budget: BudgetService?
+    @State private var budgetDataService: BudgetDataService
 
     init(_ adjustment: Double?) {
-        _budget = .init(adjustment: adjustment)
+        self._budgetDataService = State(
+            initialValue: BudgetDataService(
+                adjustment: adjustment,
+                date: Date()
+            ))
     }
 
     var body: some View {
         RecordRow(
             field: MaintenanceFieldDefinition(),
-            value: .constant(budget?.weight.maintenance),
+            value: .constant(budgetDataService.budgetService?.weight.maintenance),
             isInternal: false
         )
-
-        .onAppear(
-            perform: {
-                Task {
-                    await $budget.reload(at: Date())
-                }
-            }
-        )
+        .onAppear {
+            budgetDataService.startObserving(widgetId: "CalorieMaintenanceField")
+        }
+        .onDisappear {
+            budgetDataService.stopObserving()
+        }
+        .task {
+            await budgetDataService.refresh()
+        }
     }
 }

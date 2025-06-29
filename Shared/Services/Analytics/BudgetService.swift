@@ -61,31 +61,3 @@ public struct BudgetService: Sendable {
         ) ?? 0 >= 1
     }
 }
-
-// MARK: Budget Observation
-// ============================================================================
-
-extension BudgetService {
-    /// Start observing for calories and weight data updates
-    public func startObserver(
-        _ healthKit: HealthKitService, callback: @escaping @Sendable () -> Void
-    ) {
-        if let intakeRange = calories.intakeDateRange,
-            let currentRange = calories.currentIntakeDateRange
-        {
-            healthKit.startObserving(
-                for: BudgetWidgetID, dataTypes: [.dietaryCalories],
-                from: intakeRange.from, to: currentRange.to,
-                onUpdate: { callback() }
-            )
-        }
-
-        if let weightRange = weight.weightDateRange {
-            healthKit.startObserving(
-                for: BudgetWidgetID, dataTypes: [.bodyMass],
-                from: weightRange.from, to: weightRange.to,
-                onUpdate: { callback() }
-            )
-        }
-    }
-}
