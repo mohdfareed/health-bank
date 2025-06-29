@@ -134,6 +134,11 @@ public struct OverviewComponent: View {
                 icon: Image.weight
             )
             calorieValue(
+                budgetDataService.budgetService?.weight.calories.smoothedIntake,
+                title: "Historical Intake",
+                icon: Image.calories
+            )
+            calorieValue(
                 budgetDataService.budgetService?.weight.maintenance,
                 title: "Maintenance",
                 icon: Image.calories

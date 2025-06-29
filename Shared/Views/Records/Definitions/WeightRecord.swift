@@ -8,7 +8,7 @@ struct WeightFieldDefinition: FieldDefinition {
     let title: String.LocalizationValue = "Weight"
     let icon = Image.weight
     let tint = Color.weight
-    let formatter = FloatingPointFormatStyle<Double>.number.precision(.fractionLength(1))
+    let formatter = FloatingPointFormatStyle<Double>.number.precision(.fractionLength(2))
     let validator: (@Sendable (Double) -> Bool)? = { $0 > 0 }
 
     @MainActor

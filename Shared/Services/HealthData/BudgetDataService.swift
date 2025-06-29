@@ -89,11 +89,11 @@ public final class BudgetDataService: @unchecked Sendable {
             calories: DataAnalyticsService(
                 currentIntakes: currentCalorieData,
                 intakes: maintenanceCalorieData,
-                alpha: 0.022  // 90 days
+                alpha: 0.25  // 7 days - match weight smoothing window
             ),
             weights: weightData,
-            rho: 7700,
-            alpha: 0.25,  // 7 days
+            rho: 7700,  // More conservative: 7700 kcal/kg
+            alpha: 0.25  // 7 days - consistent smoothing window
         )
 
         // Create budget service with injected first weekday

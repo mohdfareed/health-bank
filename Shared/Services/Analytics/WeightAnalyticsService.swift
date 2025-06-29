@@ -3,6 +3,9 @@ import SwiftData
 import SwiftUI
 import WidgetKit
 
+// TODO: Implement body-fat percentage calculations to implement
+// Hall’s NIH dynamic model of energy imbalance
+
 /// Encapsulates maintenance estimation calculations for display in widgets.
 public struct WeightAnalyticsService: Sendable {
     let calories: DataAnalyticsService
@@ -30,20 +33,20 @@ public struct WeightAnalyticsService: Sendable {
         return (from: min, to: max)
     }
 
-    /// Daily energy imbalance ΔE = m * rho (kcal/day)
+    /// Daily energy imbalance ΔE = m * rho (kcal/week)
     var energyImbalance: Double {
         return weightSlope * rho
     }
 
-    /// Estimated weight-change rate m (kg/day)
+    /// Estimated weight-change rate m (kg/week)
     public var weightSlope: Double {
-        computeSlope(from: dailyWeights)
+        return computeSlope * 7
     }
 
     /// Raw maintenance estimate M = S - ΔE (kcal/day)
     public var maintenance: Double? {
         guard let smoothed = calories.smoothedIntake else { return nil }
-        return smoothed - energyImbalance
+        return smoothed - (energyImbalance / 7.0)
     }
 
     /// Whether the maintenance estimate has enough data to be valid.
@@ -52,7 +55,7 @@ public struct WeightAnalyticsService: Sendable {
 
         // Data points must span at least 2 weeks
         return range.from.distance(
-            to: range.to, in: .weekOfYear, using: .autoupdatingCurrent
+            to: range.to, in: .day, using: .autoupdatingCurrent
         ) ?? 0 >= 14
     }
 
@@ -73,10 +76,8 @@ public struct WeightAnalyticsService: Sendable {
     }
 
     /// Computes the slope (Δy/Δx) of time-series data using least-squares linear regression.
-    /// - Parameters:
-    ///   - values: a dictionary of date-value pairs representing weight measurements
     /// - Returns: the slope in units per day (e.g., kg/day)
-    func computeSlope(from values: [Date: Double]) -> Double {
+    private var computeSlope: Double {
         // Use smoothed weight series
         let series = smoothedWeightsSeries
         guard series.count > 1 else { return 0 }

@@ -46,11 +46,11 @@ struct MacroSelectionAppIntent: WidgetConfigurationIntent {
 
     @Parameter(title: "Macro Type", default: .protein)
     var macroType: WidgetMacroType
-    
+
     init(macroType: WidgetMacroType = .protein) {
         self.macroType = macroType
     }
-    
+
     init() {
         self.macroType = .protein
     }
