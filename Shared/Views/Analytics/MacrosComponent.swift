@@ -5,24 +5,27 @@ import SwiftUI
 // MARK: - Macros Component
 // ============================================================================
 
-/// Reusable macros component for dashboard and homescreen widgets
+/// Reusable macros component for widgets.
 public struct MacrosComponent: View {
     @State private var budgetDataService: BudgetDataService?
     @State private var macrosDataService: MacrosDataService?
 
     private let preloadedMacrosService: MacrosAnalyticsService?
     private let macroAdjustments: CalorieMacros?
+    private let selectedMacro: MacroType?
     private let date: Date
     private let logger = AppLogger.new(for: MacrosComponent.self)
 
     public init(
         adjustment: Double? = nil,
         macroAdjustments: CalorieMacros? = nil,
+        selectedMacro: MacroType? = nil,
         date: Date = Date(),
         preloadedMacrosService: MacrosAnalyticsService? = nil
     ) {
         self.preloadedMacrosService = preloadedMacrosService
         self.macroAdjustments = macroAdjustments
+        self.selectedMacro = selectedMacro
         self.date = date
 
         // Only create data services if no preloaded data is provided
@@ -59,7 +62,7 @@ public struct MacrosComponent: View {
     public var body: some View {
         Group {
             if let macros = currentMacrosService {
-                MacrosDataLayout(macros: macros)
+                MacrosDataLayout(macros: macros, selectedMacro: selectedMacro)
             } else {
                 ProgressView()
                     .frame(maxWidth: .infinity, minHeight: 100)
@@ -113,6 +116,25 @@ public struct MacrosComponent: View {
 /// Shared data layout for both dashboard and widget
 private struct MacrosDataLayout: View {
     let macros: MacrosAnalyticsService
+    let selectedMacro: MacroType?
+    @Environment(\.widgetFamily) var widgetFamily
+
+    var body: some View {
+        switch widgetFamily {
+        case .systemSmall:
+            SmallMacrosLayout(macros: macros, selectedMacro: selectedMacro ?? .protein)
+        case .systemMedium:
+            MediumMacrosLayout(macros: macros).padding()
+        default:
+            // Default to medium layout for dashboard and other contexts
+            MediumMacrosLayout(macros: macros)
+        }
+    }
+}
+
+/// Medium widget and dashboard layout with all macros
+private struct MediumMacrosLayout: View {
+    let macros: MacrosAnalyticsService
 
     var body: some View {
         HStack {
@@ -129,6 +151,16 @@ private struct MacrosDataLayout: View {
     }
 }
 
+/// Small widget layout showing single selected macro
+private struct SmallMacrosLayout: View {
+    let macros: MacrosAnalyticsService
+    let selectedMacro: MacroType
+
+    var body: some View {
+        MacroBudgetContent(macros: macros, ring: selectedMacro)
+    }
+}
+
 // MARK: - Macro Data Content Views
 // ============================================================================
 
@@ -136,140 +168,206 @@ private struct MacrosDataLayout: View {
 private struct MacroBudgetContent: View {
     let macros: MacrosAnalyticsService
     let ring: MacrosAnalyticsService.MacroRing
+    @Environment(\.widgetFamily) var widgetFamily
 
     var body: some View {
         let formatter = ProteinFieldDefinition().formatter
-        VStack(alignment: .center, spacing: 0) {
-            ValueView(
-                measurement: .init(
-                    baseValue: .constant(remaining(ring: ring)),
-                    definition: UnitDefinition<UnitMass>.macro
-                ),
-                icon: nil, tint: nil, format: formatter
-            )
-            .fontWeight(.bold)
-            .font(.headline)
-            .foregroundColor(remaining(ring: ring) ?? 0 >= 0 ? .primary : .red)
-            .contentTransition(.numericText(value: remaining(ring: ring) ?? 0))
 
-            MacroContent(ring: ring).padding(.bottom, 8)
+        switch widgetFamily {
+        case .systemSmall:
+            VStack(alignment: .leading) {
+                Text(remaining ?? 0, format: CalorieFieldDefinition().formatter)
+                    .fontWeight(.bold)
+                    .font(.title2)
+                    .foregroundColor(remaining ?? 0 >= 0 ? .primary : .red)
+                    .contentTransition(.numericText(value: remaining ?? 0))
 
-            // Use ProgressRing instead of macros.progress(ring)
-            ProgressRing(
-                value: baseBudget(ring: ring) ?? 0,
-                progress: intake(ring: ring) ?? 0,
-                color: color(ring: ring),
-                tip: budget(ring: ring) ?? 0,
-                tipColor: credit(ring: ring) ?? 0 >= 0 ? .green : .red,
-                icon: icon(ring: ring)
-            )
-            .font(.subheadline)
-            .frame(maxWidth: 50)
+                creditContent(format: formatter)
+                    .padding(.bottom, 8)
+
+                HStack {
+                    Spacer()
+                    ProgressRing(
+                        value: baseBudget ?? 0,
+                        progress: intake ?? 0,
+                        color: color,
+                        tip: budget ?? 0,
+                        tipColor: credit ?? 0 >= 0 ? .green : .red,
+                        icon: icon
+                    )
+                    .font(.headline)
+                    .frame(maxWidth: 50)
+                }
+            }
+        case .systemMedium:
+            VStack(alignment: .center, spacing: 0) {
+                remainingContent(format: formatter)
+                intakeBudgetContent(format: formatter).padding(.bottom, 8)
+                progressRing
+            }
+        default:
+            // Default to medium layout for dashboard and other contexts
+            VStack(alignment: .center, spacing: 0) {
+                remainingContent(format: formatter)
+                intakeBudgetContent(format: formatter).padding(.bottom, 8)
+                progressRing
+            }
         }
     }
 
-    @MainActor @ViewBuilder
-    private func MacroContent(ring: MacrosAnalyticsService.MacroRing) -> some View {
-        let formatter = ProteinFieldDefinition().formatter
+    // MARK: - Shared Content Components
+
+    @ViewBuilder
+    private func remainingContent(format: FloatingPointFormatStyle<Double>)
+        -> some View
+    {
+        ValueView(
+            measurement: .init(
+                baseValue: .constant(remaining),
+                definition: UnitDefinition<UnitMass>.macro
+            ),
+            icon: nil, tint: nil, format: format
+        )
+        .fontWeight(.bold)
+        .font(widgetFamily == .systemSmall ? .title : .title2)
+        .foregroundColor(remaining ?? 0 >= 0 ? .primary : .red)
+        .contentTransition(.numericText(value: remaining ?? 0))
+    }
+
+    @ViewBuilder
+    private func intakeBudgetContent(
+        format: FloatingPointFormatStyle<Double>
+    ) -> some View {
         HStack(alignment: .firstTextBaseline, spacing: 0) {
-            Text(intake(ring: ring) ?? 0, format: formatter)
+            if widgetFamily == .systemSmall {
+                icon?
+                    .foregroundColor(color)
+                    .font(.subheadline)
+                    .frame(width: 24, height: 24, alignment: .leading)
+            }
+
+            Text(intake ?? 0, format: format)
                 .fontWeight(.bold)
-                .font(.subheadline)
+                .font(widgetFamily == .systemSmall ? .headline : .subheadline)
                 .foregroundColor(.secondary)
-                .contentTransition(.numericText(value: intake(ring: ring) ?? 0))
+                .contentTransition(.numericText(value: intake ?? 0))
 
             Text("/")
-                .font(.subheadline)
+                .font(widgetFamily == .systemSmall ? .headline : .subheadline)
                 .foregroundColor(.secondary)
 
             ValueView(
                 measurement: .init(
-                    baseValue: .constant(budget(ring: ring)),
+                    baseValue: .constant(budget),
                     definition: UnitDefinition<UnitMass>.macro
                 ),
-                icon: nil, tint: nil, format: formatter
+                icon: nil, tint: nil, format: format
             )
             .fontWeight(.bold)
-            .font(.subheadline)
+            .font(widgetFamily == .systemSmall ? .headline : .subheadline)
             .foregroundColor(.secondary)
-            .contentTransition(.numericText(value: budget(ring: ring) ?? 0))
+            .contentTransition(.numericText(value: budget ?? 0))
         }
     }
 
-    private func intake(ring: MacrosAnalyticsService.MacroRing) -> Double? {
-        switch ring {
-        case .protein:
-            return macros.protein.currentIntake
-        case .carbs:
-            return macros.carbs.currentIntake
-        case .fat:
-            return macros.fat.currentIntake
+    @ViewBuilder
+    private func creditContent(format: FloatingPointFormatStyle<Double>) -> some View {
+        HStack(alignment: .firstTextBaseline, spacing: 0) {
+            Image.credit
+                .foregroundColor(credit ?? 0 >= 0 ? .green : .red)
+                .font(.headline)
+                .frame(width: 24, height: 24, alignment: .leading)
+
+            if let creditValue = credit {
+                ValueView(
+                    measurement: .init(
+                        baseValue: .constant(creditValue),
+                        definition: UnitDefinition<UnitMass>.macro
+                    ),
+                    icon: nil, tint: nil, format: format
+                )
+                .fontWeight(.bold)
+                .font(.headline)
+                .foregroundColor(.secondary)
+                .contentTransition(.numericText(value: creditValue))
+            } else {
+                Text("--")
+                    .fontWeight(.bold)
+                    .font(.headline)
+                    .foregroundColor(.secondary)
+            }
         }
     }
 
-    private func budget(ring: MacrosAnalyticsService.MacroRing) -> Double? {
+    @ViewBuilder
+    private var progressRing: some View {
+        ProgressRing(
+            value: baseBudget ?? 0,
+            progress: intake ?? 0,
+            color: color,
+            tip: budget ?? 0,
+            tipColor: credit ?? 0 >= 0 ? .green : .red,
+            icon: icon
+        )
+        .font(.subheadline)
+        .frame(maxWidth: 50)
+    }
+
+    // MARK: - Data Accessors
+
+    private var intake: Double? {
         switch ring {
-        case .protein:
-            return macros.budgets?.protein
-        case .carbs:
-            return macros.budgets?.carbs
-        case .fat:
-            return macros.budgets?.fat
+        case .protein: return macros.protein.currentIntake
+        case .carbs: return macros.carbs.currentIntake
+        case .fat: return macros.fat.currentIntake
         }
     }
 
-    private func remaining(ring: MacrosAnalyticsService.MacroRing) -> Double? {
+    private var budget: Double? {
         switch ring {
-        case .protein:
-            return macros.remaining?.protein
-        case .carbs:
-            return macros.remaining?.carbs
-        case .fat:
-            return macros.remaining?.fat
+        case .protein: return macros.budgets?.protein
+        case .carbs: return macros.budgets?.carbs
+        case .fat: return macros.budgets?.fat
         }
     }
 
-    private func baseBudget(ring: MacrosAnalyticsService.MacroRing) -> Double? {
+    private var remaining: Double? {
         switch ring {
-        case .protein:
-            return macros.baseBudgets?.protein
-        case .carbs:
-            return macros.baseBudgets?.carbs
-        case .fat:
-            return macros.baseBudgets?.fat
+        case .protein: return macros.remaining?.protein
+        case .carbs: return macros.remaining?.carbs
+        case .fat: return macros.remaining?.fat
         }
     }
 
-    private func credit(ring: MacrosAnalyticsService.MacroRing) -> Double? {
+    private var baseBudget: Double? {
         switch ring {
-        case .protein:
-            return macros.credits?.protein
-        case .carbs:
-            return macros.credits?.carbs
-        case .fat:
-            return macros.credits?.fat
+        case .protein: return macros.baseBudgets?.protein
+        case .carbs: return macros.baseBudgets?.carbs
+        case .fat: return macros.baseBudgets?.fat
         }
     }
 
-    private func icon(ring: MacrosAnalyticsService.MacroRing) -> Image? {
+    private var credit: Double? {
         switch ring {
-        case .protein:
-            return .protein
-        case .carbs:
-            return .carbs
-        case .fat:
-            return .fat
+        case .protein: return macros.credits?.protein
+        case .carbs: return macros.credits?.carbs
+        case .fat: return macros.credits?.fat
         }
     }
 
-    private func color(ring: MacrosAnalyticsService.MacroRing) -> Color {
+    private var icon: Image? {
         switch ring {
-        case .protein:
-            return .protein
-        case .carbs:
-            return .carbs
-        case .fat:
-            return .fat
+        case .protein: return .protein
+        case .carbs: return .carbs
+        case .fat: return .fat
+        }
+    }
+
+    private var color: Color {
+        switch ring {
+        case .protein: return .protein
+        case .carbs: return .carbs
+        case .fat: return .fat
         }
     }
 }

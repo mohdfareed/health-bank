@@ -28,7 +28,7 @@ public struct DashboardCard<Content: View, Destination: View>: View {
 
     public var body: some View {
         Section(String(localized: title)) {
-            content.padding()
+            content
         }
         .fontDesign(.rounded)
     }

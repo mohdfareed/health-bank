@@ -6,6 +6,13 @@ import SwiftData
 // MARK: - Calories
 // ============================================================================
 
+/// Represents the different macro nutrients for display and configuration
+public enum MacroType: String, CaseIterable, Sendable {
+    case protein = "protein"
+    case carbs = "carbs"
+    case fat = "fat"
+}
+
 /// Represents macro-nutrient breakdown of calories.
 public struct CalorieMacros: Codable, Hashable, Sendable {
     /// Protein contents in grams.

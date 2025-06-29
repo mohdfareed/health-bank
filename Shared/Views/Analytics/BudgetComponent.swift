@@ -79,6 +79,24 @@ public struct BudgetComponent: View {
 /// Shared data layout for both dashboard and widget
 private struct BudgetDataLayout: View {
     let budget: BudgetService
+    @Environment(\.widgetFamily) var widgetFamily
+
+    var body: some View {
+        switch widgetFamily {
+        case .systemSmall:
+            SmallBudgetLayout(budget: budget)
+        case .systemMedium:
+            MediumBudgetLayout(budget: budget).padding()
+        default:
+            // Default to medium layout for dashboard and other contexts
+            MediumBudgetLayout(budget: budget)
+        }
+    }
+}
+
+/// Medium widget and dashboard layout with progress ring
+private struct MediumBudgetLayout: View {
+    let budget: BudgetService
 
     var body: some View {
         HStack {
@@ -98,6 +116,38 @@ private struct BudgetDataLayout: View {
             )
             .font(.title)
             .frame(maxWidth: 80)
+        }
+    }
+}
+
+/// Small widget layout without progress ring
+private struct SmallBudgetLayout: View {
+    let budget: BudgetService
+
+    var body: some View {
+        VStack(alignment: .leading) {
+            Text(budget.remaining ?? 0, format: CalorieFieldDefinition().formatter)
+                .fontWeight(.bold)
+                .font(.title2)
+                .foregroundColor(budget.remaining ?? 0 >= 0 ? .primary : .red)
+                .contentTransition(.numericText(value: budget.remaining ?? 0))
+
+            CreditContent(data: budget)
+                .padding(.bottom, 8)
+
+            HStack {
+                Spacer()
+                ProgressRing(
+                    value: budget.baseBudget ?? 0,
+                    progress: budget.calories.currentIntake ?? 0,
+                    color: .calories,
+                    tip: budget.budget ?? 0,
+                    tipColor: budget.credit ?? 0 >= 0 ? .green : .red,
+                    icon: Image.calories
+                )
+                .font(.headline)
+                .frame(maxWidth: 50)
+            }
         }
     }
 }

@@ -20,7 +20,7 @@ struct BudgetWidget: Widget {
         }
         .configurationDisplayName("Budget")
         .description("Track your daily calorie budget")
-        .supportedFamilies([.systemMedium])
+        .supportedFamilies([.systemSmall, .systemMedium])
     }
 }
 
@@ -37,7 +37,6 @@ struct BudgetWidgetEntryView: View {
     private var content: some View {
         if let budgetService = entry.budgetService {
             BudgetComponent(preloadedBudgetService: budgetService)
-                .padding()
                 .fontDesign(.rounded)
         } else {
             VStack {

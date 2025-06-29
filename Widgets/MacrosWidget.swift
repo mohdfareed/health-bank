@@ -13,14 +13,14 @@ struct MacrosWidget: Widget {
     var body: some WidgetConfiguration {
         AppIntentConfiguration(
             kind: kind,
-            intent: ConfigurationAppIntent.self,
+            intent: MacroSelectionAppIntent.self,
             provider: MacrosTimelineProvider()
         ) { entry in
             MacrosWidgetEntryView(entry: entry)
         }
         .configurationDisplayName("Macros")
         .description("Track your daily macro-nutrient intake")
-        .supportedFamilies([.systemMedium])
+        .supportedFamilies([.systemSmall, .systemMedium])
     }
 }
 
@@ -36,9 +36,11 @@ struct MacrosWidgetEntryView: View {
     @ViewBuilder
     private var content: some View {
         if let macrosService = entry.macrosService {
-            MacrosComponent(preloadedMacrosService: macrosService)
-                .padding()
-                .fontDesign(.rounded)
+            MacrosComponent(
+                selectedMacro: entry.configuration.macroType.sharedMacroType,
+                preloadedMacrosService: macrosService
+            )
+            .fontDesign(.rounded)
         } else {
             VStack {
                 Image(systemName: "chart.pie.fill")
@@ -61,18 +63,18 @@ struct MacrosTimelineProvider: AppIntentTimelineProvider {
 
     func placeholder(in context: Context) -> MacrosEntry {
         return MacrosEntry(
-            date: Date(), macrosService: nil, configuration: ConfigurationAppIntent())
+            date: Date(), macrosService: nil, configuration: MacroSelectionAppIntent())
     }
 
-    func snapshot(for configuration: ConfigurationAppIntent, in context: Context) async
+    func snapshot(for configuration: MacroSelectionAppIntent, in context: Context) async
         -> MacrosEntry
     {
         return await generateEntry(for: Date(), configuration: configuration)
     }
 
-    func timeline(for configuration: ConfigurationAppIntent, in context: Context) async -> Timeline<
-        MacrosEntry
-    > {
+    func timeline(
+        for configuration: MacroSelectionAppIntent, in context: Context
+    ) async -> Timeline<MacrosEntry> {
         let currentDate = Date()
         let entry = await generateEntry(for: currentDate, configuration: configuration)
 
@@ -84,7 +86,7 @@ struct MacrosTimelineProvider: AppIntentTimelineProvider {
     }
 
     @MainActor
-    private func generateEntry(for date: Date, configuration: ConfigurationAppIntent) async
+    private func generateEntry(for date: Date, configuration: MacroSelectionAppIntent) async
         -> MacrosEntry
     {
         // Ensure HealthKit observer is running in widget process
@@ -128,5 +130,5 @@ struct MacrosTimelineProvider: AppIntentTimelineProvider {
 struct MacrosEntry: TimelineEntry, Sendable {
     let date: Date
     let macrosService: MacrosAnalyticsService?
-    let configuration: ConfigurationAppIntent
+    let configuration: MacroSelectionAppIntent
 }

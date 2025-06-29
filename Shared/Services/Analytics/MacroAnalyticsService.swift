@@ -9,11 +9,7 @@ public struct MacrosAnalyticsService: Sendable {
     // MARK: - Types
 
     /// Represents the different macro nutrients for ring display
-    public enum MacroRing: CaseIterable {
-        case protein
-        case carbs
-        case fat
-    }
+    public typealias MacroRing = MacroType
 
     // MARK: - Properties
 
