@@ -54,19 +54,10 @@ public struct BudgetComponent: View {
         .animation(.default, value: isLoading)
 
         .onAppear {
-            // Only start observing if using data service (not preloaded data)
-            if preloadedBudgetService == nil, let dataService = dataService {
-                let widgetId = "BudgetComponent"
-                dataService.startObserving(widgetId: widgetId)
-                logger.debug("BudgetComponent appeared, started observing with ID: \(widgetId)")
-            }
+            logger.debug("BudgetComponent appeared")
         }
         .onDisappear {
-            // Only stop observing if using data service
-            if preloadedBudgetService == nil {
-                dataService?.stopObserving()
-                logger.debug("BudgetComponent disappeared, stopped observing")
-            }
+            logger.debug("BudgetComponent disappeared")
         }
         .task {
             // Only refresh if using data service (not preloaded data)

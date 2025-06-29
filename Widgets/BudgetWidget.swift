@@ -17,6 +17,7 @@ struct BudgetWidget: Widget {
         ) { entry in
             BudgetWidgetEntryView(entry: entry)
                 .containerBackground(.fill.tertiary, for: .widget)
+                .widgetURL(URL(string: "healthvaults://dashboard"))
         }
         .configurationDisplayName("Budget")
         .description("Track your daily calorie budget")

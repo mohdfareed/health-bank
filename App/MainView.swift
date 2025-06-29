@@ -51,7 +51,6 @@ struct AppView: View {
         .contentTransition(.numericText())
         .contentTransition(.opacity).onAppear {
             healthKitService.requestAuthorization()
-            startWidgetObservers()
         }
 
         .overlay(alignment: .bottomTrailing) {
@@ -66,19 +65,6 @@ struct AppView: View {
             NavigationStack {
                 dataModel.createForm(formType: .create)
             }
-        }
-    }
-
-    /// Start widget observers for automatic widget updates
-    private func startWidgetObservers() {
-        Task {
-            // Start budget widget observer with unique ID
-            let budgetDataService = BudgetDataService()
-            budgetDataService.startObserving(widgetId: "WidgetObserver.Budget")
-
-            // Start macros widget observer with unique ID
-            let macrosDataService = MacrosDataService()
-            macrosDataService.startObserving(widgetId: "WidgetObserver.Macros")
         }
     }
 }

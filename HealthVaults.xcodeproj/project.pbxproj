@@ -37,7 +37,6 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		000DE7472E10BC1400E3BC7F /* WidgetsExtension.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = WidgetsExtension.entitlements; sourceTree = "<group>"; };
 		007EA9622E0714FA00002170 /* HealthVaults.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = HealthVaults.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		007EA9642E0714FA00002170 /* WidgetsExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = WidgetsExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		00F4455C2E0633F0006965F0 /* WidgetKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WidgetKit.framework; path = System/Library/Frameworks/WidgetKit.framework; sourceTree = SDKROOT; };
@@ -83,6 +82,7 @@
 				Services/Analytics/StatisticsService.swift,
 				Services/Analytics/WeightAnalyticsService.swift,
 				Services/AppLocale.swift,
+				Services/AppWidgetObserver.swift,
 				Services/CalorieService.swift,
 				Services/CoreService.swift,
 				Services/HealthData/BudgetDataService.swift,
@@ -138,6 +138,7 @@
 				Services/Analytics/StatisticsService.swift,
 				Services/Analytics/WeightAnalyticsService.swift,
 				Services/AppLocale.swift,
+				Services/AppWidgetObserver.swift,
 				Services/CalorieService.swift,
 				Services/CoreService.swift,
 				Services/HealthData/BudgetDataService.swift,
@@ -259,7 +260,6 @@
 		B59F62ED490864E400F5EB03 = {
 			isa = PBXGroup;
 			children = (
-				000DE7472E10BC1400E3BC7F /* WidgetsExtension.entitlements */,
 				00F445052E06330B006965F0 /* App */,
 				00F4454C2E06332A006965F0 /* Assets */,
 				00F4453D2E06330B006965F0 /* Scripts */,
@@ -415,7 +415,7 @@
 		00F445712E0633F1006965F0 /* Debug configuration for PBXNativeTarget "WidgetsExtension" */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				CODE_SIGN_ENTITLEMENTS = WidgetsExtension.entitlements;
+				CODE_SIGN_ENTITLEMENTS = HealthVaults.xcodeproj/Widgets.entitlements;
 				INFOPLIST_FILE = HealthVaults.xcodeproj/WidgetsInfo.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "HealthVaults Widgets";
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -433,7 +433,7 @@
 		00F445722E0633F1006965F0 /* Release configuration for PBXNativeTarget "WidgetsExtension" */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				CODE_SIGN_ENTITLEMENTS = WidgetsExtension.entitlements;
+				CODE_SIGN_ENTITLEMENTS = HealthVaults.xcodeproj/Widgets.entitlements;
 				INFOPLIST_FILE = HealthVaults.xcodeproj/WidgetsInfo.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "HealthVaults Widgets";
 				LD_RUNPATH_SEARCH_PATHS = (

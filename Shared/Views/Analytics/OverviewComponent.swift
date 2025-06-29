@@ -68,14 +68,7 @@ public struct OverviewComponent: View {
         .animation(.default, value: macrosDataService.isLoading)
         .animation(.default, value: budgetDataService.isLoading)
         .onAppear {
-            let budgetWidgetId = "OverviewBudget-dashboard"
-            let macrosWidgetId = "Overview-dashboard"
-
-            budgetDataService.startObserving(widgetId: budgetWidgetId)
-            macrosDataService.startObserving(widgetId: macrosWidgetId)
-            logger.debug(
-                "OverviewComponent appeared, started observing with IDs: \(budgetWidgetId), \(macrosWidgetId)"
-            )
+            logger.debug("OverviewComponent appeared")
         }
         .onDisappear {
             budgetDataService.stopObserving()

@@ -17,6 +17,7 @@ struct MacrosWidget: Widget {
         ) { entry in
             MacrosWidgetEntryView(entry: entry)
                 .containerBackground(.fill.tertiary, for: .widget)
+                .widgetURL(URL(string: "healthvaults://dashboard"))
         }
         .configurationDisplayName("Macros")
         .description("Track your daily macronutrient intake")

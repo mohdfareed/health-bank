@@ -65,17 +65,7 @@ public struct MacrosComponent: View {
         .animation(.default, value: isLoading)
 
         .onAppear {
-            if preloadedMacrosService == nil {
-                let budgetWidgetId = "MacrosBudgetComponent"
-                let macrosWidgetId = "MacrosComponent"
-
-                budgetDataService?.startObserving(widgetId: budgetWidgetId)
-                macrosDataService?.startObserving(widgetId: macrosWidgetId)
-
-                logger.debug(
-                    "MacrosComponent appeared, started observing with IDs: \(budgetWidgetId), \(macrosWidgetId)"
-                )
-            }
+            logger.debug("MacrosComponent appeared")
         }
         .onDisappear {
             // Only stop observing if using data services
