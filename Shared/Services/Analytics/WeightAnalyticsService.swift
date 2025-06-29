@@ -6,7 +6,8 @@ import WidgetKit
 // TODO: Implement body-fat percentage calculations to implement
 // Hall’s NIH dynamic model of energy imbalance
 
-/// Encapsulates maintenance estimation calculations for display in widgets.
+/// Weight analytics service for maintenance calorie estimation.
+/// Implements linear regression on weight trends to estimate energy balance.
 public struct WeightAnalyticsService: Sendable {
     let calories: DataAnalyticsService
 

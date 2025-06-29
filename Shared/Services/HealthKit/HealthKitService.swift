@@ -40,13 +40,12 @@ public class HealthKitService: @unchecked Sendable {
             await setupUnits()
             await setupBackgroundDelivery()
         }
-        logger.info("HealthKit service initialized.")
+        logger.info("HealthKit service initialized")
     }
 
-    /// Enable background delivery for all data types we observe
+    /// Enable background delivery for widget data types.
     @MainActor
     private func setupBackgroundDelivery() async {
-        // Data types that our widgets monitor
         let dataTypes = HealthKitDataType.allCases.map { $0.sampleType }
         for dataType in dataTypes {
             store.enableBackgroundDelivery(
@@ -60,7 +59,7 @@ public class HealthKitService: @unchecked Sendable {
                     self?.logger.info("Enabled background delivery for \(dataType.identifier)")
                 } else {
                     self?.logger.warning(
-                        "Background delivery not enabled for \(dataType.identifier) (unknown reason)"
+                        "Background delivery not enabled for \(dataType.identifier)"
                     )
                 }
             }

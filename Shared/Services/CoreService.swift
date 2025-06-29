@@ -1,21 +1,23 @@
 import OSLog
 import SwiftUI
 
-// MARK: Logging
+// MARK: - Logging Infrastructure
 // ============================================================================
 
-/// The app's logger factory.
+/// Centralized logger factory using OSLog for structured logging.
 public struct AppLogger {
+    /// Creates logger for a specific type.
     public static func new<T>(for category: T.Type) -> Logger {
         return Logger(subsystem: AppID, category: "\(T.self)")
     }
 
+    /// Creates logger for a specific instance.
     public static func new<T>(for category: T) -> Logger {
         return Logger(subsystem: AppID, category: "\(T.self)")
     }
 }
 
-// MARK: Extensions
+// MARK: - Core Extensions
 // ============================================================================
 
 extension AppTheme {
@@ -36,11 +38,11 @@ extension Weekday: @retroactive CaseIterable {
     }
 }
 
-// MARK: Helpers
+// MARK: - Helper Functions
 // ============================================================================
 
 extension UUID {
-    /// A UUID that represents a zero value.
+    /// Zero UUID constant for singleton patterns.
     public static let zero: UUID = .init(
         uuidString: "00000000-0000-0000-0000-000000000000"
     )!  // tested
@@ -72,11 +74,11 @@ extension View {
     }
 }
 
-// MARK: Serialization
+// MARK: - JSON Serialization
 // ============================================================================
 
-// Serialization
 extension Encodable {
+    /// Converts object to pretty-printed JSON string.
     var json: String? {
         let encoder = JSONEncoder()
         encoder.outputFormatting = [.prettyPrinted, .sortedKeys]
@@ -99,8 +101,8 @@ extension Encodable {
     }
 }
 
-// Deserialization
 extension Decodable {
+    /// Creates object from JSON string.
     init?(json: String) {
         do {
             guard !json.isEmpty else { return nil }

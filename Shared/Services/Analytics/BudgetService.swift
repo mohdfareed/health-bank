@@ -2,19 +2,21 @@ import Foundation
 import SwiftUI
 import WidgetKit
 
-// MARK: Budget Service
+// MARK: - Budget Analytics Service
 // ============================================================================
 
+/// Core budget calculations using 7-day EWMA and maintenance estimation.
+/// Implements the mathematical specification from README.md.
 public struct BudgetService: Sendable {
     public let calories: DataAnalyticsService
     public let weight: WeightAnalyticsService
 
-    /// User-defined budget adjustment (kcal)
+    /// User-defined daily calorie adjustment (kcal).
     public let adjustment: Double?
-    /// The first day of the week, e.g. Sunday or Monday
+    /// First day of weekly budget cycle (1=Sunday, 2=Monday, etc.).
     public let firstWeekday: Int
 
-    /// The days until the next budget cycle starts
+    /// Days remaining in current weekly budget cycle.
     public var daysLeft: Int {
         let cal = Calendar.autoupdatingCurrent
         let date = calories.currentIntakeDateRange?.from ?? Date()
@@ -23,39 +25,40 @@ public struct BudgetService: Sendable {
         return daysLeft
     }
 
-    /// The base daily budget: B = M + A (kcal)
+    /// Base daily budget: B = M + A (kcal).
+    /// Uses maintenance estimate plus user adjustment.
     public var baseBudget: Double? {
         guard let weight = weight.maintenance else { return adjustment }
         guard let adjustment = adjustment else { return weight }
         return weight + adjustment
     }
 
-    /// Daily calorie credit: C = B - S (kcal)
+    /// Daily calorie credit: C = B - S (kcal).
+    /// Positive indicates under-budget, negative indicates over-budget.
     public var credit: Double? {
         guard let baseBudget = baseBudget else { return nil }
         guard let smoothed = calories.smoothedIntake else { return nil }
         return baseBudget - smoothed
     }
 
-    /// The adjusted budget for
-    /// Adjusted budget: B' = B + C/D (kcal), where D = days until next week
+    /// Adjusted daily budget: B' = B + C/D (kcal).
+    /// Distributes weekly credit across remaining days in cycle.
     public var budget: Double? {
         guard let baseBudget = baseBudget else { return nil }
         guard let credit = credit else { return baseBudget }
         return baseBudget + (credit / Double(daysLeft))
     }
 
-    /// The remaining budget for today
+    /// Remaining budget for today: R = B' - I (kcal).
     public var remaining: Double? {
         guard let budget = budget else { return nil }
         return budget - (calories.currentIntake ?? 0)
     }
 
-    /// Whether the maintenance estimate has enough data to be valid.
+    /// Whether maintenance estimate has sufficient data (≥1 week).
     public var isValid: Bool {
         guard let range = calories.intakeDateRange else { return false }
 
-        // Data points must span at least 1 week
         return range.from.distance(
             to: range.to, in: .weekOfYear, using: .autoupdatingCurrent
         ) ?? 0 >= 1

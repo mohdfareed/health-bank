@@ -1,14 +1,14 @@
 import Foundation
 import SwiftData
 
-// MARK: Supported Types
+// MARK: - Health Data Types
 // ============================================================================
 
-/// The health data model types.
+/// Supported health data model types for the app.
 public enum HealthDataModel: CaseIterable, Identifiable {
     case calorie, weight
 
-    /// The data model's type.
+    /// The associated data model type.
     var dataType: any HealthData.Type {
         switch self {
         case .calorie:
@@ -18,7 +18,7 @@ public enum HealthDataModel: CaseIterable, Identifiable {
         }
     }
 
-    /// Determine the data model from a data instance
+    /// Determines data model type from instance.
     static func from(_ data: any HealthData) -> HealthDataModel {
         switch data {
         case is DietaryCalorie:
@@ -31,10 +31,10 @@ public enum HealthDataModel: CaseIterable, Identifiable {
     }
 }
 
-// MARK: Interface
+// MARK: - Data Source Tracking
 // ============================================================================
 
-/// The health data source.
+/// Sources of health data entries for provenance tracking.
 public enum DataSource: Codable, CaseIterable, Equatable, Sendable {
     case app, healthKit, shortcuts, foodNoms
     case other(String)
@@ -47,31 +47,37 @@ public enum DataSource: Codable, CaseIterable, Equatable, Sendable {
     }
 }
 
-/// Base protocol for all health data.
+// MARK: - Health Data Protocol
+// ============================================================================
+
+/// Base protocol for all health data models.
 public protocol HealthData: Identifiable, Observable {
-    /// The data's ID.
+    /// Unique identifier for the data entry.
     var id: UUID { get }
-    /// The data's source.
+    /// Source of the data entry (app, HealthKit, etc.).
     var source: DataSource { get }
-    /// When the data was recorded.
+    /// Timestamp when the data was recorded.
     var date: Date { get set }
-    /// Default initializer for creation defaults.
+    /// Default initializer for new entries.
     init()
 }
 
-/// Base protocol for data queries.
+// MARK: - Query Protocol
+// ============================================================================
+
+/// Protocol for HealthKit data operations.
 @MainActor public protocol HealthQuery<Data> {
-    /// The type of data this query returns.
+    /// Associated health data type.
     associatedtype Data: HealthData
 
-    /// Fetch the data models from HealthKit.
+    /// Fetches data from HealthKit within date range.
     func fetch(
         from: Date, to: Date, limit: Int?,
         store: HealthKitService
     ) async -> [Data]
 
-    /// Save data in HealthKit.
+    /// Saves data to HealthKit.
     func save(_ data: Data, store: HealthKitService) async throws
-    /// Delete data from HealthKit.
+    /// Deletes data from HealthKit.
     func delete(_ data: Data, store: HealthKitService) async throws
 }

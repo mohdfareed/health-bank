@@ -1,99 +1,108 @@
 # HealthVaults
 
-HealthVaults is an application that takes a flexible, insight-driven approach to health tracking. Unlike traditional calorie counting apps that reset daily budgets, HealthVaults uses **7-day running average budgeting** to provide a more realistic and sustainable approach to nutrition management.
+HealthVaults is an iOS application that provides a flexible, insight-driven approach to health tracking. Unlike traditional calorie counting apps that reset daily budgets, HealthVaults uses **7-day running average budgeting** to provide a more realistic and sustainable approach to nutrition management.
 
-## Calorie Budget & Maintenance Tracking
+Built with SwiftUI and integrated with Apple HealthKit, the app tracks calorie intake, weight trends, and macro-nutrients while providing intelligent budget adjustments based on weekly patterns.
 
-This document presents the **mathematical specification** of two core systems:
+## Features
 
-1. Calorie Credit System
-2. Maintenance Estimation System
+- **Smart Budgeting**: 7-day EWMA smoothing for realistic calorie budgeting
+- **Maintenance Estimation**: Automatic calculation of daily maintenance calories from weight trends
+- **Apple Health Integration**: Seamless data sync with HealthKit
+- **Widget Support**: Home screen widgets for quick budget and macro tracking
+- **Macro Tracking**: Detailed protein, carbohydrate, and fat monitoring
 
-## Symbols & Parameters
+## Architecture
 
-| Symbol               | Description                                                            |
-| -------------------- | ---------------------------------------------------------------------- |
-| $t$                  | Current day index                                                      |
-| $C_t$                | Calorie intake on day $t$ (kcal)                                       |
-| $B$                  | User’s daily calorie budget (kcal/day)                                 |
-| $S_t$                | EWMA‑smoothed intake at day $t$ (kcal)                                 |
-| $\alpha$             | EWMA smoothing factor $(0 < \alpha < 1)$                               |
-| $N$                  | Regression window length for weight trend (days)                       |
-| $W_t$                | Body weight on day $t$ (lbs)                                           |
-| $m$                  | Estimated weight‑change rate (lbs/day)                                 |
-| $\rho$               | Energy equivalent of weight change $(3500\ \mathrm{kcal}/\mathrm{lb})$ |
-| $M_{\mathrm{raw},t}$ | Raw maintenance estimate on day $t$ (kcal/day)                         |
+### Technology Stack
+- **Frontend**: SwiftUI with reactive `@Observable` pattern
+- **Data Storage**: SwiftData (app-generated) + HealthKit (external)
+- **Widgets**: WidgetKit with App Groups data sharing
+- **Analytics**: Custom EWMA and linear regression algorithms
 
-## 1. Calorie Credit System
+### Data Flow
+1. **Input**: User entries via SwiftUI forms
+2. **Storage**: SwiftData → HealthKit synchronization
+3. **Analytics**: Combined data processing with EWMA smoothing
+4. **Display**: Reactive UI updates and widget refresh
 
-### 1.1 EWMA Smoothing of Intake
+## Mathematical Specification
 
-Smooth the intake series to filter day‑to‑day noise while weighting recent days more heavily:
+### Implementation Parameters
 
-$$
-S_t = \alpha\,C_{t-1} + (1 - \alpha)\,S_{t-1},\quad S_0 = C_0.
-$$
+| Parameter | Value | Description |
+|-----------|-------|-------------|
+| EWMA α | 0.25 | 7-day smoothing factor |
+| Energy/Weight | 7700 kcal/kg | Conservative energy equivalent |
+| Weight Window | 90 days | Regression period for maintenance |
+| Min Valid Data | 14 days | Required for stable estimates |
 
-* **Interpretation**: $S_t$ is the smoothed estimate of intake for day $t$.
+### Core Algorithms
 
-### 1.2 Credit Calculation
+#### 1. Calorie Credit System
 
-Compute the difference (error) between the user’s budget and the smoothed intake:
+**EWMA Smoothing**:
+$$S_t = \alpha \cdot C_{t-1} + (1 - \alpha) \cdot S_{t-1}$$
 
-$$
-\mathrm{Credit}_t = B - S_t.
-$$
+**Credit Calculation**:
+$$\text{Credit}_t = B - S_t$$
 
-* **Interpretation**: Positive $\mathrm{Credit}_t$ = under budget; negative = over budget.
+**Adjusted Budget**:
+$$B'_t = B + \frac{\text{Credit}_t}{D}$$
 
-## 2. Maintenance Estimation System
+Where $D$ is days remaining in weekly cycle.
 
-### 2.1 Weight Trend via Linear Regression
+#### 2. Maintenance Estimation
 
-Fit a least‑squares line to the last $N$ days of weight to estimate the daily change rate.
-Let
+**Weight Trend** (Linear regression):
+$$m = \frac{\sum(i - \bar{i})(w_i - \bar{w})}{\sum(i - \bar{i})^2}$$
 
-* $i = 0,1,\dots,N-1$
-* $w_i = W_{t-N+1+i}$
+**Energy Imbalance**:
+$$\Delta E = m \times \rho$$
 
-Compute means:
+**Maintenance Estimate**:
+$$M = S_t - \Delta E$$
 
-$$
-\bar i = \frac{1}{N}\sum_{i=0}^{N-1} i,
-\quad
-\bar w = \frac{1}{N}\sum_{i=0}^{N-1} w_i.
-$$
+## Building
 
-Slope (weight‑change rate $m$):
+### Requirements
+- Xcode 15.0+
+- iOS 17.0+ deployment target
+- Swift 5.9+
 
-$$
- m = \frac{\sum_{i=0}^{N-1}(i - \bar i)(w_i - \bar w)}{\sum_{i=0}^{N-1}(i - \bar i)^2}.
-$$
+### Build Commands
+```bash
+# Build the project
+./Scripts/build.sh -b
 
-### 2.2 Energy Imbalance
+# Clean build
+./Scripts/build.sh -c
+```
 
-Convert the weight‑change rate into daily calorie imbalance:
+### Configuration
+1. Configure App Groups in Xcode for widget data sharing
+2. Enable HealthKit entitlements for background delivery
+3. Configure signing for both app and widget targets
 
-$$
-\Delta E_t = m \times \rho.
-$$
+## Development
 
-* Positive $\Delta E_t$ indicates net gain (intake > expenditure).
+### Project Structure
+```
+├── App/                 # Main application
+├── Shared/              # Shared code
+│   ├── Models/         # Data models and protocols
+│   ├── Services/       # Business logic and HealthKit
+│   └── Views/          # SwiftUI components
+├── Widgets/            # Widget extension
+└── Scripts/            # Build automation
+```
 
-### 2.3 Raw Maintenance Estimate
+### Key Patterns
+- **Data Models**: Observable classes with HealthKit sync
+- **Services**: Dependency injection with environment values
+- **Views**: Reactive with automatic refresh on data changes
+- **Analytics**: Pure value types for mathematical operations
 
-Subtract the energy imbalance from smoothed intake:
+## License
 
-$$
-M_{\mathrm{raw},t} = S_t - \Delta E_t.
-$$
-
----
-
-**Minimal Inputs Required**:
-
-* Intake history: $C_{t-1}$ and previous $S_{t-1}$
-* Weight history: $\{W_{t-N+1},\dots,W_t\}$
-* Constants: $\alpha, B, N, \rho$
-
-This specification defines all intermediate computations using only daily calories and weights, yielding noise‑resistant estimates for calorie credit and maintenance needs.
+This project is licensed under the MIT License.

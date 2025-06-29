@@ -30,16 +30,16 @@ public final class MacrosDataService: @unchecked Sendable {
         self.budgetService = budgetService
         self.adjustments = adjustments
         self.date = date
-        logger.info("MacrosDataService initialized.")
+        logger.info("MacrosDataService initialized")
     }
 
     // MARK: - Public Interface
 
-    /// Refresh macros data from HealthKit
+    /// Refresh macros data from HealthKit.
     @MainActor
     public func refresh() async {
         guard !isLoading else {
-            logger.warning("Refresh already in progress...")
+            logger.warning("Refresh already in progress")
             return
         }
         isLoading = true
@@ -50,7 +50,7 @@ public final class MacrosDataService: @unchecked Sendable {
         guard let ewmaRange = yesterday?.dateRange(by: 7, using: .autoupdatingCurrent),
             let currentRange = date.dateRange(using: .autoupdatingCurrent)
         else {
-            logger.error("Failed to calculate date ranges for macros data.")
+            logger.error("Failed to calculate date ranges for macros data")
             isLoading = false
             return
         }
@@ -132,7 +132,7 @@ public final class MacrosDataService: @unchecked Sendable {
                 isLoading = false
             }
         }
-        logger.debug("Macros data refreshed successfully")
+        logger.debug("Macros data refreshed")
     }
 
     /// Start observing HealthKit changes for automatic updates
@@ -158,13 +158,13 @@ public final class MacrosDataService: @unchecked Sendable {
             }
         }
 
-        logger.info("Started observing HealthKit data for macros updates (widgetId: \(widgetId))")
+        logger.info("Started observing HealthKit data for macros (widgetId: \(widgetId))")
     }
 
     /// Stop observing HealthKit changes
     public func stopObserving(widgetId: String = "MacrosDataService") {
         healthKitService.stopObserving(for: widgetId)
-        logger.info("Stopped observing HealthKit data for macros updates")
+        logger.info("Stopped observing HealthKit data for macros")
     }
 }
 

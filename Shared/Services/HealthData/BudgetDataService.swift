@@ -36,7 +36,7 @@ public final class BudgetDataService: @unchecked Sendable {
     @MainActor
     public func refresh() async {
         guard !isLoading else {
-            logger.warning("Refresh already in progress, skipping")
+            logger.warning("Refresh already in progress")
             return
         }
         isLoading = true
@@ -115,7 +115,7 @@ public final class BudgetDataService: @unchecked Sendable {
             }
         }
 
-        logger.debug("Budget data refreshed successfully")
+        logger.debug("Budget data refreshed")
     }
 
     /// Start observing HealthKit changes for automatic updates
@@ -141,12 +141,12 @@ public final class BudgetDataService: @unchecked Sendable {
             }
         }
 
-        logger.info("Started observing HealthKit data for budget updates (widgetId: \(widgetId))")
+        logger.info("Started observing HealthKit data for budget (widgetId: \(widgetId))")
     }
 
     /// Stop observing HealthKit changes
     public func stopObserving(widgetId: String = "BudgetDataService") {
         healthKitService.stopObserving(for: widgetId)
-        logger.info("Stopped observing HealthKit data for budget updates")
+        logger.info("Stopped observing HealthKit data for budget")
     }
 }

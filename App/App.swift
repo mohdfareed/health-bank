@@ -4,24 +4,25 @@ import SwiftData
 import SwiftUI
 import WidgetKit
 
+/// Main application entry point with SwiftData and HealthKit setup.
 @main struct MainApp: App {
     internal let logger = AppLogger.new(for: Self.self)
     let container: ModelContainer
 
     init() {
-        // MARK: Model Container Initialization
+        // MARK: - Model Container Setup
         // ====================================================================
         do {
             self.logger.debug("Initializing model container for \(AppID)")
             self.container = try AppSchema.createContainer()
         } catch {
-            #if !DEBUG  // Production migration logic
+            #if !DEBUG
                 fatalError("Failed to initialize model container: \(error)")
-            #endif  // Debug migration logic
+            #endif
             self.logger.error("Failed to initialize model container: \(error)")
 
-            do {  // Attempt to replace existing container
-                self.logger.warning("Replacing existing model container...")
+            do {
+                self.logger.warning("Replacing existing model container")
                 try ModelContainer().erase()
                 self.container = try AppSchema.createContainer()
             } catch {
@@ -30,7 +31,7 @@ import WidgetKit
                 )
 
                 // Fallback to in-memory container
-                logger.warning("Falling back to in-memory container.")
+                logger.warning("Falling back to in-memory container")
                 self.container = try! .init(
                     for: AppSchema.schema,
                     configurations: .init(isStoredInMemoryOnly: true)
@@ -38,24 +39,25 @@ import WidgetKit
             }
         }
 
-        // MARK: HealthKit Observer Setup
+        // MARK: - HealthKit Observer Setup
         // ====================================================================
         AppHealthKitObserver.shared.startObserving()
-        self.logger.debug("Started HealthKit observer for widget updates")
+        self.logger.debug("Started HealthKit observer")
 
-        // MARK: Background Task Setup
+        // MARK: - Background Task Setup
         // ====================================================================
         #if os(iOS)
             registerBackgroundTasks()
             scheduleBackgroundRefresh()
-            self.logger.debug("Registered background tasks for widget refresh")
+            self.logger.debug("Registered background tasks")
         #endif
     }
 
-    // MARK: Background Tasks
+    // MARK: - Background Tasks
     // ========================================================================
 
     #if os(iOS)
+        /// Registers background app refresh task for widget updates.
         private func registerBackgroundTasks() {
             BGTaskScheduler.shared.register(
                 forTaskWithIdentifier: "com.MohdFareed.HealthVaults.widget-refresh",

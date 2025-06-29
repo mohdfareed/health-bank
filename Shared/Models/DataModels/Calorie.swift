@@ -3,23 +3,23 @@ import SwiftData
 
 // TODO: Add food name
 
-// MARK: - Calories
+// MARK: - Macro Nutrients
 // ============================================================================
 
-/// Represents the different macro nutrients for display and configuration
+/// Macro-nutrient types for categorization and display.
 public enum MacroType: String, CaseIterable, Sendable {
     case protein = "protein"
     case carbs = "carbs"
     case fat = "fat"
 }
 
-/// Represents macro-nutrient breakdown of calories.
+/// Macro-nutrient breakdown for calorie entries.
 public struct CalorieMacros: Codable, Hashable, Sendable {
-    /// Protein contents in grams.
+    /// Protein content in grams.
     public var protein: Double?
-    /// Fat contents in grams.
+    /// Fat content in grams.
     public var fat: Double?
-    /// Carbohydrate contents in grams.
+    /// Carbohydrate content in grams.
     public var carbs: Double?
 
     public init(p: Double? = nil, f: Double? = nil, c: Double? = nil) {
@@ -29,7 +29,10 @@ public struct CalorieMacros: Codable, Hashable, Sendable {
     }
 }
 
-/// Represents dietary calorie intake.
+// MARK: - Dietary Calorie Model
+// ============================================================================
+
+/// Represents dietary calorie intake with optional macro breakdown.
 @Observable public final class DietaryCalorie: HealthData, @unchecked Sendable {
     public let id: UUID
     public let source: DataSource
@@ -37,9 +40,9 @@ public struct CalorieMacros: Codable, Hashable, Sendable {
 
     /// Energy value in kilocalories.
     public var calories: Double
-    // Optional macro-nutrient breakdown
+    /// Optional macro-nutrient breakdown.
     public var macros: CalorieMacros?
-    /// Alcohol contents in standard drinks.
+    /// Alcohol content in standard drinks.
     public var alcohol: Double?
 
     public init(
@@ -47,8 +50,7 @@ public struct CalorieMacros: Codable, Hashable, Sendable {
         macros: CalorieMacros? = nil, alcohol: Double? = nil,
         id: UUID = UUID(),
         source: DataSource = .app,
-        date: Date = Date(),
-
+        date: Date = Date()
     ) {
         self.calories = value
         self.macros = macros
