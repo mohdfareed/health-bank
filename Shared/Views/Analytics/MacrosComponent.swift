@@ -175,29 +175,31 @@ private struct MacroBudgetContent: View {
 
         switch widgetFamily {
         case .systemSmall:
-            VStack(alignment: .leading) {
-                Text(remaining ?? 0, format: CalorieFieldDefinition().formatter)
-                    .fontWeight(.bold)
-                    .font(.title2)
-                    .foregroundColor(remaining ?? 0 >= 0 ? .primary : .red)
-                    .contentTransition(.numericText(value: remaining ?? 0))
-
-                creditContent(format: formatter)
-                    .padding(.bottom, 8)
-
-                HStack {
+            HStack {
+                VStack(alignment: .leading) {
+                    HStack {
+                        Spacer()
+                        ProgressRing(
+                            value: baseBudget ?? 0,
+                            progress: intake ?? 0,
+                            color: color,
+                            tip: budget ?? 0,
+                            tipColor: credit ?? 0 >= 0 ? .green : .red,
+                            icon: icon
+                        )
+                        .font(.headline)
+                        .frame(maxWidth: 60)
+                    }
                     Spacer()
-                    ProgressRing(
-                        value: baseBudget ?? 0,
-                        progress: intake ?? 0,
-                        color: color,
-                        tip: budget ?? 0,
-                        tipColor: credit ?? 0 >= 0 ? .green : .red,
-                        icon: icon
-                    )
-                    .font(.headline)
-                    .frame(maxWidth: 50)
+
+                    Text(remaining ?? 0, format: CalorieFieldDefinition().formatter)
+                        .fontWeight(.bold)
+                        .font(.title)
+                        .foregroundColor(remaining ?? 0 >= 0 ? .primary : .red)
+                        .contentTransition(.numericText(value: remaining ?? 0))
+                    creditContent(format: formatter)
                 }
+                Spacer()
             }
         case .systemMedium:
             VStack(alignment: .center, spacing: 0) {
@@ -243,7 +245,8 @@ private struct MacroBudgetContent: View {
                 icon?
                     .foregroundColor(color)
                     .font(.subheadline)
-                    .frame(width: 24, height: 24, alignment: .leading)
+                    .frame(width: 18, height: 18, alignment: .center)
+                    .padding(.trailing, 8)
             }
 
             Text(intake ?? 0, format: format)
@@ -276,7 +279,8 @@ private struct MacroBudgetContent: View {
             Image.credit
                 .foregroundColor(credit ?? 0 >= 0 ? .green : .red)
                 .font(.headline)
-                .frame(width: 24, height: 24, alignment: .leading)
+                .frame(width: 18, height: 18, alignment: .center)
+                .padding(.trailing, 8)
 
             if let creditValue = credit {
                 ValueView(

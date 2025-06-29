@@ -125,29 +125,31 @@ private struct SmallBudgetLayout: View {
     let budget: BudgetService
 
     var body: some View {
-        VStack(alignment: .leading) {
-            Text(budget.remaining ?? 0, format: CalorieFieldDefinition().formatter)
-                .fontWeight(.bold)
-                .font(.title2)
-                .foregroundColor(budget.remaining ?? 0 >= 0 ? .primary : .red)
-                .contentTransition(.numericText(value: budget.remaining ?? 0))
-
-            CreditContent(data: budget)
-                .padding(.bottom, 8)
-
-            HStack {
+        HStack {
+            VStack(alignment: .leading) {
+                HStack {
+                    Spacer()
+                    ProgressRing(
+                        value: budget.baseBudget ?? 0,
+                        progress: budget.calories.currentIntake ?? 0,
+                        color: .calories,
+                        tip: budget.budget ?? 0,
+                        tipColor: budget.credit ?? 0 >= 0 ? .green : .red,
+                        icon: Image.calories
+                    )
+                    .font(.headline)
+                    .frame(maxWidth: 60)
+                }
                 Spacer()
-                ProgressRing(
-                    value: budget.baseBudget ?? 0,
-                    progress: budget.calories.currentIntake ?? 0,
-                    color: .calories,
-                    tip: budget.budget ?? 0,
-                    tipColor: budget.credit ?? 0 >= 0 ? .green : .red,
-                    icon: Image.calories
-                )
-                .font(.headline)
-                .frame(maxWidth: 50)
+
+                Text(budget.remaining ?? 0, format: CalorieFieldDefinition().formatter)
+                    .fontWeight(.bold)
+                    .font(.title)
+                    .foregroundColor(budget.remaining ?? 0 >= 0 ? .primary : .red)
+                    .contentTransition(.numericText(value: budget.remaining ?? 0))
+                CreditContent(data: budget)
             }
+            Spacer()
         }
     }
 }
@@ -183,7 +185,8 @@ private func BudgetContent(data: BudgetService) -> some View {
             )
             .foregroundColor(.calories)
             .font(.subheadline)
-            .frame(width: 24, height: 24, alignment: .leading)
+            .frame(width: 18, height: 18, alignment: .center)
+            .padding(.trailing, 8)
 
         Text(data.calories.currentIntake ?? 0, format: formatter)
             .fontWeight(.bold)
@@ -219,7 +222,8 @@ private func CreditContent(data: BudgetService) -> some View {
         Image.credit
             .foregroundColor(data.credit ?? 0 >= 0 ? .green : .red)
             .font(.headline)
-            .frame(width: 24, height: 24, alignment: .leading)
+            .frame(width: 18, height: 18, alignment: .center)
+            .padding(.trailing, 8)
 
         if let credit = data.credit {
             ValueView(
