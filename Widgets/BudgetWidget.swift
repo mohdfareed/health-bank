@@ -1,3 +1,4 @@
+import HealthKit
 import HealthVaultsShared
 import SwiftData
 import SwiftUI
@@ -16,8 +17,6 @@ struct BudgetWidget: Widget {
             provider: BudgetTimelineProvider()
         ) { entry in
             BudgetWidgetEntryView(entry: entry)
-                .containerBackground(.fill.tertiary, for: .widget)
-                .widgetURL(URL(string: "healthvaults://dashboard"))
         }
         .configurationDisplayName("Budget")
         .description("Track your daily calorie budget")
@@ -29,14 +28,27 @@ struct BudgetWidgetEntryView: View {
     var entry: BudgetEntry
 
     var body: some View {
+        content
+            .background(Color.clear)
+            .widgetBackground()
+    }
+
+    @ViewBuilder
+    private var content: some View {
         if let budgetService = entry.budgetService {
-            BudgetComponent(
-                date: entry.date,
-                preloadedBudgetService: budgetService
-            )
+            BudgetComponent(preloadedBudgetService: budgetService)
+                .padding()
+                .fontDesign(.rounded)
         } else {
-            Text("Loading...")
-                .foregroundStyle(.secondary)
+            VStack {
+                Image(systemName: "chart.pie.fill")
+                    .font(.title)
+                    .foregroundColor(.secondary)
+                Text("Loading...")
+                    .font(.caption)
+                    .foregroundColor(.secondary)
+            }
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
         }
     }
 }
@@ -74,6 +86,9 @@ struct BudgetTimelineProvider: AppIntentTimelineProvider {
     private func generateEntry(for date: Date, configuration: ConfigurationAppIntent) async
         -> BudgetEntry
     {
+        // Ensure HealthKit observer is running in widget process
+        AppHealthKitObserver.shared.startObserving()
+
         // Get current adjustment from UserGoals using shared helper
         let goals = await WidgetsSettings.getGoals(for: goalsID)
 
@@ -85,12 +100,6 @@ struct BudgetTimelineProvider: AppIntentTimelineProvider {
 
         // Load the data
         await budgetDataService.refresh()
-
-        // Log if budget service is nil for debugging
-        if budgetDataService.budgetService == nil {
-            AppLogger.new(for: BudgetTimelineProvider.self)
-                .warning("Budget data failed to load for BudgetWidget")
-        }
 
         return BudgetEntry(
             date: date,

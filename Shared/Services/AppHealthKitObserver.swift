@@ -68,7 +68,7 @@ public final class AppHealthKitObserver: @unchecked Sendable {
 
         isObserving = true
         logger.info(
-            "Started app-level HealthKit observer for data types: \(dataTypes.map(\.sampleType.identifier))"
+            "Started HealthKit observer for data types: \(dataTypes.map(\.sampleType.identifier))"
         )
     }
 

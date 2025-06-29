@@ -7,9 +7,9 @@ import SwiftUI
 /// The app's name.
 public let AppName = String(localized: "HealthVaults")
 /// The app's bundle identifier.
-public let AppID = Bundle.main.bundleIdentifier ?? "Debug.App"
+public let AppID = "com.MohdFareed.HealthVaults"
 
-// Widget IDs - Each widget type has its own unique identifier
+// Widget IDs - Each widget type needs a unique identifier
 public let BudgetWidgetID = "\(AppID).BudgetWidget"
 public let MacrosWidgetID = "\(AppID).MacrosWidget"
 

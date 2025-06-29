@@ -138,8 +138,6 @@ public final class BudgetDataService: @unchecked Sendable {
         ) { [weak self] in
             Task {
                 await self?.refresh()
-                // Trigger widget refresh when HealthKit data changes
-                WidgetCenter.shared.reloadTimelines(ofKind: BudgetWidgetID)
             }
         }
 

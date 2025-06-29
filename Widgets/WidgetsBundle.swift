@@ -32,6 +32,22 @@ enum WidgetsSettings {
     }
 }
 
+// MARK: - Widget Background Helper
+// ============================================================================
+
+extension View {
+    @ViewBuilder
+    func widgetBackground() -> some View {
+        if #available(iOS 17.0, *) {
+            self.containerBackground(for: .widget) {
+                Color.clear
+            }
+        } else {
+            self
+        }
+    }
+}
+
 // MARK: - Widget Bundle
 // ============================================================================
 

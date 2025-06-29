@@ -150,15 +150,11 @@ public final class MacrosDataService: @unchecked Sendable {
 
         // Use existing HealthKit observer infrastructure
         healthKitService.startObserving(
-            for: widgetId,
-            dataTypes: [.protein, .carbs, .fat],
-            from: startDate,
-            to: endDate
+            for: widgetId, dataTypes: [.protein, .carbs, .fat],
+            from: startDate, to: endDate
         ) { [weak self] in
             Task {
                 await self?.refresh()
-                // Trigger widget refresh when HealthKit data changes
-                WidgetCenter.shared.reloadTimelines(ofKind: MacrosWidgetID)
             }
         }
 

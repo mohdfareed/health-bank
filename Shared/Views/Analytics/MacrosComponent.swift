@@ -68,48 +68,41 @@ public struct MacrosComponent: View {
         .animation(.default, value: currentMacrosService != nil)
         .animation(.default, value: isLoading)
 
-        .onAppear {
-            logger.debug("MacrosComponent appeared")
-            macrosDataService?.startObserving()
-            budgetDataService?.startObserving()
-        }
-        .onDisappear {
-            // Only stop observing if using data services
+        .refreshOnHealthDataChange(
+            for: [.dietaryCalories, .bodyMass, .protein, .carbs, .fat]
+        ) {
             if preloadedMacrosService == nil {
-                budgetDataService?.stopObserving()
-                macrosDataService?.stopObserving()
-                logger.debug("MacrosComponent disappeared, stopped observing")
+                await refresh()
             }
         }
         .task {
             // Only refresh if using data services (not preloaded data)
             if preloadedMacrosService == nil {
-                logger.debug("MacrosComponent: Starting data refresh")
-
-                // Refresh budget data first
-                await budgetDataService?.refresh()
-                logger.debug("MacrosComponent: Budget data refreshed")
-
-                // Once budget is loaded, recreate macros service with budget dependency
-                if let budgetService = budgetDataService?.budgetService {
-                    logger.debug(
-                        "MacrosComponent: Creating MacrosDataService with budget dependency")
-                    let newMacrosDataService = MacrosDataService(
-                        budgetService: budgetService,
-                        adjustments: macroAdjustments,
-                        date: date
-                    )
-                    macrosDataService = newMacrosDataService
-
-                    // Now refresh macros with budget context
-                    await macrosDataService?.refresh()
-                    logger.debug("MacrosComponent: Macros data refreshed with budget context")
-                } else {
-                    logger.warning(
-                        "MacrosComponent: Budget service failed to load, cannot create macros service"
-                    )
-                }
+                await refresh()
             }
+        }
+    }
+
+    /// Refresh data for in-app usage (not widget mode)
+    private func refresh() async {
+        guard preloadedMacrosService == nil else {
+            return
+        }
+
+        // Refresh budget data first
+        await budgetDataService?.refresh()
+
+        // Once budget is loaded, recreate macros service with budget dependency
+        if let budgetService = budgetDataService?.budgetService {
+            let newMacrosDataService = MacrosDataService(
+                budgetService: budgetService,
+                adjustments: macroAdjustments,
+                date: date
+            )
+            macrosDataService = newMacrosDataService
+
+            // Now refresh macros with budget context
+            await macrosDataService?.refresh()
         }
     }
 }
@@ -146,7 +139,7 @@ private struct MacroBudgetContent: View {
 
     var body: some View {
         let formatter = ProteinFieldDefinition().formatter
-        VStack(alignment: .center) {
+        VStack(alignment: .center, spacing: 0) {
             ValueView(
                 measurement: .init(
                     baseValue: .constant(remaining(ring: ring)),
@@ -155,11 +148,11 @@ private struct MacroBudgetContent: View {
                 icon: nil, tint: nil, format: formatter
             )
             .fontWeight(.bold)
-            .font(.title)
+            .font(.headline)
             .foregroundColor(remaining(ring: ring) ?? 0 >= 0 ? .primary : .red)
             .contentTransition(.numericText(value: remaining(ring: ring) ?? 0))
 
-            MacroContent(ring: ring)
+            MacroContent(ring: ring).padding(.bottom, 8)
 
             // Use ProgressRing instead of macros.progress(ring)
             ProgressRing(
@@ -181,12 +174,12 @@ private struct MacroBudgetContent: View {
         HStack(alignment: .firstTextBaseline, spacing: 0) {
             Text(intake(ring: ring) ?? 0, format: formatter)
                 .fontWeight(.bold)
-                .font(.headline)
+                .font(.subheadline)
                 .foregroundColor(.secondary)
                 .contentTransition(.numericText(value: intake(ring: ring) ?? 0))
 
             Text("/")
-                .font(.headline)
+                .font(.subheadline)
                 .foregroundColor(.secondary)
 
             ValueView(
@@ -197,7 +190,7 @@ private struct MacroBudgetContent: View {
                 icon: nil, tint: nil, format: formatter
             )
             .fontWeight(.bold)
-            .font(.headline)
+            .font(.subheadline)
             .foregroundColor(.secondary)
             .contentTransition(.numericText(value: budget(ring: ring) ?? 0))
         }

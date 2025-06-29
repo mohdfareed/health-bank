@@ -82,7 +82,7 @@ private struct BudgetDataLayout: View {
 
     var body: some View {
         HStack {
-            VStack(alignment: .leading, spacing: 8) {
+            VStack(alignment: .leading, spacing: 4) {
                 CalorieContent(data: budget)
                 BudgetContent(data: budget)
                 CreditContent(data: budget)
@@ -116,6 +116,7 @@ private func CalorieContent(data: BudgetService) -> some View {
         .fontWeight(.bold)
         .font(.title)
         .foregroundColor(data.remaining ?? 0 >= 0 ? .primary : .red)
+        .contentTransition(.numericText(value: data.remaining ?? 0))
     }
 }
 
@@ -138,6 +139,10 @@ private func BudgetContent(data: BudgetService) -> some View {
             .fontWeight(.bold)
             .font(.headline)
             .foregroundColor(.secondary)
+            .contentTransition(
+                .numericText(
+                    value: data.calories.currentIntake ?? 0)
+            )
 
         Text("/")
             .font(.headline)
@@ -153,6 +158,7 @@ private func BudgetContent(data: BudgetService) -> some View {
         .fontWeight(.bold)
         .font(.headline)
         .foregroundColor(.secondary)
+        .contentTransition(.numericText(value: data.budget ?? 0))
     }
 }
 
@@ -176,6 +182,7 @@ private func CreditContent(data: BudgetService) -> some View {
             .fontWeight(.bold)
             .font(.headline)
             .foregroundColor(.secondary)
+            .contentTransition(.numericText(value: credit))
         } else {
             Text("No data available")
                 .fontWeight(.bold)

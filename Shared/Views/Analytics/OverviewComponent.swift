@@ -92,6 +92,11 @@ public struct OverviewComponent: View {
             .refreshable {
                 await refresh()
             }
+            .onAppear {
+                Task {
+                    await refresh()
+                }
+            }
 
             .animation(.default, value: macrosDataService.macrosService != nil)
             .animation(.default, value: macrosDataService.isLoading)

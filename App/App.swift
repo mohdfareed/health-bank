@@ -1,6 +1,8 @@
+import BackgroundTasks
 import HealthVaultsShared
 import SwiftData
 import SwiftUI
+import WidgetKit
 
 @main struct MainApp: App {
     internal let logger = AppLogger.new(for: Self.self)
@@ -36,9 +38,54 @@ import SwiftUI
             }
         }
 
-        // Note: Individual components now manage their own HealthKit observers
-        // This provides better granular control and avoids observer conflicts
+        // MARK: HealthKit Observer Setup
+        // ====================================================================
+        AppHealthKitObserver.shared.startObserving()
+        self.logger.debug("Started HealthKit observer for widget updates")
+
+        // MARK: Background Task Setup
+        // ====================================================================
+        #if os(iOS)
+            registerBackgroundTasks()
+            scheduleBackgroundRefresh()
+            self.logger.debug("Registered background tasks for widget refresh")
+        #endif
     }
+
+    // MARK: Background Tasks
+    // ========================================================================
+
+    #if os(iOS)
+        private func registerBackgroundTasks() {
+            BGTaskScheduler.shared.register(
+                forTaskWithIdentifier: "com.MohdFareed.HealthVaults.widget-refresh",
+                using: nil
+            ) { task in
+                self.handleWidgetRefresh(task: task as! BGAppRefreshTask)
+            }
+        }
+
+        private func scheduleBackgroundRefresh() {
+            let request = BGAppRefreshTaskRequest(
+                identifier: "com.MohdFareed.HealthVaults.widget-refresh")
+            request.earliestBeginDate = Date(timeIntervalSinceNow: 15 * 60)  // 15 minutes
+
+            try? BGTaskScheduler.shared.submit(request)
+        }
+
+        private func handleWidgetRefresh(task: BGAppRefreshTask) {
+            // Schedule the next refresh
+            scheduleBackgroundRefresh()
+
+            task.expirationHandler = {
+                task.setTaskCompleted(success: false)
+            }
+
+            // Refresh all widgets
+            WidgetCenter.shared.reloadAllTimelines()
+            task.setTaskCompleted(success: true)
+        }
+    #endif
 
     // MARK: App Setup
     // ========================================================================
@@ -46,6 +93,9 @@ import SwiftUI
         WindowGroup {
             AppView()
                 .modelContainer(self.container)
+                .onAppear {
+                    AppHealthKitObserver.shared.startObserving()
+                }
         }
     }
 }

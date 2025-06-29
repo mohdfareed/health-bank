@@ -1,3 +1,4 @@
+import HealthKit
 import HealthVaultsShared
 import SwiftData
 import SwiftUI
@@ -16,11 +17,9 @@ struct MacrosWidget: Widget {
             provider: MacrosTimelineProvider()
         ) { entry in
             MacrosWidgetEntryView(entry: entry)
-                .containerBackground(.fill.tertiary, for: .widget)
-                .widgetURL(URL(string: "healthvaults://dashboard"))
         }
         .configurationDisplayName("Macros")
-        .description("Track your daily macronutrient intake")
+        .description("Track your daily macro-nutrient intake")
         .supportedFamilies([.systemMedium])
     }
 }
@@ -29,14 +28,27 @@ struct MacrosWidgetEntryView: View {
     var entry: MacrosEntry
 
     var body: some View {
+        content
+            .background(Color.clear)
+            .widgetBackground()
+    }
+
+    @ViewBuilder
+    private var content: some View {
         if let macrosService = entry.macrosService {
-            MacrosComponent(
-                date: entry.date,
-                preloadedMacrosService: macrosService
-            )
+            MacrosComponent(preloadedMacrosService: macrosService)
+                .padding()
+                .fontDesign(.rounded)
         } else {
-            Text("Loading...")
-                .foregroundStyle(.secondary)
+            VStack {
+                Image(systemName: "chart.pie.fill")
+                    .font(.title)
+                    .foregroundColor(.secondary)
+                Text("Loading...")
+                    .font(.caption)
+                    .foregroundColor(.secondary)
+            }
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
         }
     }
 }
@@ -48,13 +60,14 @@ struct MacrosTimelineProvider: AppIntentTimelineProvider {
     @AppStorage(.userGoals) private var goalsID: UUID
 
     func placeholder(in context: Context) -> MacrosEntry {
-        MacrosEntry(date: Date(), macrosService: nil, configuration: ConfigurationAppIntent())
+        return MacrosEntry(
+            date: Date(), macrosService: nil, configuration: ConfigurationAppIntent())
     }
 
     func snapshot(for configuration: ConfigurationAppIntent, in context: Context) async
         -> MacrosEntry
     {
-        await generateEntry(for: Date(), configuration: configuration)
+        return await generateEntry(for: Date(), configuration: configuration)
     }
 
     func timeline(for configuration: ConfigurationAppIntent, in context: Context) async -> Timeline<
@@ -63,7 +76,7 @@ struct MacrosTimelineProvider: AppIntentTimelineProvider {
         let currentDate = Date()
         let entry = await generateEntry(for: currentDate, configuration: configuration)
 
-        // Schedule next update in 1 hour to refresh the data
+        // Schedule next update in 1 hour to refresh the data (same as BudgetWidget)
         let nextUpdate =
             Calendar.current.date(byAdding: .hour, value: 1, to: currentDate) ?? currentDate
 
@@ -74,6 +87,9 @@ struct MacrosTimelineProvider: AppIntentTimelineProvider {
     private func generateEntry(for date: Date, configuration: ConfigurationAppIntent) async
         -> MacrosEntry
     {
+        // Ensure HealthKit observer is running in widget process
+        AppHealthKitObserver.shared.startObserving()
+
         // Get current macros and adjustment from UserGoals using shared helper
         let goals = await WidgetsSettings.getGoals(for: goalsID)
 
@@ -99,9 +115,6 @@ struct MacrosTimelineProvider: AppIntentTimelineProvider {
             // Load macros data with budget dependency
             await macrosDataService.refresh()
             macrosService = macrosDataService.macrosService
-        } else {
-            AppLogger.new(for: MacrosTimelineProvider.self)
-                .warning("Budget data failed to load for MacrosWidget, using nil macros service")
         }
 
         return MacrosEntry(
