@@ -179,16 +179,7 @@ private struct MacroBudgetContent: View {
                 VStack(alignment: .leading) {
                     HStack {
                         Spacer()
-                        ProgressRing(
-                            value: baseBudget ?? 0,
-                            progress: intake ?? 0,
-                            color: color,
-                            tip: budget ?? 0,
-                            tipColor: credit ?? 0 >= 0 ? .green : .red,
-                            icon: icon
-                        )
-                        .font(.headline)
-                        .frame(maxWidth: 60)
+                        progressRing
                     }
                     Spacer()
 
@@ -308,13 +299,12 @@ private struct MacroBudgetContent: View {
         ProgressRing(
             value: baseBudget ?? 0,
             progress: intake ?? 0,
+            threshold: budget ?? 0,
             color: color,
-            tip: budget ?? 0,
-            tipColor: credit ?? 0 >= 0 ? .green : .red,
+            thresholdColor: credit ?? 0 >= 0 ? .green : .red,
             icon: icon
         )
-        .font(.subheadline)
-        .frame(maxWidth: 50)
+        .frame(maxWidth: 60)
     }
 
     // MARK: - Data Accessors

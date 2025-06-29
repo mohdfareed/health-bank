@@ -109,12 +109,11 @@ private struct MediumBudgetLayout: View {
             ProgressRing(
                 value: budget.baseBudget ?? 0,
                 progress: budget.calories.currentIntake ?? 0,
+                threshold: budget.budget ?? 0,
                 color: .calories,
-                tip: budget.budget ?? 0,
-                tipColor: budget.credit ?? 0 >= 0 ? .green : .red,
+                thresholdColor: budget.credit ?? 0 >= 0 ? .green : .red,
                 icon: Image.calories
             )
-            .font(.title)
             .frame(maxWidth: 80)
         }
     }
@@ -132,12 +131,11 @@ private struct SmallBudgetLayout: View {
                     ProgressRing(
                         value: budget.baseBudget ?? 0,
                         progress: budget.calories.currentIntake ?? 0,
+                        threshold: budget.budget ?? 0,
                         color: .calories,
-                        tip: budget.budget ?? 0,
-                        tipColor: budget.credit ?? 0 >= 0 ? .green : .red,
+                        thresholdColor: budget.credit ?? 0 >= 0 ? .green : .red,
                         icon: Image.calories
                     )
-                    .font(.headline)
                     .frame(maxWidth: 60)
                 }
                 Spacer()
