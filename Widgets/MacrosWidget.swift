@@ -77,24 +77,36 @@ struct MacrosTimelineProvider: AppIntentTimelineProvider {
         // Get current macros and adjustment from UserGoals using shared helper
         let goals = await WidgetsSettings.getGoals(for: goalsID)
 
-        // Create the data services with proper coordination
+        // Create the budget data service first
         let budgetDataService = BudgetDataService(
             adjustment: goals?.adjustment,
             date: date
         )
 
-        let macrosDataService = MacrosDataService(
-            adjustments: goals?.macros,
-            date: date
-        )
-
-        // Load the data in proper order
+        // Load budget data first
         await budgetDataService.refresh()
-        await macrosDataService.refresh()
+
+        // Only create macros data service if budget data loaded successfully
+        var macrosService: MacrosAnalyticsService? = nil
+
+        if let budgetService = budgetDataService.budgetService {
+            let macrosDataService = MacrosDataService(
+                budgetService: budgetService,
+                adjustments: goals?.macros,
+                date: date
+            )
+
+            // Load macros data with budget dependency
+            await macrosDataService.refresh()
+            macrosService = macrosDataService.macrosService
+        } else {
+            AppLogger.new(for: MacrosTimelineProvider.self)
+                .warning("Budget data failed to load for MacrosWidget, using nil macros service")
+        }
 
         return MacrosEntry(
             date: date,
-            macrosService: macrosDataService.macrosService,
+            macrosService: macrosService,
             configuration: configuration
         )
     }

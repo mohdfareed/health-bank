@@ -52,12 +52,17 @@ public struct BudgetComponent: View {
         }
         .animation(.default, value: currentBudgetService != nil)
         .animation(.default, value: isLoading)
-
         .onAppear {
-            logger.debug("BudgetComponent appeared")
+            // Only start observing if using data service (not preloaded data)
+            if preloadedBudgetService == nil {
+                dataService?.startObserving(widgetId: "BudgetComponent")
+            }
         }
         .onDisappear {
-            logger.debug("BudgetComponent disappeared")
+            // Only stop observing if using data service
+            if preloadedBudgetService == nil {
+                dataService?.stopObserving(widgetId: "BudgetComponent")
+            }
         }
         .task {
             // Only refresh if using data service (not preloaded data)
@@ -84,12 +89,12 @@ private struct BudgetDataLayout: View {
             }
             Spacer()
             ProgressRing(
-                value: budget.remaining ?? 0,
-                progress: budget.budget ?? 0,
+                value: budget.baseBudget ?? 0,
+                progress: budget.calories.currentIntake ?? 0,
                 color: .calories,
-                tip: nil,
-                tipColor: nil,
-                icon: Image(systemName: "flame.fill")
+                tip: budget.budget ?? 0,
+                tipColor: budget.credit ?? 0 >= 0 ? .green : .red,
+                icon: Image.calories
             )
             .font(.title)
             .frame(maxWidth: 80)
@@ -121,7 +126,7 @@ private func BudgetContent(data: BudgetService) -> some View {
         Image.maintenance
             .symbolEffect(
                 .rotate.byLayer,
-                options: data.isValid
+                options: data.isValid && data.weight.isValid
                     ? .nonRepeating
                     : .repeat(.periodic(delay: 5))
             )

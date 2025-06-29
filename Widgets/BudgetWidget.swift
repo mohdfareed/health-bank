@@ -85,6 +85,13 @@ struct BudgetTimelineProvider: AppIntentTimelineProvider {
 
         // Load the data
         await budgetDataService.refresh()
+
+        // Log if budget service is nil for debugging
+        if budgetDataService.budgetService == nil {
+            AppLogger.new(for: BudgetTimelineProvider.self)
+                .warning("Budget data failed to load for BudgetWidget")
+        }
+
         return BudgetEntry(
             date: date,
             budgetService: budgetDataService.budgetService,

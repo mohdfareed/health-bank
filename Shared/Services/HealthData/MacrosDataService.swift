@@ -19,7 +19,6 @@ public final class MacrosDataService: @unchecked Sendable {
     private let date: Date
 
     private let logger = AppLogger.new(for: MacrosDataService.self)
-    private var observerWidgetId: String?
 
     public init(
         healthKitService: HealthKitService? = nil,
@@ -148,7 +147,6 @@ public final class MacrosDataService: @unchecked Sendable {
 
         let startDate = ewmaRange.from
         let endDate = currentRange.to
-        observerWidgetId = widgetId
 
         // Use existing HealthKit observer infrastructure
         healthKitService.startObserving(
@@ -159,6 +157,8 @@ public final class MacrosDataService: @unchecked Sendable {
         ) { [weak self] in
             Task {
                 await self?.refresh()
+                // Trigger widget refresh when HealthKit data changes
+                WidgetCenter.shared.reloadTimelines(ofKind: MacrosWidgetID)
             }
         }
 
@@ -166,16 +166,9 @@ public final class MacrosDataService: @unchecked Sendable {
     }
 
     /// Stop observing HealthKit changes
-    public func stopObserving() {
-        if let widgetId = observerWidgetId {
-            healthKitService.stopObserving(for: widgetId)
-            observerWidgetId = nil
-            logger.info("Stopped observing HealthKit data for macros updates")
-        }
-    }
-
-    deinit {
-        stopObserving()
+    public func stopObserving(widgetId: String = "MacrosDataService") {
+        healthKitService.stopObserving(for: widgetId)
+        logger.info("Stopped observing HealthKit data for macros updates")
     }
 }
 

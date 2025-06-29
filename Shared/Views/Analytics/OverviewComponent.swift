@@ -10,6 +10,11 @@ public struct OverviewComponent: View {
     @State private var budgetDataService: BudgetDataService
     @State private var macrosDataService: MacrosDataService
 
+    // Store initial parameters for rebuilding services
+    private let adjustment: Double?
+    private let macroAdjustments: CalorieMacros?
+    private let date: Date
+
     private let logger = AppLogger.new(for: OverviewComponent.self)
 
     public init(
@@ -17,12 +22,18 @@ public struct OverviewComponent: View {
         macroAdjustments: CalorieMacros? = nil,
         date: Date = Date()
     ) {
+        // Store parameters
+        self.adjustment = adjustment
+        self.macroAdjustments = macroAdjustments
+        self.date = date
+
         self._budgetDataService = State(
             initialValue: BudgetDataService(
                 adjustment: adjustment,
                 date: date
             ))
 
+        // Note: MacrosDataService will be created properly in refresh() with budget dependency
         self._macrosDataService = State(
             initialValue: MacrosDataService(
                 adjustments: macroAdjustments,
@@ -38,7 +49,7 @@ public struct OverviewComponent: View {
             ) {
                 LabeledContent {
                     HStack {
-                        if macrosDataService.macrosService?.calories?.weight.isValid != true {
+                        if budgetDataService.budgetService?.isValid != true {
                             Image.maintenance.foregroundStyle(Color.calories)
                                 .symbolEffect(
                                     .rotate.byLayer,
@@ -50,9 +61,7 @@ public struct OverviewComponent: View {
                     Label {
                         HStack {
                             Text("Overview")
-                            if macrosDataService.macrosService?.calories?.weight.isValid != true
-                                || macrosDataService.macrosService?.calories?.isValid != true
-                            {
+                            if budgetDataService.budgetService?.weight.isValid != true {
                                 Text("Calibrating...")
                                     .textScale(.secondary)
                                     .foregroundStyle(.secondary)
@@ -64,26 +73,8 @@ public struct OverviewComponent: View {
                 }
             }
         }
-        .animation(.default, value: macrosDataService.macrosService != nil)
-        .animation(.default, value: macrosDataService.isLoading)
-        .animation(.default, value: budgetDataService.isLoading)
-        .onAppear {
-            logger.debug("OverviewComponent appeared")
-        }
-        .onDisappear {
-            budgetDataService.stopObserving()
-            macrosDataService.stopObserving()
-            logger.debug("OverviewComponent disappeared, stopped observing")
-        }
-        .task {
-            await refresh()
-        }
-        .onChange(of: budgetDataService.budgetService != nil) { _, _ in
-            // When budget data changes, refresh macros with the new budget data
-            Task {
-                await macrosDataService.refresh()
-            }
-        }
+        .animation(.default, value: budgetDataService.budgetService?.isValid)
+        .animation(.default, value: budgetDataService.budgetService?.weight.isValid)
     }
 
     @ViewBuilder var overviewPage: some View {
@@ -98,28 +89,34 @@ public struct OverviewComponent: View {
                 }
             }
             .navigationTitle("Overview")
-
             .refreshable {
                 await refresh()
             }
+
+            .animation(.default, value: macrosDataService.macrosService != nil)
+            .animation(.default, value: macrosDataService.isLoading)
+            .animation(.default, value: budgetDataService.isLoading)
+
             .onAppear {
-                Task {
-                    await refresh()
-                }
+                logger.debug("OverviewPage appeared, starting observers")
+                budgetDataService.startObserving(widgetId: "OverviewPage.Budget")
+            }
+            .onDisappear {
+                logger.debug("OverviewPage disappeared, stopping observers")
+                budgetDataService.stopObserving(widgetId: "OverviewPage.Budget")
             }
         }
-        .animation(.default, value: macrosDataService.macrosService == nil)
     }
 
     @ViewBuilder var overviewSections: some View {
         Section("Calories") {
             calorieValue(
-                macrosDataService.macrosService?.calories?.calories.currentIntake,
+                budgetDataService.budgetService?.calories.currentIntake,
                 title: "Intake",
                 icon: Image.calories
             )
             calorieValue(
-                macrosDataService.macrosService?.calories?.calories.smoothedIntake,
+                budgetDataService.budgetService?.calories.smoothedIntake,
                 title: "EWMA",
                 icon: Image.calories
             )
@@ -127,19 +124,19 @@ public struct OverviewComponent: View {
 
         Section {
             weightValue(
-                macrosDataService.macrosService?.calories?.weight.weightSlope,
+                budgetDataService.budgetService?.weight.weightSlope,
                 title: "Change",
                 icon: Image.weight
             )
             calorieValue(
-                macrosDataService.macrosService?.calories?.weight.maintenance,
+                budgetDataService.budgetService?.weight.maintenance,
                 title: "Maintenance",
                 icon: Image.calories
             )
         } header: {
             Text("Maintenance")
         } footer: {
-            if macrosDataService.macrosService?.calories?.weight.isValid != true {
+            if budgetDataService.budgetService?.weight.isValid != true {
                 VStack(alignment: .leading) {
                     HStack(alignment: .firstTextBaseline) {
                         Image.maintenance.foregroundStyle(Color.calories)
@@ -156,25 +153,25 @@ public struct OverviewComponent: View {
 
         Section("Budget") {
             calorieValue(
-                macrosDataService.macrosService?.calories?.remaining,
+                budgetDataService.budgetService?.remaining,
                 title: "Remaining",
                 icon: Image.calories
             )
 
             calorieValue(
-                macrosDataService.macrosService?.calories?.baseBudget,
+                budgetDataService.budgetService?.baseBudget,
                 title: "Base",
                 icon: Image.calories
             )
 
             calorieValue(
-                macrosDataService.macrosService?.calories?.budget,
+                budgetDataService.budgetService?.budget,
                 title: "Adjusted",
                 icon: Image.calories
             )
 
             calorieValue(
-                macrosDataService.macrosService?.calories?.credit,
+                budgetDataService.budgetService?.credit,
                 title: "Credit",
                 icon: Image.calories
             )
@@ -196,6 +193,21 @@ public struct OverviewComponent: View {
                         Task {
                             await refresh()
                         }
+                    }
+
+                    .animation(.default, value: macrosDataService.macrosService != nil)
+                    .animation(.default, value: macrosDataService.isLoading)
+                    .animation(.default, value: budgetDataService.isLoading)
+
+                    .onAppear {
+                        logger.debug("OverviewPage appeared, starting observers")
+                        budgetDataService.startObserving(widgetId: "OverviewPage.Budget")
+                        macrosDataService.startObserving(widgetId: "OverviewPage.Macros")
+                    }
+                    .onDisappear {
+                        logger.debug("OverviewPage disappeared, stopping observers")
+                        budgetDataService.stopObserving(widgetId: "OverviewPage.Budget")
+                        macrosDataService.stopObserving(widgetId: "OverviewPage.Macros")
                     }
                 }
                 .navigationTitle("Protein")
@@ -220,6 +232,24 @@ public struct OverviewComponent: View {
                             await refresh()
                         }
                     }
+
+                    .animation(.default, value: macrosDataService.macrosService != nil)
+                    .animation(.default, value: macrosDataService.isLoading)
+                    .animation(.default, value: budgetDataService.isLoading)
+
+                    .onAppear {
+                        logger.debug("OverviewPage appeared, starting observers")
+                        budgetDataService.startObserving(widgetId: "OverviewPage.Budget")
+                        macrosDataService.startObserving(widgetId: "OverviewPage.Macros")
+                        Task {
+                            await refresh()
+                        }
+                    }
+                    .onDisappear {
+                        logger.debug("OverviewPage disappeared, stopping observers")
+                        budgetDataService.stopObserving(widgetId: "OverviewPage.Budget")
+                        macrosDataService.stopObserving(widgetId: "OverviewPage.Macros")
+                    }
                 }
                 .navigationTitle("Carbohydrates")
             ) {
@@ -242,6 +272,24 @@ public struct OverviewComponent: View {
                         Task {
                             await refresh()
                         }
+                    }
+
+                    .animation(.default, value: macrosDataService.macrosService != nil)
+                    .animation(.default, value: macrosDataService.isLoading)
+                    .animation(.default, value: budgetDataService.isLoading)
+
+                    .onAppear {
+                        logger.debug("OverviewPage appeared, starting observers")
+                        budgetDataService.startObserving(widgetId: "OverviewPage.Budget")
+                        macrosDataService.startObserving(widgetId: "OverviewPage.Macros")
+                        Task {
+                            await refresh()
+                        }
+                    }
+                    .onDisappear {
+                        logger.debug("OverviewPage disappeared, stopping observers")
+                        budgetDataService.stopObserving(widgetId: "OverviewPage.Budget")
+                        macrosDataService.stopObserving(widgetId: "OverviewPage.Macros")
                     }
                 }
                 .navigationTitle("Fat")
@@ -456,7 +504,20 @@ public struct OverviewComponent: View {
     func refresh() async {
         // First refresh budget data
         await budgetDataService.refresh()
-        // Then refresh macros data
-        await macrosDataService.refresh()
+
+        // Create new macros data service with budget dependency if budget loaded successfully
+        if let budgetService = budgetDataService.budgetService {
+            await MainActor.run {
+                macrosDataService = MacrosDataService(
+                    budgetService: budgetService,
+                    adjustments: macroAdjustments,
+                    date: date
+                )
+            }
+            await macrosDataService.refresh()
+        } else {
+            // Fallback: try to refresh macros without budget dependency
+            await macrosDataService.refresh()
+        }
     }
 }

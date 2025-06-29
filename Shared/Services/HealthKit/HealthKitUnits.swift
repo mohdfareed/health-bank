@@ -38,9 +38,14 @@ extension HealthKitService {
         }
 
         await MainActor.run {
+            // Thread-safe cache update - replace entire cache atomically
+            var newCache: [HKQuantityType: Unit] = [:]
             for (type, unit) in units {
-                Self.unitsCache[type] = unit.measurementUnit
+                if let measurementUnit = unit.measurementUnit {
+                    newCache[type] = measurementUnit
+                }
             }
+            Self.unitsCache = newCache
         }
     }
 }

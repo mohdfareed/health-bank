@@ -5,9 +5,6 @@ import SwiftUI
 @main struct MainApp: App {
     internal let logger = AppLogger.new(for: Self.self)
     let container: ModelContainer
-    private lazy var widgetObserver = AppWidgetObserver(
-        healthKitService: EnvironmentValues().healthKit
-    )
 
     init() {
         // MARK: Model Container Initialization
@@ -39,8 +36,8 @@ import SwiftUI
             }
         }
 
-        // Start single app-level widget observer
-        widgetObserver.startObserving()
+        // Note: Individual components now manage their own HealthKit observers
+        // This provides better granular control and avoids observer conflicts
     }
 
     // MARK: App Setup

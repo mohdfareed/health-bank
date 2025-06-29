@@ -6,6 +6,7 @@ import SwiftUI
 struct RecordList<T: HealthData>: View {
     @DataQuery var records: [T]
     @State private var isCreating = false
+    @Environment(\.healthKit) private var healthKit
 
     private let dataModel: HealthDataModel
     private let definition: RecordDefinition
@@ -24,6 +25,16 @@ struct RecordList<T: HealthData>: View {
         List {
             ForEach(records) { record in
                 RecordListRow(record: record, definition: definition)
+                    .swipeActions {
+                        if record.source == .app {
+                            Button(role: .destructive) {
+                                runTask { await delete(record) }
+                            } label: {
+                                Label("Delete", systemImage: "trash")
+                            }
+                            .tint(.red)
+                        }
+                    }
             }
             loadMoreButton()
         }
@@ -79,6 +90,16 @@ struct RecordList<T: HealthData>: View {
                 ProgressView()
                 Spacer()
             }
+        }
+    }
+
+    private func delete(_ record: T) async {
+        do {
+            try await dataModel.query().delete(record, store: healthKit)
+        } catch {
+            AppLogger.new(for: record).error(
+                "Failed to delete record: \(error)"
+            )
         }
     }
 

@@ -106,10 +106,13 @@ struct CalorieMaintenanceField: View {
             isInternal: false
         )
         .onAppear {
-            // Component appeared - data will refresh via app-level observer
+            budgetDataService.startObserving(widgetId: "GoalsView")
+            Task {
+                await budgetDataService.refresh()
+            }
         }
         .onDisappear {
-            // Component disappeared
+            budgetDataService.stopObserving(widgetId: "GoalsView")
         }
         .task {
             await budgetDataService.refresh()

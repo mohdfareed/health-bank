@@ -6,16 +6,16 @@ import WidgetKit
 // ============================================================================
 
 public struct BudgetService: Sendable {
-    let calories: DataAnalyticsService
-    let weight: WeightAnalyticsService
+    public let calories: DataAnalyticsService
+    public let weight: WeightAnalyticsService
 
     /// User-defined budget adjustment (kcal)
-    let adjustment: Double?
+    public let adjustment: Double?
     /// The first day of the week, e.g. Sunday or Monday
-    let firstWeekday: Int
+    public let firstWeekday: Int
 
     /// The days until the next budget cycle starts
-    var daysLeft: Int {
+    public var daysLeft: Int {
         let cal = Calendar.autoupdatingCurrent
         let date = calories.currentIntakeDateRange?.from ?? Date()
         let nextWeek = date.next(firstWeekday, using: cal)!
@@ -24,7 +24,7 @@ public struct BudgetService: Sendable {
     }
 
     /// The base daily budget: B = M + A (kcal)
-    var baseBudget: Double? {
+    public var baseBudget: Double? {
         guard let weight = weight.maintenance else { return adjustment }
         guard let adjustment = adjustment else { return weight }
         return weight + adjustment

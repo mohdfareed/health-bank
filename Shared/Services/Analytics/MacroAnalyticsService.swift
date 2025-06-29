@@ -17,24 +17,24 @@ public struct MacrosAnalyticsService: Sendable {
 
     // MARK: - Properties
 
-    let calories: BudgetService?
-    let protein: DataAnalyticsService
-    let carbs: DataAnalyticsService
-    let fat: DataAnalyticsService
+    public let calories: BudgetService?
+    public let protein: DataAnalyticsService
+    public let carbs: DataAnalyticsService
+    public let fat: DataAnalyticsService
 
     /// User-defined budget adjustment (kcal)
-    let adjustments: CalorieMacros?
+    public let adjustments: CalorieMacros?
 
     /// The base daily budget: B = M + A (kcal)
-    var baseBudgets: CalorieMacros? {
+    public var baseBudgets: CalorieMacros? {
         guard let adjustments = adjustments else { return nil }
         guard let budget = calories?.baseBudget else { return nil }
 
         // Calculate the macro budgets based on the adjustments
         let macroCalories = CalorieMacros(
-            p: adjustments.protein == nil ? nil : budget * adjustments.protein! / 100,
-            f: adjustments.fat == nil ? nil : budget * adjustments.fat! / 100,
-            c: adjustments.carbs == nil ? nil : budget * adjustments.carbs! / 100,
+            p: adjustments.protein.map { budget * $0 / 100 },
+            f: adjustments.fat.map { budget * $0 / 100 },
+            c: adjustments.carbs.map { budget * $0 / 100 }
         )
 
         // convert calories to grams

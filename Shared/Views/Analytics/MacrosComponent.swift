@@ -11,6 +11,8 @@ public struct MacrosComponent: View {
     @State private var macrosDataService: MacrosDataService?
 
     private let preloadedMacrosService: MacrosAnalyticsService?
+    private let macroAdjustments: CalorieMacros?
+    private let date: Date
     private let logger = AppLogger.new(for: MacrosComponent.self)
 
     public init(
@@ -20,6 +22,8 @@ public struct MacrosComponent: View {
         preloadedMacrosService: MacrosAnalyticsService? = nil
     ) {
         self.preloadedMacrosService = preloadedMacrosService
+        self.macroAdjustments = macroAdjustments
+        self.date = date
 
         // Only create data services if no preloaded data is provided
         if preloadedMacrosService == nil {
@@ -66,6 +70,8 @@ public struct MacrosComponent: View {
 
         .onAppear {
             logger.debug("MacrosComponent appeared")
+            macrosDataService?.startObserving()
+            budgetDataService?.startObserving()
         }
         .onDisappear {
             // Only stop observing if using data services
@@ -78,17 +84,30 @@ public struct MacrosComponent: View {
         .task {
             // Only refresh if using data services (not preloaded data)
             if preloadedMacrosService == nil {
-                // Refresh budget data first, then macros with budget context
+                logger.debug("MacrosComponent: Starting data refresh")
+
+                // Refresh budget data first
                 await budgetDataService?.refresh()
-                await macrosDataService?.refresh()
-            }
-        }
-        .onChange(of: budgetDataService?.budgetService != nil) {
-            // Only refresh if using data services
-            if preloadedMacrosService == nil {
-                Task {
-                    // When budget data changes, refresh macros with new context
+                logger.debug("MacrosComponent: Budget data refreshed")
+
+                // Once budget is loaded, recreate macros service with budget dependency
+                if let budgetService = budgetDataService?.budgetService {
+                    logger.debug(
+                        "MacrosComponent: Creating MacrosDataService with budget dependency")
+                    let newMacrosDataService = MacrosDataService(
+                        budgetService: budgetService,
+                        adjustments: macroAdjustments,
+                        date: date
+                    )
+                    macrosDataService = newMacrosDataService
+
+                    // Now refresh macros with budget context
                     await macrosDataService?.refresh()
+                    logger.debug("MacrosComponent: Macros data refreshed with budget context")
+                } else {
+                    logger.warning(
+                        "MacrosComponent: Budget service failed to load, cannot create macros service"
+                    )
                 }
             }
         }
@@ -138,16 +157,17 @@ private struct MacroBudgetContent: View {
             .fontWeight(.bold)
             .font(.title)
             .foregroundColor(remaining(ring: ring) ?? 0 >= 0 ? .primary : .red)
+            .contentTransition(.numericText(value: remaining(ring: ring) ?? 0))
 
             MacroContent(ring: ring)
 
             // Use ProgressRing instead of macros.progress(ring)
             ProgressRing(
-                value: budget(ring: ring) ?? 0,
+                value: baseBudget(ring: ring) ?? 0,
                 progress: intake(ring: ring) ?? 0,
                 color: color(ring: ring),
-                tip: nil,
-                tipColor: nil,
+                tip: budget(ring: ring) ?? 0,
+                tipColor: credit(ring: ring) ?? 0 >= 0 ? .green : .red,
                 icon: icon(ring: ring)
             )
             .font(.subheadline)
@@ -163,6 +183,7 @@ private struct MacroBudgetContent: View {
                 .fontWeight(.bold)
                 .font(.headline)
                 .foregroundColor(.secondary)
+                .contentTransition(.numericText(value: intake(ring: ring) ?? 0))
 
             Text("/")
                 .font(.headline)
@@ -178,6 +199,7 @@ private struct MacroBudgetContent: View {
             .fontWeight(.bold)
             .font(.headline)
             .foregroundColor(.secondary)
+            .contentTransition(.numericText(value: budget(ring: ring) ?? 0))
         }
     }
 
@@ -211,6 +233,28 @@ private struct MacroBudgetContent: View {
             return macros.remaining?.carbs
         case .fat:
             return macros.remaining?.fat
+        }
+    }
+
+    private func baseBudget(ring: MacrosAnalyticsService.MacroRing) -> Double? {
+        switch ring {
+        case .protein:
+            return macros.baseBudgets?.protein
+        case .carbs:
+            return macros.baseBudgets?.carbs
+        case .fat:
+            return macros.baseBudgets?.fat
+        }
+    }
+
+    private func credit(ring: MacrosAnalyticsService.MacroRing) -> Double? {
+        switch ring {
+        case .protein:
+            return macros.credits?.protein
+        case .carbs:
+            return macros.credits?.carbs
+        case .fat:
+            return macros.credits?.fat
         }
     }
 
