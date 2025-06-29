@@ -66,18 +66,16 @@ $$M = S_t - \Delta E$$
 ## Building
 
 ### Requirements
-- Xcode 15.0+
-- iOS 17.0+ deployment target
-- Swift 5.9+
+- Xcode 26.0+
+- iOS 18.0+ deployment target
+- Swift 6.2+
 
 ### Build Commands
 ```bash
 # Build the project
-./Scripts/build.sh -b
-
-# Clean build
-./Scripts/build.sh -c
+./Scripts/build.sh [-b|--beta]
 ```
+where `-b|--beta` uses the beta Xcode coomand line tools.
 
 ### Configuration
 1. Configure App Groups in Xcode for widget data sharing
@@ -88,8 +86,8 @@ $$M = S_t - \Delta E$$
 
 ### Project Structure
 ```
-├── App/                 # Main application
-├── Shared/              # Shared code
+├── App/                # Main application
+├── Shared/             # Shared code
 │   ├── Models/         # Data models and protocols
 │   ├── Services/       # Business logic and HealthKit
 │   └── Views/          # SwiftUI components
@@ -105,4 +103,4 @@ $$M = S_t - \Delta E$$
 
 ## License
 
-This project is licensed under the MIT License.
+This project is licensed under the [MIT License](./LICENSE).
