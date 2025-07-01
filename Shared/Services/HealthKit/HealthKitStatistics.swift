@@ -74,23 +74,19 @@ extension HealthKitService {
                 }
 
                 if let error = error {
-                    self.logger.error(
-                        "Failed to fetch statistics for \(quantityType.identifier): \(error.localizedDescription)"
-                    )
-                    continuation.resume(returning: [:])
-                    return
-                }
+                    let id = quantityType.identifier
+                    let msg = error.localizedDescription
 
-                guard let collection = collection else {
-                    self.logger.warning(
-                        "No statistics collection received for \(quantityType.identifier)")
+                    self.logger.error(
+                        "Failed to fetch statistics for \(id): \(msg)"
+                    )
                     continuation.resume(returning: [:])
                     return
                 }
 
                 var results: [Date: Double] = [:]
                 // Enumerate through the statistics, ensuring the range matches the query.
-                collection.enumerateStatistics(
+                collection?.enumerateStatistics(
                     from: startDate, to: endDate
                 ) { statistics, stop in
                     var value: Double?
@@ -108,10 +104,19 @@ extension HealthKitService {
                     } else if options.contains(.discreteMax) {
                         value = statistics.maximumQuantity()?
                             .doubleValue(for: resultUnit)
+                    } else if options.contains(.duration) {
+                        value = statistics.duration()?
+                            .doubleValue(for: resultUnit)
+                    } else if options.contains(.mostRecent) {
+                        value = statistics.mostRecentQuantity()?
+                            .doubleValue(for: resultUnit)
+                    } else {  // Default to cumulative sum
+                        value = statistics.sumQuantity()?
+                            .doubleValue(for: resultUnit)
                     }
 
-                    if let val = value {
-                        results[statistics.startDate] = val
+                    if let value {
+                        results[statistics.startDate] = value
                     }
                 }
                 continuation.resume(returning: results)

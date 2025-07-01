@@ -6,42 +6,9 @@ import SwiftData
 // ============================================================================
 
 public struct DietaryQuery: HealthQuery {
-    @MainActor public func fetch(
-        from: Date, to: Date, limit: Int? = nil,
-        store: HealthKitService
-    ) async -> [DietaryCalorie] {
-        let correlations = await store.fetchFoodSamples(
-            from: from, to: to, limit: limit
-        )
-        let foods = await fetchFoods(correlations)
-
-        let calories = await fetchCalories(
-            from: from, to: to, limit: limit, store: store
-        )
-        let alcohols = await fetchAlcohol(
-            from: from, to: to, limit: limit, store: store
-        )
-
-        // filter out any calories that are already included in the foods
-        let filteredCalories = calories.filter { calorie in
-            !correlations.contains(where: {
-                $0.objects.contains(where: { $0.uuid == calorie.id })
-            })
-        }
-
-        // filter out any alcohol that is already included in the foods
-        let filteredAlcohols = alcohols.filter { alcohol in
-            !correlations.contains(where: {
-                $0.objects.contains(where: { $0.uuid == alcohol.id })
-            })
-        }
-
-        return (foods + filteredCalories + filteredAlcohols).sorted {
-            $0.date > $1.date
-        }
-    }
-
-    public func save(_ data: DietaryCalorie, store: HealthKitService) async throws {
+    public func save(
+        _ data: DietaryCalorie, store: HealthKitService
+    ) async throws {
         try await delete(data, store: store)
         var samples = [HKSample]()
 
@@ -51,7 +18,8 @@ public struct DietaryQuery: HealthQuery {
         )
         .converted(to: UnitEnergy.kilocalories).value
         let calorieQuantity = HKQuantity(
-            unit: .kilocalorie(), doubleValue: caloriesInKcal
+            unit: HealthKitDataType.dietaryCalories.baseUnit,
+            doubleValue: caloriesInKcal
         )
         let calorieSample = HKQuantitySample(
             type: HKQuantityType(.dietaryEnergyConsumed),
@@ -64,7 +32,8 @@ public struct DietaryQuery: HealthQuery {
         if let macros = data.macros {
             if let protein = macros.protein {
                 let proteinQuantity = HKQuantity(
-                    unit: .gram(), doubleValue: protein
+                    unit: HealthKitDataType.protein.baseUnit,
+                    doubleValue: protein
                 )
                 let proteinSample = HKQuantitySample(
                     type: HKQuantityType(.dietaryProtein),
@@ -75,7 +44,8 @@ public struct DietaryQuery: HealthQuery {
             }
             if let fat = macros.fat {
                 let fatQuantity = HKQuantity(
-                    unit: .gram(), doubleValue: fat
+                    unit: HealthKitDataType.fat.baseUnit,
+                    doubleValue: fat
                 )
                 let fatSample = HKQuantitySample(
                     type: HKQuantityType(.dietaryFatTotal),
@@ -86,7 +56,8 @@ public struct DietaryQuery: HealthQuery {
             }
             if let carbs = macros.carbs {
                 let carbsQuantity = HKQuantity(
-                    unit: .gram(), doubleValue: carbs
+                    unit: HealthKitDataType.carbs.baseUnit,
+                    doubleValue: carbs
                 )
                 let carbsSample = HKQuantitySample(
                     type: HKQuantityType(.dietaryCarbohydrates),
@@ -103,7 +74,8 @@ public struct DietaryQuery: HealthQuery {
                 value: alcohol, unit: UnitDefinition.alcohol.baseUnit
             ).converted(to: UnitVolume.standardDrink).value
             let alcoholQuantity = HKQuantity(
-                unit: .count(), doubleValue: alcoholInDrinks
+                unit: HealthKitDataType.alcohol.baseUnit,
+                doubleValue: alcoholInDrinks
             )
             let alcoholSample = HKQuantitySample(
                 type: HKQuantityType(.numberOfAlcoholicBeverages),
@@ -160,6 +132,41 @@ public struct DietaryQuery: HealthQuery {
         )
     }
 
+    @MainActor public func fetch(
+        from: Date, to: Date, limit: Int? = nil,
+        store: HealthKitService
+    ) async -> [DietaryCalorie] {
+        let correlations = await store.fetchFoodSamples(
+            from: from, to: to, limit: limit
+        )
+        let foods = await fetchFoods(correlations)
+
+        let calories = await fetchCalories(
+            from: from, to: to, limit: limit, store: store
+        )
+        let alcohols = await fetchAlcohol(
+            from: from, to: to, limit: limit, store: store
+        )
+
+        // filter out any calories that are already included in the foods
+        let filteredCalories = calories.filter { calorie in
+            !correlations.contains(where: {
+                $0.objects.contains(where: { $0.uuid == calorie.id })
+            })
+        }
+
+        // filter out any alcohol that is already included in the foods
+        let filteredAlcohols = alcohols.filter { alcohol in
+            !correlations.contains(where: {
+                $0.objects.contains(where: { $0.uuid == alcohol.id })
+            })
+        }
+
+        return (foods + filteredCalories + filteredAlcohols).sorted {
+            $0.date > $1.date
+        }
+    }
+
     private func fetchAlcohol(
         from: Date, to: Date, limit: Int? = nil,
         store: HealthKitService
@@ -199,7 +206,7 @@ public struct DietaryQuery: HealthQuery {
 
         return samples.compactMap { sample in
             let caloriesInKcal = sample.quantity.doubleValue(
-                for: .kilocalorie()
+                for: HealthKitDataType.dietaryCalories.baseUnit
             )
             let calories = UnitDefinition.calorie.asBase(
                 caloriesInKcal, from: .kilocalories
@@ -214,25 +221,34 @@ public struct DietaryQuery: HealthQuery {
         }
     }
 
-    private func fetchFoods(_ correlations: [HKCorrelation])
-        async -> [DietaryCalorie]
-    {
+    private func fetchFoods(
+        _ correlations: [HKCorrelation]
+    ) async -> [DietaryCalorie] {
         return correlations.compactMap { correlation in
             let calories = correlation.objects(
                 for: HKQuantityType(.dietaryEnergyConsumed)
-            ).compactMap { $0 as? HKQuantitySample }.sum(as: .kilocalorie())
+            ).compactMap { $0 as? HKQuantitySample }
+                .sum(as: HealthKitDataType.dietaryCalories.baseUnit)
+
             let protein = correlation.objects(
                 for: HKQuantityType(.dietaryProtein)
-            ).compactMap { $0 as? HKQuantitySample }.sum(as: .gram())
+            ).compactMap { $0 as? HKQuantitySample }
+                .sum(as: HealthKitDataType.protein.baseUnit)
+
             let fat = correlation.objects(
                 for: HKQuantityType(.dietaryFatTotal)
-            ).compactMap { $0 as? HKQuantitySample }.sum(as: .gram())
+            ).compactMap { $0 as? HKQuantitySample }
+                .sum(as: HealthKitDataType.fat.baseUnit)
+
             let carbs = correlation.objects(
                 for: HKQuantityType(.dietaryCarbohydrates)
-            ).compactMap { $0 as? HKQuantitySample }.sum(as: .gram())
+            ).compactMap { $0 as? HKQuantitySample }
+                .sum(as: HealthKitDataType.carbs.baseUnit)
+
             let alcohol = correlation.objects(
                 for: HKQuantityType(.numberOfAlcoholicBeverages)
-            ).compactMap { $0 as? HKQuantitySample }.sum(as: .count())
+            ).compactMap { $0 as? HKQuantitySample }
+                .sum(as: HealthKitDataType.alcohol.baseUnit)
 
             let caloriesInBase = UnitDefinition.calorie.asBase(
                 calories ?? 0, from: .kilocalories

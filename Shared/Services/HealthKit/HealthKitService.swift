@@ -49,17 +49,13 @@ public class HealthKitService: @unchecked Sendable {
         let dataTypes = HealthKitDataType.allCases.map { $0.sampleType }
         for dataType in dataTypes {
             store.enableBackgroundDelivery(
-                for: dataType,
-                frequency: .immediate
+                for: dataType, frequency: .immediate
             ) { [weak self] success, error in
                 if let error = error {
+                    let id = dataType.identifier
+                    let msg = error.localizedDescription
                     self?.logger.error(
-                        "Failed to enable background delivery for \(dataType.identifier): \(error)")
-                } else if success {
-                    self?.logger.info("Enabled background delivery for \(dataType.identifier)")
-                } else {
-                    self?.logger.warning(
-                        "Background delivery not enabled for \(dataType.identifier)"
+                        "Failed to enable background delivery for \(id): \(msg)"
                     )
                 }
             }

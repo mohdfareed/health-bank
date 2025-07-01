@@ -109,3 +109,20 @@ extension HKUnit {
         }
     }
 }
+
+extension HealthKitDataType {
+    public var baseUnit: HKUnit {
+        switch self {
+        case .dietaryCalories:
+            return .kilocalorie()
+        // case .activeCalories, .basalCalories:
+        //     return .kilocalorie()
+        case .protein, .carbs, .fat:
+            return .gram()
+        case .bodyMass:
+            return .gramUnit(with: .kilo)
+        case .alcohol:  // Corresponds to numberOfAlcoholicBeverages
+            return .count()
+        }
+    }
+}
